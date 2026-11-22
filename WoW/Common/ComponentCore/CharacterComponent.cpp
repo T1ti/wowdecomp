@@ -52,7 +52,7 @@
 #include "Engine/Source/Tempest/CMath.h"
 
 // STATIC: 0x009F6A00
-static int32_t s_itemPriority[NUM_ITEM_SLOTS][NUM_COMPONENT_SECTIONS] = {
+static int32_t s_itemPriority[NUM_ITEM_SLOT][NUM_COMPONENT_SECTIONS] = {
     { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
     { -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 },
     { 0, 0, -1, 0, 0, -1, -1, -1, -1, -1 },
@@ -530,8 +530,10 @@ void CCharacterComponent::RemoveLinkpt(CM2Model* model, MODEL_ATTACHMENT_ID link
 
 // VERIFY: 91d44195 auto
 // OFFSET: 0x004E7A30
-ITEM_SLOT CCharacterComponent::GetItemSlotForInvType(INVENTORY_TYPES invType) {
-    switch (invType) {
+ITEM_SLOT CCharacterComponent::GetItemSlotForInvType(INVENTORY_TYPES type) {
+    STORM_ASSERT(type <= INDEX_NUMSLOTS);
+
+    switch (type) {
         case INVTYPE_HEAD:
             return ITEMSLOT_HEAD;
 
@@ -567,14 +569,16 @@ ITEM_SLOT CCharacterComponent::GetItemSlotForInvType(INVENTORY_TYPES invType) {
             return ITEMSLOT_TABARD;
 
         default:
-            return NUM_ITEM_SLOTS;
+            return NUM_ITEM_SLOT;
     }
 }
 
 // VERIFY: 3e0b0936 auto
 // OFFSET: 0x004E7AF0
-INVENTORY_SLOTS CCharacterComponent::GetInvSlotForItemSlot(ITEM_SLOT itemSlot) {
-    switch (itemSlot) {
+INVENTORY_SLOTS CCharacterComponent::GetInvSlotForItemSlot(ITEM_SLOT slot) {
+    STORM_ASSERT(slot <= NUM_ITEM_SLOT);
+
+    switch (slot) {
         case ITEMSLOT_HEAD:
             return INVSLOT_HEAD;
 
@@ -1410,14 +1414,14 @@ void CCharacterComponent::CreateRequestFO() {
 // OFFSET: 0x004E9510
 void CCharacterComponent::UpdateSections() {
     if (this->m_flags & FLAGS::TEXTURES_DIRTY) {
-        GxTexUpdate(TextureGetGxTex(this->m_baseSkinTexture, 1, nullptr), 0, 0, s_textureSize, s_textureSize, 1);
+        GxTexUpdate(TextureGetGxTex(this->m_baseTexture, 1, nullptr), 0, 0, s_textureSize, s_textureSize, 1);
         return;
     }
 
     for (int32_t section = 0; section < NUM_COMPONENT_SECTIONS; section++) {
         if ((1 << section) & this->m_dirtySections) {
             const CompSectionInfo& info = s_sectionInfo[section];
-            GxTexUpdate(TextureGetGxTex(this->m_baseSkinTexture, 1, nullptr), info.m_pos.x, info.m_pos.y, info.m_pos.x + info.m_size.x, info.m_pos.y + info.m_size.y, 1);
+            GxTexUpdate(TextureGetGxTex(this->m_baseTexture, 1, nullptr), info.m_pos.x, info.m_pos.y, info.m_pos.x + info.m_size.x, info.m_pos.y + info.m_size.y, 1);
         }
     }
 }
@@ -1613,6 +1617,8 @@ static void ComputeMipLevels(MipBits* src, MipBits* dst) {
 // VERIFY: 1f11ee93 manual
 // OFFSET: 0x004E9D50
 void CCharacterComponent::ValidateComponentData(ComponentData* data, COMPONENT_CONTEXT context) {
+    STORM_ASSERT(data);
+
     CharacterPreferences& prefs = data->m_preferences;
     COMPONENT_SELECTION selection = GetSelectionFromContext(context, prefs.m_classId);
 
@@ -1738,7 +1744,7 @@ void CCharacterComponent::ReplaceExtraSkinTexture(const char* debug) {
     CTexture* texture = CreateTexture(s_path, &s_status);
 
     if (texture) {
-        this->m_data.m_model->ReplaceTexture(M2TEX_EXTRA_SKIN, texture);
+        this->m_data.model2->ReplaceTexture(M2TEX_EXTRA_SKIN, texture);
         HandleClose(reinterpret_cast<HOBJECT>(texture));
     }
 }
@@ -1760,7 +1766,7 @@ void CCharacterComponent::ReplaceHairTexture(int32_t hairStyleID, const char* de
     CTexture* texture = CreateTexture(s_path, &s_status);
 
     if (texture) {
-        this->m_data.m_model->ReplaceTexture(M2TEX_HAIR, texture);
+        this->m_data.model2->ReplaceTexture(M2TEX_HAIR, texture);
         HandleClose(reinterpret_cast<HOBJECT>(texture));
     }
 }
@@ -2177,6 +2183,8 @@ MODEL_ATTACHMENT_ID CCharacterComponent::AddHandItem(CM2Model* model, const Item
 // VERIFY: 9faafec0 auto
 // OFFSET: 0x004EAF70
 void CCharacterComponent::RemoveVisuals(CM2Model* model) {
+    STORM_ASSERT(model);
+
     model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_TORSOBLOODFRONT);
     model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_TORSOBLOODBACK);
     model->DetachAllChildrenById(MODEL_ATTACHMENT_ID::ATTACH_BREATH);
@@ -3437,25 +3445,25 @@ void CCharacterComponent::GeosRenderPrep() {
         }
     }
 
-    CM2Model* model = this->m_data.m_model;
+    CM2Model* model = this->m_data.model2;
     model->SetGeometryVisible(CHARACTER_GEOSET_ID::BASE_MODEL, CHARACTER_GEOSET_ID::VISIBILITY_RANGE_END, 0);
     model->SetGeometryVisible(CHARACTER_GEOSET_ID::BASE_MODEL, CHARACTER_GEOSET_ID::BASE_MODEL, 1);
 
     for (int32_t i = 0; i < NUM_CHARGEOSETS; i++) {
         if (i == CHARGEOSET_EYEEFFECTS && eyeGlow) {
-            this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::EYEEFFECTS_VARIANT_3, CHARACTER_GEOSET_ID::EYEEFFECTS_VARIANT_3, 1);
+            this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::EYEEFFECTS_VARIANT_3, CHARACTER_GEOSET_ID::EYEEFFECTS_VARIANT_3, 1);
         } else {
-            this->m_data.m_model->SetGeometryVisible(this->m_data.m_geosets[i], this->m_data.m_geosets[i], 1);
+            this->m_data.model2->SetGeometryVisible(this->m_data.m_geosets[i], this->m_data.m_geosets[i], 1);
         }
     }
 
     ItemDisplayInfoRec rec;
 
     if (this->m_itemDisplayID[ITEMSLOT_GLOVES] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_GLOVES], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
-        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::GLOVE_DEFAULT, CHARACTER_GEOSET_ID::GLOVE_LAST, 0);
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::GLOVE_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::GLOVE_DEFAULT, 1);
+        this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::GLOVE_DEFAULT, CHARACTER_GEOSET_ID::GLOVE_LAST, 0);
+        this->m_data.model2->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::GLOVE_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::GLOVE_DEFAULT, 1);
     } else if (this->m_itemDisplayID[ITEMSLOT_CHEST] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_CHEST], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::SLEEVES_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::SLEEVES_DEFAULT, 1);
+        this->m_data.model2->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::SLEEVES_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::SLEEVES_DEFAULT, 1);
     }
 
     int32_t layer;
@@ -3467,7 +3475,7 @@ void CCharacterComponent::GeosRenderPrep() {
     }
 
     if (layer >= 7 && this->m_itemDisplayID[ITEMSLOT_SHIRT] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_SHIRT], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::SLEEVES_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::SLEEVES_DEFAULT, 1);
+        this->m_data.model2->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::SLEEVES_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::SLEEVES_DEFAULT, 1);
     }
 
     bool robe = false;
@@ -3475,70 +3483,70 @@ void CCharacterComponent::GeosRenderPrep() {
     bool tabard = false;
 
     if (this->m_itemDisplayID[ITEMSLOT_CHEST] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_CHEST], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE]) {
-        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::BOOT_DEFAULT, CHARACTER_GEOSET_ID::BOOT_LAST, 0);
-        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTS_VARIANT_2, CHARACTER_GEOSET_ID::PANTS_LAST, 0);
-        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTDOUBLET_BASE, CHARACTER_GEOSET_ID::PANTDOUBLET_LAST, 0);
-        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::ROBE_BASE, CHARACTER_GEOSET_ID::ROBE_LAST, 0);
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] + CHARACTER_GEOSET_ID::ROBE_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] + CHARACTER_GEOSET_ID::ROBE_DEFAULT, 1);
+        this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::BOOT_DEFAULT, CHARACTER_GEOSET_ID::BOOT_LAST, 0);
+        this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTS_VARIANT_2, CHARACTER_GEOSET_ID::PANTS_LAST, 0);
+        this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTDOUBLET_BASE, CHARACTER_GEOSET_ID::PANTDOUBLET_LAST, 0);
+        this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::ROBE_BASE, CHARACTER_GEOSET_ID::ROBE_LAST, 0);
+        this->m_data.model2->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] + CHARACTER_GEOSET_ID::ROBE_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] + CHARACTER_GEOSET_ID::ROBE_DEFAULT, 1);
         robe = true;
     } else if (this->m_itemDisplayID[ITEMSLOT_PANTS] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_PANTS], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] && !(this->m_flags & FLAGS::HIDE_PANTS_AND_BELT)) {
-        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::BOOT_DEFAULT, CHARACTER_GEOSET_ID::BOOT_LAST, 0);
-        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTS_VARIANT_2, CHARACTER_GEOSET_ID::PANTS_LAST, 0);
-        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTDOUBLET_BASE, CHARACTER_GEOSET_ID::PANTDOUBLET_LAST, 0);
-        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::ROBE_BASE, CHARACTER_GEOSET_ID::ROBE_LAST, 0);
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] + CHARACTER_GEOSET_ID::ROBE_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] + CHARACTER_GEOSET_ID::ROBE_DEFAULT, 1);
+        this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::BOOT_DEFAULT, CHARACTER_GEOSET_ID::BOOT_LAST, 0);
+        this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTS_VARIANT_2, CHARACTER_GEOSET_ID::PANTS_LAST, 0);
+        this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTDOUBLET_BASE, CHARACTER_GEOSET_ID::PANTDOUBLET_LAST, 0);
+        this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::ROBE_BASE, CHARACTER_GEOSET_ID::ROBE_LAST, 0);
+        this->m_data.model2->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] + CHARACTER_GEOSET_ID::ROBE_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::ROBE] + CHARACTER_GEOSET_ID::ROBE_DEFAULT, 1);
         dress = true;
     } else {
         if (this->m_itemDisplayID[ITEMSLOT_BOOTS] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_BOOTS], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
-            this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::BOOT_DEFAULT, CHARACTER_GEOSET_ID::BOOT_LAST, 0);
-            this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTS_DEFAULT, CHARACTER_GEOSET_ID::PANTS_DEFAULT, 1);
-            this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::BOOT_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::BOOT_DEFAULT, 1);
+            this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::BOOT_DEFAULT, CHARACTER_GEOSET_ID::BOOT_LAST, 0);
+            this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTS_DEFAULT, CHARACTER_GEOSET_ID::PANTS_DEFAULT, 1);
+            this->m_data.model2->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::BOOT_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::BOOT_DEFAULT, 1);
         } else if (this->m_itemDisplayID[ITEMSLOT_PANTS] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_PANTS], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] && !(this->m_flags & FLAGS::HIDE_PANTS_AND_BELT)) {
-            this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] + CHARACTER_GEOSET_ID::PANTS_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] + CHARACTER_GEOSET_ID::PANTS_DEFAULT, 1);
+            this->m_data.model2->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] + CHARACTER_GEOSET_ID::PANTS_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] + CHARACTER_GEOSET_ID::PANTS_DEFAULT, 1);
         } else {
-            this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTS_DEFAULT, CHARACTER_GEOSET_ID::PANTS_DEFAULT, 1);
+            this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::PANTS_DEFAULT, CHARACTER_GEOSET_ID::PANTS_DEFAULT, 1);
         }
 
         if (this->m_itemDisplayID[ITEMSLOT_TABARD] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_TABARD], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
-            this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::TABARD_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::TABARD_DEFAULT, 1);
+            this->m_data.model2->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::TABARD_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::TABARD_DEFAULT, 1);
             tabard = true;
         }
     }
 
     if (this->m_flags & FLAGS::TABARD_PREVIEW) {
-        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::TABARD_DEFAULT, CHARACTER_GEOSET_ID::TABARD_DEFAULT, 1);
+        this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::TABARD_DEFAULT, CHARACTER_GEOSET_ID::TABARD_DEFAULT, 1);
 
         if (!robe && !dress) {
-            this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::TABARD_VARIANT_2, CHARACTER_GEOSET_ID::TABARD_VARIANT_2, 1);
+            this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::TABARD_VARIANT_2, CHARACTER_GEOSET_ID::TABARD_VARIANT_2, 1);
         }
     }
 
     if (!robe) {
         if (!tabard && this->m_itemDisplayID[ITEMSLOT_SHIRT] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_SHIRT], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY]) {
-            this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] + CHARACTER_GEOSET_ID::DOUBLET_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] + CHARACTER_GEOSET_ID::DOUBLET_DEFAULT, 1);
+            this->m_data.model2->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] + CHARACTER_GEOSET_ID::DOUBLET_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::SECONDARY] + CHARACTER_GEOSET_ID::DOUBLET_DEFAULT, 1);
         }
 
         if (!(this->m_flags & FLAGS::HIDE_PANTS_AND_BELT) && this->m_itemDisplayID[ITEMSLOT_PANTS] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_PANTS], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
             if (rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] > 2) {
-                this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::ROBE_BASE, CHARACTER_GEOSET_ID::ROBE_LAST, 0);
-                this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::PANTDOUBLET_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::PANTDOUBLET_DEFAULT, 1);
+                this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::ROBE_BASE, CHARACTER_GEOSET_ID::ROBE_LAST, 0);
+                this->m_data.model2->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::PANTDOUBLET_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::PANTDOUBLET_DEFAULT, 1);
             } else if (!tabard) {
-                this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::PANTDOUBLET_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::PANTDOUBLET_DEFAULT, 1);
+                this->m_data.model2->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::PANTDOUBLET_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::PANTDOUBLET_DEFAULT, 1);
             }
         }
     }
 
     if (this->m_itemDisplayID[ITEMSLOT_CAPE] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_CAPE], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
-        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::CAPE_BASE, CHARACTER_GEOSET_ID::CAPE_LAST, 0);
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::CAPE_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::CAPE_DEFAULT, 1);
+        this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::CAPE_BASE, CHARACTER_GEOSET_ID::CAPE_LAST, 0);
+        this->m_data.model2->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::CAPE_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::CAPE_DEFAULT, 1);
     }
 
     if (this->m_itemDisplayID[ITEMSLOT_BELT] && g_itemDisplayInfoDB.GetRecord(this->m_itemDisplayID[ITEMSLOT_BELT], &rec) && rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY]) {
-        this->m_data.m_model->SetGeometryVisible(CHARACTER_GEOSET_ID::BELT_BASE, CHARACTER_GEOSET_ID::BELT_LAST, 0);
-        this->m_data.m_model->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::BELT_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::BELT_DEFAULT, 1);
+        this->m_data.model2->SetGeometryVisible(CHARACTER_GEOSET_ID::BELT_BASE, CHARACTER_GEOSET_ID::BELT_LAST, 0);
+        this->m_data.model2->SetGeometryVisible(rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::BELT_DEFAULT, rec.m_geosetGroup[ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY] + CHARACTER_GEOSET_ID::BELT_DEFAULT, 1);
     }
 
-    this->m_data.m_model->OptimizeVisibleGeometry();
+    this->m_data.model2->OptimizeVisibleGeometry();
     this->m_flags &= ~FLAGS::GEOSETS_DIRTY;
 }
 
@@ -3554,7 +3562,7 @@ void CCharacterComponent::PrepSections() {
 
         if (!(this->m_flags & FLAGS::TEXTURES_DIRTY) && this->m_gxTexFormat != GxTex_Dxt1) {
             const CompSectionInfo& info = s_sectionInfo[section];
-            GxTexUpdate(TextureGetGxTex(this->m_baseSkinTexture, 1, nullptr), info.m_pos.x, info.m_pos.y, info.m_pos.x + info.m_size.x, info.m_pos.y + info.m_size.y, 1);
+            GxTexUpdate(TextureGetGxTex(this->m_baseTexture, 1, nullptr), info.m_pos.x, info.m_pos.y, info.m_pos.x + info.m_size.x, info.m_pos.y + info.m_size.y, 1);
         }
     }
 
@@ -3567,14 +3575,14 @@ void CCharacterComponent::PrepSections() {
     }
 
     if (this->m_flags & FLAGS::TEXTURES_DIRTY) {
-        GxTexUpdate(TextureGetGxTex(this->m_baseSkinTexture, 1, nullptr), 0, 0, s_textureSize, s_textureSize, 1);
+        GxTexUpdate(TextureGetGxTex(this->m_baseTexture, 1, nullptr), 0, 0, s_textureSize, s_textureSize, 1);
         return;
     }
 
     for (int32_t section = 0; section < NUM_COMPONENT_SECTIONS; section++) {
         if ((1 << section) & this->m_dirtySections) {
             const CompSectionInfo& info = s_sectionInfo[section];
-            GxTexUpdate(TextureGetGxTex(this->m_baseSkinTexture, 1, nullptr), info.m_pos.x, info.m_pos.y, info.m_pos.x + info.m_size.x, info.m_pos.y + info.m_size.y, 1);
+            GxTexUpdate(TextureGetGxTex(this->m_baseTexture, 1, nullptr), info.m_pos.x, info.m_pos.y, info.m_pos.x + info.m_size.x, info.m_pos.y + info.m_size.y, 1);
         }
     }
 }
@@ -3690,7 +3698,7 @@ inline ITEM_SLOT CCharacterComponent::GetItemSlotForInvSlot(INVENTORY_SLOTS invS
             return ITEMSLOT_TABARD;
 
         default:
-            return NUM_ITEM_SLOTS;
+            return NUM_ITEM_SLOT;
     }
 }
 
@@ -3706,7 +3714,7 @@ void CCharacterComponent::RemoveItem(ITEM_SLOT itemSlot) {
     switch (itemSlot) {
         case ITEMSLOT_HEAD: {
             this->m_data.m_geosets[CHARGEOSET_HAIR] = GetConditionalGeoset(&this->m_data.m_preferences);
-            CCharacterComponent::RemoveLinkpt(this->m_data.m_model, ATTACH_HELM);
+            CCharacterComponent::RemoveLinkpt(this->m_data.model2, ATTACH_HELM);
             CharacterFacialHairStylesRec* styleRec = GetConditionalFacialHairStyle(&this->m_data.m_preferences);
 
             if (styleRec) {
@@ -3723,8 +3731,8 @@ void CCharacterComponent::RemoveItem(ITEM_SLOT itemSlot) {
         }
 
         case ITEMSLOT_SHOULDER:
-            CCharacterComponent::RemoveLinkpt(this->m_data.m_model, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERL);
-            CCharacterComponent::RemoveLinkpt(this->m_data.m_model, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERR);
+            CCharacterComponent::RemoveLinkpt(this->m_data.model2, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERL);
+            CCharacterComponent::RemoveLinkpt(this->m_data.model2, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERR);
             this->m_itemDisplayID[itemSlot] = 0;
             return;
 
@@ -3749,7 +3757,7 @@ void CCharacterComponent::RemoveItem(ITEM_SLOT itemSlot) {
 
         case ITEMSLOT_11:
             if (this->m_itemSlotForAttachSlot[ATTACH_SHEATH_MAINHAND] == ITEMSLOT_11) {
-                CCharacterComponent::RemoveLinkpt(this->m_data.m_model, ATTACH_SHEATH_MAINHAND);
+                CCharacterComponent::RemoveLinkpt(this->m_data.model2, ATTACH_SHEATH_MAINHAND);
                 this->m_itemSlotForAttachSlot[ATTACH_SHEATH_MAINHAND] = ITEMSLOT_NONE;
             }
 
@@ -3779,7 +3787,7 @@ void CCharacterComponent::RemoveItem(ITEM_SLOT itemSlot) {
 void CCharacterComponent::RemoveItemBySlot(INVENTORY_SLOTS invSlot) {
     ITEM_SLOT itemSlot = CCharacterComponent::GetItemSlotForInvSlot(invSlot);
 
-    if (itemSlot != NUM_ITEM_SLOTS) {
+    if (itemSlot != NUM_ITEM_SLOT) {
         this->RemoveItem(itemSlot);
     }
 }
@@ -3789,7 +3797,7 @@ void CCharacterComponent::RemoveItemBySlot(INVENTORY_SLOTS invSlot) {
 void CCharacterComponent::RemoveItemByType(INVENTORY_TYPES invType) {
     ITEM_SLOT itemSlot = CCharacterComponent::GetItemSlotForInvType(invType);
 
-    if (itemSlot != NUM_ITEM_SLOTS) {
+    if (itemSlot != NUM_ITEM_SLOT) {
         this->RemoveItem(itemSlot);
     }
 }
@@ -3818,7 +3826,7 @@ int32_t CCharacterComponent::GetHelmModelFilePath(ItemDisplayInfoRec& rec, const
 // VERIFY: 05b10ee3 auto
 // OFFSET: 0x004EF020
 bool CCharacterComponent::IsHelmModelCorrect() {
-    CM2Model* attached = this->m_data.m_model->m_attachList;
+    CM2Model* attached = this->m_data.model2->m_attachList;
 
     while (attached && attached->m_attachmentId != ATTACH_HELM) {
         attached = attached->m_attachNext;
@@ -3855,7 +3863,7 @@ void CCharacterComponent::AddHelm(int32_t itemVisual) {
     strcat(s_buffer, ".blp");
     strcpy(s_pathEnd2, s_buffer);
 
-    CCharacterComponent::AddLink(this->m_data.m_model, ATTACH_HELM, s_path, s_path2, itemVisual, displayRec);
+    CCharacterComponent::AddLink(this->m_data.model2, ATTACH_HELM, s_path, s_path2, itemVisual, displayRec);
 
     HelmetGeosetVisDataRec* visRec = g_helmetGeosetVisDataDB.GetRecord(displayRec->m_helmetGeosetVisID[this->m_data.m_preferences.m_sexID]);
 
@@ -3916,7 +3924,7 @@ int32_t CCharacterComponent::GetQuiverModelFilePath(ItemDisplayInfoRec& rec, con
 // VERIFY: f69cbf50 auto
 // OFFSET: 0x004EF300
 bool CCharacterComponent::IsQuiverModelCorrect() {
-    CM2Model* attached = this->m_data.m_model->m_attachList;
+    CM2Model* attached = this->m_data.model2->m_attachList;
 
     while (attached && attached->m_attachmentId != ATTACH_SHEATH_MAINHAND) {
         attached = attached->m_attachNext;
@@ -3954,7 +3962,7 @@ void CCharacterComponent::AddQuiver(int32_t itemVisual) {
     strcpy(s_pathEnd2, s_buffer);
 
     this->m_itemSlotForAttachSlot[ATTACH_SHEATH_MAINHAND] = ITEMSLOT_11;
-    CCharacterComponent::AddLink(this->m_data.m_model, ATTACH_SHEATH_MAINHAND, s_path, s_path2, itemVisual, displayRec);
+    CCharacterComponent::AddLink(this->m_data.model2, ATTACH_SHEATH_MAINHAND, s_path, s_path2, itemVisual, displayRec);
 }
 
 // VERIFY: 54fa8c8a manual
@@ -4009,7 +4017,7 @@ int32_t CCharacterComponent::BuildShoulderItemPaths(ItemDisplayInfoRec& rec, con
 // VERIFY: 9f80d347 auto
 // OFFSET: 0x004EF710
 int32_t CCharacterComponent::AreShoulderModelsCorrect() {
-    CM2Model* left = this->m_data.m_model->m_attachList;
+    CM2Model* left = this->m_data.model2->m_attachList;
 
     while (left && left->m_attachmentId != MODEL_ATTACHMENT_ID::ATTACH_SHOULDERL) {
         left = left->m_attachNext;
@@ -4019,7 +4027,7 @@ int32_t CCharacterComponent::AreShoulderModelsCorrect() {
         return 0;
     }
 
-    CM2Model* right = this->m_data.m_model->m_attachList;
+    CM2Model* right = this->m_data.model2->m_attachList;
 
     while (right && right->m_attachmentId != MODEL_ATTACHMENT_ID::ATTACH_SHOULDERR) {
         right = right->m_attachNext;
@@ -4061,11 +4069,11 @@ void CCharacterComponent::AddShoulders(int32_t itemVisual) {
     }
 
     if (leftModel[0]) {
-        CCharacterComponent::AddLink(this->m_data.m_model, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERL, leftModel, leftTexture, itemVisual, displayRec);
+        CCharacterComponent::AddLink(this->m_data.model2, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERL, leftModel, leftTexture, itemVisual, displayRec);
     }
 
     if (rightModel[0]) {
-        CCharacterComponent::AddLink(this->m_data.m_model, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERR, rightModel, rightTexture, itemVisual, displayRec);
+        CCharacterComponent::AddLink(this->m_data.model2, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERR, rightModel, rightTexture, itemVisual, displayRec);
     }
 }
 
@@ -4076,7 +4084,7 @@ void CCharacterComponent::SetHandItemDisplay(int32_t displayID, uint32_t hand, I
 
     if (g_itemDisplayInfoDB.GetRecord(displayID, &rec)) {
         this->m_handItemDisplayID[hand] = displayID;
-        CCharacterComponent::AddHandItem(this->m_data.m_model, &rec, invSlot, SHEATHE_NONE, false, shield, false, 0);
+        CCharacterComponent::AddHandItem(this->m_data.model2, &rec, invSlot, SHEATHE_NONE, false, shield, false, 0);
     }
 }
 
@@ -4145,7 +4153,7 @@ void CCharacterComponent::ComputeLoadProgress(int64_t& local, int64_t& total) {
 
     total += 0x2000;
 
-    if (!this->m_link.m_next && this->m_baseSkinTexture && !(this->m_dirtySections | -static_cast<int32_t>(this->m_flags & FLAGS::TEXTURES_DIRTY))) {
+    if (!this->m_link.m_next && this->m_baseTexture && !(this->m_dirtySections | -static_cast<int32_t>(this->m_flags & FLAGS::TEXTURES_DIRTY))) {
         local += 0x2000;
     }
 }
@@ -4200,12 +4208,12 @@ CCharacterComponent::CCharacterComponent() {
     this->m_flags |= FLAGS::INITIAL_FLAGS;
     this->m_dirtySections = 0xFFFFFFFF;
     this->m_request = nullptr;
-    this->m_baseSkinTexture = nullptr;
+    this->m_baseTexture = nullptr;
     this->m_gxTexFormat = CCharacterComponent::s_gxFormat;
     memset(this->m_itemDisplayID, 0, sizeof(this->m_itemDisplayID));
     memset(this->m_itemSlotForAttachSlot, 0xFF, sizeof(this->m_itemSlotForAttachSlot));
     this->m_flags &= ~FLAGS::HIDE_PANTS_AND_BELT;
-    this->m_data.m_model = nullptr;
+    this->m_data.model2 = nullptr;
 }
 
 // VERIFY: 4f3c1a66 manual
@@ -4216,15 +4224,15 @@ CCharacterComponent::~CCharacterComponent() {
         this->m_request = nullptr;
     }
 
-    if (this->m_baseSkinTexture) {
-        GxTexSetCannotUpdate(TextureGetGxTex(this->m_baseSkinTexture, 1, nullptr));
-        HandleClose(reinterpret_cast<HOBJECT>(this->m_baseSkinTexture));
-        this->m_baseSkinTexture = nullptr;
+    if (this->m_baseTexture) {
+        GxTexSetCannotUpdate(TextureGetGxTex(this->m_baseTexture, 1, nullptr));
+        HandleClose(reinterpret_cast<HOBJECT>(this->m_baseTexture));
+        this->m_baseTexture = nullptr;
     }
 
-    if (this->m_data.m_model) {
-        this->m_data.m_model->Release();
-        this->m_data.m_model = nullptr;
+    if (this->m_data.model2) {
+        this->m_data.model2->Release();
+        this->m_data.model2 = nullptr;
     }
 
     this->m_link.Unlink();
@@ -4233,7 +4241,9 @@ CCharacterComponent::~CCharacterComponent() {
 // VERIFY: 87fa3e57 manual
 // OFFSET: 0x004EFDF0
 void CCharacterComponent::UpdateBaseTexture(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
+    STORM_ASSERT(userArg);
     CCharacterComponent* component = static_cast<CCharacterComponent*>(userArg);
+    STORM_ASSERT(component);
 
     switch (command) {
         case GxTex_Lock:
@@ -4305,6 +4315,9 @@ void CCharacterComponent::Prep() {
 // VERIFY: f0225731 auto
 // OFFSET: 0x004EFF10
 void CCharacterComponent::CreateBaseTexture() {
+    STORM_ASSERT(m_baseTexture == NULL);
+    STORM_ASSERT(GetAllDirty());
+
     EGxTexFormat dataFormat = GxTex_Argb8888;
 
     if (this->m_gxTexFormat == GxTex_Dxt1) {
@@ -4317,8 +4330,8 @@ void CCharacterComponent::CreateBaseTexture() {
         flags.m_bit14 = 1;
     }
 
-    this->m_baseSkinTexture = TextureCreate(s_textureSize, s_textureSize, this->m_gxTexFormat, dataFormat, flags, this, &CCharacterComponent::UpdateBaseTexture, "CharacterBaseSkin", 1);
-    this->m_data.m_model->ReplaceTexture(M2TEX_SKIN, this->m_baseSkinTexture);
+    this->m_baseTexture = TextureCreate(s_textureSize, s_textureSize, this->m_gxTexFormat, dataFormat, flags, this, &CCharacterComponent::UpdateBaseTexture, "CharacterBaseSkin", 1);
+    this->m_data.model2->ReplaceTexture(M2TEX_SKIN, this->m_baseTexture);
 }
 
 // VERIFY: 51c5a21d manual
@@ -4917,7 +4930,7 @@ void CCharacterComponent::ProcessFinishedRequest() {
         this->GeosRenderPrep();
     }
 
-    if (!this->m_baseSkinTexture) {
+    if (!this->m_baseTexture) {
         this->CreateBaseTexture();
     }
 
@@ -5093,7 +5106,7 @@ void CCharacterComponent::RenderPrepSections() {
         this->GeosRenderPrep();
     }
 
-    if (!this->m_baseSkinTexture) {
+    if (!this->m_baseTexture) {
         this->CreateBaseTexture();
     }
 
@@ -5382,7 +5395,7 @@ bool CCharacterComponent::SkinNpc(const char* debug) {
         return false;
     }
 
-    this->m_data.m_model->ReplaceTexture(M2TEX_SKIN, texture);
+    this->m_data.model2->ReplaceTexture(M2TEX_SKIN, texture);
     HandleClose(reinterpret_cast<HOBJECT>(texture));
     this->ReplaceExtraSkinTexture(debug);
     this->m_data.m_flags |= ComponentData::DATA_FLAGS::NPC_SKIN;
@@ -5445,7 +5458,7 @@ void CCharacterComponent::AddCape() {
     CTexture* texture = CreateTexture(s_path, &status);
 
     if (texture) {
-        this->m_data.m_model->ReplaceTexture(M2TEX_OBJECT_SKIN, texture);
+        this->m_data.model2->ReplaceTexture(M2TEX_OBJECT_SKIN, texture);
         HandleClose(reinterpret_cast<HOBJECT>(texture));
     }
 }
@@ -5509,8 +5522,10 @@ bool CCharacterComponent::Destroy() {
 // VERIFY: 0acf5d15 manual
 // OFFSET: 0x004F24D0
 bool CCharacterComponent::Init(ComponentData* data, const char* debug) {
-    if (this->m_data.m_model) {
-        this->m_data.m_model->Release();
+    STORM_ASSERT(data->model2);
+
+    if (this->m_data.model2) {
+        this->m_data.model2->Release();
     }
 
     memcpy(&this->m_data, data, sizeof(this->m_data));
@@ -5528,9 +5543,9 @@ bool CCharacterComponent::Init(ComponentData* data, const char* debug) {
     this->m_dirtySections = 0xFFFFFFFF;
     this->m_request = nullptr;
 
-    if (!(this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) && this->m_baseSkinTexture) {
-        HandleClose(reinterpret_cast<HOBJECT>(this->m_baseSkinTexture));
-        this->m_baseSkinTexture = nullptr;
+    if (!(this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) && this->m_baseTexture) {
+        HandleClose(reinterpret_cast<HOBJECT>(this->m_baseTexture));
+        this->m_baseTexture = nullptr;
     }
 
     uint32_t dataFlags = this->m_data.m_flags;
@@ -5563,7 +5578,7 @@ void CCharacterComponent::AddItem(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* 
         case ITEMSLOT_HEAD:
             if (!this->IsHelmModelCorrect()) {
                 if (this->m_itemDisplayID[ITEMSLOT_HEAD]) {
-                    CCharacterComponent::RemoveLinkpt(this->m_data.m_model, ATTACH_HELM);
+                    CCharacterComponent::RemoveLinkpt(this->m_data.model2, ATTACH_HELM);
                 }
 
                 this->AddHelm(itemVisual);
@@ -5574,8 +5589,8 @@ void CCharacterComponent::AddItem(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* 
         case ITEMSLOT_SHOULDER:
             if (!this->AreShoulderModelsCorrect()) {
                 if (this->m_itemDisplayID[ITEMSLOT_SHOULDER]) {
-                    CCharacterComponent::RemoveLinkpt(this->m_data.m_model, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERL);
-                    CCharacterComponent::RemoveLinkpt(this->m_data.m_model, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERR);
+                    CCharacterComponent::RemoveLinkpt(this->m_data.model2, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERL);
+                    CCharacterComponent::RemoveLinkpt(this->m_data.model2, MODEL_ATTACHMENT_ID::ATTACH_SHOULDERR);
                 }
 
                 this->AddShoulders(itemVisual);
@@ -5590,7 +5605,7 @@ void CCharacterComponent::AddItem(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* 
         case ITEMSLOT_11:
             if (!this->IsQuiverModelCorrect()) {
                 if (this->m_itemDisplayID[ITEMSLOT_11]) {
-                    CCharacterComponent::RemoveLinkpt(this->m_data.m_model, ATTACH_SHEATH_MAINHAND);
+                    CCharacterComponent::RemoveLinkpt(this->m_data.model2, ATTACH_SHEATH_MAINHAND);
                 }
 
                 this->AddQuiver(itemVisual);

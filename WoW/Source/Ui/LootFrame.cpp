@@ -109,19 +109,22 @@ void LootDestroy() {
 
 // VERIFY: c5565767 manual
 // OFFSET: 0x007E7C70
-void CurrencyBreakdown(int32_t amount, int32_t* parts) {
+void CurrencyBreakdown(int32_t amount, int32_t* coins) {
+    STORM_ASSERT(s_lootInitialized);
+    STORM_ASSERT(coins);
+
     for (int32_t i = 2; i; i--) {
         int32_t multiplier = static_cast<int32_t>(s_currencyMultiplier[i]);
 
         if (amount < multiplier) {
-            parts[i] = 0;
+            coins[i] = 0;
         } else {
-            parts[i] = amount / multiplier;
+            coins[i] = amount / multiplier;
             amount %= multiplier;
         }
     }
 
-    parts[0] = amount;
+    coins[0] = amount;
 }
 
 // VERIFY: 4b725563 auto

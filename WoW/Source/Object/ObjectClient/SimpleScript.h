@@ -48,6 +48,11 @@ class CSimpleScriptManager {
     static int32_t RegisterCallback(void (*callback)(uint32_t));
     static void UnregisterCallback(void (*callback)(uint32_t));
 
+    // INLINED
+    int32_t IsInited() const {
+        return this->m_hashMask != -1;
+    }
+
     /* 0000 */ int32_t m_hashMask;
     /* 0004 */ TSGrowableArray<SimpleScriptFunction>* m_buckets;
     /* 0008 */ int32_t m_envRef;

@@ -1,4 +1,5 @@
 #include "RuneInfo.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Os/TimeManager.h"
 #include "WoW/Source/DB/DBClient/DBClient.h"
 #include "WoW/Source/DB/Rec/SpellRec.h"
@@ -347,9 +348,11 @@ void CGRuneInfo::ComputeRuneRechargeTime(int32_t index, float progress) {
 
 // VERIFY: 4de899c0 auto
 // OFFSET: 0x005EE020
-void CGRuneInfo::ConvertRune(uint8_t rune, uint8_t type) {
-    CGRuneInfo::m_runes[rune] = type;
-    FrameScript_SignalEvent(SCRIPT_EVENT_RUNE_TYPE_UPDATE, "%d", rune + 1);
+void CGRuneInfo::ConvertRune(uint8_t index, uint8_t type) {
+    STORM_ASSERT(IsRuneIndexValid(index));
+
+    CGRuneInfo::m_runes[index] = type;
+    FrameScript_SignalEvent(SCRIPT_EVENT_RUNE_TYPE_UPDATE, "%d", index + 1);
     CGSpellBook::UpdateUsable();
 }
 
@@ -394,6 +397,8 @@ void CGRuneInfo::SetPredictedRunes(uint8_t available, uint8_t used, const uint8_
 // VERIFY: ff3c5eda auto
 // OFFSET: 0x005EE440
 void CGRuneInfo::ResyncRunes(CDataStore* msg) {
+    STORM_ASSERT(msg);
+
     msg->Get(CGRuneInfo::m_numRunes);
 
     for (int32_t i = 0; i < static_cast<int32_t>(CGRuneInfo::m_numRunes); i++) {

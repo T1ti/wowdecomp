@@ -658,7 +658,7 @@ BOOL CM2Model::IsDrawable(BOOL wait, int32_t recursive) {
 void CM2Model::LinkToAsyncHeadRecursive(int32_t textures) {
     CAsyncObject* object = this->m_shared->m_asyncObject;
 
-    if (object && !object->m_isCurrent && !object->m_isRead && !object->m_isProcessed) {
+    if (object && !object->isCurrent && !object->isRead && !object->isProcessed) {
         AsyncFileReadLinkObject(object, 1);
     }
 
@@ -7336,7 +7336,7 @@ int32_t CM2Model::InitializeLoaded() {
 
             CM2Model* source = this->m_model30;
 
-            if (source && (source->m_particleEmitters[i]->m_flags & CParticleEmitter2::RUNTIME_FLAGS::REPLACEMENT_COLORS)) {
+            if (source && (source->m_particleEmitters[i]->m_flags & CParticleEmitter2::RUNTIME_FLAGS::PROP_PARTICLE_COLOR_SET)) {
                 CImVector color0;
                 CImVector color1;
                 CImVector color2;

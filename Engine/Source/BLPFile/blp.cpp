@@ -97,12 +97,14 @@ int32_t CBLPFile::ValidateHeader(const BLPHeader& header) {
 
 // VERIFY: ec3a562c manual
 // OFFSET: 0x006AE900
-int32_t CBLPFile::Source(void* data) {
+int32_t CBLPFile::Source(void* fileBits) {
+    STORM_ASSERT(fileBits);
+
     this->Close();
 
     this->m_inMemoryNeedsFree = 0;
-    this->m_inMemoryImage = data;
-    memcpy(&this->m_header, data, sizeof(this->m_header));
+    this->m_inMemoryImage = fileBits;
+    memcpy(&this->m_header, fileBits, sizeof(this->m_header));
 
     if (!CBLPFile::ValidateHeader(this->m_header)) {
         return 0;
@@ -430,6 +432,8 @@ void CBLPFile::DecompPalARGB1555DitherFloydSteinberg(uint8_t* out, const void* i
 // VERIFY: 87e7bd46 manual
 // OFFSET: 0x006AF140
 void CBLPFile::DecompPalARGB565DitherFloydSteinberg(uint8_t* out, const void* in, uint32_t width, uint32_t height) {
+    STORM_ASSERT(width <= 1024);
+
     // STATIC: 0x00C6D5B0
     static int32_t s_errors[2][1026][3];
 
@@ -496,6 +500,8 @@ void CBLPFile::DecompPalARGB565DitherFloydSteinberg(uint8_t* out, const void* in
 // VERIFY: 696ab781 manual
 // OFFSET: 0x006AF340
 void CBLPFile::DecompPalARGB2565DitherFloydSteinberg(uint8_t* out, const void* in, uint32_t width, uint32_t height) {
+    STORM_ASSERT(width <= 1024);
+
     // STATIC: 0x00C735E0
     static int32_t s_errors[2][1026][3];
 

@@ -422,6 +422,8 @@ CMapChunkLiquidBuf* CMapChunkLiquidBuf::Alloc(uint32_t vertexCount, uint32_t ind
 // VERIFY: e344dd13 manual
 // OFFSET: 0x007CF200
 void CChunkLiquid::Batch() {
+    STORM_ASSERT(!m_instance);
+
     static TSGrowableArray<CChunkLiquid*> s_batch;
 
     s_batch.Clear();

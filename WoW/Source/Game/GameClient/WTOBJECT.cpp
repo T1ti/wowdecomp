@@ -1,4 +1,5 @@
 #include "WTOBJECT.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Model2/M2Model.h"
 #include "Engine/Source/Gx/Gx.h"
@@ -36,6 +37,8 @@ WTOBJECT::~WTOBJECT() {
 // VERIFY: c3c7b136 auto
 // OFFSET: 0x007E4BC0
 void WeaponTrailsShutdown() {
+    STORM_ASSERT(!s_count);
+
     s_freeTrails.Clear(typeid(WTOBJECT).raw_name(), SLOG_OBJECT, 1);
     s_freeSwings.Clear(typeid(SWING).raw_name(), SLOG_OBJECT, 1);
 }
@@ -59,6 +62,8 @@ WTOBJECT* WeaponTrailCreate(CM2Model* model) {
 // VERIFY: 254754a7 auto
 // OFFSET: 0x007E4CC0
 void WeaponTrailClose(WTOBJECT* trail) {
+    STORM_ASSERT(s_count);
+
     s_count--;
     s_freeTrails.Delete(trail);
 }

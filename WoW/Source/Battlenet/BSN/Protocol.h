@@ -24,7 +24,7 @@ class Protocol {
     /* 000C */ const void* const* m_codeInfo;
     /* 0010 */ uint32_t m_version;
     /* 0014 */ uint32_t unk_0014;
-    /* 0018 */ uint32_t m_typeIdCount;
+    /* 0018 */ uint32_t typeIdCount;
     /* 001C */ uint32_t m_typeInfoSize;
     /* 0020 */ uint32_t m_dumpInfoSize;
     /* 0024 */ const uint8_t* m_typeOffsets;

@@ -840,6 +840,8 @@ CDetailDoodadInst* CDetailDoodad::AllocInst() {
 // VERIFY: d19634a7 auto
 // OFFSET: 0x007B3960
 void CDetailDoodad::FreeInst(CDetailDoodadInst* inst) {
+    STORM_ASSERT(inst);
+
     uint32_t* heap = CDetailDoodad::s_instHeap;
     inst->~CDetailDoodadInst();
     ObjectFree(*heap, inst->m_objectIndex);

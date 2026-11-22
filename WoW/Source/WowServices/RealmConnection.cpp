@@ -23,6 +23,8 @@ RealmConnection::REALMCONNECTIONNODE::REALMCONNECTIONNODE() {
 // VERIFY: ec31eb67 manual
 // OFFSET: 0x00464C10
 int32_t RealmConnection::HandleCharEnum(uint32_t msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgId == SMSG_CHAR_ENUM);
+
     if (this->m_realmResponse) {
         this->m_realmResponse->GameServerResult(this, "SMSG_CHAR_ENUM", nullptr, nullptr);
     }
@@ -121,7 +123,7 @@ int32_t RealmConnection::MessageHandler(void* param, NETMESSAGE msgId, uint32_t 
             result = connection->HandleCharacterCreate(msgId, time, msg);
             break;
 
-        case SMSG_ENUM_CHARACTERS_RESULT:
+        case SMSG_CHAR_ENUM:
             result = connection->HandleCharEnum(msgId, time, msg);
             break;
 
@@ -185,7 +187,7 @@ RealmConnection::RealmConnection(RealmResponse* realmResponse) : m_realmResponse
     this->SetMessageHandler(SMSG_AUTH_CHALLENGE, RealmConnection::MessageHandler, this);
     this->SetMessageHandler(SMSG_AUTH_RESPONSE, RealmConnection::MessageHandler, this);
     this->SetMessageHandler(SMSG_ADDON_INFO, RealmConnection::MessageHandler, this);
-    this->SetMessageHandler(SMSG_ENUM_CHARACTERS_RESULT, RealmConnection::MessageHandler, this);
+    this->SetMessageHandler(SMSG_CHAR_ENUM, RealmConnection::MessageHandler, this);
     this->SetMessageHandler(SMSG_CHAR_CREATE, RealmConnection::MessageHandler, this);
     this->SetMessageHandler(SMSG_CHARACTER_LOGIN_FAILED, RealmConnection::MessageHandler, this);
     this->SetMessageHandler(SMSG_LOGOUT_COMPLETE, RealmConnection::MessageHandler, this);
@@ -447,7 +449,7 @@ RealmConnection::~RealmConnection() {
     this->ResetHandler(SMSG_AUTH_CHALLENGE);
     this->ResetHandler(SMSG_AUTH_RESPONSE);
     this->ResetHandler(SMSG_ADDON_INFO);
-    this->ResetHandler(SMSG_ENUM_CHARACTERS_RESULT);
+    this->ResetHandler(SMSG_CHAR_ENUM);
     this->ResetHandler(SMSG_CHAR_CREATE);
     this->ResetHandler(SMSG_CHARACTER_LOGIN_FAILED);
     this->ResetHandler(SMSG_LOGOUT_COMPLETE);

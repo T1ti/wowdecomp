@@ -125,7 +125,7 @@ class CEffect {
     /* 00EC */ CImVector m_color;
     /* 00F0 */ CMapEntity* m_mapEntity;
     /* 00F4 */ int32_t m_refCount;
-    /* 00F8 */ uint32_t m_lightningRefCount;
+    /* 00F8 */ uint32_t m_lightningRefs;
     /* 00FC */ int32_t m_lightningState;
     /* 0100 */ const SpellVisualKitModelAttachRec* m_attachRec;
     /* 0104 */ CEffect** m_prevLink;

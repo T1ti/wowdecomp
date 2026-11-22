@@ -179,13 +179,18 @@ class CCharacterComponent {
     static void UpdateBaseTexture(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
     static void ValidateComponentData(ComponentData* data, COMPONENT_CONTEXT context);
 
+    // INLINED
+    BOOL GetAllDirty() const {
+        return this->m_flags & TEXTURES_DIRTY;
+    }
+
     /* 0000 */ TSLink<CCharacterComponent> m_link;
     /* 0008 */ uint32_t m_flags;
     /* 000C */ uint32_t m_dirtySections;
     /* 0010 */ uint32_t m_heapIndex;
     /* 0014 */ EGxTexFormat m_gxTexFormat;
     /* 0018 */ ComponentData m_data;
-    /* 0190 */ CTexture* m_baseSkinTexture;
+    /* 0190 */ CTexture* m_baseTexture;
     /* 0194 */ CharacterBaseVariation m_baseVariation [CHARTEXTUREVARIATIONS_NUM];
     /* 01D0 */ CharacterSection m_section [10];
     /* 0428 */ uint32_t m_itemDisplayID [12];

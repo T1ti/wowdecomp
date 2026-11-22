@@ -51,8 +51,8 @@ void CharacterSelectionDisplay::SetCharacterFacing(float rotation) {
 
     CharacterSelectionDisplay& display = CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex];
 
-    if (display.m_component->m_data.m_model) {
+    if (display.m_component->m_data.model2) {
         C3Vector position(0.0f, 0.0f, 0.0f);
-        display.m_component->m_data.m_model->SetWorldTransform(position, rotation, 1.0f);
+        display.m_component->m_data.model2->SetWorldTransform(position, rotation, 1.0f);
     }
 }

@@ -540,6 +540,8 @@ static void QuestItemStatsCallback(int32_t id, const WOWGUID& guid, void* param,
 // VERIFY: 0e16cb6e auto
 // OFFSET: 0x0058B990
 void CGQuestInfo::AddQuest(int32_t questId, const char* title, int32_t level, int32_t flags, int32_t turnIn, int32_t repeatable) {
+    STORM_ASSERT(m_state == QUEST_GREETING);
+
     CGQuestInfo::m_availableQuests[CGQuestInfo::m_numQuests].m_questID = questId;
     CGQuestInfo::m_availableQuests[CGQuestInfo::m_numQuests].m_level = level;
     CGQuestInfo::m_availableQuests[CGQuestInfo::m_numQuests].m_flags = flags;

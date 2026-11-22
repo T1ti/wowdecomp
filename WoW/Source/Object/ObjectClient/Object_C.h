@@ -148,6 +148,21 @@ enum OBJECT_NAME_FLAGS : uint32_t {
 
 class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID> {
     public:
+    // INLINED
+    CM2Model* GetModel() const {
+        return this->m_worldModel;
+    }
+
+    // INLINED
+    BOOL IsA(uint32_t type) const {
+        return (this->m_obj->m_type & type) != 0;
+    }
+
+    // INLINED
+    BOOL IsDisabled() const {
+        return (this->m_modelFlags & OBJECT_MODEL_FLAG_DISABLED) != 0;
+    }
+
     // s_interactIcons indices, named after the Interface\Buttons\TalkToMe*.mdx model each entry loads.
     enum INTERACT_ICON : uint32_t {
         INTERACT_ICON_NONE = 0,

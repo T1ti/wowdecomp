@@ -324,7 +324,7 @@ class CParticleEmitter2 {
         USER_ENABLED = 0x2,
         HEAD = 0x4,
         TAIL = 0x8,
-        REPLACEMENT_COLORS = 0x10,
+        PROP_PARTICLE_COLOR_SET = 0x10,
         SORT_PARTICLES = 0x20,
         BURST_PENDING = 0x40,
         UNKNOWN_00000080 = 0x80,

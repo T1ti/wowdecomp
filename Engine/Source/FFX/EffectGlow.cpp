@@ -39,7 +39,9 @@ void EffectGlow::Execute() {
 
 // VERIFY: 61e7eb60 auto
 // OFFSET: 0x008BFDE0
-void EffectGlow::SetParameters(int32_t count, const int32_t* params) {
+void EffectGlow::SetParameters(int32_t numParams, const int32_t* params) {
+    STORM_ASSERT(numParams == NUM_PARAMS);
+
     this->m_mode = static_cast<EffectGlow::PASS_SEQUENCE>(params[0]);
 
     CImVector color;

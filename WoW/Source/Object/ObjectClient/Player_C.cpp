@@ -1137,14 +1137,14 @@ void CGPlayer_C::SetAutoLoot(int32_t autoLoot) {
 bool CGPlayer_C::CanInteract(const CGUnit_C* unit) const {
     bool isPlayer = (this->m_obj->m_type & TYPE_PLAYER) != 0;
 
-    if (isPlayer && (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) && (!unit->m_creatureCacheEntry || !(unit->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS))) {
+    if (isPlayer && (this->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST) && (!unit->m_stats || !(unit->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS))) {
         return false;
     }
 
     CGUnitData* data = unit->m_unit;
     uint32_t npcFlags = data->m_unitNpcFlags;
 
-    if ((npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GOSSIP) && isPlayer && !(unit->m_obj->m_type & TYPE_PLAYER) && unit->m_creatureCacheEntry && (unit->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_GOSSIP_ONLY_WITH_CREATOR) && data->m_unitFieldCreatedby != this->m_obj->m_guid) {
+    if ((npcFlags & UNIT_NPC_FLAGS::UNIT_NPC_FLAG_GOSSIP) && isPlayer && !(unit->m_obj->m_type & TYPE_PLAYER) && unit->m_stats && (unit->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_GOSSIP_ONLY_WITH_CREATOR) && data->m_unitFieldCreatedby != this->m_obj->m_guid) {
         return false;
     }
 

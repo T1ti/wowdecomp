@@ -46,14 +46,14 @@ static uint32_t s_sequenceSize;
 // VERIFY: eb5cb8e9 auto
 // OFFSET: 0x00835950
 static void AsyncFileReadFreeA16(CAsyncObject* object) {
-    void* buffer = object->m_buffer;
+    void* buffer = object->buffer;
     AsyncFileReadDestroyObject(object);
     SIMD::FreeA16(buffer);
 }
 
 #if defined(WOWDECOMP_ARCH_64)
 static void AsyncFileReadFreeNear(CAsyncObject* object) {
-    void* buffer = object->m_buffer;
+    void* buffer = object->buffer;
     AsyncFileReadDestroyObject(object);
     OsFreeNear(buffer);
 }
@@ -1574,12 +1574,12 @@ int32_t CM2Shared::FinishLoadingLowPrioritySequence(uint32_t sequenceIndex, uint
 int32_t CM2Shared::FinishLoadingLowPrioritySequence(uint32_t sequenceIndex, CAsyncObject* object) {
     M2Sequence* sequence = &this->m_data->m_sequences[sequenceIndex];
 
-    if (!this->FinishLoadingLowPrioritySequence(sequenceIndex, static_cast<uint8_t*>(object->m_buffer), object->m_size)) {
+    if (!this->FinishLoadingLowPrioritySequence(sequenceIndex, static_cast<uint8_t*>(object->buffer), object->size)) {
         return 0;
     }
 
     for (uint16_t* alias = &sequence->m_aliasNext; *alias != sequenceIndex; alias = &this->m_data->m_sequences[*alias].m_aliasNext) {
-        if (!this->FinishLoadingLowPrioritySequence(*alias, static_cast<uint8_t*>(object->m_buffer), object->m_size)) {
+        if (!this->FinishLoadingLowPrioritySequence(*alias, static_cast<uint8_t*>(object->buffer), object->size)) {
             return 0;
         }
     }
@@ -1591,7 +1591,7 @@ int32_t CM2Shared::FinishLoadingLowPrioritySequence(uint32_t sequenceIndex, CAsy
 // OFFSET: 0x0083CB10
 void CM2Shared::SkinProfileLoadedCallback(void* param) {
     CM2Shared* shared = static_cast<CM2Shared*>(param);
-    shared->FinishLoadingSkinProfile(shared->m_asyncObject->m_size);
+    shared->FinishLoadingSkinProfile(shared->m_asyncObject->size);
     AsyncFileReadDestroyObject(shared->m_asyncObject);
     shared->m_asyncObject = nullptr;
 }
@@ -1626,15 +1626,15 @@ int32_t CM2Shared::LoadSkinProfile(uint32_t profile) {
         return 0;
     }
 
-    this->m_asyncObject->m_file = file;
-    this->m_asyncObject->m_buffer = this->m_skinData;
-    this->m_asyncObject->m_size = size;
-    this->m_asyncObject->m_userArg = this;
-    this->m_asyncObject->m_userPostloadCallback = &CM2Shared::SkinProfileLoadedCallback;
-    this->m_asyncObject->m_userPostUnloadCallback = &CM2Shared::LoadFailedCallback;
-    this->m_asyncObject->m_isRead = 0;
-    this->m_asyncObject->m_isProcessed = 0;
-    this->m_asyncObject->m_priority = 125;
+    this->m_asyncObject->file = file;
+    this->m_asyncObject->buffer = this->m_skinData;
+    this->m_asyncObject->size = size;
+    this->m_asyncObject->userArg = this;
+    this->m_asyncObject->userPostloadCallback = &CM2Shared::SkinProfileLoadedCallback;
+    this->m_asyncObject->userPostUnloadCallback = &CM2Shared::LoadFailedCallback;
+    this->m_asyncObject->isRead = 0;
+    this->m_asyncObject->isProcessed = 0;
+    this->m_asyncObject->priority = 125;
     AsyncFileReadObject(this->m_asyncObject, 1);
 
     return 1;
@@ -1807,14 +1807,14 @@ int32_t CM2Shared::Load(SFileImpl* file, int32_t flags, CAaBox* boundingBox) {
         return 0;
     }
 
-    this->m_asyncObject->m_file = file;
-    this->m_asyncObject->m_buffer = this->m_data;
-    this->m_asyncObject->m_size = this->m_fileSize;
-    this->m_asyncObject->m_userArg = this;
-    this->m_asyncObject->m_userPostloadCallback = &CM2Shared::LoadSucceededCallback;
-    this->m_asyncObject->m_userPostUnloadCallback = &CM2Shared::LoadFailedCallback;
-    this->m_asyncObject->m_isRead = 0;
-    this->m_asyncObject->m_isProcessed = 0;
+    this->m_asyncObject->file = file;
+    this->m_asyncObject->buffer = this->m_data;
+    this->m_asyncObject->size = this->m_fileSize;
+    this->m_asyncObject->userArg = this;
+    this->m_asyncObject->userPostloadCallback = &CM2Shared::LoadSucceededCallback;
+    this->m_asyncObject->userPostUnloadCallback = &CM2Shared::LoadFailedCallback;
+    this->m_asyncObject->isRead = 0;
+    this->m_asyncObject->isProcessed = 0;
     AsyncFileReadObject(this->m_asyncObject, 0);
 
     return 1;
@@ -2058,15 +2058,15 @@ CM2SequenceLoad* CM2Shared::LoadLowPrioritySequence(uint16_t sequenceIndex) {
         this->m_data->m_sequences[i].m_flags |= M2Sequence::FLAGS::LOAD_PENDING;
     }
 
-    load->m_asyncObject->m_file = file;
-    load->m_asyncObject->m_buffer = buffer;
-    load->m_asyncObject->m_size = size;
-    load->m_asyncObject->m_userArg = load;
-    load->m_asyncObject->m_userPostloadCallback = &CM2Shared::LowPrioritySequenceLoadedCallback;
-    load->m_asyncObject->m_userPostUnloadCallback = &CM2Shared::LowPrioritySequenceFailedCallback;
-    load->m_asyncObject->m_isRead = 0;
-    load->m_asyncObject->m_isProcessed = 0;
-    load->m_asyncObject->m_priority = 125;
+    load->m_asyncObject->file = file;
+    load->m_asyncObject->buffer = buffer;
+    load->m_asyncObject->size = size;
+    load->m_asyncObject->userArg = load;
+    load->m_asyncObject->userPostloadCallback = &CM2Shared::LowPrioritySequenceLoadedCallback;
+    load->m_asyncObject->userPostUnloadCallback = &CM2Shared::LowPrioritySequenceFailedCallback;
+    load->m_asyncObject->isRead = 0;
+    load->m_asyncObject->isProcessed = 0;
+    load->m_asyncObject->priority = 125;
     AsyncFileReadObject(load->m_asyncObject, 0);
 
     return load;

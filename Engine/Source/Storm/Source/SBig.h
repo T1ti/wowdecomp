@@ -2,6 +2,7 @@
 #define ENGINE_SOURCE_STORM_SOURCE_SBIG_H
 
 #include <cstdint>
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Storm/H/stpl.h"
 
 class BigBuffer {
@@ -25,7 +26,11 @@ class BigBuffer {
 
 class BigStack {
     public:
-    /* 0000 */ BigBuffer m_buffer[16];
+    enum {
+        SIZE = 16,
+    };
+
+    /* 0000 */ BigBuffer m_buffer[SIZE];
     /* 0140 */ uint32_t m_used;
 
     BigStack();
@@ -85,6 +90,8 @@ inline void BigBuffer::SetOffset(uint32_t offset) {
 
 // INLINED
 inline BigBuffer& BigStack::Alloc(uint32_t* count) {
+    STORM_ASSERT(m_used < SIZE);
+
     if (count) {
         ++*count;
     }

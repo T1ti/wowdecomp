@@ -459,6 +459,8 @@ uint32_t SpellVisualsGetModelAttachRecCount(uint32_t kitId) {
 // VERIFY: d05aaf9b auto
 // OFFSET: 0x007FBE00
 MountTransitionObject* SpellVisualsStartMountTransition(CGUnit_C* unit) {
+    STORM_ASSERT(unit);
+
     MountTransitionObject* transition = s_mountTransitions.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
     if (!transition) {
@@ -548,7 +550,7 @@ void LightningObject::CreateFromSpell(CGObject_C* caster, CEffect* effect, uint3
             object->m_effect = nullptr;
         } else {
             object->m_effect = effect;
-            effect->m_lightningRefCount++;
+            effect->m_lightningRefs++;
             object->m_effect->m_refCount++;
         }
 

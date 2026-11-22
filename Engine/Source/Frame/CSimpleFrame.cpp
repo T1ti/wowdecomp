@@ -1380,9 +1380,11 @@ void CSimpleFrame::EnableDrawLayer(uint32_t drawLayer) {
 
 // VERIFY: 65896940 manual
 // OFFSET: 0x00490620
-void CSimpleFrame::DisableDrawLayer(uint32_t drawLayer) {
-    this->m_drawLayerEnabled[drawLayer] = 0;
-    this->NotifyDrawLayerChanged(drawLayer);
+void CSimpleFrame::DisableDrawLayer(uint32_t drawlayer) {
+    STORM_ASSERT(drawlayer < NUM_SIMPLEFRAME_DRAWLAYERS);
+
+    this->m_drawLayerEnabled[drawlayer] = 0;
+    this->NotifyDrawLayerChanged(drawlayer);
 }
 
 // VERIFY: 0670b415 manual

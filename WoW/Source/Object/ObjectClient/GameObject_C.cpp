@@ -100,7 +100,7 @@ static uint32_t s_buildingDamageColor = 0xFFFF8400;
 uint32_t CGGameObject_C_TypeAnimated::s_animSequenceIds[NUM_GAMEOBJ_ANIMSTATES] = { ANIM_GAMEOBJ_SPAWN, ANIM_GAMEOBJ_CLOSED, ANIM_GAMEOBJ_OPEN, ANIM_GAMEOBJ_OPENED, ANIM_GAMEOBJ_CLOSE, ANIM_GAMEOBJ_DESTROY, ANIM_GAMEOBJ_DESTROYED, ANIM_GAMEOBJ_REBUILD, ANIM_GAMEOBJ_CUSTOM0, ANIM_GAMEOBJ_CUSTOM1, ANIM_GAMEOBJ_CUSTOM2, ANIM_GAMEOBJ_CUSTOM3, ANIM_GAMEOBJ_DESPAWN };
 
 // STATIC: 0x00ADA978
-const char* CGGameObject_C_TypeAnimated::s_animStateNames[NUM_GAMEOBJ_ANIMSTATES] = { "Spawn", "Closed", "Opening", "Open", "Closing", "Destroying", "Destroyed", "Rebuilding", "Custom0", "Custom1", "Custom2", "Custom3", "Despawn" };
+const char* CGGameObject_C_TypeAnimated::s_statusString[NUM_GAMEOBJ_ANIMSTATES] = { "Spawn", "Closed", "Opening", "Open", "Closing", "Destroying", "Destroyed", "Rebuilding", "Custom0", "Custom1", "Custom2", "Custom3", "Despawn" };
 
 // VERIFY: 82a5bb1b manual
 // OFFSET: 0x00712AE0
@@ -868,7 +868,9 @@ void CGGameObject_C_TypeAnimated::ActivateOneShotAnim(uint32_t anim) {
 // VERIFY: 893eef11 auto
 // OFFSET: 0x0070B260
 const char* CGGameObject_C_TypeAnimated::DebugStatus() {
-    return s_animStateNames[this->m_animState];
+    STORM_ASSERT(m_animState < ARRSIZE(s_statusString));
+
+    return s_statusString[this->m_animState];
 }
 
 // VERIFY: bf8c5652 auto
@@ -2672,6 +2674,8 @@ C4Quaternion CGGameObject_C::GetRotation() const {
 // VERIFY: 7b5a289f manual
 // OFFSET: 0x00713F50
 void CGGameObject_C::ModelLoaded(CM2Model* model) {
+    STORM_ASSERT(model == GetModel());
+
     CAaBox box = model->GetBoundingBox();
     this->m_height = box.t.z - box.b.z;
 
@@ -2830,6 +2834,8 @@ int32_t CGGameObject_C::CanChangeCursor() const {
 // VERIFY: 9f6a62fd manual
 // OFFSET: 0x00711AB0
 void CGGameObject_C_Type_TransportBase::AddPassenger(CPassenger* passenger, int32_t reason) {
+    STORM_ASSERT(passenger);
+
     passenger->m_link.Unlink();
     this->m_passengers.LinkToTail(passenger);
 
@@ -3985,12 +3991,14 @@ bool CGGameObject_C::IsUsableWhileImmune() const {
 
 // VERIFY: 2c6373c2 auto
 // OFFSET: 0x007108D0
-void CGGameObject_C_Type_MeetingStone::AddToolTipInfo(CGTooltip* tooltip) {
+void CGGameObject_C_Type_MeetingStone::AddToolTipInfo(CGTooltip* tip) {
+    STORM_ASSERT(tip);
+
     CGGameObject_C* owner = this->m_owner;
     AreaTableRec* area = g_areaTableDB.GetRecord(owner->GetPropertyValue(CGameObjectDef::GetPropNum(owner->m_gameObject->m_typeID, CGameObjectDef::PROPERTY_ID::PROP_AREAID)));
 
     if (area) {
-        tooltip->AddLine(area->m_areaName, nullptr, 0);
+        tip->AddLine(area->m_areaName, nullptr, 0);
     }
 }
 

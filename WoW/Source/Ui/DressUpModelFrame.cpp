@@ -114,7 +114,7 @@ void CGDressUpModelFrame::UpdateModel() {
     }
 
     uint32_t ready = this->m_component->RenderPrep(0) & 1;
-    CM2Model* model = this->m_component->m_data.m_model;
+    CM2Model* model = this->m_component->m_data.model2;
 
     if (model->m_attachParent) {
         model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_FLAGS::M2_ATTACHED_DRAW_ENABLED) | (ready << M2_BITS::M2_BIT_ATTACHED_DRAW_ENABLED);
@@ -526,7 +526,7 @@ void CGDressUpModelFrame::SetModel(CM2Model* model) {
         data.m_preferences.m_hairStyleId = player->m_player->hairStyleID;
         data.m_preferences.m_hairColorId = player->m_player->hairColorID;
         data.m_preferences.m_facialHairId = player->m_player->facialHairStyleID;
-        data.m_model = model;
+        data.model2 = model;
         data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(player->IsActivePlayer()) << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
         CCharacterComponent::ValidateComponentData(&data, COMPONENT_CONTEXT_2);
         this->m_component->Init(&data, nullptr);
@@ -627,9 +627,9 @@ void CGDressUpModelFrame::SetModel(CM2Model* model) {
     data.m_preferences.m_classId = CLASS_WARRIOR;
     data.m_preferences.m_hairStyleId = extra->m_hairStyleID;
     data.m_preferences.m_facialHairId = extra->m_facialHairID;
-    data.m_model = model;
+    data.model2 = model;
     SStrPrintf(data.m_npcSkinTexture, sizeof(data.m_npcSkinTexture), "%s%s", "Textures\\BakedNpcTextures\\", bakeName);
-    data.m_model->m_refCount++;
+    data.model2->m_refCount++;
     this->m_component->Init(&data, nullptr);
 
     for (uint32_t i = 0; i < NUM_CREATURE_DISPLAY_EXTRA_ITEMS; i++) {

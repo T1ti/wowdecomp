@@ -15,7 +15,7 @@ int32_t g_clientDbPerformCompress;
 static int32_t s_physicalDamageClassID = -1;
 
 // STATIC: 0x00C5D660
-static const ItemSubClassRec* s_unarmedWeapon;
+static const ItemSubClassRec* s_unarmedWeaponSubclass;
 
 // STATIC: 0x00C5D664
 static const ItemClassRec* s_weaponItemClass;
@@ -991,6 +991,8 @@ static void StaticDBLoadAll(void (WowClientDB_Base::*loadFunction)(const char*, 
 // VERIFY: 45af3496 auto
 // OFFSET: 0x006337A0
 int32_t GetPhysicalDamageClassID() {
+    STORM_ASSERT(s_physicalDamageClassID != 0xffffffff);
+
     return s_physicalDamageClassID;
 }
 
@@ -1003,7 +1005,9 @@ uint32_t GetPhysicalDamageClassMask() {
 // VERIFY: f122e16d auto
 // OFFSET: 0x006337C0
 int32_t ClientDBGetUnarmedWeapon() {
-    return s_unarmedWeapon->m_subClassID;
+    STORM_ASSERT(s_unarmedWeaponSubclass);
+
+    return s_unarmedWeaponSubclass->m_subClassID;
 }
 
 // VERIFY: 88034703 manual
@@ -1093,7 +1097,7 @@ void ClientDBShutdown() {
 // OFFSET: 0x00634CC0
 void InitWeaponSubclasses() {
     s_weaponSubclasses.SetCount(0);
-    s_unarmedWeapon = nullptr;
+    s_unarmedWeaponSubclass = nullptr;
     LocateWeaponSubclass();
 
     ITEM_CLASS weaponClass = s_weaponItemClass->m_classID;
@@ -1128,7 +1132,7 @@ void InitWeaponSubclasses() {
             s_weaponSubclasses[rec->m_subClassID] = rec;
 
             if (rec->m_flags & ITEM_SUBCLASS_FLAG_UNARMED) {
-                s_unarmedWeapon = rec;
+                s_unarmedWeaponSubclass = rec;
             }
         }
     }
@@ -1176,6 +1180,8 @@ DB_LOCALE_INDEX LocaleNameToIndex(const char* locale) {
 // VERIFY: d0d3fe1b auto
 // OFFSET: 0x00634910
 const char* ClientDBStringLookup(STRINGLOOKUP lookup) {
+    STORM_ASSERT(lookup < NUM_STRINGLOOKUPS);
+
     StringLookupsRec* rec = g_stringLookupsDB.GetRecord(lookup);
     return rec ? rec->m_string : nullptr;
 }

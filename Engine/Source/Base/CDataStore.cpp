@@ -300,6 +300,8 @@ int32_t CDataStore::FetchRead(uint32_t pos, uint32_t bytes) {
 // VERIFY: 05c2b42b manual
 // OFFSET: 0x0047B300
 CDataStore& CDataStore::PutString(const char* string) {
+    STORM_ASSERT(!IsFinal());
+
     STORM_ASSERT(!this->IsFinal());
 
     if (string) {

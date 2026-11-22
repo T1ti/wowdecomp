@@ -21,6 +21,8 @@ inline CSimpleScriptManager::CSimpleScriptManager() : m_hashMask(-1) {
 // VERIFY: 8a75f330 manual
 // OFFSET: 0x00758C50
 void CSimpleScriptManager::Create() {
+    STORM_ASSERT(!s_instance);
+
     CSimpleScriptManager* manager = new (__FILE__, __LINE__) CSimpleScriptManager();
 
     if (manager) {
@@ -65,6 +67,8 @@ void CSimpleScriptManager::Create() {
 // VERIFY: 9583ca22 manual
 // OFFSET: 0x00758CD0
 void CSimpleScriptManager::Destroy() {
+    STORM_ASSERT(s_instance);
+
     for (uint32_t i = 0; i < s_callbackCount; i++) {
         s_callbacks[i](1);
     }
@@ -177,6 +181,8 @@ int32_t CSimpleScriptManager::CallFunction(uint32_t handle, const SimpleScriptIO
 // VERIFY: 5225ecc9 auto
 // OFFSET: 0x00758220
 void CSimpleScriptManager::CopyGlobal(const char* name) {
+    STORM_ASSERT(IsInited());
+
     lua_State* L = FrameScript_GetContext();
     lua_rawgeti(L, LUA_REGISTRYINDEX, this->m_envRef);
     lua_pushstring(L, name);
@@ -189,6 +195,9 @@ void CSimpleScriptManager::CopyGlobal(const char* name) {
 // VERIFY: a48f28a7 auto
 // OFFSET: 0x00758280
 int32_t CSimpleScriptManager::Execute(const char* script, const char* name) {
+    STORM_ASSERT(IsInited());
+    STORM_ASSERT(script);
+
     lua_State* L = FrameScript_GetContext();
     lua_rawgeti(L, LUA_REGISTRYINDEX, FrameScript_GetErrorHandlerReference());
 

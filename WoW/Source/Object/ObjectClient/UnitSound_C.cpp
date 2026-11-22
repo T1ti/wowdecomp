@@ -551,6 +551,8 @@ uint32_t CGUnit_C::GetImpactType() const {
 // VERIFY: 22593312 auto
 // OFFSET: 0x007464D0
 void CGUnit_C::PlayFoleySound() {
+    STORM_ASSERT(m_modelData);
+
     static CVar* s_enableArmorFoley = CVar::Lookup("Sound_EnableArmorFoleySoundForOthers");
 
     if (s_enableArmorFoley && s_enableArmorFoley->m_intValue) {
@@ -590,12 +592,12 @@ SI2_SOUND_GROUP CGUnit_C::GetUnitSoundKitIndex(UNITSOUNDTYPE soundType) const {
     switch (soundType) {
         case UNITSOUNDTYPE_EXERTION:
         case UNITSOUNDTYPE_EXERTIONCRITICAL:
-            return (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MORE_AUDIBLE)) ? SI2_SOUND_GROUP_MORE_AUDIBLE_EXERTION : SI2_SOUND_GROUP_EXERTION;
+            return (this->m_stats && (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MORE_AUDIBLE)) ? SI2_SOUND_GROUP_MORE_AUDIBLE_EXERTION : SI2_SOUND_GROUP_EXERTION;
 
         case UNITSOUNDTYPE_INJURY:
         case UNITSOUNDTYPE_INJURYCRITICAL:
         case UNITSOUNDTYPE_INJURYCRUSHINGBLOW:
-            return (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MORE_AUDIBLE)) ? SI2_SOUND_GROUP_MORE_AUDIBLE_INJURY : SI2_SOUND_GROUP_INJURY;
+            return (this->m_stats && (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_MORE_AUDIBLE)) ? SI2_SOUND_GROUP_MORE_AUDIBLE_INJURY : SI2_SOUND_GROUP_INJURY;
 
         default:
             return SI2_SOUND_GROUP_SFX;
@@ -711,7 +713,7 @@ void CGUnit_C::PlayDismountSound() {
 // VERIFY: 82755190 auto
 // OFFSET: 0x007474B0
 void CGUnit_C::OnAiReaction(int32_t reaction) {
-    if (reaction == AI_REACTION_SOUND_DEATH && this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DEATH_SCREAM)) {
+    if (reaction == AI_REACTION_SOUND_DEATH && this->m_stats && (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DEATH_SCREAM)) {
         return;
     }
 

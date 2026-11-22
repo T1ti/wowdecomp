@@ -174,8 +174,8 @@ static int32_t Script_SetPetStablePaperdoll(lua_State* L) {
     if (selected == -1) {
         CGUnit_C* pet = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGPetInfo::GetPet(0), TYPE_UNIT, __FILE__, __LINE__));
 
-        if (pet && pet->CanGainXP() && pet->m_creatureCacheEntry) {
-            stats = pet->m_creatureCacheEntry;
+        if (pet && pet->CanGainXP() && pet->m_stats) {
+            stats = pet->m_stats;
         } else {
             WOWGUID requester = ClntObjMgrGetActivePlayer();
             stats = g_creatureDBCache.GetRecord(CGStableInfo::m_pets[0].m_entry, requester, &CreatureStatsSelectCallback, nullptr, false);

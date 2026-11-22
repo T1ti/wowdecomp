@@ -340,7 +340,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 0934 */ SE2SoundKitObject m_reactionSound;
     /* 0948 */ uint32_t m_floodsafeTurnPitch [4];
     /* 0958 */ OBJECT_EFFECT_STATE m_animEffectStates [3];
-    /* 0964 */ const CreatureStats_C* m_creatureCacheEntry;
+    /* 0964 */ const CreatureStats_C* m_stats;
     /* 0968 */ const CreatureDisplayInfoRec* m_displayInfo;
     /* 096C */ const CreatureDisplayInfoExtraRec* m_displayInfoExtra;
     /* 0970 */ const CreatureModelDataRec* m_modelData;
@@ -357,7 +357,7 @@ class CGUnit_C : public CGObject_C, public CGUnit {
     /* 09A4 */ CGUnitVirtualItem m_virtualItem [NUM_VIRTUAL_MONSTER_SLOTS];
     /* 09BC */ uint32_t m_nextBreathCheckTime;
     /* 09C0 */ int32_t m_mountDisplayId;
-    /* 09C4 */ const MountTransitionObject* m_mountTransition;
+    /* 09C4 */ const MountTransitionObject* m_mountTransitionObject;
     /* 09C8 */ CEffect* m_mountTransitionEffect;
     /* 09CC */ uint32_t m_mountTransitionSpellId;
     /* 09D0 */ uint32_t m_critterDisplayCreatureId;

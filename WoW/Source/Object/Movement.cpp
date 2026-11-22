@@ -2573,11 +2573,13 @@ C3Vector CMovement_C::GetSteepSurfacePushNormal(uint32_t facet, const C4Plane* p
 
 // VERIFY: 52bf037e auto
 // OFFSET: 0x0075E9C0
-C2Vector CMovement_C::CalcFallObstaclePush(const C3Vector& direction, float distance, float maxDistance, uint32_t facet, const C4Plane* planes, uint32_t count) {
+C2Vector CMovement_C::CalcFallObstaclePush(const C3Vector& direction, float distance, float maxDistance, uint32_t facet, const C4Plane* planes, uint32_t numSidesHit) {
+    STORM_ASSERT(numSidesHit > 0);
+
     C3Vector normal;
 
     if (this->IsFacetWall(facet)) {
-        normal = this->GetSteepSurfacePushNormal(facet, planes, count);
+        normal = this->GetSteepSurfacePushNormal(facet, planes, numSidesHit);
     } else {
         C3Vector point(direction.x * distance + this->m_position.x, direction.y * distance + this->m_position.y, distance * direction.z + this->m_position.z);
         normal = this->PushOffObstacleEdge(point, direction, facet);

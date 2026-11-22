@@ -1971,7 +1971,7 @@ BOOL CGSpellBook::CanApplyAura(const AuraData* aura) {
 
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(aura->m_creator, TYPE_UNIT, __FILE__, __LINE__));
 
-    if (!unit || !unit->m_creatureCacheEntry) {
+    if (!unit || !unit->m_stats) {
         return 0;
     }
 

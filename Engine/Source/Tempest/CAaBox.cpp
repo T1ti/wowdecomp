@@ -1,4 +1,5 @@
 #include <cstdint>
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "Engine/Source/Tempest/CAaBox.h"
 
@@ -117,18 +118,20 @@ CAaBox CAaBox::Transform(const CAaBox& box, const C44Matrix& m) {
 
 // VERIFY: d22b3ba3 manual
 // OFFSET: 0x00984930
-CAaBox CAaBox::Bounding(const C3Vector* points, uint32_t count) {
+CAaBox CAaBox::Bounding(const C3Vector* vectors, uint32_t count) {
     CAaBox result;
 
     if (!count) {
         return result;
     }
 
-    result.b = points[0];
-    result.t = points[0];
+    STORM_ASSERT(vectors != NULL);
+
+    result.b = vectors[0];
+    result.t = vectors[0];
 
     for (uint32_t i = 1; i < count; i++) {
-        const C3Vector& point = points[i];
+        const C3Vector& point = vectors[i];
 
         if (result.b.x > point.x) {
             result.b.x = point.x;

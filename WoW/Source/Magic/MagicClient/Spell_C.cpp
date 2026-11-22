@@ -189,10 +189,10 @@ static uint32_t s_lastFailedTime;
 static const UIErrors s_powerErrors[] = { ERR_OUT_OF_MANA, ERR_OUT_OF_RAGE, ERR_OUT_OF_FOCUS, ERR_OUT_OF_ENERGY, ERR_NOT_HAPPY_ENOUGH, ERR_OUT_OF_RUNES, ERR_OUT_OF_RUNIC_POWER };
 
 // STATIC: 0x00D397D8
-static int32_t s_spellPctModifiers[NUM_SPELL_CLASS_MASK_BITS][NUM_SPELL_MOD_OPS];
+static int32_t s_spellPctModifiers[NUM_SPELL_CLASS_MASK_BITS][MAX_SPELL_MODIFIER];
 
 // STATIC: 0x00D3C658
-static int32_t s_spellFlatModifiers[NUM_SPELL_CLASS_MASK_BITS][NUM_SPELL_MOD_OPS];
+static int32_t s_spellFlatModifiers[NUM_SPELL_CLASS_MASK_BITS][MAX_SPELL_MODIFIER];
 
 // STATIC: 0x00AF524C
 static TSList<PendingSpellCast, TSGetLink<PendingSpellCast> > s_pendingSpellCasts;
@@ -365,6 +365,8 @@ bool Spell_C_HasEffect(const SpellRec* spell, int32_t effect) {
 // VERIFY: 4b3db043 auto
 // OFFSET: 0x007FE820
 int32_t Spell_C_IsOverride(int32_t spellId, const OverrideSpellDataRec* rec) {
+    STORM_ASSERT(rec);
+
     for (uint32_t i = 0; i < MAX_OVERRIDE_SPELLS; i++) {
         if (rec->m_spells[i] == spellId) {
             return 1;
@@ -1229,7 +1231,10 @@ void CGUnit_C::ReleaseMissiles() {
 
 // VERIFY: 936f6df8 manual
 // OFFSET: 0x007FD970
-bool Spell_C_GetSpellModifiers(const SpellRec* spell, SPELL_MOD_OP modifier, int32_t& flat, int32_t& pct) {
+bool Spell_C_GetSpellModifiers(const SpellRec* spell, SPELL_MOD_OP mod, int32_t& flat, int32_t& pct) {
+    STORM_ASSERT(mod >= 0);
+    STORM_ASSERT(mod < MAX_SPELL_MODIFIER);
+
     if (!spell->m_spellClassSet || spell->m_spellClassSet != s_spellClassSet) {
         flat = 0;
         pct = SPELL_PERCENT_BASE;
@@ -1247,8 +1252,8 @@ bool Spell_C_GetSpellModifiers(const SpellRec* spell, SPELL_MOD_OP modifier, int
 
     for (uint32_t i = 0; i < sizeof(spell->m_spellClassMask) * CHAR_BIT; i++) {
         if ((1 << (i & SPELL_MASK_WORD_BIT_MASK)) & spell->m_spellClassMask[i >> SPELL_MASK_WORD_SHIFT]) {
-            flat += s_spellFlatModifiers[i][modifier];
-            pct += s_spellPctModifiers[i][modifier];
+            flat += s_spellFlatModifiers[i][mod];
+            pct += s_spellPctModifiers[i][mod];
         }
     }
 
@@ -4262,9 +4267,11 @@ const char* GetSpellFailedResult(int32_t reason) {
 
 // VERIFY: 338bf6ad auto
 // OFFSET: 0x007FD5F0
-bool Spell_C_SpellUsesReagent(const SpellRec* spell, int32_t itemId) {
+bool Spell_C_SpellUsesReagent(const SpellRec* spell, int32_t itemID) {
+    STORM_ASSERT(itemID);
+
     for (uint32_t i = 0; i < sizeof(spell->m_reagent) / sizeof(spell->m_reagent[0]); i++) {
-        if (spell->m_reagent[i] == itemId && spell->m_reagentCount[i] > 0) {
+        if (spell->m_reagent[i] == itemID && spell->m_reagentCount[i] > 0) {
             return true;
         }
     }
@@ -4964,38 +4971,40 @@ void Spell_C_SetAutoRepeatingSpell(int32_t spellId) {
 
 // VERIFY: 9a0a630e manual
 // OFFSET: 0x00800BF0
-bool Spell_C_SpellVisualHasChainEffect(const SpellVisualRec* visual) {
-    SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visual->m_castKit);
+bool Spell_C_SpellVisualHasChainEffect(const SpellVisualRec* visRec) {
+    STORM_ASSERT(visRec);
+
+    SpellVisualKitRec* kit = g_spellVisualKitDB.GetRecord(visRec->m_castKit);
 
     if (kit && SpellVisualKitHasChainEffect(kit)) {
         return true;
     }
 
-    kit = g_spellVisualKitDB.GetRecord(visual->m_impactKit);
+    kit = g_spellVisualKitDB.GetRecord(visRec->m_impactKit);
 
     if (kit && SpellVisualKitHasChainEffect(kit)) {
         return true;
     }
 
-    kit = g_spellVisualKitDB.GetRecord(visual->m_stateKit);
+    kit = g_spellVisualKitDB.GetRecord(visRec->m_stateKit);
 
     if (kit && SpellVisualKitHasChainEffect(kit)) {
         return true;
     }
 
-    kit = g_spellVisualKitDB.GetRecord(visual->m_channelKit);
+    kit = g_spellVisualKitDB.GetRecord(visRec->m_channelKit);
 
     if (kit && SpellVisualKitHasChainEffect(kit)) {
         return true;
     }
 
-    kit = g_spellVisualKitDB.GetRecord(visual->m_casterImpactKit);
+    kit = g_spellVisualKitDB.GetRecord(visRec->m_casterImpactKit);
 
     if (kit && SpellVisualKitHasChainEffect(kit)) {
         return true;
     }
 
-    kit = g_spellVisualKitDB.GetRecord(visual->m_targetImpactKit);
+    kit = g_spellVisualKitDB.GetRecord(visRec->m_targetImpactKit);
     return kit && SpellVisualKitHasChainEffect(kit);
 }
 

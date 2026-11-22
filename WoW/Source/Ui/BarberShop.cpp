@@ -296,7 +296,7 @@ void CGBarberShop::SetNextBarberShopStyle(BARBER_SHOP_STYLE_TYPE type, bool back
             break;
     }
 
-    component->m_data.m_model->IsDrawable(1, 1);
+    component->m_data.model2->IsDrawable(1, 1);
     component->RenderPrep(1);
 }
 
@@ -382,7 +382,7 @@ void CGBarberShop::ResetAppearance() {
     component->SetHairColor(player->m_player->hairColorID, true, nullptr);
     component->SetBeardStyle(player->m_player->facialHairStyleID, true, nullptr);
     component->SetSkinColor(player->m_player->skinID, true, true, nullptr);
-    component->m_data.m_model->IsDrawable(1, 1);
+    component->m_data.model2->IsDrawable(1, 1);
 }
 
 // VERIFY: fb38ad28 manual

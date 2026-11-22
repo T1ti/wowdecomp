@@ -1,4 +1,5 @@
 #include "PolyClipper.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include <cmath>
 #include "Engine/Source/Tempest/C4Plane.h"
 
@@ -25,39 +26,43 @@ void* PolyClipper::PCDataProxy::GetData(void* (*lerp)(const void*, const void*, 
 // VERIFY: 743585db auto
 // OFFSET: 0x007D9230
 void PolyClipper::AddVertex(const C3Vector& pos, const void* data) {
-    PCVertex& vertex = this->m_verts[this->m_vertCount];
+    STORM_ASSERT(m_vtxCnt<MAX_VTX_BUFFER_SIZE);
+
+    PCVertex& vertex = this->m_verts[this->m_vtxCnt];
     vertex.m_pos = pos;
     vertex.m_proxy.m_data = const_cast<void*>(data);
-    this->m_vertCount++;
+    this->m_vtxCnt++;
 }
 
 // VERIFY: a6a78c30 manual
 // OFFSET: 0x007D9270
 void PolyClipper::Begin() {
-    for (int32_t i = 0; i < this->m_vertCount; i++) {
+    STORM_ASSERT(m_edgeCnt==0);
+
+    for (int32_t i = 0; i < this->m_vtxCnt; i++) {
         PCVertex& vertex = this->m_verts[i];
         vertex.m_edges[1] = i;
         vertex.m_stamp = -1;
         vertex.m_edges[0] = i - 1;
 
-        PCEdge& edge = this->m_edges[this->m_edgeCount];
+        PCEdge& edge = this->m_edges[this->m_edgeCnt];
         edge.m_verts[0] = i;
         edge.m_verts[1] = i + 1;
         edge.m_clipped = false;
-        this->m_edgeCount++;
+        this->m_edgeCnt++;
     }
 
-    if (this->m_edgeCount) {
-        PCEdge& last = this->m_edges[this->m_edgeCount - 1];
-        this->m_verts[0].m_edges[0] = this->m_edgeCount - 1;
-        last.m_verts[1] %= this->m_vertCount;
+    if (this->m_edgeCnt) {
+        PCEdge& last = this->m_edges[this->m_edgeCnt - 1];
+        this->m_verts[0].m_edges[0] = this->m_edgeCnt - 1;
+        last.m_verts[1] %= this->m_vtxCnt;
     }
 }
 
 // VERIFY: 888a3b56 manual
 // OFFSET: 0x007D92F0
 void PolyClipper::End() {
-    for (this->m_firstEdge = 0; this->m_firstEdge < this->m_edgeCount; this->m_firstEdge++) {
+    for (this->m_firstEdge = 0; this->m_firstEdge < this->m_edgeCnt; this->m_firstEdge++) {
         if (!this->m_edges[this->m_firstEdge].m_clipped) {
             break;
         }
@@ -74,7 +79,7 @@ PCResultsIterator::PCResultsIterator(const PolyClipper* clipper, void* (*lerp)(c
     this->m_step = 0;
     this->m_finished = true;
 
-    if (clipper->m_firstEdge < clipper->m_edgeCount) {
+    if (clipper->m_firstEdge < clipper->m_edgeCnt) {
         this->m_front = clipper->m_edges[clipper->m_firstEdge].m_verts[0];
         this->m_back = clipper->m_edges[clipper->m_firstEdge].m_verts[1];
         this->m_finished = false;
@@ -128,7 +133,7 @@ int32_t PolyClipper::Clip(const C4Plane& plane, int32_t side) {
     int32_t crossVert[2];
     int32_t newEdge[2];
 
-    for (int32_t e = 0; e < this->m_edgeCount; e++) {
+    for (int32_t e = 0; e < this->m_edgeCnt; e++) {
         PCEdge& edge = this->m_edges[e];
 
         if (edge.m_clipped) {
@@ -173,10 +178,10 @@ int32_t PolyClipper::Clip(const C4Plane& plane, int32_t side) {
         int32_t k = crossings - 1;
         crossEdge[k] = e;
         crossSide[k] = keep;
-        crossVert[k] = this->m_vertCount;
-        newEdge[1 - keep] = this->m_vertCount;
+        crossVert[k] = this->m_vtxCnt;
+        newEdge[1 - keep] = this->m_vtxCnt;
 
-        PCVertex& vertex = this->m_verts[this->m_vertCount];
+        PCVertex& vertex = this->m_verts[this->m_vtxCnt];
         vertex.m_pos.x = (b.m_pos.x - a.m_pos.x) * t + a.m_pos.x;
         vertex.m_pos.y = (b.m_pos.y - a.m_pos.y) * t + a.m_pos.y;
         vertex.m_pos.z = (b.m_pos.z - a.m_pos.z) * t + a.m_pos.z;
@@ -185,23 +190,23 @@ int32_t PolyClipper::Clip(const C4Plane& plane, int32_t side) {
         vertex.m_proxy.m_t = t;
         vertex.m_proxy.m_data = nullptr;
         vertex.m_edges[1 - keep] = e;
-        vertex.m_edges[keep] = this->m_edgeCount;
+        vertex.m_edges[keep] = this->m_edgeCnt;
         vertex.m_stamp = this->m_stamp;
         vertex.m_dist = 0.0f;
-        this->m_vertCount++;
+        this->m_vtxCnt++;
     }
 
     if (crossings != 2) {
-        this->m_vertCount -= crossings;
+        this->m_vtxCnt -= crossings;
         return crossings;
     }
 
     this->m_edges[crossEdge[0]].m_verts[crossSide[0]] = crossVert[0];
     this->m_edges[crossEdge[1]].m_verts[crossSide[1]] = crossVert[1];
-    this->m_edges[this->m_edgeCount].m_verts[0] = newEdge[0];
-    this->m_edges[this->m_edgeCount].m_verts[1] = newEdge[1];
-    this->m_edges[this->m_edgeCount].m_clipped = false;
-    this->m_edgeCount++;
+    this->m_edges[this->m_edgeCnt].m_verts[0] = newEdge[0];
+    this->m_edges[this->m_edgeCnt].m_verts[1] = newEdge[1];
+    this->m_edges[this->m_edgeCnt].m_clipped = false;
+    this->m_edgeCnt++;
 
     return 2;
 }
@@ -215,8 +220,8 @@ PCResultsIterator PolyClipper::GetResults(void* (*lerp)(const void*, const void*
 // VERIFY: 3a0cd1a8 manual
 // OFFSET: 0x007D9740
 PolyClipper::PolyClipper() {
-    this->m_vertCount = 0;
-    this->m_edgeCount = 0;
+    this->m_vtxCnt = 0;
+    this->m_edgeCnt = 0;
     this->m_stamp = 0;
     this->m_firstEdge = 0;
 }

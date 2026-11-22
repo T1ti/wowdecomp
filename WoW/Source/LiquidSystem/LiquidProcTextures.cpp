@@ -1,4 +1,5 @@
 #include "Liquid.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Base/Handle.h"
 #include "Engine/Source/Gx/CGxTexFlags.h"
 #include "Engine/Source/Gx/Gx.h"
@@ -176,7 +177,12 @@ void Liquid::InvalidateProceduralTextures() {
 
 // VERIFY: 331f7c3c manual
 // OFFSET: 0x008A2AC0
-void Liquid::WmoWaterTexCallback(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
+void Liquid::WmoWaterTexCallback(EGxTexCommand command, uint32_t w, uint32_t h, uint32_t depth, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
+    const uint32_t texWidth = 8;
+    STORM_ASSERT(mipLevel == 0);
+    STORM_ASSERT(w==texWidth);
+    STORM_ASSERT(h==WATERTEX_HEIGHT);
+
     // STATIC: 0x00D43BE0
     static CImVector s_texels[WATERTEX_HEIGHT * 8];
 

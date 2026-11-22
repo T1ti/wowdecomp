@@ -1,4 +1,5 @@
 #include "MapObjGroup.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include "WoW/Source/WorldClient/BspQuery_SegmentLink.h"
 #include "WoW/Source/WorldClient/Map.h"
@@ -500,7 +501,7 @@ bool BspQuery_Segment::GetFaceIndicesUsingCache(const CAaBsp& aaBsp, const CAaBs
 // VERIFY: e3cbf054 manual
 // OFFSET: 0x007C75E0
 void CMapObjGroup::AsyncFailedCallback(CAsyncObject* object) {
-    void* buffer = object->m_buffer;
+    void* buffer = object->buffer;
     AsyncFileReadDestroyObject(object);
     SMemFree(buffer, __FILE__, __LINE__, 0);
 }

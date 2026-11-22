@@ -28,7 +28,7 @@ float CGlueLoading::ComputeLoadProgress(CCharacterComponent* component, int64_t&
 
     if (component) {
         component->ComputeLoadProgress(loaded, total);
-        component->m_data.m_model->ComputeLoadProgress(loaded, total);
+        component->m_data.model2->ComputeLoadProgress(loaded, total);
 
         if (total) {
             return static_cast<float>(loaded) / static_cast<float>(total);
@@ -66,7 +66,7 @@ int32_t CGlueLoading::Idle(CCharacterComponent* component) {
             }
 
             if (component) {
-                CM2Model* model = component->m_data.m_model;
+                CM2Model* model = component->m_data.model2;
 
                 if (model->m_attachParent) {
                     model->m_runtimeFlags = (model->m_runtimeFlags & ~M2_FLAGS::M2_ATTACHED_DRAW_ENABLED) | (done << M2_BITS::M2_BIT_ATTACHED_DRAW_ENABLED);
@@ -123,7 +123,7 @@ void CGlueLoading::StartLoad(CCharacterComponent* component, BOOL keepProgress) 
             CGlueLoading::m_loadState = CGlueLoading::LOAD_STATE_DONE;
         } else {
             if (component) {
-                CM2Model* model = component->m_data.m_model;
+                CM2Model* model = component->m_data.model2;
 
                 if (model->m_attachParent) {
                     model->m_runtimeFlags &= ~M2_FLAGS::M2_ATTACHED_DRAW_ENABLED;
@@ -146,7 +146,7 @@ void CGlueLoading::StartLoad(CCharacterComponent* component, BOOL keepProgress) 
     } else {
         if (component) {
             component->RenderPrep(1);
-            component->m_data.m_model->IsDrawable(1, 1);
+            component->m_data.model2->IsDrawable(1, 1);
         }
 
         CGlueLoading::m_loadState = CGlueLoading::LOAD_STATE_DONE;

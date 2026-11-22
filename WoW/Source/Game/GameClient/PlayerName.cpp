@@ -278,17 +278,19 @@ BOOL PLAYERNAMEDESC::ShouldRender(CGObject_C* object, uint32_t raidTarget) {
 
 // VERIFY: 64e128ac manual
 // OFFSET: 0x007E5420
-float PlayerNameComputeScale(CGObject_C* object) {
+float PlayerNameComputeScale(CGObject_C* objPtr) {
+    STORM_ASSERT(objPtr);
+
     float height;
 
-    if (object->m_obj->m_type & TYPE_UNIT) {
-        height = static_cast<CGUnit_C*>(object)->GetStandHeight();
-    } else if (object->m_worldModel && object->m_worldModel->IsLoaded(0, 0) && object->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME)) {
-        CM2Model* model = object->m_worldModel;
+    if (objPtr->m_obj->m_type & TYPE_UNIT) {
+        height = static_cast<CGUnit_C*>(objPtr)->GetStandHeight();
+    } else if (objPtr->m_worldModel && objPtr->m_worldModel->IsLoaded(0, 0) && objPtr->m_worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME)) {
+        CM2Model* model = objPtr->m_worldModel;
         float attachZ = model->GetAttachmentPosition(MODEL_ATTACHMENT_ID::ATTACH_PLAYERNAME).z;
         height = attachZ - model->GetWorldPosition().z;
     } else {
-        height = object->m_height * object->m_scale * 1.25f;
+        height = objPtr->m_height * objPtr->m_scale * 1.25f;
     }
 
     if (height <= 4.0f) {

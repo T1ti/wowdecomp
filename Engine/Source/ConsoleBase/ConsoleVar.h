@@ -98,16 +98,17 @@ class CVarArrayWrapper {
 
 class CVarIntListWrapper {
     public:
-    enum STATE : uint32_t {
-        INITIAL = 0,
-        READ = 1,
-        WRITE = 2,
+    // Last operation on the list (names from the 12213 assertions; type name and NONE inferred).
+    enum CVAR_INT_LIST_OP : uint32_t {
+        CVAR_INT_LIST_OP_NONE = 0,
+        CVAR_INT_LIST_OP_GET = 1,
+        CVAR_INT_LIST_OP_ADD = 2,
     };
 
     /* 0000 */ CVar* m_cvar;
     /* 0004 */ uint32_t m_pos;
     /* 0008 */ char m_buffer[256];
-    /* 0108 */ STATE m_state;
+    /* 0108 */ CVAR_INT_LIST_OP m_lastOp;
 
     void AddNextValue(uint32_t value);
     uint32_t GetNextValue();

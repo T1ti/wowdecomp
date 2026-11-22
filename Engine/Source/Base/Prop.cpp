@@ -28,6 +28,8 @@ void PropSelectContext(HPROPCONTEXT context) {
 // VERIFY: 2ccb0493 auto
 // OFFSET: 0x0047CC10
 HPROPCONTEXT PropGetSelectedContext() {
+    STORM_ASSERT(s_tlsIndex != 0xFFFFFFFF);
+
     return static_cast<HPROPCONTEXT>(OsTlsGetValue(s_tlsIndex));
 }
 

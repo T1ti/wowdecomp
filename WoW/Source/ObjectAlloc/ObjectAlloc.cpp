@@ -36,6 +36,8 @@ CObjectHeap::~CObjectHeap() {
 
 // INLINED
 void CObjectHeap::Delete(uint32_t index, uint32_t objSize, uint32_t count) {
+    STORM_ASSERT(m_obj != NULL);
+
     if (this->m_allocated && this->m_indexStack) {
         this->m_indexStack[--this->m_allocated] = index;
     }
@@ -43,6 +45,8 @@ void CObjectHeap::Delete(uint32_t index, uint32_t objSize, uint32_t count) {
 
 // INLINED
 void* CObjectHeap::Ptr(uint32_t index, uint32_t objSize, uint32_t count) {
+    STORM_ASSERT(m_obj != NULL);
+
     return static_cast<char*>(this->m_obj) + index * objSize;
 }
 
@@ -191,6 +195,8 @@ uint32_t CObjectHeapList::PercentUsed() {
 // VERIFY: 6ca854e3 auto
 // OFFSET: 0x004D2CC0
 int32_t CObjectHeap::New(uint32_t objSize, uint32_t count, uint32_t* index, const char* name, void** ptr, bool zero) {
+    STORM_ASSERT(index);
+
     if (this->m_allocated >= count) {
         return 0;
     }

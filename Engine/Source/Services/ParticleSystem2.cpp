@@ -451,7 +451,7 @@ CImVector CParticleEmitter2::InterpolateColorTrack(float t) {
     float g;
     float b;
 
-    if (this->m_flags & CParticleEmitter2::RUNTIME_FLAGS::REPLACEMENT_COLORS) {
+    if (this->m_flags & CParticleEmitter2::RUNTIME_FLAGS::PROP_PARTICLE_COLOR_SET) {
         r = (this->m_params.m_replacementColors[key1].x - this->m_params.m_replacementColors[key0].x) * blend + this->m_params.m_replacementColors[key0].x;
         g = (this->m_params.m_replacementColors[key1].y - this->m_params.m_replacementColors[key0].y) * blend + this->m_params.m_replacementColors[key0].y;
         b = blend * (this->m_params.m_replacementColors[key1].z - this->m_params.m_replacementColors[key0].z) + this->m_params.m_replacementColors[key0].z;
@@ -971,6 +971,8 @@ int32_t CParticleEmitter2::RenderParticle(CParticle2_Model& particle, const C44M
 // VERIFY: 3b69063c manual
 // OFFSET: 0x0097A990
 void CParticleEmitter2::SetParticleColors(const CImVector& color0, const CImVector& color1, const CImVector& color2) {
+    STORM_ASSERT(this->m_params.m_colorTrack != NULL);
+
     this->m_params.m_replacementColors[0].x = color0.r;
     this->m_params.m_replacementColors[0].y = color0.g;
     this->m_params.m_replacementColors[0].z = color0.b;
@@ -981,7 +983,7 @@ void CParticleEmitter2::SetParticleColors(const CImVector& color0, const CImVect
     this->m_params.m_replacementColors[2].y = color2.g;
     this->m_params.m_replacementColors[2].z = color2.b;
 
-    this->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::REPLACEMENT_COLORS;
+    this->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::PROP_PARTICLE_COLOR_SET;
 
     if (!(this->m_flags & CParticleEmitter2::RUNTIME_FLAGS::SIMPLE_TRACKS)) {
         return;
@@ -1005,6 +1007,8 @@ void CParticleEmitter2::SetParticleColors(const CImVector& color0, const CImVect
 // VERIFY: 1ac89391 manual
 // OFFSET: 0x0097AB10
 void CParticleEmitter2::GetReplacementColors(CImVector& color0, CImVector& color1, CImVector& color2) {
+    STORM_ASSERT(this->m_flags & CParticleEmitter2::RUNTIME_FLAGS::PROP_PARTICLE_COLOR_SET);
+
     color0.r = static_cast<uint8_t>(CMath::fint_(this->m_params.m_replacementColors[0].x));
     color0.g = static_cast<uint8_t>(CMath::fint_(this->m_params.m_replacementColors[0].y));
     color0.b = static_cast<uint8_t>(CMath::fint_(this->m_params.m_replacementColors[0].z));
@@ -1140,7 +1144,7 @@ void CParticleEmitter2::ChangeFrameOfReference(const C44Matrix* matrix) {
 void CParticleEmitter2::SetSimpleColorKeys() {
     SimpleKey* keys = this->m_params.m_simpleKeys;
 
-    if (this->m_flags & CParticleEmitter2::RUNTIME_FLAGS::REPLACEMENT_COLORS) {
+    if (this->m_flags & CParticleEmitter2::RUNTIME_FLAGS::PROP_PARTICLE_COLOR_SET) {
         keys[0].m_color.r = static_cast<uint8_t>(CMath::fint_(this->m_params.m_replacementColors[0].x));
         keys[0].m_color.g = static_cast<uint8_t>(CMath::fint_(this->m_params.m_replacementColors[0].y));
         keys[0].m_color.b = static_cast<uint8_t>(CMath::fint_(this->m_params.m_replacementColors[0].z));

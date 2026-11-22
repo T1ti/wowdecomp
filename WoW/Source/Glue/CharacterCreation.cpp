@@ -197,8 +197,8 @@ void CCharacterCreation::SetCharCustomizeModel(const char* modelName) {
         model->IsDrawable(1, 1);
     }
 
-    if (CCharacterCreation::m_charCustomizeFrame->m_model && CCharacterCreation::m_character->m_data.m_model) {
-        CCharacterCreation::m_character->m_data.m_model->AttachToParent(CCharacterCreation::m_charCustomizeFrame->m_model, MODEL_ATTACHMENT_ID::ATTACH_SHIELD, nullptr, 0);
+    if (CCharacterCreation::m_charCustomizeFrame->m_model && CCharacterCreation::m_character->m_data.model2) {
+        CCharacterCreation::m_character->m_data.model2->AttachToParent(CCharacterCreation::m_charCustomizeFrame->m_model, MODEL_ATTACHMENT_ID::ATTACH_SHIELD, nullptr, 0);
     }
 }
 
@@ -207,9 +207,9 @@ void CCharacterCreation::SetCharCustomizeModel(const char* modelName) {
 void CCharacterCreation::SetCharacterFacing(float facing) {
     CCharacterCreation::m_charFacing = facing;
 
-    if (CCharacterCreation::m_character->m_data.m_model) {
+    if (CCharacterCreation::m_character->m_data.model2) {
         C3Vector position(0.0f, 0.0f, 0.0f);
-        CCharacterCreation::m_character->m_data.m_model->SetWorldTransform(position, facing, 1.0f);
+        CCharacterCreation::m_character->m_data.model2->SetWorldTransform(position, facing, 1.0f);
     }
 }
 
@@ -448,7 +448,7 @@ void CCharacterCreation::Dress() {
                 if (slot != INVSLOT_MAINHAND && slot != INVSLOT_OFFHAND && slot != INVSLOT_RANGED) {
                     CCharacterCreation::m_character->AddItemBySlot(static_cast<INVENTORY_SLOTS>(slot), displayID, visual);
                 } else if (found) {
-                    CCharacterComponent::AddHandItem(CCharacterCreation::m_character->m_data.m_model, &itemRec, static_cast<INVENTORY_SLOTS>(slot), SHEATHE_NONE, false, display->m_characterInfo.m_inventoryItemType[slot] == INVTYPE_SHIELD, false, visual);
+                    CCharacterComponent::AddHandItem(CCharacterCreation::m_character->m_data.model2, &itemRec, static_cast<INVENTORY_SLOTS>(slot), SHEATHE_NONE, false, display->m_characterInfo.m_inventoryItemType[slot] == INVTYPE_SHIELD, false, visual);
                 }
 
                 if (slot == INVSLOT_TABARD && found && (itemRec.m_flags & ItemDisplayInfoRec::DISPLAY_FLAGS::GUILD_TABARD)) {
@@ -468,14 +468,14 @@ void CCharacterCreation::Dress() {
         }
     }
 
-    for (uint32_t i = 0; i < NUM_ITEM_SLOTS; i++) {
+    for (uint32_t i = 0; i < NUM_ITEM_SLOT; i++) {
         CCharacterCreation::m_character->RemoveItem(static_cast<ITEM_SLOT>(i));
     }
 
-    CCharacterComponent::RemoveHandItem(CCharacterCreation::m_character->m_data.m_model, INVSLOT_MAINHAND, SHEATHE_NONE, false);
-    CCharacterComponent::RemoveHandItem(CCharacterCreation::m_character->m_data.m_model, INVSLOT_OFFHAND, SHEATHE_NONE, false);
-    CCharacterComponent::RemoveHandItem(CCharacterCreation::m_character->m_data.m_model, INVSLOT_OFFHAND, SHEATHE_NONE, true);
-    CCharacterComponent::RemoveHandItem(CCharacterCreation::m_character->m_data.m_model, INVSLOT_RANGED, SHEATHE_NONE, false);
+    CCharacterComponent::RemoveHandItem(CCharacterCreation::m_character->m_data.model2, INVSLOT_MAINHAND, SHEATHE_NONE, false);
+    CCharacterComponent::RemoveHandItem(CCharacterCreation::m_character->m_data.model2, INVSLOT_OFFHAND, SHEATHE_NONE, false);
+    CCharacterComponent::RemoveHandItem(CCharacterCreation::m_character->m_data.model2, INVSLOT_OFFHAND, SHEATHE_NONE, true);
+    CCharacterComponent::RemoveHandItem(CCharacterCreation::m_character->m_data.model2, INVSLOT_RANGED, SHEATHE_NONE, false);
 
     for (int32_t i = 0; i < g_charStartOutfitDB.m_nNumRecords; i++) {
         CharStartOutfitRec* outfit = i >= 0 && i < g_charStartOutfitDB.m_nNumRecords ? &g_charStartOutfitDB.m_records[i] : nullptr;
@@ -507,10 +507,10 @@ void CCharacterCreation::Dress() {
                         ItemDisplayInfoRec itemRec;
 
                         if (g_itemDisplayInfoDB.GetRecord(displayID, &itemRec)) {
-                            MODEL_ATTACHMENT_ID link = CCharacterComponent::AddHandItem(CCharacterCreation::m_character->m_data.m_model, &itemRec, INVSLOT_RANGED, SHEATHE_NONE, false, false, mainHand, 0);
+                            MODEL_ATTACHMENT_ID link = CCharacterComponent::AddHandItem(CCharacterCreation::m_character->m_data.model2, &itemRec, INVSLOT_RANGED, SHEATHE_NONE, false, false, mainHand, 0);
 
                             if (type == INVTYPE_RANGED) {
-                                for (CM2Model* attached = CCharacterCreation::m_character->m_data.m_model->m_attachList; attached; attached = attached->m_attachNext) {
+                                for (CM2Model* attached = CCharacterCreation::m_character->m_data.model2->m_attachList; attached; attached = attached->m_attachNext) {
                                     if (attached->m_attachmentId == static_cast<uint32_t>(link)) {
                                         attached->SetLoadedCallback(&CCharacterSelection::ModelLoadedCallback, nullptr);
                                         break;
@@ -555,24 +555,24 @@ void CCharacterCreation::InitCharacterComponents(ComponentData* data, bool rando
     }
 
     if (CCharacterCreation::m_character) {
-        if (CCharacterCreation::m_character->m_data.m_model->m_attachParent) {
-            CCharacterCreation::m_character->m_data.m_model->DetachFromParent();
+        if (CCharacterCreation::m_character->m_data.model2->m_attachParent) {
+            CCharacterCreation::m_character->m_data.model2->DetachFromParent();
         }
 
         CCharacterComponent::FreeComponent(CCharacterCreation::m_character);
     }
 
     CCharacterCreation::m_character = CCharacterComponent::AllocComponent();
-    data->m_model = CCharacterCreation::m_charCustomizeFrame->GetScene()->CreateModel(modelRec->m_modelName, 0);
+    data->model2 = CCharacterCreation::m_charCustomizeFrame->GetScene()->CreateModel(modelRec->m_modelName, 0);
 
-    if (!data->m_model) {
+    if (!data->model2) {
         return;
     }
 
     CCharacterCreation::m_charCustomizeFrame->m_lightArray2[0].m_ignoreGhostLighting = 1;
-    data->m_model->m_lightingCallback = &CCharacterSelection::GenericLightingCallback;
-    data->m_model->m_lightingArg = CCharacterCreation::m_charCustomizeFrame->m_lightArray2;
-    data->m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, 0, 0, 1.0f, 1, 1);
+    data->model2->m_lightingCallback = &CCharacterSelection::GenericLightingCallback;
+    data->model2->m_lightingArg = CCharacterCreation::m_charCustomizeFrame->m_lightArray2;
+    data->model2->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, 0, 0, 1.0f, 1, 1);
     data->m_flags |= ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
 
     CCharacterCreation::m_character->Init(data, nullptr);
@@ -596,7 +596,7 @@ void CCharacterCreation::InitCharacterComponents(ComponentData* data, bool rando
     CCharacterCreation::m_character->RenderPrep(0);
 
     if (CCharacterCreation::m_charCustomizeFrame->m_model) {
-        CCharacterCreation::m_character->m_data.m_model->AttachToParent(CCharacterCreation::m_charCustomizeFrame->m_model, MODEL_ATTACHMENT_ID::ATTACH_SHIELD, nullptr, 0);
+        CCharacterCreation::m_character->m_data.model2->AttachToParent(CCharacterCreation::m_charCustomizeFrame->m_model, MODEL_ATTACHMENT_ID::ATTACH_SHIELD, nullptr, 0);
     }
 }
 

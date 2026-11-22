@@ -150,8 +150,10 @@ void CMapObj::Load() {
 
 // VERIFY: 4e3ee2fd auto
 // OFFSET: 0x007D7710
-void CMapObj::CreateMaterial(uint8_t texture) {
-    SMOMaterial& material = this->m_materialList[texture];
+void CMapObj::CreateMaterial(uint8_t materialId) {
+    STORM_ASSERT(materialId < this->m_materialsCount); // 12213: "materialId < materialCount"
+
+    SMOMaterial& material = this->m_materialList[materialId];
 
     if (material.Textures()[SMOMaterial::MAPID_DIFFUSE]) {
         return;
@@ -447,12 +449,12 @@ bool CMapObj::Read(char* fileName) {
     this->m_pWmoData = SMemAlloc(this->m_wmoFileSize, __FILE__, __LINE__, 0);
 
     this->m_asyncObject = AsyncFileReadAllocObject();
-    this->m_asyncObject->m_file = file;
-    this->m_asyncObject->m_userArg = this;
-    this->m_asyncObject->m_buffer = this->m_pWmoData;
-    this->m_asyncObject->m_size = this->m_wmoFileSize;
-    this->m_asyncObject->m_userPostloadCallback = CMapObj::PostloadCallback;
-    this->m_asyncObject->m_priority = 124;
+    this->m_asyncObject->file = file;
+    this->m_asyncObject->userArg = this;
+    this->m_asyncObject->buffer = this->m_pWmoData;
+    this->m_asyncObject->size = this->m_wmoFileSize;
+    this->m_asyncObject->userPostloadCallback = CMapObj::PostloadCallback;
+    this->m_asyncObject->priority = 124;
     AsyncFileReadObject(this->m_asyncObject, 0);
 
     CMapObj::s_asyncLoadQueue.LinkToTail(this);
@@ -627,11 +629,11 @@ void CMapObj::ReadGroup(uint32_t index, bool preLoad) {
     }
 
     CAsyncObject* object = AsyncFileReadAllocObject();
-    object->m_file = file;
-    object->m_buffer = group->m_filePtr;
-    object->m_size = group->m_fileSize;
-    object->m_userArg = group;
-    object->m_userPostloadCallback = CMapObjGroup::AsyncPostloadCallback;
+    object->file = file;
+    object->buffer = group->m_filePtr;
+    object->size = group->m_fileSize;
+    object->userArg = group;
+    object->userPostloadCallback = CMapObjGroup::AsyncPostloadCallback;
     group->m_asyncObjPtr = object;
     AsyncFileReadObject(object, 0);
 

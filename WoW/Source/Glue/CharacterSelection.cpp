@@ -85,7 +85,7 @@ void CCharacterSelection::Shutdown() {
             continue;
         }
 
-        CM2Model* model = CCharacterSelection::s_characterList[i].m_component->m_data.m_model;
+        CM2Model* model = CCharacterSelection::s_characterList[i].m_component->m_data.model2;
 
         if (!model || i != static_cast<uint32_t>(CGlueMgr::s_displayedCharacterIndex)) {
             continue;
@@ -453,16 +453,16 @@ void CCharacterSelection::ShowCharacter() {
         data.m_preferences.m_hairStyleId = info.m_hairStyleID;
         data.m_preferences.m_hairColorId = info.m_hairColorID;
         data.m_preferences.m_facialHairId = info.m_facialHairStyleID;
-        data.m_model = CCharacterSelection::m_modelFrame->GetScene()->CreateModel(playerRec->m_modelName, 0);
+        data.model2 = CCharacterSelection::m_modelFrame->GetScene()->CreateModel(playerRec->m_modelName, 0);
         data.m_flags |= ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
 
         CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->Init(&data, nullptr);
 
-        CM2Model* characterModel = CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.m_model;
+        CM2Model* characterModel = CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.model2;
         characterModel->m_lightingCallback = &CCharacterSelection::GenericLightingCallback;
         characterModel->m_lightingArg = CCharacterSelection::m_modelFrame->m_lightArray2;
 
-        CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.m_model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
+        CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.model2->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
 
         for (uint32_t slot = 0; slot < NUM_INVENTORY_SLOTS; slot++) {
             int32_t displayID = CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_inventoryItemDisplayID[slot];
@@ -498,11 +498,11 @@ void CCharacterSelection::ShowCharacter() {
 
             if (slot == INVSLOT_MAINHAND || slot == INVSLOT_OFFHAND || (slot == INVSLOT_RANGED && hunter)) {
                 if (found) {
-                    MODEL_ATTACHMENT_ID link = CCharacterComponent::AddHandItem(CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.m_model, &itemRec, static_cast<INVENTORY_SLOTS>(slot), SHEATHE_NONE, false, CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_inventoryItemType[slot] == INVTYPE_SHIELD, false, visual);
+                    MODEL_ATTACHMENT_ID link = CCharacterComponent::AddHandItem(CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.model2, &itemRec, static_cast<INVENTORY_SLOTS>(slot), SHEATHE_NONE, false, CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_inventoryItemType[slot] == INVTYPE_SHIELD, false, visual);
 
                     if (slot == INVSLOT_RANGED) {
                         if (CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_inventoryItemType[INVSLOT_RANGED] == INVTYPE_RANGED) {
-                            for (CM2Model* attached = data.m_model->m_attachList; attached; attached = attached->m_attachNext) {
+                            for (CM2Model* attached = data.model2->m_attachList; attached; attached = attached->m_attachNext) {
                                 if (attached->m_attachmentId == static_cast<uint32_t>(link)) {
                                     attached->SetLoadedCallback(&CCharacterSelection::ModelLoadedCallback, nullptr);
                                     break;
@@ -536,7 +536,7 @@ void CCharacterSelection::ShowCharacter() {
         }
 
         if (CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_characterInfo.m_flags & CharEnumFlags::CHARACTER_FLAG_GHOST) {
-            CGlueMgr::AttachCharacterSelectVisuals(CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.m_model);
+            CGlueMgr::AttachCharacterSelectVisuals(CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.model2);
         }
 
         CharacterSelectionDisplay* display = &CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex];
@@ -602,7 +602,7 @@ void CCharacterSelection::ShowCharacter() {
     }
 
     if (CCharacterSelection::m_modelFrame->m_model) {
-        CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.m_model->AttachToParent(CCharacterSelection::m_modelFrame->m_model, MODEL_ATTACHMENT_ID::ATTACH_SHIELD, nullptr, 0);
+        CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_component->m_data.model2->AttachToParent(CCharacterSelection::m_modelFrame->m_model, MODEL_ATTACHMENT_ID::ATTACH_SHIELD, nullptr, 0);
         CharacterSelectionDisplay::SetCharacterFacing(0.0f);
 
         if (CCharacterSelection::s_characterList[CCharacterSelection::s_selectionIndex].m_petModel) {

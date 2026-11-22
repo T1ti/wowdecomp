@@ -586,6 +586,8 @@ void CGlueMgr::InitializeFFX() {
 // VERIFY: 68028b82 auto
 // OFFSET: 0x004D8650
 void CGlueMgr::ProcessAgreements(CGlueMgr::Agreements* agreements) {
+    STORM_ASSERT(agreements);
+
     if (!agreements) {
         return;
     }

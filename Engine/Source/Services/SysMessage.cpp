@@ -109,21 +109,25 @@ void SysMsgEnable(BOOL enable) {
 
 // VERIFY: 134b1bf4 auto
 // OFFSET: 0x004B4E60
-void SysMsgSetMinDisplayLevel(int32_t level) {
-    s_minSeverity = level;
+void SysMsgSetMinDisplayLevel(int32_t minSeverity) {
+    STORM_ASSERT(minSeverity < SYSMSG_NUMTYPES);
 
-    if (s_maxSeverity < level) {
-        s_maxSeverity = level;
+    s_minSeverity = minSeverity;
+
+    if (s_maxSeverity < minSeverity) {
+        s_maxSeverity = minSeverity;
     }
 }
 
 // VERIFY: 64a6d646 auto
 // OFFSET: 0x004B4E80
-void SysMsgSetMaxDisplayLevel(int32_t level) {
-    s_maxSeverity = level;
+void SysMsgSetMaxDisplayLevel(int32_t maxSeverity) {
+    STORM_ASSERT(maxSeverity < SYSMSG_NUMTYPES);
 
-    if (s_minSeverity > level) {
-        s_minSeverity = level;
+    s_maxSeverity = maxSeverity;
+
+    if (s_minSeverity > maxSeverity) {
+        s_minSeverity = maxSeverity;
     }
 }
 

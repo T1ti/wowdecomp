@@ -121,7 +121,7 @@ class CObjectEffectModifier {
     /* 0004 */ MAP_TYPE m_mapType;
     /* 0008 */ OUTPUT_TYPE m_outputType;
     /* 000C */ float* m_params;
-    /* 0010 */ int32_t m_numParams;
+    /* 0010 */ int32_t m_nNumParams;
     /* 0014 */ int32_t m_id;
 
     CObjectEffectModifier();

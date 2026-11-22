@@ -36,6 +36,9 @@ void Battlenet::CreepTendril::Host::Log(const char* message) {
 // VERIFY: 74960614 auto
 // OFFSET: 0x009C2460
 bool Battlenet::CreepTendril::Initialize() {
+    STORM_ASSERT(s_instances == 0);
+    STORM_ASSERT(!s_creepModule);
+
     if (Battlenet::CreepTendril::s_creepModule) {
         return true;
     }

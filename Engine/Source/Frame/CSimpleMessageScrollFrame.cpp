@@ -288,6 +288,8 @@ CSimpleMessageScrollFrameDisplayNode::~CSimpleMessageScrollFrameDisplayNode() {
 // VERIFY: 3886d5f4 manual
 // OFFSET: 0x009698E0
 void CSimpleMessageScrollFrame::SetMaxLines(int32_t maxLines) {
+    STORM_ASSERT(maxLines > 0);
+
     this->m_lines.Clear();
     this->m_displayNodes.Clear();
     this->m_maxMessages = maxLines;

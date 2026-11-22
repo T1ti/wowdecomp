@@ -294,7 +294,7 @@ CEffect::CEffect() {
     this->m_alpha = 0.0f;
     this->m_mapEntity = nullptr;
     this->m_refCount = 1;
-    this->m_lightningRefCount = 0;
+    this->m_lightningRefs = 0;
     this->m_lightningState = 0;
     this->m_attachRec = nullptr;
     this->m_prevLink = nullptr;
@@ -538,7 +538,9 @@ static const int32_t s_specialUnitEffectAttachments[] = { MODEL_ATTACHMENT_ID::N
 // VERIFY: f48d6796 auto
 // OFFSET: 0x006F8F40
 void CEffect::ReleaseLightningRef() {
-    if (--this->m_lightningRefCount == 0) {
+    STORM_ASSERT(m_lightningRefs > 0);
+
+    if (--this->m_lightningRefs == 0) {
         this->MoveToDestroyList();
     }
 }
@@ -909,8 +911,10 @@ C3Vector CEffect::TransformPositionByTransport() {
 
 // VERIFY: f3d1c304 manual
 // OFFSET: 0x006F7950
-float __stdcall CEffect::ComputeModelScaleFromTarget(CGObject_C* object) {
-    CM2Model* model = object->GetObjectModel();
+float __stdcall CEffect::ComputeModelScaleFromTarget(CGObject_C* target) {
+    STORM_ASSERT(target);
+
+    CM2Model* model = target->GetObjectModel();
 
     if (model && !model->IsLoaded(0, 1)) {
         return 1.0f;
@@ -918,8 +922,8 @@ float __stdcall CEffect::ComputeModelScaleFromTarget(CGObject_C* object) {
 
     float scale = 1.0f;
 
-    if (object->m_obj->m_type & TYPE_UNIT) {
-        CreatureModelDataRec* modelData = static_cast<CGUnit_C*>(object)->GetModelData();
+    if (target->m_obj->m_type & TYPE_UNIT) {
+        CreatureModelDataRec* modelData = static_cast<CGUnit_C*>(target)->GetModelData();
 
         if (modelData) {
             scale = modelData->m_worldEffectScale;

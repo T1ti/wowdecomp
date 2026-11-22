@@ -1,4 +1,5 @@
 #include <cstdint>
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Base/BitArray.h"
 
 // VERIFY: 08b8f5fb auto
@@ -12,12 +13,18 @@ CBitArray::CBitArray() {
 // VERIFY: 24197791 auto
 // OFFSET: 0x0095DA20
 int32_t CBitArray::Get(uint32_t bitIdx) const {
+    STORM_ASSERT(m_array);
+    STORM_ASSERT(bitIdx<m_size);
+
     return (this->m_array[bitIdx >> 3] & (1 << (bitIdx & 7))) != 0;
 }
 
 // VERIFY: 8b0b5341 manual
 // OFFSET: 0x0095DA50
 void CBitArray::Set(uint32_t bitIdx, bool value) {
+    STORM_ASSERT(m_array);
+    STORM_ASSERT(bitIdx<m_size);
+
     char* byte = &this->m_array[bitIdx >> 3];
     char mask = 1 << (bitIdx & 7);
 

@@ -1,4 +1,5 @@
 #include "CGGameObject_C_Type_Text.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/UIUtil/Types.h"
 #include "WoW/Source/Ui/ItemTextFrame.h"
 
@@ -29,6 +30,8 @@ int32_t CGGameObject_C_Type_Text::CanChangeCursor() const {
 // VERIFY: 990b081a auto
 // OFFSET: 0x0070C850
 bool CGGameObject_C_Type_Text::Use() {
+    STORM_ASSERT(m_owner);
+
     WOWGUID guid = this->m_owner->m_obj->m_guid;
     CGItemText::SetItem(guid, 0);
 

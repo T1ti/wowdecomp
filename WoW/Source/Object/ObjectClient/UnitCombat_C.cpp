@@ -1,4 +1,5 @@
 #include "UnitCombat_C.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/Object/Types.h"
 #include "Engine/Source/Base/CDataStore.h"
 #include "Engine/Source/FrameScript/FrameScript.h"
@@ -44,6 +45,10 @@ const CGUnitVirtualItem* CGUnit_C::GetParryingItem(bool offhand) const {
 // VERIFY: 7a0f5b4d auto
 // OFFSET: 0x00754F40
 int32_t CGUnit_C::GetUnitSize() const {
+    STORM_ASSERT(m_displayInfo);
+
+    STORM_ASSERT(m_modelData);
+
     int32_t size = this->m_displayInfo->m_sizeClass;
 
     if (size == -1) {
@@ -691,19 +696,19 @@ void CGUnit_C::HandleCombatAnimEvent(uint32_t eventId, uint32_t data, const C3Ve
             VICTIMSTATES victimState = this->m_lastAttackRound.m_victimState;
 
             if (victimState == VS_PARRY) {
-                if (!target->m_creatureCacheEntry || !(target->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DODGE_PARRY_BLOCK_ANIMS)) {
+                if (!target->m_stats || !(target->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DODGE_PARRY_BLOCK_ANIMS)) {
                     target->PlayParryAnimation();
                 }
 
                 this->m_lastAttackRound.m_hitInfo &= ~HIT_INFO_FLAGS::HIT_INFO_FLAG_AFFECTS_VICTIM;
             } else if (victimState == VS_DODGE || victimState == VS_DEFLECT) {
-                if (!target->m_creatureCacheEntry || !(target->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DODGE_PARRY_BLOCK_ANIMS)) {
+                if (!target->m_stats || !(target->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DODGE_PARRY_BLOCK_ANIMS)) {
                     target->PlayBaseAnimation(ANIM_DODGE, ANIM_PLAY_FLAGS::PLAY_NONE);
                 }
 
                 this->m_lastAttackRound.m_hitInfo &= ~HIT_INFO_FLAGS::HIT_INFO_FLAG_AFFECTS_VICTIM;
             } else if (this->m_lastAttackRound.m_blocked) {
-                if (!target->m_creatureCacheEntry || !(target->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DODGE_PARRY_BLOCK_ANIMS)) {
+                if (!target->m_stats || !(target->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DODGE_PARRY_BLOCK_ANIMS)) {
                     target->PlayBaseAnimation(ANIM_SHIELD_BLOCK, ANIM_PLAY_FLAGS::PLAY_NONE);
                 }
 

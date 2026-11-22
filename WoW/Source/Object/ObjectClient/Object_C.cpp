@@ -803,9 +803,12 @@ C44Matrix CGObject_C::GetMatrix() const {
 
 // VERIFY: cae05adc auto
 // OFFSET: 0x007434E0
-int32_t CGObject_C::UpdateObjectNameString(int32_t flags, char* buffer, uint32_t size) {
+int32_t CGObject_C::UpdateObjectNameString(int32_t flags, char* buffer, uint32_t bufferSize) {
+    STORM_ASSERT(buffer);
+    STORM_ASSERT(bufferSize);
+
     if (this->GetObjectName()) {
-        SStrPrintf(buffer, size, "%s", this->GetObjectName());
+        SStrPrintf(buffer, bufferSize, "%s", this->GetObjectName());
     } else {
         *buffer = '\0';
     }
@@ -992,6 +995,8 @@ int32_t CGObject_C::GetQuestGiverCursor(int32_t highlighted) {
 // VERIFY: 02ef1834 auto
 // OFFSET: 0x00743BC0
 void CGObject_C::HideHighlightType(HIGHLIGHTTYPE type) {
+    STORM_ASSERT(type < NUM_HIGHLIGHTTYPES);
+
     this->m_modelFlags &= ~(1 << (type + OBJECT_MODEL_HIGHLIGHT_TYPE_SHIFT));
 
     if (s_highlightedObjectGuid == this->m_obj->m_guid) {

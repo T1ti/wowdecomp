@@ -1266,8 +1266,11 @@ static void MinimapWorldToTileCoords(const C3Vector* position, int32_t* tile) {
 
 // VERIFY: 630be33b auto
 // OFFSET: 0x007F5240
-static int32_t MinimapBuildSource(const int32_t* tile, char* path, uint32_t size) {
-    *path = 0;
+static int32_t MinimapBuildSource(const int32_t* tile, char* buffer, uint32_t size) {
+    STORM_ASSERT(buffer);
+    STORM_ASSERT(size);
+
+    *buffer = 0;
     MapRec* map = g_mapDB.GetRecord(s_mapId);
 
     if (!map || !*map->m_directory) {
@@ -1275,16 +1278,16 @@ static int32_t MinimapBuildSource(const int32_t* tile, char* path, uint32_t size
         return 0;
     }
 
-    SStrPrintf(path, size, s_minimapTileFormat, map->m_directory, tile[0], tile[1]);
-    MINIMAPMD5NAME* name = s_md5Names.Ptr(path);
+    SStrPrintf(buffer, size, s_minimapTileFormat, map->m_directory, tile[0], tile[1]);
+    MINIMAPMD5NAME* name = s_md5Names.Ptr(buffer);
 
     if (!name) {
-        SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "No minimap texture: \"%s\"", path);
-        *path = 0;
+        SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "No minimap texture: \"%s\"", buffer);
+        *buffer = 0;
         return 0;
     }
 
-    SStrPrintf(path, size, "%s\\%s", s_minimapTexturePath, name->m_md5Name);
+    SStrPrintf(buffer, size, "%s\\%s", s_minimapTexturePath, name->m_md5Name);
     return 1;
 }
 
@@ -1351,7 +1354,10 @@ static void SetupTextureHandles(const int32_t* tile, int32_t reset, MINIMAPTILE*
 
 // VERIFY: db65bbd1 manual
 // OFFSET: 0x007F5930
-static int32_t MinimapUpdatePosition(int32_t mapId, const C3Vector* position, C2Vector* center, float* scale, MINIMAPTILE* tiles) {
+static int32_t MinimapUpdatePosition(int32_t mapId, const C3Vector* position, C2Vector* centerPoint, float* radius, MINIMAPTILE* tiles) {
+    STORM_ASSERT(radius);
+    STORM_ASSERT(centerPoint);
+
     int32_t mapChanged = mapId != s_mapId;
     s_playerPosition = *position;
     s_mapId = mapId;
@@ -1399,9 +1405,9 @@ static int32_t MinimapUpdatePosition(int32_t mapId, const C3Vector* position, C2
     uint32_t halfTiles = s_outdoorZoomTiles[s_outdoorZoom] >> 1;
     float centerX = (origin2.y - position->y) * inv;
     float centerY = (origin2.x - position->x) / s_tileSize.x;
-    *scale = inv * (halfTiles * 33.333332f);
-    center->x = centerX;
-    center->y = centerY;
+    *radius = inv * (halfTiles * 33.333332f);
+    centerPoint->x = centerX;
+    centerPoint->y = centerY;
     AdditionalCheck1();
     return 1;
 }

@@ -14,13 +14,16 @@ int32_t CAaBspDigestCache::s_digestReplaceIndex;
 
 // VERIFY: d3f1a428 auto
 // OFFSET: 0x0079ADC0
-void CAaBsp::Set(CAaBspNode* nodes, uint32_t nNodes, uint16_t* nodeFaceIndices, uint32_t nNodeFaceIndices, const CAaBox& aaBox) {
-    this->m_nodes = nodes;
-    this->m_rootNode = nodes;
+void CAaBsp::Set(CAaBspNode* nodeList, uint32_t nNodes, uint16_t* faceIndices, uint32_t nNodeFaceIndices, const CAaBox& aaBox) {
+    STORM_ASSERT(nodeList);
+    STORM_ASSERT(faceIndices);
+
+    this->m_nodes = nodeList;
+    this->m_rootNode = nodeList;
     this->m_nNodes = nNodes;
     this->m_nNodeFaceIndices = nNodeFaceIndices;
     this->m_bFree = 0;
-    this->m_nodeFaceIndices = nodeFaceIndices;
+    this->m_nodeFaceIndices = faceIndices;
     this->m_aaBox = aaBox;
 }
 

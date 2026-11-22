@@ -28,8 +28,8 @@ void CMapArea::Initialize() {
 // VERIFY: 28aeb8e8 auto
 // OFFSET: 0x007C2FF0
 void CMapArea::FreeAsyncObject(CAsyncObject* object) {
-    void* buffer = object->m_buffer;
-    uint32_t size = object->m_size;
+    void* buffer = object->buffer;
+    uint32_t size = object->size;
     AsyncFileReadDestroyObject(object);
     CMapArea::FreeAsyncLoadBuffer(buffer, size);
 }
@@ -385,11 +385,11 @@ void CMapArea::Load(const char* fileName) {
     this->m_fileSize = SFileGetFileSize(this->m_file, nullptr);
     this->m_fileBuffer = CMapArea::AllocAsyncLoadBuffer(this->m_fileSize);
     this->m_asyncObject = AsyncFileReadAllocObject();
-    this->m_asyncObject->m_file = this->m_file;
-    this->m_asyncObject->m_buffer = this->m_fileBuffer;
-    this->m_asyncObject->m_size = this->m_fileSize;
-    this->m_asyncObject->m_userArg = this;
-    this->m_asyncObject->m_userPostloadCallback = &CMapArea::AsyncCallback;
+    this->m_asyncObject->file = this->m_file;
+    this->m_asyncObject->buffer = this->m_fileBuffer;
+    this->m_asyncObject->size = this->m_fileSize;
+    this->m_asyncObject->userArg = this;
+    this->m_asyncObject->userPostloadCallback = &CMapArea::AsyncCallback;
     AsyncFileReadObject(this->m_asyncObject, 0);
 }
 

@@ -155,6 +155,10 @@ int32_t STORMAPI SErrDisplayError(uint32_t errorcode, const char* filename, int3
 // Debug assertions. The 3.3.5.12213 Mac build keeps them; the 3.3.5a Windows release compiles them out, so they
 // are only built with WOWDECOMP_ASSERTIONS. A failed STORM_ASSERT is fatal (recoverable 0); a failed
 // STORM_ASSERT_RECOVERABLE lets the caller continue (recoverable 1). Macro names inferred.
+#ifndef ARRSIZE
+#define ARRSIZE(x) (sizeof(x) / sizeof((x)[0]))
+#endif
+
 #if defined(WOWDECOMP_ASSERTIONS)
 #define STORM_ASSERT(x) ((x) ? (void)0 : (void)SErrDisplayError(STORM_ERROR_ASSERTION, __FILE__, __LINE__, #x, 0, 1, 0x11111111))
 #define STORM_ASSERT_RECOVERABLE(x) ((x) ? (void)0 : (void)SErrDisplayError(STORM_ERROR_ASSERTION, __FILE__, __LINE__, #x, 1, 1, 0x11111111))

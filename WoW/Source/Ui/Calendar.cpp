@@ -136,7 +136,9 @@ static const char* s_fullDateMonthNames[12] = { "FULLDATE_MONTH_JANUARY", "FULLD
 
 // VERIFY: f2885c19 manual
 // OFFSET: 0x005B7E50
-size_t CGCalendar::GetDateTimeText(char* buffer, uint32_t size, uint32_t time) {
+size_t CGCalendar::GetDateTimeText(char* buf, uint32_t size, uint32_t time) {
+    STORM_ASSERT(buf);
+
     WowTime date;
     WowTime::WowDecodeTime(time, &date);
     char dateText[256] = { 0 };
@@ -171,7 +173,7 @@ size_t CGCalendar::GetDateTimeText(char* buffer, uint32_t size, uint32_t time) {
         }
     }
 
-    return SStrPrintf(buffer, size, FrameScript_GetText("FULLDATE_AND_TIME", -1, GENDER_NOT_APPLICABLE), dateText, timeText);
+    return SStrPrintf(buf, size, FrameScript_GetText("FULLDATE_AND_TIME", -1, GENDER_NOT_APPLICABLE), dateText, timeText);
 }
 
 // VERIFY: 0d10e0e8 auto

@@ -1,4 +1,5 @@
 #include <cstdint>
+#include "Engine/Source/Storm/H/storm.h"
 #include <cstring>
 #include "Engine/Source/Gx/Blit.h"
 #include "Engine/Source/Tempest/C2iVector.h"
@@ -236,6 +237,8 @@ static void Blit_Dxt35_Dxt35(const C2iVector& size, const void* in, uint32_t inS
 // VERIFY: 3b76b950 auto
 // OFFSET: 0x006AC130
 uint32_t CalcRowStride(BlitFormat format, uint32_t width, uint32_t height) {
+    STORM_ASSERT(format > BlitFormat_Unknown && format < BlitFormats_Last);
+
     // STATIC: 0x00AD9038
     static const uint32_t BYTES_PER_BLOCK[BlitFormats_Last] = { 0, 4, 4, 2, 2, 2, 8, 16, 16, 2, 4, 4, 4 };
 

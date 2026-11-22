@@ -135,7 +135,9 @@ void CTextureBlob::RemoveTextures() {
 // OFFSET: 0x004C03C0
 void UpdateBlobTexture(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
     CTexture* texture = static_cast<CTexture*>(userArg);
+    STORM_ASSERT(texture);
     CTextureBlobTexture* blobTexture = CTextureBlob::GetTexture(texture->m_filename);
+    STORM_ASSERT(blobTexture);
 
     if (command != GxTex_Latch) {
         return;

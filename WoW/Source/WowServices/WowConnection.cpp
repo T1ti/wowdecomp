@@ -13,7 +13,7 @@
 WowConnection::IDBITS WowConnection::s_idBits;
 
 // STATIC: 0x00B38D00
-static uint32_t s_unused_B38D00;
+static uint32_t s_destroyed;
 
 // STATIC: 0x00B38D04
 static int32_t s_sendNodeCount;
@@ -564,7 +564,9 @@ bool WowConnection::Connect(uint32_t address, uint16_t port, int32_t timeout) {
 // VERIFY: 30cc0530 manual
 // OFFSET: 0x00466B90
 void WowConnection::DestroyOsNet() {
-    s_unused_B38D00 = 1;
+    STORM_ASSERT(!s_destroyed);
+
+    s_destroyed = 1;
 
     if (!WowConnection::s_network) {
         return;
@@ -584,7 +586,7 @@ int32_t WowConnection::InitOsNet(bool (*netAddrFilter)(const NETADDR* addr), voi
         WowConnection::s_idBits.SetCount(256);
         WDataStore::StaticInitialize();
         WowConnection::s_verifyAddr = netAddrFilter;
-        s_unused_B38D00 = 0;
+        s_destroyed = 0;
 
         if (static_cast<uint32_t>(numThreads) > 32) {
             numThreads = 32;

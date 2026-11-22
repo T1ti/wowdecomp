@@ -2026,7 +2026,7 @@ void CMap::PreUpdateAreas(bool addToScene) {
             entries[entryCount].m_dist = NTempest::DistanceSquared(area->m_bounds, pos);
             entries[entryCount].m_area = area;
             entryCount++;
-        } else if (!area->m_asyncObject || !area->m_asyncObject->m_isCurrent) {
+        } else if (!area->m_asyncObject || !area->m_asyncObject->isCurrent) {
             CMap::FreeBaseObjLink(link);
             CMap::PurgeArea(area);
         }
@@ -2368,7 +2368,7 @@ void CMap::PrepareUpdate(bool addToScene) {
 
     if (area && area->m_asyncObject) {
         char fileName[260];
-        SFile::GetActualFileName(area->m_asyncObject->m_file, fileName, sizeof(fileName));
+        SFile::GetActualFileName(area->m_asyncObject->file, fileName, sizeof(fileName));
         AsyncFile::EnterQueueLock();
         AsyncFileReadLinkObject(area->m_asyncObject, 1);
         AsyncFile::LeaveQueueLock();
@@ -2472,14 +2472,16 @@ int32_t CMap::SafeOpen(const char* fileName, SFileImpl** file) {
 
 // VERIFY: 3ace6e8d manual
 // OFFSET: 0x007BD4D0
-int32_t CMap::SafeRead(const char* fileName, SFileImpl* file, void* buffer, uint32_t size) {
+int32_t CMap::SafeRead(const char* filename, SFileImpl* file, void* buffer, uint32_t size) {
+    STORM_ASSERT(filename);
+
     int32_t tries = 10;
 
     while (!SFileReadFile(file, buffer, size, nullptr, nullptr, 0)) {
-        DebugLog("CMap::SafeRead() failed %s\n", fileName);
+        DebugLog("CMap::SafeRead() failed %s\n", filename);
 
         if (!--tries) {
-            DebugLog("CMap::SafeRead() failed %s", fileName);
+            DebugLog("CMap::SafeRead() failed %s", filename);
             return 0;
         }
     }
@@ -3044,6 +3046,8 @@ CMapObj* CMap::AllocMapObj() {
 // VERIFY: a3468102 manual
 // OFFSET: 0x007BFF70
 void CMap::FreeMapObj(CMapObj* mapObj) {
+    STORM_ASSERT(mapObj);
+
     mapObj->m_asyncLoadLink.Unlink();
     mapObj->~CMapObj();
     ObjectFree(*CMap::mapObjHeap, mapObj->m_objectIndex);
@@ -3067,15 +3071,19 @@ CMapObjGroup* CMap::AllocMapObjGroup() {
 
 // VERIFY: 13962642 manual
 // OFFSET: 0x007C0030
-void CMap::FreeMapObjGroup(CMapObjGroup* mapObjGroup) {
-    mapObjGroup->m_asyncLoadLink.Unlink();
-    mapObjGroup->~CMapObjGroup();
-    ObjectFree(*CMap::mapObjGroupHeap, mapObjGroup->m_objectIndex);
+void CMap::FreeMapObjGroup(CMapObjGroup* group) {
+    STORM_ASSERT(group);
+
+    group->m_asyncLoadLink.Unlink();
+    group->~CMapObjGroup();
+    ObjectFree(*CMap::mapObjGroupHeap, group->m_objectIndex);
 }
 
 // VERIFY: 8cfa8101 manual
 // OFFSET: 0x007C00A0
 void CMap::FreeArea(CMapArea* area) {
+    STORM_ASSERT(area);
+
     area->m_lameAssLink.Unlink();
     area->~CMapArea();
     ObjectFree(*CMap::areaHeap, area->m_objectIndex);
@@ -3092,6 +3100,8 @@ void CMap::FreeAreaMed(CMapAreaMed* areaMed) {
 // VERIFY: 27b1c9a8 manual
 // OFFSET: 0x007C0180
 void CMap::FreeChunk(CMapChunk* chunk) {
+    STORM_ASSERT(chunk);
+
     chunk->m_lameAssLink.Unlink();
     chunk->~CMapChunk();
     ObjectFree(*CMap::chunkHeap, chunk->m_objectIndex);
@@ -3116,6 +3126,8 @@ CMapDoodadDef* CMap::AllocDoodadDef() {
 // VERIFY: ef01a812 manual
 // OFFSET: 0x007C0240
 void CMap::FreeDoodadDef(CMapDoodadDef* doodadDef) {
+    STORM_ASSERT(doodadDef);
+
     SI2::StopSound(&doodadDef->m_soundKitObject, 0, -1.0f, 1);
     doodadDef->m_lameAssLink.Unlink();
     CMap::doodadDefHash.Unlink(doodadDef);
@@ -3127,6 +3139,8 @@ void CMap::FreeDoodadDef(CMapDoodadDef* doodadDef) {
 // VERIFY: d7c82155 manual
 // OFFSET: 0x007C02D0
 void CMap::FreeEntity(CMapEntity* entity) {
+    STORM_ASSERT(entity);
+
     entity->m_lameAssLink.Unlink();
     entity->~CMapEntity();
     ObjectFree(*CMap::entityHeap, entity->m_objectIndex);
@@ -3142,6 +3156,8 @@ void CMap::FreeLight(CMapLight* light) {
 // VERIFY: eeef95f1 manual
 // OFFSET: 0x007C0370
 void CMap::FreeMapObjDefGroup(CMapObjDefGroup* mapObjDefGroup) {
+    STORM_ASSERT(mapObjDefGroup);
+
     mapObjDefGroup->m_lameAssLink.Unlink();
     mapObjDefGroup->~CMapObjDefGroup();
     ObjectFree(*CMap::mapObjDefGroupHeap, mapObjDefGroup->m_objectIndex);
@@ -3166,6 +3182,8 @@ CMapObjDef* CMap::AllocMapObjDef() {
 // VERIFY: eb574028 manual
 // OFFSET: 0x007C0430
 void CMap::FreeMapObjDef(CMapObjDef* mapObjDef) {
+    STORM_ASSERT(mapObjDef);
+
     mapObjDef->m_lameAssLink.Unlink();
     CMap::mapObjDefHash.Unlink(mapObjDef);
     uint32_t* heap = CMap::mapObjDefHeap;
@@ -3175,10 +3193,12 @@ void CMap::FreeMapObjDef(CMapObjDef* mapObjDef) {
 
 // VERIFY: 37cad926 manual
 // OFFSET: 0x007C04A0
-void CMap::FreeChunkLiquid(CChunkLiquid* liquid) {
-    liquid->m_link.Unlink();
-    liquid->~CChunkLiquid();
-    ObjectFree(*CMap::chunkLiquidHeap, liquid->m_objectIndex);
+void CMap::FreeChunkLiquid(CChunkLiquid* chunkLiquid) {
+    STORM_ASSERT(chunkLiquid);
+
+    chunkLiquid->m_link.Unlink();
+    chunkLiquid->~CChunkLiquid();
+    ObjectFree(*CMap::chunkLiquidHeap, chunkLiquid->m_objectIndex);
 }
 
 // VERIFY: 03529b4c manual
@@ -3201,6 +3221,8 @@ CMapRenderChunk* CMap::AllocRenderChunk() {
 // VERIFY: 8d425b50 manual
 // OFFSET: 0x007C0610
 void CMap::FreeRenderChunk(CMapRenderChunk* renderChunk) {
+    STORM_ASSERT(renderChunk);
+
     renderChunk->m_renderChunkLink.Unlink();
     renderChunk->~CMapRenderChunk();
     CMap::s_mapRenderChunkFreeList.LinkToHead(renderChunk);
@@ -3379,6 +3401,8 @@ void CMapAreaLowHeap::Delete(CMapAreaLow* areaLow) {
 // VERIFY: 51f512f8 auto
 // OFFSET: 0x007C0C60
 void CMap::FreeAreaLow(CMapAreaLow* areaLow) {
+    STORM_ASSERT(areaLow);
+
     CMap::areaLowHeap->Delete(areaLow);
 }
 

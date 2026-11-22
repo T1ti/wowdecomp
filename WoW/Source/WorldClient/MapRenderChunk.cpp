@@ -1797,11 +1797,14 @@ void CMapRenderChunk::UpdateShadowGxTexture(EGxTexCommand cmd, uint32_t w, uint3
 // VERIFY: 03ca5953 manual
 // OFFSET: 0x007B9C60
 void CMapRenderChunk::UpdateShaderGxTexture(EGxTexCommand cmd, uint32_t w, uint32_t h, uint32_t d, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
+    CMapRenderChunk* renderChunk = static_cast<CMapRenderChunk*>(userArg);
+    STORM_ASSERT(renderChunk);
+
     if (cmd != GxTex_Latch) {
         return;
     }
 
-    static_cast<CMapRenderChunk*>(userArg)->CreateShaderTexture();
+    renderChunk->CreateShaderTexture();
     texels = CMapRenderChunk::s_defaultTex;
 
     uint32_t stride = 4 * w;

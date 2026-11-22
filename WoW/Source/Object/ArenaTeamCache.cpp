@@ -1,9 +1,12 @@
 #include "ArenaTeamCache.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Base/CDataStore.h"
 
 // VERIFY: ca1384a9 auto
 // OFFSET: 0x0098D1B0
 void ArenaTeamCache::Pack(CDataStore* msg) {
+    STORM_ASSERT(msg);
+
     msg->Put(static_cast<uint32_t>(this->m_id));
     msg->PutString(this->m_name);
     msg->Put(this->m_type);
@@ -17,6 +20,8 @@ void ArenaTeamCache::Pack(CDataStore* msg) {
 // VERIFY: 075319b6 auto
 // OFFSET: 0x0098D220
 void ArenaTeamCache::Unpack(CDataStore* msg) {
+    STORM_ASSERT(msg);
+
     msg->Get(reinterpret_cast<uint32_t&>(this->m_id));
     msg->GetString(this->m_name, sizeof(this->m_name));
     msg->Get(this->m_type);

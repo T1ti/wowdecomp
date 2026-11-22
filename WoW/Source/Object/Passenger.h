@@ -20,6 +20,11 @@ class CPassenger {
         PASSENGER_QUATERNION_FACING = 0x2,
     };
 
+    // INLINED
+    int32_t UsesQuat() const {
+        return this->m_passengerFlags & PASSENGER_QUATERNION_FACING;
+    }
+
     /* 0000 */ TSLink<void> m_link;
     /* 0008 */ WOWGUID m_transportGuid;
     /* 0010 */ C3Vector m_position;

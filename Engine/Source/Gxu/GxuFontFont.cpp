@@ -28,7 +28,7 @@ bool KERNINGHASHKEY::operator==(const KERNINGHASHKEY& key) {
 // VERIFY: d974db0f auto
 // OFFSET: 0x006C2260
 const char* CGxFont::GetName() {
-    return FontFaceGetFontName(this->m_fontFaceHandle);
+    return FontFaceGetFontName(this->m_faceHandle);
 }
 
 // VERIFY: 637e266a auto
@@ -60,7 +60,7 @@ float CGxFont::FindNearestFixedSize(FT_Face face, float height) {
 // VERIFY: d7c70ac7 manual
 // OFFSET: 0x006C22F0
 int32_t CGxFont::UpdateDimensions() {
-    FT_Face face = FontFaceGetFace(this->m_fontFaceHandle);
+    FT_Face face = FontFaceGetFace(this->m_faceHandle);
 
     float height = this->FindNearestFixedSize(face, this->m_fontHeight);
     double minHeight = 2.0 / g_heightPixels;
@@ -103,7 +103,7 @@ int32_t CGxFont::UpdateDimensions() {
 // VERIFY: c831afcc auto
 // OFFSET: 0x006C2480
 bool CGxFont::GetGlyphData(GLYPHBITMAPDATA* data, uint32_t code) {
-    FT_Face face = FontFaceGetFace(this->m_fontFaceHandle);
+    FT_Face face = FontFaceGetFace(this->m_faceHandle);
     FT_Set_Pixel_Sizes(face, this->m_pixelSize, 0);
 
     uint32_t padding = 0;
@@ -188,8 +188,11 @@ void CGxFont::ClearGlyphs() {
 // VERIFY: 9be95581 manual
 // OFFSET: 0x006C3960
 void CGxFont::HandleScreenSizeChange() {
+    STORM_ASSERT(m_faceHandle);
+
     this->ClearGlyphs();
-    this->UpdateDimensions();
+    int32_t success = this->UpdateDimensions();
+    STORM_ASSERT(success);
 
     for (CGxString* string = this->m_strings.Head(); string; string = this->m_strings.Next(string)) {
         string->HandleScreenSizeChange();
@@ -204,35 +207,37 @@ CGxFont::CGxFont() : m_cellHeight(0), m_pixelsPerUnit(0.0f) {
 // VERIFY: b72018df manual
 // OFFSET: 0x006C3B20
 CGxFont::~CGxFont() {
-    if (this->m_fontFaceHandle) {
-        FontFaceCloseHandle(this->m_fontFaceHandle);
+    if (this->m_faceHandle) {
+        FontFaceCloseHandle(this->m_faceHandle);
     }
 
-    this->m_fontFaceHandle = nullptr;
+    this->m_faceHandle = nullptr;
     this->ClearGlyphs();
 }
 
 // VERIFY: 4d729130 auto
 // OFFSET: 0x006C3CB0
 int32_t CGxFont::Initialize(const char* name, uint32_t fontFlags, float fontHeight) {
+    STORM_ASSERT(name && *name);
+
     SStrPrintf(this->m_fontName, sizeof(this->m_fontName), "%s", name);
     this->m_fontHeight = fontHeight;
 
-    if (this->m_fontFaceHandle) {
-        FontFaceCloseHandle(this->m_fontFaceHandle);
+    if (this->m_faceHandle) {
+        FontFaceCloseHandle(this->m_faceHandle);
     }
 
-    this->m_fontFaceHandle = nullptr;
+    this->m_faceHandle = nullptr;
     this->ClearGlyphs();
     this->m_fontFlags = fontFlags;
 
-    if (this->m_fontFaceHandle) {
-        FontFaceCloseHandle(this->m_fontFaceHandle);
+    if (this->m_faceHandle) {
+        FontFaceCloseHandle(this->m_faceHandle);
     }
 
-    this->m_fontFaceHandle = FontFaceGetHandle(name, g_FTLibrary);
+    this->m_faceHandle = FontFaceGetHandle(name, g_FTLibrary);
 
-    if (!this->m_fontFaceHandle) {
+    if (!this->m_faceHandle) {
         return 0;
     }
 
@@ -251,7 +256,7 @@ float CGxFont::ComputeStep(uint32_t code, uint32_t nextCode) {
         return node->m_proportionalSpacing;
     }
 
-    FT_Face face = FontFaceGetFace(this->m_fontFaceHandle);
+    FT_Face face = FontFaceGetFace(this->m_faceHandle);
     FT_UInt leftIndex = FT_Get_Char_Index(face, code);
     FT_UInt rightIndex = FT_Get_Char_Index(face, nextCode);
 

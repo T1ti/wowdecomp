@@ -151,7 +151,7 @@ enum SPELL_MOD_OP : int32_t
     SPELLMOD_RESIST_DISPEL_CHANCE      = 28,
     SPELLMOD_UNUSED_CRIT_DAMAGE_BONUS_2 = 29,
     SPELLMOD_SPELL_COST_REFUND_ON_FAIL = 30,
-    NUM_SPELL_MOD_OPS                  = 31,
+    MAX_SPELL_MODIFIER                  = 31,
 };
 
 // SpellRec attribute masks, in DBC field order (attributes, Ex, ExB through ExG).

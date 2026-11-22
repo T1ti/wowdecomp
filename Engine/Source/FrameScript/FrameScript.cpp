@@ -1426,6 +1426,8 @@ void FrameScript_UnregisterScriptEvent(FrameScript_Object* object, FrameScript_E
 // VERIFY: 29317daf manual
 // OFFSET: 0x0081A9A0
 void FrameScript_Destroy() {
+    STORM_ASSERT(s_context);
+
     lua_close(s_context);
     s_context = nullptr;
     luaM_freePool(s_mempool);
@@ -1582,6 +1584,8 @@ FrameScript_EventObject::FrameScript_EventObject() {
 // VERIFY: d3aa1ca5 manual
 // OFFSET: 0x0081B510
 TSList<EVENTLISTENERNODE>* FrameScript_GetEventListeners(const char* name) {
+    STORM_ASSERT(name);
+
     FrameScript_EventObject* event = s_scriptEventsHash.Ptr(name);
 
     return event ? &event->m_listeners : nullptr;

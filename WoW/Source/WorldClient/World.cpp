@@ -1056,8 +1056,11 @@ void World::Update(const C3Vector& position) {
 
 // VERIFY: 6f30b112 auto
 // OFFSET: 0x007819C0
-uint64_t World::QueryObjectParentParam64(CMapBaseObj* object) {
-    CMapBaseObjLink* link = object->m_parentLinkList.Head();
+uint64_t World::QueryObjectParentParam64(CMapBaseObj* entity) {
+    STORM_ASSERT(entity);
+    STORM_ASSERT(entity->GetType() & CMapBaseObj::Type_Entity);
+
+    CMapBaseObjLink* link = entity->m_parentLinkList.Head();
 
     if (!link) {
         return 0;
@@ -1165,20 +1168,22 @@ void CWorld::ObjectDestroy(CMapBaseObj* object) {
 
 // VERIFY: cc711ea7 manual
 // OFFSET: 0x007826E0
-void World::ObjectDestroy(CMapEntity* entity) {
-    CMapBaseObjLink* link = entity->m_parentLinkList.Head();
+void World::ObjectDestroy(CMapEntity* baseObj) {
+    STORM_ASSERT(baseObj);
+
+    CMapBaseObjLink* link = baseObj->m_parentLinkList.Head();
 
     while (link) {
-        CMapBaseObjLink* next = entity->m_parentLinkList.Next(link);
+        CMapBaseObjLink* next = baseObj->m_parentLinkList.Next(link);
         CMap::FreeBaseObjLink(link);
         link = next;
     }
 
-    if (entity->m_model && entity->m_model->m_attachParent) {
-        entity->m_model->DetachFromParent();
+    if (baseObj->m_model && baseObj->m_model->m_attachParent) {
+        baseObj->m_model->DetachFromParent();
     }
 
-    CMap::FreeEntity(entity);
+    CMap::FreeEntity(baseObj);
 }
 
 // VERIFY: a4bfc150 manual

@@ -182,6 +182,8 @@ void FrameScript_Object::RunScript(const FrameScript_Object::ScriptIx& script, i
 // VERIFY: 965dec45 auto
 // OFFSET: 0x0081B330
 int32_t FrameScript_Object::IsScriptEventRegistered(const char* name) {
+    STORM_ASSERT(name);
+
     FrameScript_EventObject* event = s_scriptEventsHash.Ptr(name);
 
     if (event) {

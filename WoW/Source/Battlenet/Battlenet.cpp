@@ -12,6 +12,8 @@ Battlenet::Allocator::~Allocator() {
 // VERIFY: 90ab8d30 auto
 // OFFSET: 0x009C0D10
 bool Battlenet::Initialize(Allocator& allocator) {
+    STORM_ASSERT(!g_allocator || g_allocator == &allocator);
+
     Battlenet::g_allocator = &allocator;
     return true;
 }

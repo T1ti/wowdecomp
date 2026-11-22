@@ -571,7 +571,7 @@ int32_t UnitModeUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t field
 
     if (stats) {
         unit->DestroyNamePlate();
-        unit->m_creatureCacheEntry = stats;
+        unit->m_stats = stats;
         CGGameUI::UnitNameUpdate(guid);
         Script_SendUnitSignal(guid, SCRIPT_EVENT_UNIT_CLASSIFICATION_CHANGED);
 
@@ -946,7 +946,7 @@ static float GetExtraDisplayScale(const CreatureDisplayInfoRec* displayInfo) {
 // VERIFY: 411bfb59 auto
 // OFFSET: 0x0071C110
 float CGUnit_C::GetModelScale(const CreatureDisplayInfoRec* displayInfo, const CreatureModelDataRec* modelData) {
-    CreatureFamilyRec* family = g_creatureFamilyDB.GetRecord(this->m_creatureCacheEntry ? this->m_creatureCacheEntry->m_family : 0);
+    CreatureFamilyRec* family = g_creatureFamilyDB.GetRecord(this->m_stats ? this->m_stats->m_family : 0);
     float scale = GetExtraDisplayScale(displayInfo) * displayInfo->m_creatureModelScale * modelData->m_modelScale;
     float fraction = 0.0f;
 
@@ -1265,7 +1265,7 @@ int32_t CGUnit_C::Animate(float elapsed) {
 
     this->ResetSmoothFacing();
 
-    if (this->m_mountTransition && this->m_mountTransitionEffect) {
+    if (this->m_mountTransitionObject && this->m_mountTransitionEffect) {
         this->MountTransitionSetCharacterTransform(elapsed);
     } else {
         this->UpdateWorldTransform(elapsed);
@@ -3151,7 +3151,7 @@ bool CGUnit_C::CanAttack(const CGUnit_C* unit) const {
     }
 
     if ((unit->m_obj->m_type & TYPE_PLAYER) && (static_cast<const CGPlayer_C*>(unit)->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_GHOST)) {
-        if (!this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS)) {
+        if (!this->m_stats || !(this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_VISIBLE_TO_GHOSTS)) {
             return false;
         }
     }
@@ -3524,7 +3524,7 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
         }
     }
 
-    CreatureMovementInfoRec* movementInfo = g_creatureMovementInfoDB.GetRecord(this->m_creatureCacheEntry ? this->m_creatureCacheEntry->m_movementId : 0);
+    CreatureMovementInfoRec* movementInfo = g_creatureMovementInfoDB.GetRecord(this->m_stats ? this->m_stats->m_movementId : 0);
 
     if (movementInfo && 0.00001f < movementInfo->m_smoothFacingChaseRate) {
         if (facing + PI < this->m_smoothTarget.m_value) {
@@ -4868,7 +4868,7 @@ int32_t CGUnit_C::GetCursorOverride(int32_t unable) {
         return mode;
     }
 
-    const CreatureStats_C* stats = this->m_creatureCacheEntry;
+    const CreatureStats_C* stats = this->m_stats;
 
     if (!stats || !stats->m_iconName || !*stats->m_iconName) {
         return NO_CURSOR;
@@ -4978,7 +4978,7 @@ bool CGUnit_C::CanInteractNow(const CGUnit_C* unit) const {
         return false;
     }
 
-    const CreatureStats_C* stats = unit->m_creatureCacheEntry;
+    const CreatureStats_C* stats = unit->m_stats;
 
     if (unit->IsInCombat() && !(stats && (stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_ALLOW_INTERACTION_WHILE_IN_COMBAT)) && !(this->m_unit->m_unitFieldFlags2 & UNIT_FLAGS2::UNIT_FLAG2_ALLOW_ENEMY_INTERACTION)) {
         return false;
@@ -5316,7 +5316,7 @@ void CGUnit_C::Initialize() {
     ClientServices::SetMessageHandler(SMSG_AURA_UPDATE, Packet_AuraUpdate, nullptr);
     ClientServices::SetMessageHandler(SMSG_DISMOUNT, Packet_SMSG_DISMOUNT, nullptr);
     ClientServices::SetMessageHandler(SMSG_LOOT_LIST, Packet_SMSG_LOOT_LIST, nullptr);
-    ClientServices::SetMessageHandler(SMSG_MIRROR_IMAGE_COMPONENTED_DATA, Packet_SMSG_MIRRORIMAGE_DATA, nullptr);
+    ClientServices::SetMessageHandler(SMSG_MIRRORIMAGE_DATA, Packet_SMSG_MIRRORIMAGE_DATA, nullptr);
     ClientServices::SetMessageHandler(SMSG_FORCE_DISPLAY_UPDATE, Packet_SMSG_FORCE_DISPLAY_UPDATE, nullptr);
     ClientServices::SetMessageHandler(SMSG_CANCEL_AUTO_REPEAT, Packet_SMSG_CANCEL_AUTO_REPEAT, nullptr);
     ClientServices::SetMessageHandler(SMSG_HEALTH_UPDATE, Packet_SMSG_HEALTH_UPDATE, nullptr);
@@ -5486,7 +5486,7 @@ void CGUnit_C::Shutdown() {
     ClientServices::ClearMessageHandler(SMSG_AURA_UPDATE);
     ClientServices::ClearMessageHandler(SMSG_DISMOUNT);
     ClientServices::ClearMessageHandler(SMSG_LOOT_LIST);
-    ClientServices::ClearMessageHandler(SMSG_MIRROR_IMAGE_COMPONENTED_DATA);
+    ClientServices::ClearMessageHandler(SMSG_MIRRORIMAGE_DATA);
     ClientServices::ClearMessageHandler(SMSG_FORCE_DISPLAY_UPDATE);
     ClientServices::ClearMessageHandler(SMSG_CANCEL_AUTO_REPEAT);
     ClientServices::ClearMessageHandler(SMSG_HEALTH_UPDATE);
@@ -5987,8 +5987,8 @@ void CGUnit_C::NamePlateUpdateColor(bool enable) {
 // VERIFY: 0cc4b6e6 auto
 // OFFSET: 0x007153E0
 uint32_t CGUnit_C::GetCreatureFamily() const {
-    if (this->m_creatureCacheEntry) {
-        return this->m_creatureCacheEntry->m_family;
+    if (this->m_stats) {
+        return this->m_stats->m_family;
     }
 
     return 0;
@@ -6046,14 +6046,16 @@ UNIT_REACTION FactionTemplateReaction(const FactionTemplateRec* faction, const F
 // VERIFY: 1d445e4d auto
 // OFFSET: 0x00715670
 void CGUnit_C::StartMountTransition(const MountTransitionObject* transition, CEffect* effect) {
-    this->m_mountTransition = transition;
+    STORM_ASSERT(!m_mountTransitionObject);
+
+    this->m_mountTransitionObject = transition;
     this->m_mountTransitionEffect = effect;
 }
 
 // VERIFY: 3a7849d2 auto
 // OFFSET: 0x00715690
 void CGUnit_C::StopMountTransition() {
-    this->m_mountTransition = nullptr;
+    this->m_mountTransitionObject = nullptr;
     this->m_mountTransitionEffect = nullptr;
 }
 
@@ -6166,8 +6168,8 @@ float CGUnit_C::GetTrackingTurn() {
 // VERIFY: 77188ed2 auto
 // OFFSET: 0x00715D70
 bool CGUnit_C::IsBossMob() const {
-    if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_BOSS_MOB) != 0;
+    if (this->m_stats) {
+        return (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_BOSS_MOB) != 0;
     }
 
     return false;
@@ -6176,8 +6178,8 @@ bool CGUnit_C::IsBossMob() const {
 // VERIFY: 627af4b4 auto
 // OFFSET: 0x00715D90
 bool CGUnit_C::IsLinkAll() const {
-    if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_LINK_ALL) != 0;
+    if (this->m_stats) {
+        return (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_LINK_ALL) != 0;
     }
 
     return false;
@@ -6186,8 +6188,8 @@ bool CGUnit_C::IsLinkAll() const {
 // VERIFY: 6082cbf5 auto
 // OFFSET: 0x00715DB0
 bool CGUnit_C::HasNoShadowBlob() const {
-    if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_HAS_NO_SHADOW_BLOB) != 0;
+    if (this->m_stats) {
+        return (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_HAS_NO_SHADOW_BLOB) != 0;
     }
 
     return false;
@@ -6196,14 +6198,14 @@ bool CGUnit_C::HasNoShadowBlob() const {
 // VERIFY: 472a80ea manual
 // OFFSET: 0x00715DD0
 bool CGUnit_C::ShowFactionTooltip() const {
-    return !this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_FACTION_TOOLTIP);
+    return !this->m_stats || !(this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_FACTION_TOOLTIP);
 }
 
 // VERIFY: 2a450047 auto
 // OFFSET: 0x00715DF0
 bool CGUnit_C::IsTreatAsRaidUnit() const {
-    if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) != 0;
+    if (this->m_stats) {
+        return (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT) != 0;
     }
 
     return false;
@@ -6212,8 +6214,8 @@ bool CGUnit_C::IsTreatAsRaidUnit() const {
 // VERIFY: 1e582e23 auto
 // OFFSET: 0x00715E10
 bool CGUnit_C::IsForceGossip() const {
-    if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_FORCE_GOSSIP) != 0;
+    if (this->m_stats) {
+        return (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_FORCE_GOSSIP) != 0;
     }
 
     return false;
@@ -6222,25 +6224,25 @@ bool CGUnit_C::IsForceGossip() const {
 // VERIFY: 43b9bada auto
 // OFFSET: 0x00715E30
 bool CGUnit_C::CanInteractWhileDead() const {
-    return this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD);
+    return this->m_stats && (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD);
 }
 
 // VERIFY: 568ed656 manual
 // OFFSET: 0x00715E50
 uint32_t CGUnit_C::GetSkinningType() const {
-    if (!this->m_creatureCacheEntry) {
+    if (!this->m_stats) {
         return SKINNING_TYPE_LEATHER;
     }
 
-    if (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM) {
+    if (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_SKIN_WITH_HERBALISM) {
         return SKINNING_TYPE_HERB;
     }
 
-    if (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_SKIN_WITH_MINING) {
+    if (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_SKIN_WITH_MINING) {
         return SKINNING_TYPE_ROCK;
     }
 
-    if (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING) {
+    if (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_SKIN_WITH_ENGINEERING) {
         return SKINNING_TYPE_BOLTS;
     }
 
@@ -6250,18 +6252,20 @@ uint32_t CGUnit_C::GetSkinningType() const {
 // VERIFY: 79224dcb auto
 // OFFSET: 0x00715F20
 void CGUnit_C::GetCursorFile(int32_t unable, char* buffer, uint32_t size) const {
+    STORM_ASSERT(m_stats);
+
     if (unable) {
-        SStrPrintf(buffer, size, "Interface\\Cursor\\Unable%s.blp", this->m_creatureCacheEntry->m_iconName);
+        SStrPrintf(buffer, size, "Interface\\Cursor\\Unable%s.blp", this->m_stats->m_iconName);
     } else {
-        SStrPrintf(buffer, size, "Interface\\Cursor\\%s.blp", this->m_creatureCacheEntry->m_iconName);
+        SStrPrintf(buffer, size, "Interface\\Cursor\\%s.blp", this->m_stats->m_iconName);
     }
 }
 
 // VERIFY: c4fa9258 auto
 // OFFSET: 0x00715F70
 bool CGUnit_C::MountedCombatAllowed() const {
-    if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT) != 0;
+    if (this->m_stats) {
+        return (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT) != 0;
     }
 
     return false;
@@ -6270,8 +6274,8 @@ bool CGUnit_C::MountedCombatAllowed() const {
 // VERIFY: a73b6e27 auto
 // OFFSET: 0x00715F90
 bool CGUnit_C::CanAidPlayers() const {
-    if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_CAN_ASSIST) != 0;
+    if (this->m_stats) {
+        return (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_CAN_ASSIST) != 0;
     }
 
     return false;
@@ -6324,11 +6328,11 @@ float CGUnit_C::GetMaxCameraHeight() const {
 // VERIFY: 5cc27cbd auto
 // OFFSET: 0x00718A00
 CREATURE_CLASSIFICATION CGUnit_C::GetCreatureClassification() const {
-    if (!this->m_creatureCacheEntry || this->m_unit->m_unitFieldPetnumber) {
+    if (!this->m_stats || this->m_unit->m_unitFieldPetnumber) {
         return CREATURE_CLASSIFICATION_NORMAL;
     }
 
-    return this->m_creatureCacheEntry->m_rank;
+    return this->m_stats->m_rank;
 }
 
 // VERIFY: d337d178 auto
@@ -6353,8 +6357,8 @@ bool CGUnit_C::DoNotLogDeath() const {
         return false;
     }
 
-    if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DEATH_MESSAGE) != 0;
+    if (this->m_stats) {
+        return (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_DEATH_MESSAGE) != 0;
     }
 
     return true;
@@ -6512,11 +6516,11 @@ int32_t __stdcall CGUnit_C::GetRecordForTitle(int32_t maskId) {
 // VERIFY: 4b0cd521 manual
 // OFFSET: 0x00719950
 const char* CGUnit_C::GetUnitTitle() const {
-    if (!this->m_creatureCacheEntry) {
+    if (!this->m_stats) {
         return nullptr;
     }
 
-    const char* title = this->m_creatureCacheEntry->m_subName;
+    const char* title = this->m_stats->m_subName;
 
     if (!*title || this->m_unit->m_unitFieldPetnumber) {
         return nullptr;
@@ -6584,6 +6588,8 @@ UNIT_SEX CGUnit_C::GetDisplaySex() const {
 // VERIFY: d86707be auto
 // OFFSET: 0x0071AA70
 int32_t CGUnit_C::GetSpellRank(const SpellRec* spell) const {
+    STORM_ASSERT(!IsA(TYPE_PLAYER));
+
     int32_t rank = SPELL_RANK_POINTS_PER_LEVEL * this->m_unit->m_unitFieldLevel;
 
     if (spell->m_maxLevel > 0 && rank >= SPELL_RANK_POINTS_PER_LEVEL * spell->m_maxLevel) {
@@ -6722,7 +6728,7 @@ BOOL CGUnit_C::IsPVPLeader() const {
         return FALSE;
     }
 
-    if (!this->m_creatureCacheEntry || !this->m_creatureCacheEntry->m_racialLeader) {
+    if (!this->m_stats || !this->m_stats->m_racialLeader) {
         return FALSE;
     }
 
@@ -7173,8 +7179,8 @@ int32_t CGUnit_C::GetCreatureType() const {
         return shapeshift->m_creatureType;
     }
 
-    if (this->m_creatureCacheEntry) {
-        return this->m_creatureCacheEntry->m_type;
+    if (this->m_stats) {
+        return this->m_stats->m_type;
     }
 
     ChrRacesRec* race = g_chrRacesDB.GetRecord(this->m_unit->m_raceID);
@@ -7492,6 +7498,8 @@ int32_t TargetChangeHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSi
 // VERIFY: 88a563c1 auto
 // OFFSET: 0x00716C00
 BOOL Packet_SMSG_PET_DISMISS_SOUND(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgId == SMSG_PET_DISMISS_SOUND);
+
     uint32_t modelId;
     msg->Get(modelId);
 
@@ -8170,6 +8178,8 @@ uint32_t CGUnit_C::GetHappinessIndex() const {
 // VERIFY: e993503e auto
 // OFFSET: 0x0071F440
 const CGUnitVirtualItem* CGUnit_C::GetVirtualItem(VIRTUAL_MONSTER_SLOT slot, bool ignoreDisarm) const {
+    STORM_ASSERT(!IsA(TYPE_PLAYER));
+
     if (!this->GetVirtualItemDisplayID(slot)) {
         return nullptr;
     }
@@ -8240,8 +8250,8 @@ bool CGUnit_C::DoNotPlayWoundAnim() const {
         return true;
     }
 
-    if (this->m_creatureCacheEntry) {
-        return (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_DO_NOT_PLAY_WOUND_ANIM) != 0;
+    if (this->m_stats) {
+        return (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_DO_NOT_PLAY_WOUND_ANIM) != 0;
     }
 
     return this->GetCurrentTorsoAnimId() == ANIM_KNOCKDOWN;
@@ -8351,7 +8361,7 @@ int32_t CGUnit_C::GetAuraIndex(int32_t spellId) {
 // VERIFY: f3ee2cc8 manual
 // OFFSET: 0x007226B0
 bool CGUnit_C::IsPetBarUsed() const {
-    if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_PET_BAR)) {
+    if (this->m_stats && (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_PET_BAR)) {
         return false;
     }
 
@@ -8474,6 +8484,9 @@ bool CGUnit_C::IsTransport() const {
 // VERIFY: 9da62ce8 auto
 // OFFSET: 0x0074B810
 int32_t CGUnit_C::AddPassenger(CPassenger* passenger, int32_t reason) {
+    STORM_ASSERT(!IsDisabled());
+    STORM_ASSERT(this->m_vehicle);
+
     if (!this->m_vehicle) {
         return 0;
     }
@@ -9566,7 +9579,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_splashSoundKitId(0),
       m_reactionSoundPriority(0),
       m_floodsafeTurnPitch(),
-      m_creatureCacheEntry(nullptr),
+      m_stats(nullptr),
       m_displayInfo(nullptr),
       m_displayInfoExtra(nullptr),
       m_modelData(nullptr),
@@ -9579,7 +9592,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_mountModel(nullptr),
       m_mountScale(1.0f),
       m_skipMountAlpha(0),
-      m_mountTransition(nullptr),
+      m_mountTransitionObject(nullptr),
       m_mountTransitionEffect(nullptr),
       m_mountTransitionSpellId(0),
       m_critterDisplayCreatureId(0),
@@ -9813,7 +9826,7 @@ void CGUnit_C::RefreshDataPointers() {
     }
 
     if (this->m_obj->m_type == (TYPE_UNIT | TYPE_OBJECT)) {
-        this->m_creatureCacheEntry = g_creatureDBCache.GetRecord(this->m_obj->m_entryID, this->m_obj->m_guid, &CreatureQueryCallback, nullptr, false);
+        this->m_stats = g_creatureDBCache.GetRecord(this->m_obj->m_entryID, this->m_obj->m_guid, &CreatureQueryCallback, nullptr, false);
     }
 
     if (this->m_unit->m_unitFieldNativedisplayid == this->m_unit->m_unitFieldDisplayid) {
@@ -9845,7 +9858,7 @@ void CGUnit_C::InitializeActivePlayerComponent() {
     }
 
     if (this->m_modelData && (this->m_modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::IS_PLAYER_MODEL) && CGPlayer_C::s_displayId == this->m_unit->m_unitFieldDisplayid) {
-        this->SetCharacterModel(CCharacterComponent::m_activePlayerComponent->m_data.m_model);
+        this->SetCharacterModel(CCharacterComponent::m_activePlayerComponent->m_data.model2);
         this->m_characterComponent = component;
         CCharacterComponent::m_activePlayerComponent = nullptr;
     } else {
@@ -10285,7 +10298,7 @@ void CGUnit_C::OnDeath() {
 
     this->DropTargetOnDeath();
 
-    if (!this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD)) {
+    if (!this->m_stats || !(this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_INTERACT_WHILE_DEAD)) {
         this->RemoveInteractIcon();
     }
 
@@ -11743,7 +11756,7 @@ bool CGUnit_C::CanAssist(const CGUnit_C* unit, bool ignoreFlags) const {
         return false;
     }
 
-    if (this->UnitReaction(unit) < UNIT_REACTION_FRIENDLY && (!this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT))) {
+    if (this->UnitReaction(unit) < UNIT_REACTION_FRIENDLY && (!this->m_stats || !(this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT))) {
         return false;
     }
 
@@ -11788,7 +11801,7 @@ bool CGUnit_C::CanAttackNow(const CGUnit_C* unit) const {
         }
     }
 
-    if (this->IsMounted() && !(this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT)) && !this->CanAutoDismount()) {
+    if (this->IsMounted() && !(this->m_stats && (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_ALLOW_MOUNTED_COMBAT)) && !this->CanAutoDismount()) {
         return false;
     }
 
@@ -11979,8 +11992,8 @@ const char* CGUnit_C::GetUnitName(const char** realm, int32_t followOverride) {
             requester = this->m_obj->m_guid;
             g_petNameCache.GetRecord(this->m_unit->m_unitFieldPetnumber, requester, NameQueryCallback, nullptr, true);
         }
-    } else if (this->m_creatureCacheEntry) {
-        return this->m_creatureCacheEntry->m_name[0];
+    } else if (this->m_stats) {
+        return this->m_stats->m_name[0];
     }
 
     const char* text = FrameScript_GetText("UNKNOWNOBJECT", -1, GENDER_NOT_APPLICABLE);
@@ -13375,12 +13388,12 @@ BOOL Packet_AuraUpdate(void* param, NETMESSAGE msgId, uint32_t time, CDataStore*
 // VERIFY: dadb3184 manual
 // OFFSET: 0x0071A670
 SkillLineAbilityRec* CGUnit_C::LookupAbility(int32_t spellId) {
-    if (!this->m_creatureCacheEntry) {
+    if (!this->m_stats) {
         return SpellTableLookupAbility(this->m_unit->m_raceID, this->m_unit->m_classID, spellId);
     }
 
     SkillLineAbilityRec* ability = nullptr;
-    CreatureFamilyRec* family = g_creatureFamilyDB.GetRecord(this->m_creatureCacheEntry->m_family);
+    CreatureFamilyRec* family = g_creatureFamilyDB.GetRecord(this->m_stats->m_family);
 
     if (family) {
         for (uint32_t i = 0; i < NUM_CREATURE_FAMILY_SKILL_LINES; i++) {
@@ -13638,7 +13651,7 @@ void CGUnit_C::SetSheatheState(WEAPONMODE weaponMode, BOOL instant, BOOL noSend)
         return;
     }
 
-    if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_DO_NOT_SHEATHE) && !noSend) {
+    if (this->m_stats && (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_DO_NOT_SHEATHE) && !noSend) {
         return;
     }
 
@@ -13807,9 +13820,9 @@ int32_t CGUnit_C::InitializeExtendedDisplay(CGPlayer_C* player, BOOL hasDisplayI
         }
     }
 
-    data.m_model = this->m_worldModel;
+    data.model2 = this->m_worldModel;
     data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(this->IsActivePlayer()) << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
-    data.m_model->m_refCount++;
+    data.model2->m_refCount++;
 
     if (player) {
         CCharacterComponent::ValidateComponentData(&data, COMPONENT_CONTEXT_1);
@@ -14480,7 +14493,7 @@ void CGUnit_C::AnimEndHandler(CM2Model* model, uint32_t boneId, uint32_t sequenc
         this->m_animFlags &= ~UNIT_ANIM_FLAGS::UNIT_ANIM_FLAG_RESTORE_SHEATHE_ON_ANIM_END;
     }
 
-    if (this->m_mountTransition && SpellVisualsIsMountTransitionFinished(this->m_mountTransition)) {
+    if (this->m_mountTransitionObject && SpellVisualsIsMountTransitionFinished(this->m_mountTransitionObject)) {
         return;
     }
 
@@ -15095,6 +15108,8 @@ BOOL CGUnit_C::IsSeatedInVehicle() const {
 // VERIFY: ca00d21d manual
 // OFFSET: 0x00716CD0
 BOOL Packet_SMSG_FORCE_DISPLAY_UPDATE(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgId == SMSG_FORCE_DISPLAY_UPDATE);
+
     SmartGUID guid;
     *msg >> guid;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
@@ -15123,6 +15138,8 @@ BOOL Packet_SMSG_STANDSTATE_UPDATE(void* param, NETMESSAGE msgId, uint32_t time,
 // VERIFY: 5e9fce9e manual
 // OFFSET: 0x00716940
 BOOL Packet_SMSG_FLIGHT_SPLINE_SYNC(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgId == SMSG_FLIGHT_SPLINE_SYNC);
+
     float progress;
     SmartGUID guid;
     msg->Get(progress);
@@ -15139,6 +15156,8 @@ BOOL Packet_SMSG_FLIGHT_SPLINE_SYNC(void* param, NETMESSAGE msgId, uint32_t time
 // VERIFY: 3b683e58 manual
 // OFFSET: 0x00716D20
 BOOL Packet_SMSG_HEALTH_UPDATE(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgId == SMSG_HEALTH_UPDATE);
+
     SmartGUID guid;
     uint32_t health;
     *msg >> guid;
@@ -15155,6 +15174,8 @@ BOOL Packet_SMSG_HEALTH_UPDATE(void* param, NETMESSAGE msgId, uint32_t time, CDa
 // VERIFY: cde7ade5 manual
 // OFFSET: 0x007236C0
 BOOL Packet_SMSG_POWER_UPDATE(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgId == SMSG_POWER_UPDATE);
+
     SmartGUID guid;
     uint8_t powerType;
     uint32_t value;
@@ -15177,7 +15198,7 @@ bool CGUnit_C::IsInMyParty(const CGUnit_C* unit) const {
         return true;
     }
 
-    if (unit->m_creatureCacheEntry && (unit->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT)) {
+    if (unit->m_stats && (unit->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_TREAT_AS_RAID_UNIT)) {
         return true;
     }
 
@@ -15489,8 +15510,10 @@ void CGUnit_C::PlayEmoteAnimation(uint32_t emote) {
 
 // VERIFY: 3273a6b5 auto
 // OFFSET: 0x0073AD70
-void CGUnit_C::RequestTalkEmote(TALKANIMATION index) {
-    if (!s_talkEmotes[index]) {
+void CGUnit_C::RequestTalkEmote(TALKANIMATION talkAnim) {
+    STORM_ASSERT(talkAnim < TALKANIM_NUMTALKANIMS);
+
+    if (!s_talkEmotes[talkAnim]) {
         return;
     }
 
@@ -15502,7 +15525,7 @@ void CGUnit_C::RequestTalkEmote(TALKANIMATION index) {
         return;
     }
 
-    this->PlayEmoteAnimation(s_talkEmotes[index]->m_id);
+    this->PlayEmoteAnimation(s_talkEmotes[talkAnim]->m_id);
 }
 
 // VERIFY: 0f92b828 auto
@@ -17742,6 +17765,8 @@ BOOL Packet_SMSG_THREAT_CLEAR(void* param, NETMESSAGE msgId, uint32_t time, CDat
 // VERIFY: b7f4a97f manual
 // OFFSET: 0x00716B10
 BOOL Packet_SMSG_AI_REACTION(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgId == SMSG_AI_REACTION);
+
     WOWGUID guid;
     msg->Get(guid.m_guid);
     uint32_t reaction;
@@ -17762,6 +17787,8 @@ BOOL Packet_SMSG_AI_REACTION(void* param, NETMESSAGE msgId, uint32_t time, CData
 // VERIFY: f7c851d8 manual
 // OFFSET: 0x00716B90
 BOOL Packet_SMSG_PET_ACTION_SOUND(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgId == SMSG_PET_ACTION_SOUND);
+
     WOWGUID guid;
     msg->Get(guid.m_guid);
     uint32_t action;
@@ -18067,35 +18094,36 @@ void CGUnit_C::CompleteMountTransition() {
     }
 
     this->m_mountTransitionEffect = nullptr;
-    this->m_mountTransition = nullptr;
+    this->m_mountTransitionObject = nullptr;
 }
 
 // VERIFY: 845aa7ca manual
 // OFFSET: 0x00723730
-void CGUnit_C::RefreshComponentItem(int32_t itemSlot) {
+void CGUnit_C::RefreshComponentItem(int32_t slot) {
+    STORM_ASSERT(slot < NUM_ITEM_SLOT);
     if (this->CanEquipItemsInThisForm() && (this->m_obj->m_type & TYPE_PLAYER)) {
         if (!this->GetBag()) {
             return;
         }
 
-        INVENTORY_SLOTS invSlot = CCharacterComponent::GetInvSlotForItemSlot(static_cast<ITEM_SLOT>(itemSlot));
+        INVENTORY_SLOTS invSlot = CCharacterComponent::GetInvSlotForItemSlot(static_cast<ITEM_SLOT>(slot));
 
         if (invSlot == -1) {
             return;
         }
 
-        this->m_characterComponent->RemoveItem(static_cast<ITEM_SLOT>(itemSlot));
+        this->m_characterComponent->RemoveItem(static_cast<ITEM_SLOT>(slot));
         const VisibleItem_C* item = static_cast<CGPlayer_C*>(this)->GetVisibleItem(invSlot);
 
         if (item && abs(item->m_itemId)) {
             static_cast<CGPlayer_C*>(this)->EquipVisibleItem(item, invSlot);
         }
     } else if (this->m_characterComponent && this->m_displayInfoExtra) {
-        this->m_characterComponent->RemoveItem(static_cast<ITEM_SLOT>(itemSlot));
-        int32_t displayId = this->m_displayInfoExtra->m_npcitemDisplay[itemSlot];
+        this->m_characterComponent->RemoveItem(static_cast<ITEM_SLOT>(slot));
+        int32_t displayId = this->m_displayInfoExtra->m_npcitemDisplay[slot];
 
         if (displayId) {
-            this->m_characterComponent->AddItem(static_cast<ITEM_SLOT>(itemSlot), displayId, 0);
+            this->m_characterComponent->AddItem(static_cast<ITEM_SLOT>(slot), displayId, 0);
         }
     }
 }
@@ -19829,7 +19857,7 @@ int32_t CGUnit_C::UpdateObjectNameStringForUnit(CGUnit_C* unit, int32_t flags, c
             SStrPrintf(foreignText, sizeof(foreignText), FrameScript_GetText("FOREIGN_SERVER_LABEL", -1, GENDER_NOT_APPLICABLE));
         }
     } else {
-        const CreatureStats_C* stats = unit->m_creatureCacheEntry;
+        const CreatureStats_C* stats = unit->m_stats;
 
         if (stats && *stats->m_subName) {
             const char* subName = stats->m_subName;
@@ -20000,6 +20028,8 @@ static void NamePlateSort(CGNamePlateFrame* frame) {
 // VERIFY: 20cca2b5 manual
 // OFFSET: 0x007256C0
 void CGUnit_C::NamePlateAddOrUpdate(const C3Vector& position, CGWorldFrame* worldFrame) {
+    STORM_ASSERT(worldFrame);
+
     if (!this->m_namePlateFrame) {
         this->m_namePlateFrame = CGNamePlateFrame::GetNewNameplateFrame(worldFrame);
         this->m_namePlateFrame->Initialize(this);
@@ -20242,7 +20272,7 @@ BOOL CGUnit_C::ShouldShowNamePlate(CGWorldFrame* worldFrame, C3Vector* position)
         return FALSE;
     }
 
-    if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_NAME_PLATE)) {
+    if (this->m_stats && (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_NAME_PLATE)) {
         return FALSE;
     }
 
@@ -20588,7 +20618,7 @@ int32_t CGUnit_C::UpdateUnitCollisionBox(int32_t skipFitCheck, BOOL force) {
 
     CreatureDisplayInfoRec* displayInfo;
 
-    if (!this->m_creatureCacheEntry || !(this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_USE_MODEL_COLLISION_SIZE) || !(displayInfo = g_creatureDisplayInfoDB.GetRecord(this->m_unit->m_unitFieldNativedisplayid))) {
+    if (!this->m_stats || !(this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_USE_MODEL_COLLISION_SIZE) || !(displayInfo = g_creatureDisplayInfoDB.GetRecord(this->m_unit->m_unitFieldNativedisplayid))) {
         this->m_movementData.SetCollisionBox(0.6666667f, 2.0277777f, 1.0f, 1.0f, 0);
         return 1;
     }
@@ -20624,7 +20654,7 @@ int32_t CGUnit_C::UpdateUnitCollisionBox(int32_t skipFitCheck, BOOL force) {
 // VERIFY: 1b41a812 manual
 // OFFSET: 0x0071FBF0
 void CGUnit_C::UpdateMountTransitionModel() {
-    if (!this->m_mountTransition || !this->m_mountTransitionEffect || !this->m_mountTransitionEffect->m_model) {
+    if (!this->m_mountTransitionObject || !this->m_mountTransitionEffect || !this->m_mountTransitionEffect->m_model) {
         return;
     }
 
@@ -20632,7 +20662,7 @@ void CGUnit_C::UpdateMountTransitionModel() {
     C3Vector up = { 0.0f, 0.0f, 0.0f };
     C44Matrix inverse;
     float facing;
-    SpellVisualsGetMountTransitionTransform(this->m_mountTransition, &position, &up, &facing);
+    SpellVisualsGetMountTransitionTransform(this->m_mountTransitionObject, &position, &up, &facing);
 
     C44Matrix world = this->m_worldModel->m_worldTransform;
     inverse = world.AffineInverse(this->GetTrueScale());
@@ -20656,7 +20686,7 @@ void CGUnit_C::UpdateMountTransitionModel() {
     }
 
     float alpha = this->m_worldModel->m_fadeAlpha;
-    this->m_mountTransitionEffect->m_model->m_fadeAlpha = SpellVisualsGetMountTransitionAlpha(this->m_mountTransition) * alpha;
+    this->m_mountTransitionEffect->m_model->m_fadeAlpha = SpellVisualsGetMountTransitionAlpha(this->m_mountTransitionObject) * alpha;
 }
 
 // VERIFY: 05cf001e manual
@@ -20894,7 +20924,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
             }
 
             case SPELL_VISUAL_CHAR_PROC_COLOR_TINT: {
-                if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING) && SpellRec::IsHelpfulOrHarmful(spell) == SPELL_DISPOSITION_HARMFUL) {
+                if (this->m_stats && (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING) && SpellRec::IsHelpfulOrHarmful(spell) == SPELL_DISPOSITION_HARMFUL) {
                     break;
                 }
 
@@ -20930,7 +20960,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
             }
 
             case SPELL_VISUAL_CHAR_PROC_FLASH_COLOR: {
-                if (this->m_creatureCacheEntry && (this->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING) && SpellRec::IsHelpfulOrHarmful(spell) == SPELL_DISPOSITION_HARMFUL) {
+                if (this->m_stats && (this->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_NO_HARMFUL_VERTEX_COLORING) && SpellRec::IsHelpfulOrHarmful(spell) == SPELL_DISPOSITION_HARMFUL) {
                     break;
                 }
 
@@ -21149,6 +21179,8 @@ void CGUnit_C::DropTargetOnDeath() {
 // VERIFY: c8451e32 manual
 // OFFSET: 0x0071B1E0
 void CGUnit_C::HandlePendingTrackEvents() {
+    STORM_ASSERT(IsActiveMover());
+
     if (s_pendingAttackTarget) {
         if (ClntObjMgrObjectPtr(s_pendingAttackTarget, TYPE_UNIT, __FILE__, __LINE__) && this->IsActivePlayer()) {
             static_cast<CGPlayer_C*>(this)->CombatModeEnter(s_pendingAttackTarget, 0, 0);
@@ -21527,7 +21559,7 @@ void CreatureQueryCallback(int32_t id, const WOWGUID& guid, void* param, bool su
 
     if (unit) {
         unit->DestroyNamePlate();
-        unit->m_creatureCacheEntry = stats;
+        unit->m_stats = stats;
 
         if (stats->m_family) {
             unit->UpdateModelScale(nullptr);
@@ -22096,7 +22128,7 @@ void CGUnit_C::OnMountDisplayChanged(int32_t displayId) {
     this->m_mountDisplayId = displayId;
 
     if (displayId) {
-        bool noTransition = this->m_mountTransition == nullptr;
+        bool noTransition = this->m_mountTransitionObject == nullptr;
         this->CreateUnitMount(0, wasMounted);
 
         if (noTransition) {
@@ -22201,6 +22233,8 @@ BOOL Packet_SMSG_CLIENT_CONTROL_UPDATE(void* param, NETMESSAGE msgId, uint32_t t
 // VERIFY: b0ae9f03 manual
 // OFFSET: 0x0072D130
 BOOL Packet_SMSG_CANCEL_AUTO_REPEAT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgId == SMSG_CANCEL_AUTO_REPEAT);
+
     SmartGUID guid;
     *msg >> guid;
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
@@ -22782,6 +22816,8 @@ bool CGUnit_C::HandleTrackingPitch(float targetZ, float z, float pitch, float ma
 // VERIFY: 2ca09313 auto
 // OFFSET: 0x00731600
 void CGUnit_C::TrackingSetTurn(uint32_t time, float facing) {
+    STORM_ASSERT(IsActiveMover());
+
     if (CGInputControl::GetActive()->CanControl(this)) {
         CGUnit_C::s_trackingFlags |= TRACKING_FLAG_SELF_MOVE;
         this->OnSetRawFacingLocal(time, this->m_movement->GetRawFacing(facing));
@@ -23344,7 +23380,7 @@ BOOL Packet_SMSG_PLAYER_VEHICLE_DATA(void* param, NETMESSAGE msgId, uint32_t tim
 // VERIFY: dc4851b4 manual
 // OFFSET: 0x007193F0
 void CGUnit_C::MountTransitionSetCharacterTransform(float elapsed) {
-    if (SpellVisualsGetMountTransitionHeight(this->m_mountTransition) == 0.0f) {
+    if (SpellVisualsGetMountTransitionHeight(this->m_mountTransitionObject) == 0.0f) {
         this->CGObject_C::Animate(elapsed);
         return;
     }
@@ -23374,7 +23410,7 @@ void CGUnit_C::MountTransitionSetCharacterTransform(float elapsed) {
 
     C44Matrix transform = this->GetObjectModel()->m_worldTransform;
     C3Vector jump(0.0f, 0.0f, 0.0f);
-    SpellVisualsComputeMountTransitionJumpVec(this->m_mountTransition, &jump);
+    SpellVisualsComputeMountTransitionJumpVec(this->m_mountTransitionObject, &jump);
     transform.d0 = transform.d0 + jump.x;
     transform.d1 = transform.d1 + jump.y;
     transform.d2 = transform.d2 + jump.z;
@@ -23592,9 +23628,9 @@ void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
         msg->Get(guildId);
 
         this->m_characterComponent = CCharacterComponent::AllocComponent();
-        data.m_model = this->m_worldModel;
+        data.model2 = this->m_worldModel;
         data.m_flags ^= (data.m_flags ^ (static_cast<uint32_t>(this->IsActivePlayer()) << ComponentData::DATA_BITS::HIGH_RESOLUTION_BIT_INDEX)) & ComponentData::DATA_FLAGS::HIGH_RESOLUTION;
-        data.m_model->m_refCount++;
+        data.model2->m_refCount++;
         CCharacterComponent::ValidateComponentData(&data, COMPONENT_CONTEXT_1);
         this->m_characterComponent->Init(&data, nullptr);
 
@@ -23694,8 +23730,8 @@ void CGUnit_C::OnReceiveMirrorImageDataFromServer(CDataStore* msg) {
         data.m_flags |= ComponentData::DATA_FLAGS::NPC_SKIN;
         data.m_preferences.m_facialHairId = extra->m_facialHairID;
         SStrPrintf(data.m_npcSkinTexture, sizeof(data.m_npcSkinTexture), "%s%s", "Textures\\BakedNpcTextures\\", bakeName);
-        data.m_model = this->m_worldModel;
-        data.m_model->m_refCount++;
+        data.model2 = this->m_worldModel;
+        data.model2->m_refCount++;
         this->m_characterComponent->Init(&data, nullptr);
 
         if (this->m_characterComponent && this->m_displayInfoExtra) {
@@ -23733,6 +23769,8 @@ CM2Model* CGUnit_C::CreateItemModel(uint32_t hand, float* scale) {
 // VERIFY: 4a0f01e4 manual
 // OFFSET: 0x007324B0
 BOOL Packet_SMSG_MIRRORIMAGE_DATA(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgId == SMSG_MIRRORIMAGE_DATA);
+
     WOWGUID guid;
     msg->Get(guid.m_guid);
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));

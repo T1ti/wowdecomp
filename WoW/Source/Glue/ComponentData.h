@@ -21,7 +21,7 @@ class ComponentData {
     };
 
     /* 0000 */ CharacterPreferences m_preferences;
-    /* 0020 */ CM2Model* m_model;
+    /* 0020 */ CM2Model* model2;
     /* 0024 */ uint32_t m_flags;
     /* 0028 */ char m_npcSkinTexture [260];
     /* 012C */ uint32_t m_geosets [NUM_CHARGEOSETS];

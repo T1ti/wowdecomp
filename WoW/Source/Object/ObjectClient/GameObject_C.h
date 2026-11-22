@@ -136,7 +136,7 @@ enum : int32_t {
 class CGGameObject_C_TypeAnimated : public CGGameObject_C_TypeBase {
     public:
     static uint32_t s_animSequenceIds[NUM_GAMEOBJ_ANIMSTATES];
-    static const char* s_animStateNames[NUM_GAMEOBJ_ANIMSTATES];
+    static const char* s_statusString[NUM_GAMEOBJ_ANIMSTATES];
 
     /* 0010 */ int32_t m_animState;
     /* 0014 */ int32_t m_pendingAnimState;

@@ -1,4 +1,5 @@
 #include "ShipPath.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/CMath.h"
 #include <malloc.h>
 #include <new>
@@ -477,6 +478,8 @@ float ShipPath::GetAccelDecelDistance(float t, float segTime, uint32_t* sequence
 // VERIFY: 5639ad48 manual
 // OFFSET: 0x007F7B30
 void ShipPath::GetRollAndPitch(uint32_t time, float speed, float turn, C3Vector* position, float* roll, float* pitch) {
+    STORM_ASSERT(roll && pitch);
+
     const TransportPhysicsRec* physics = this->m_physics;
     float damp;
 

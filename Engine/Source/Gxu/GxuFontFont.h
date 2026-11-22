@@ -41,7 +41,7 @@ struct CGxFont : public TSLinkedNode<CGxFont> {
     /* 0014 */ TSHashTable<CHARCODEDESC, HASHKEY_NONE> m_activeCharacters;
     /* 003C */ TSHashTable<KERNNODE, KERNINGHASHKEY> m_kernInfo;
     /* 0064 */ TSExplicitList<CHARCODEDESC, offsetof(CHARCODEDESC, m_fontGlyphLink)> m_activeCharacterCache;
-    /* 0070 */ HFACE m_fontFaceHandle;
+    /* 0070 */ HFACE m_faceHandle;
     /* 0074 */ char m_fontName[260];
     /* 0178 */ uint32_t m_cellHeight;
     /* 017C */ uint32_t m_baseline;

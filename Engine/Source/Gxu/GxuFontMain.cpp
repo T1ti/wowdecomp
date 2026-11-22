@@ -180,7 +180,9 @@ uint32_t GxuFontGetMaxCharsWithinWidth(CGxFont* face, const char* text, float fo
 
 // VERIFY: 92aa6c25 manual
 // OFFSET: 0x006BCEF0
-uint32_t GxuFontGetMaxCharsWithinWidthFromEnd(CGxFont* face, const char* text, float fontHeight, float maxWidth, uint32_t numBytes, float* extent, float shadowWidth, float scale, float unused, uint32_t flags) {
+uint32_t GxuFontGetMaxCharsWithinWidthFromEnd(CGxFont* font, const char* text, float fontHeight, float maxWidth, uint32_t numBytes, float* extent, float shadowWidth, float scale, float unused, uint32_t flags) {
+    STORM_ASSERT(font);
+
     if (!text || !*text || !numBytes || maxWidth == 0.0f) {
         return 0;
     }
@@ -188,7 +190,7 @@ uint32_t GxuFontGetMaxCharsWithinWidthFromEnd(CGxFont* face, const char* text, f
     float* widthArray = static_cast<float*>(alloca(sizeof(float) * numBytes));
     float totalWidth;
     uint32_t bytesInString;
-    uint32_t numChars = InternalGetMaxCharsWithinWidth(face, text, fontHeight, 10000.0f, numBytes, &totalWidth, flags, shadowWidth, scale, &bytesInString, widthArray);
+    uint32_t numChars = InternalGetMaxCharsWithinWidth(font, text, fontHeight, 10000.0f, numBytes, &totalWidth, flags, shadowWidth, scale, &bytesInString, widthArray);
 
     if (maxWidth >= totalWidth) {
         if (extent) {

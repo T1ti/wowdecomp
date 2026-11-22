@@ -15,22 +15,23 @@ class CAsyncObject {
     // 3.3.5 post callbacks take one opaque argument using the cdecl ABI.
     using POST_CALLBACK = void (__cdecl *)(void*);
 
-    /* 0000 */ SFileImpl* m_file;
-    /* 0004 */ void* m_buffer;
-    /* 0008 */ uint32_t m_size;
-    /* 000C */ void* m_userArg;
-    /* 0010 */ POST_CALLBACK m_userPostloadCallback;
-    /* 0014 */ POST_CALLBACK m_userPostUnloadCallback;
-    /* 0018 */ CAsyncQueue* m_queue;
-    /* 001C */ uint32_t m_queuedFrame;
-    /* 0020 */ uint8_t m_priority;
-    /* 0021 */ int8_t m_isProcessed;
-    /* 0022 */ int8_t m_isRead;
-    /* 0023 */ int8_t m_isCurrent;
+    // Field names from the 12213 assertions; userArg, userPostUnloadCallback, queuedFrame, priority and link inferred.
+    /* 0000 */ SFileImpl* file;
+    /* 0004 */ void* buffer;
+    /* 0008 */ uint32_t size;
+    /* 000C */ void* userArg;
+    /* 0010 */ POST_CALLBACK userPostloadCallback;
+    /* 0014 */ POST_CALLBACK userPostUnloadCallback;
+    /* 0018 */ CAsyncQueue* queue;
+    /* 001C */ uint32_t queuedFrame;
+    /* 0020 */ uint8_t priority;
+    /* 0021 */ int8_t isProcessed;
+    /* 0022 */ int8_t isRead;
+    /* 0023 */ int8_t isCurrent;
     /* 0024 */ int8_t m_char24;
     /* 0025 */ int8_t m_char25;
     /* 0026 */ uint16_t m_padding;
-    /* 0028 */ TSLink<CAsyncObject> m_link;
+    /* 0028 */ TSLink<CAsyncObject> link;
 
     BOOL IsPending();
 };

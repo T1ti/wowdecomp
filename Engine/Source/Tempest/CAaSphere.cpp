@@ -1,4 +1,5 @@
 #include <cmath>
+#include "Engine/Source/Storm/H/storm.h"
 #include <cstdint>
 #include "Engine/Source/Tempest/CAaSphere.h"
 
@@ -24,6 +25,8 @@ CAaBox CAaSphere::Box() const {
 // VERIFY: 34fc52e7 manual
 // OFFSET: 0x009855F0
 CAaBox CAaSphere::FindExtrema(const CAaSphere* spheres, uint32_t count) {
+    STORM_ASSERT(spheres != NULL);
+
     CAaBox result;
 
     if (!count) {

@@ -195,7 +195,9 @@ void CShaderEffectParser::ParseShader(char* data, uint32_t size, uint32_t& pos, 
 
 // VERIFY: 353721c3 auto
 // OFFSET: 0x00877290
-void CShaderEffectParser::ParseEffect(char* data, uint32_t size, uint32_t& pos, char (*args)[64], uint32_t argCount, ParsedEffect* effect) {
+void CShaderEffectParser::ParseEffect(char* data, uint32_t size, uint32_t& pos, char (*args)[64], uint32_t argCnt, ParsedEffect* effect) {
+    STORM_ASSERT(argCnt == 1);
+
     SStrCopy(effect->m_name, args[0], sizeof(effect->m_name));
     effect->m_fixedFuncPassCount = 0;
     effect->m_shaderPassCount = 0;
@@ -210,10 +212,10 @@ void CShaderEffectParser::ParseEffect(char* data, uint32_t size, uint32_t& pos, 
     pos = open + 1;
 
     while (pos < close) {
-        if (CShaderEffectParser::ExtractFuncKeyword(data + pos, "FixedFunc", args, argCount, pos)) {
-            CShaderEffectParser::ParseFixedFunc(data, size, pos, args, argCount, effect);
-        } else if (CShaderEffectParser::ExtractFuncKeyword(data + pos, "Shader", args, argCount, pos)) {
-            CShaderEffectParser::ParseShader(data, size, pos, args, argCount, effect);
+        if (CShaderEffectParser::ExtractFuncKeyword(data + pos, "FixedFunc", args, argCnt, pos)) {
+            CShaderEffectParser::ParseFixedFunc(data, size, pos, args, argCnt, effect);
+        } else if (CShaderEffectParser::ExtractFuncKeyword(data + pos, "Shader", args, argCnt, pos)) {
+            CShaderEffectParser::ParseShader(data, size, pos, args, argCnt, effect);
         }
 
         pos++;

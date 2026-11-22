@@ -582,6 +582,8 @@ void CMissile::ClearTargetingEffects() {
 // VERIFY: 4f946d0f auto
 // OFFSET: 0x006FF6C0
 void CMissile::SetReadyToFire(CMissile** list) {
+    STORM_ASSERT(m_speed >= 0);
+
     this->Link(list);
 }
 

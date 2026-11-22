@@ -1,4 +1,5 @@
 #include "MovementShared.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include <cmath>
 #include <cstdio>
 #include <malloc.h>
@@ -1378,16 +1379,18 @@ void CMovementShared::UpdateFallingFar() {
 
 // VERIFY: 23497d62 manual
 // OFFSET: 0x00988990
-void CMovementShared::UpdateFallState(const CMovementStatus& status) {
-    this->m_fallTimeMs = status.m_fallTime;
-    this->m_fallVelocity = status.m_zSpeed;
-    this->m_fallStartZ = CalcFallDistance(status.m_fallTime * 0.001f, this->m_flags & MOVEMENTFLAG_SAFE_FALL, status.m_zSpeed) + this->m_position.z;
-    this->m_moveDir2D.x = status.m_sinAngle;
-    this->m_moveDir2D.y = status.m_cosAngle;
-    this->m_moveDir.x = status.m_sinAngle;
-    this->m_moveDir.y = status.m_cosAngle;
+void CMovementShared::UpdateFallState(const CMovementStatus& update) {
+    STORM_ASSERT(int(update.m_fallTime) >= 0); // 12213: "int(update.timeFallen) >= 0"
+
+    this->m_fallTimeMs = update.m_fallTime;
+    this->m_fallVelocity = update.m_zSpeed;
+    this->m_fallStartZ = CalcFallDistance(update.m_fallTime * 0.001f, this->m_flags & MOVEMENTFLAG_SAFE_FALL, update.m_zSpeed) + this->m_position.z;
+    this->m_moveDir2D.x = update.m_sinAngle;
+    this->m_moveDir2D.y = update.m_cosAngle;
+    this->m_moveDir.x = update.m_sinAngle;
+    this->m_moveDir.y = update.m_cosAngle;
     this->m_moveDir.z = 0.0f;
-    this->m_currentSpeed = status.m_xySpeed;
+    this->m_currentSpeed = update.m_xySpeed;
 }
 
 // VERIFY: 5452bd48 manual
@@ -1842,6 +1845,8 @@ void CMovementShared::UnRoot(int32_t tryFall) {
 // VERIFY: c57f9a1e auto
 // OFFSET: 0x0098C770
 void CMovementShared::OnSpline(uint32_t timePassed, const C3Vector* points, uint32_t pointCount, uint32_t duration, uint32_t splineFlags, uint32_t splineId) {
+    STORM_ASSERT(m_spline);
+
     this->m_spline->m_flags = splineFlags;
     this->m_spline->m_timePassed = timePassed;
     this->m_spline->m_start = 0;

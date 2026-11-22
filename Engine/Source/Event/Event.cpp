@@ -289,6 +289,9 @@ void EventSetMouseMode(MOUSEMODE mode, uint32_t holdButton) {
 // VERIFY: d1d149d8 auto
 // OFFSET: 0x0047D700
 void EventInputGetMousePosition(float* x, float* y) {
+    STORM_ASSERT(x);
+    STORM_ASSERT(y);
+
     int32_t findMask;
     EvtContext* context = TSingletonInstanceId<EvtContext, 8>::s_idTable.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(EventGetCurrentContext())), 0, &findMask, 0, 1);
 

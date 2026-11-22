@@ -9,8 +9,8 @@
 
 class CAsyncQueue : public TSLinkedNode<CAsyncQueue> {
     public:
-    /* 0008 */ TSExplicitList<CAsyncObject, offsetof(CAsyncObject, m_link)> m_readList;
-    /* 0014 */ TSExplicitList<CAsyncObject, offsetof(CAsyncObject, m_link)> m_staleList;
+    /* 0008 */ TSExplicitList<CAsyncObject, offsetof(CAsyncObject, link)> m_readList;
+    /* 0014 */ TSExplicitList<CAsyncObject, offsetof(CAsyncObject, link)> m_staleList;
     /* 0020 */ int32_t m_frameLimited;
 
     ~CAsyncQueue();

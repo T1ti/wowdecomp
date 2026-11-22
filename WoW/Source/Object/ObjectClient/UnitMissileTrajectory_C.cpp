@@ -814,7 +814,7 @@ float CMissileCollision::ComputeUnitRank(CGUnit_C* unit) {
     } else {
         int32_t mode = this->m_missile->m_flags & SPELL_MISSILE_FLAG_CREATURE_COLLISION_MASK;
 
-        if (!mode || !unit->m_creatureCacheEntry || !(unit->m_creatureCacheEntry->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_COLLIDE_WITH_MISSILES)) {
+        if (!mode || !unit->m_stats || !(unit->m_stats->m_typeFlags & CREATURE_TYPE_FLAGS::CREATURE_TYPE_FLAG_COLLIDE_WITH_MISSILES)) {
             return -1.0f;
         }
 

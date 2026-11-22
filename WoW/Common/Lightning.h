@@ -81,7 +81,11 @@ class CLightning {
 
 class CLightningManager {
     public:
-    /* 0000 */ TSGrowableArray<CLightning*> m_bolts;
+    enum : uint32_t {
+        BADBOLT = 0xFFFFFFFF,
+    };
+
+    /* 0000 */ TSGrowableArray<CLightning*> mLiveBolts;
     /* 0010 */ TSGrowableArray<uint32_t> m_freeList;
 
     CLightningManager();

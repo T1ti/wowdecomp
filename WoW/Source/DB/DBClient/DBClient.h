@@ -247,6 +247,7 @@
 
 enum STRINGLOOKUP : uint32_t {
     SLOOKUP_INVENTORYICONPATH = 3,
+    NUM_STRINGLOOKUPS = 4, // 12213 assertion bound
 
     // Unused 0.5.3 definitions; current assignments are unverified.
     // SLOOKUP_UNUSED = 0,

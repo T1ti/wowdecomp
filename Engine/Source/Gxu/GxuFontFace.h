@@ -11,7 +11,7 @@
 struct FACEDATA : public CHandleObject, public TSHashObject<FACEDATA, HASHKEY_STRI> {
     /* 0020 */ void* m_data;
     /* 0024 */ FT_Face m_face;
-    /* 0028 */ HOBJECT m_selfReference;
+    /* 0028 */ HOBJECT selfReference;
 
     FACEDATA();
     virtual ~FACEDATA();

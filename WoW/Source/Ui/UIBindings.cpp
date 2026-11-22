@@ -437,6 +437,8 @@ void CGUIBindings::AddModifiers(uint32_t& modifiers, const char*& binding) {
 // VERIFY: 47da3e12 manual
 // OFFSET: 0x005620F0
 void CGUIBindings::Initialize() {
+    STORM_ASSERT(!s_bindings);
+
     CGUIBindings::s_bindings = new (SMemAlloc(sizeof(CGUIBindings), __FILE__, __LINE__, 0)) CGUIBindings();
 
     do {

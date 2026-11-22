@@ -897,6 +897,8 @@ void CSimpleButton::OnDoubleClick(const char* btn) {
 // VERIFY: d16dc184 manual
 // OFFSET: 0x0096FE30
 void CSimpleButton::SetButtonState(CSimpleButtonState state, int32_t stateLocked) {
+    STORM_ASSERT(state < NUM_BUTTONSTATES);
+
     this->m_stateLocked = stateLocked;
 
     if (state == this->m_state) {

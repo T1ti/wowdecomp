@@ -252,6 +252,9 @@ static bool VersionDownloadCallback(void* param, const char* data, uint32_t size
 // VERIFY: 451fb6dc manual
 // OFFSET: 0x004E5CB0
 void CGlueMgr::ScanDLLStart(const char* versionURL, const char* dllURL) {
+    STORM_ASSERT(versionURL);
+    STORM_ASSERT(dllURL);
+
     if (CGlueMgr::m_scandllStatus || s_downloadComplete) {
         return;
     }

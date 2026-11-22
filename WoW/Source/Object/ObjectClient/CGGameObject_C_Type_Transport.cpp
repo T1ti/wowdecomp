@@ -1,4 +1,5 @@
 #include "CGGameObject_C_Type_Transport.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/Object/ObjectClient/Movement_C.h"
 #include "WoW/Source/WorldClient/World.h"
 #include "WoW/Source/DB/DBClient/DBClient.h"
@@ -357,7 +358,10 @@ C4Quaternion CGGameObject_C_Type_Transport::GetRotation(uint32_t time) {
 
 // VERIFY: 007eb5fe auto
 // OFFSET: 0x007106D0
-void CGGameObject_C_Type_Transport::Interpolate(uint32_t time, C3Vector* offset, C4Quaternion* rotation) {
+void CGGameObject_C_Type_Transport::Interpolate(uint32_t time, C3Vector* position, C4Quaternion* rotation) {
+    STORM_ASSERT(position);
+    STORM_ASSERT(rotation);
+
     int32_t state = this->m_owner->m_gameObject->m_state;
     uint32_t sequenceTime = this->GetSequenceTimeFromRealTime(state, time);
 
@@ -373,7 +377,7 @@ void CGGameObject_C_Type_Transport::Interpolate(uint32_t time, C3Vector* offset,
         }
     }
 
-    *offset = this->GetMovement(sequenceTime);
+    *position = this->GetMovement(sequenceTime);
     *rotation = this->GetRotation(sequenceTime);
 }
 

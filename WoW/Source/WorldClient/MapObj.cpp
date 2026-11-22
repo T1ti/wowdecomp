@@ -1850,7 +1850,7 @@ void CMapObj::InitPtrs() {
 // VERIFY: 692709d1 manual
 // OFFSET: 0x007AE110
 void CMapObj::AsyncFailedCallback(CAsyncObject* object) {
-    void* buffer = object->m_buffer;
+    void* buffer = object->buffer;
     AsyncFileReadDestroyObject(object);
     SMemFree(buffer, __FILE__, __LINE__, 0);
 }
@@ -2609,6 +2609,8 @@ void CMapObj::FreeOccluderEntry(uint32_t* heap, CMapObjOccluder* occluder) {
 // VERIFY: cd8a34ce auto
 // OFFSET: 0x007B0560
 void CMapObj::FreeOccluder(CMapObjOccluder* occluder) {
+    STORM_ASSERT(occluder);
+
     CMapObj::FreeOccluderEntry(CMapObj::occluderHeap, occluder);
 }
 
@@ -4136,7 +4138,7 @@ void CMapObj::ProcessAsyncLoadQueue() {
             if (group->m_distToCamera < 40000.0f) {
                 CAsyncObject* object = group->m_asyncObjPtr;
 
-                if (object->m_isCurrent || object->m_isRead || object->m_isProcessed) {
+                if (object->isCurrent || object->isRead || object->isProcessed) {
                     continue;
                 }
 
@@ -4167,7 +4169,7 @@ void CMapObj::ProcessAsyncLoadQueue() {
             if (mapObj->m_distToCamera < 40000.0f) {
                 CAsyncObject* object = mapObj->m_asyncObject;
 
-                if (object->m_isCurrent || object->m_isRead || object->m_isProcessed) {
+                if (object->isCurrent || object->isRead || object->isProcessed) {
                     continue;
                 }
 

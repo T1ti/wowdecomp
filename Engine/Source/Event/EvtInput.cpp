@@ -325,6 +325,9 @@ void IEvtDispatchJoystickStick(EvtContext* context, int32_t id, int32_t x, int32
 // VERIFY: 2eba42b1 auto
 // OFFSET: 0x004800A0
 void IEvtInputGetMousePosition(float* x, float* y) {
+    STORM_ASSERT(x);
+    STORM_ASSERT(y);
+
     int32_t mouseX;
     int32_t mouseY;
     OsInputGetMousePosition(&mouseX, &mouseY);

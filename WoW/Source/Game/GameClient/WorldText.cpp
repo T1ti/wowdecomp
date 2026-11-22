@@ -132,6 +132,8 @@ float WorldTextGetAscendDistance(uint32_t type) {
 // VERIFY: 271233c4 auto
 // OFFSET: 0x007E66F0
 void WORLDTEXTSTRING::RecreateString() {
+    STORM_ASSERT(m_type < NUM_WORLDTEXTTYPES);
+
     if (this->m_string) {
         GxuFontDestroyString(this->m_string);
     }

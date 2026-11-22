@@ -13,7 +13,7 @@ ComponentData::ComponentData() {
     this->m_preferences.m_facialHairId = 0;
     this->m_preferences.m_hairStyleId = 0;
     this->m_npcSkinTexture[0] = 0;
-    this->m_model = nullptr;
+    this->model2 = nullptr;
     this->m_geosets[CHARGEOSET_HAIR] = CHARACTER_GEOSET_ID::HAIR_DEFAULT;
     this->m_geosets[CHARGEOSET_BEARD] = CHARACTER_GEOSET_ID::BEARD_DEFAULT;
     this->m_geosets[CHARGEOSET_SIDEBURN] = CHARACTER_GEOSET_ID::SIDEBURN_DEFAULT;

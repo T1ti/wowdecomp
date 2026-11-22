@@ -1,4 +1,5 @@
 #include "WorldFrame.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/Object/Types.h"
 #include "Engine/Source/Base/ConvertUTF.h"
 #include <cstring>
@@ -314,6 +315,11 @@ int32_t CGWorldFrame::GetLineSegment(float mouseX, float mouseY, C3Vector* start
 // VERIFY: 0b3308f3 manual
 // OFFSET: 0x004F6650
 void CGWorldFrame::GetCameraPosition(C3Vector* position) {
+    STORM_ASSERT(s_currentWorldFrame->m_camera);
+
+    STORM_ASSERT(position);
+    STORM_ASSERT(s_currentWorldFrame);
+
     *position = CGWorldFrame::s_currentWorldFrame->m_camera->m_position;
 }
 
@@ -453,6 +459,8 @@ bool CGWorldFrame::GetScreenCoordinates(const C3Vector& world, C3Vector* screen,
 // VERIFY: aaab1f42 manual
 // OFFSET: 0x004F6F50
 void CGWorldFrame::SetCameraTarget(CGObject_C* target, int32_t freeLook) {
+    STORM_ASSERT(m_camera);
+
     this->m_camera->SetTarget(target, freeLook);
 
     if (target && (target->m_obj->m_type & TYPE_UNIT)) {
@@ -1075,7 +1083,9 @@ uint64_t CGWorldFrame::FindClosestModel(const C3Vector& start, const C3Vector& e
 
 // VERIFY: d0d131d0 manual
 // OFFSET: 0x004F9930
-int32_t CGWorldFrame::HitTest(const C3Vector& start, const C3Vector& end, uint32_t flags, HITTESTRESULT* result) {
+int32_t CGWorldFrame::HitTest(const C3Vector& start, const C3Vector& end, uint32_t flags, HITTESTRESULT* hitTestResult) {
+    STORM_ASSERT(hitTestResult);
+
     C3Vector hitPoint = { 0.0f, 0.0f, 0.0f };
     float t = 1.0f;
     float objectDistance = 0.0f;
@@ -1155,9 +1165,9 @@ int32_t CGWorldFrame::HitTest(const C3Vector& start, const C3Vector& end, uint32
     }
 
     if (model) {
-        result->m_distance = objectDistance;
-        result->m_point = point;
-        result->m_guid = model;
+        hitTestResult->m_distance = objectDistance;
+        hitTestResult->m_point = point;
+        hitTestResult->m_guid = model;
         return HIT_OBJECT;
     }
 
@@ -1166,27 +1176,27 @@ int32_t CGWorldFrame::HitTest(const C3Vector& start, const C3Vector& end, uint32
     }
 
     if (collision) {
-        result->m_point = point;
+        hitTestResult->m_point = point;
         CGObject_C* object = ClntObjMgrObjectPtr(collision, TYPE_OBJECT, __FILE__, __LINE__);
 
         if (object) {
-            result->m_guid = collision;
+            hitTestResult->m_guid = collision;
 
             if (object->IsTransport()) {
                 C44Matrix inverse = object->GetMatrix().AffineInverse();
-                result->m_point *= inverse;
+                hitTestResult->m_point *= inverse;
             }
         } else {
-            result->m_guid = WOWGUID();
+            hitTestResult->m_guid = WOWGUID();
         }
 
-        result->m_distance = t;
+        hitTestResult->m_distance = t;
         return HIT_WORLD_OBJECT;
     }
 
-    result->m_point = point;
-    result->m_distance = t;
-    result->m_guid = WOWGUID();
+    hitTestResult->m_point = point;
+    hitTestResult->m_distance = t;
+    hitTestResult->m_guid = WOWGUID();
     return terrain != 0;
 }
 

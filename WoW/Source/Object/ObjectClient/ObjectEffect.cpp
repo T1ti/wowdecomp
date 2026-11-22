@@ -47,7 +47,7 @@ CObjectEffectModifier::CObjectEffectModifier() {
     this->m_mapType = MAP_NONE;
     this->m_outputType = OUTPUT_NONE;
     this->m_params = nullptr;
-    this->m_numParams = 0;
+    this->m_nNumParams = 0;
 }
 
 // INLINED
@@ -59,21 +59,26 @@ CObjectEffectModifier::~CObjectEffectModifier() {
 }
 
 // INLINED
-void CObjectEffectModifier::Init(const ObjectEffectModifierRec* rec) {
-    this->m_inputType = static_cast<INPUT_TYPE>(rec->m_inputType);
-    this->m_outputType = static_cast<OUTPUT_TYPE>(rec->m_outputType);
-    this->m_mapType = static_cast<MAP_TYPE>(rec->m_mapType);
-    this->m_id = rec->m_id;
-    this->m_numParams = this->m_mapType == MAP_LINEAR ? NUM_LINEAR_PARAMS : 0;
+void CObjectEffectModifier::Init(const ObjectEffectModifierRec* pModifierRec) {
+    STORM_ASSERT(pModifierRec);
 
-    if (this->m_numParams) {
-        this->m_params = new (__FILE__, __LINE__) float[this->m_numParams];
+    this->m_inputType = static_cast<INPUT_TYPE>(pModifierRec->m_inputType);
+    this->m_outputType = static_cast<OUTPUT_TYPE>(pModifierRec->m_outputType);
+    this->m_mapType = static_cast<MAP_TYPE>(pModifierRec->m_mapType);
+    this->m_id = pModifierRec->m_id;
+    this->m_nNumParams = this->m_mapType == MAP_LINEAR ? NUM_LINEAR_PARAMS : 0;
+
+    if (this->m_nNumParams) {
+        this->m_params = new (__FILE__, __LINE__) float[this->m_nNumParams];
     }
 }
 
 // INLINED
-void CObjectEffectModifier::SetParam(int32_t index, float value) {
-    this->m_params[index] = value;
+void CObjectEffectModifier::SetParam(int32_t nParamIndex, float value) {
+    STORM_ASSERT(nParamIndex >= 0);
+    STORM_ASSERT(nParamIndex < m_nNumParams);
+
+    this->m_params[nParamIndex] = value;
 }
 
 // INLINED
@@ -352,7 +357,7 @@ void ObjectEffectSystem_Initialize() {
             effectLookup->m_objectEffectDef.m_modifier = new (SMemAlloc(sizeof(CObjectEffectModifier), __FILE__, __LINE__, 0)) CObjectEffectModifier();
             effectLookup->m_objectEffectDef.m_modifier->Init(modifierRec);
 
-            for (int32_t param = 0; param < effectLookup->m_objectEffectDef.m_modifier->m_numParams; param++) {
+            for (int32_t param = 0; param < effectLookup->m_objectEffectDef.m_modifier->m_nNumParams; param++) {
                 effectLookup->m_objectEffectDef.m_modifier->SetParam(param, modifierRec->m_param[param]);
             }
         } else {

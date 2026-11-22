@@ -111,7 +111,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool re
             data.m_preferences.m_hairStyleId = this->m_corpse->m_corpseFieldBytes2[1];
             data.m_preferences.m_hairColorId = this->m_corpse->m_corpseFieldBytes2[2];
             data.m_preferences.m_facialHairId = this->m_corpse->m_corpseFieldBytes2[3];
-            data.m_model = model;
+            data.model2 = model;
 
             uint32_t activePlayer = this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer();
             model->m_refCount++;
@@ -221,7 +221,7 @@ const char* CGCorpse_C::GetPortraitTexture() const {
 // VERIFY: e4a2c418 auto
 // OFFSET: 0x007058B0
 BOOL CGCorpse_C::ShouldFadeout() {
-    return !this->m_component || (TextureIsReadyNow(this->m_component->m_baseSkinTexture) && this->m_component->RenderPrep(0));
+    return !this->m_component || (TextureIsReadyNow(this->m_component->m_baseTexture) && this->m_component->RenderPrep(0));
 }
 
 // VERIFY: 761d4ea2 auto
@@ -383,6 +383,8 @@ float CGCorpse_C::GetFacing() const {
 // VERIFY: 63ae9671 manual
 // OFFSET: 0x00705850
 void CGCorpse_C::ModelLoaded(CM2Model* model) {
+    STORM_ASSERT(model == GetModel());
+
     this->CGObject_C::ModelLoaded(model);
 
     if (this->m_corpseFlags & CGCorpse_C::RUNTIME_FLAGS::DROWNED_POSE) {

@@ -50,6 +50,8 @@ int32_t CStatus::IsEmpty() {
 // VERIFY: d68224ab manual
 // OFFSET: 0x0047C110
 char* CStatus::GetErrorStr(char* buffer, size_t bufchars, STATUS_TYPE minSeverity, const char* separator) {
+    STORM_ASSERT(buffer);
+
     char* curr = buffer;
     *curr = 0;
 

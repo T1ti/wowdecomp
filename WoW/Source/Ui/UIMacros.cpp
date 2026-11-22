@@ -91,19 +91,21 @@ int32_t CGUIMacros::GetMacroIndexByID(uint32_t id) {
 // VERIFY: 3cc88c82 auto
 // OFFSET: 0x005660E0
 void MACRONODE::IncrementActionBarCount() {
-    if (this->m_dynamic && !this->m_actionBarCount) {
+    if (this->m_dynamic && !this->actionBarCount) {
         s_dynamicMacros.LinkToTail(this);
     }
 
-    this->m_actionBarCount++;
+    this->actionBarCount++;
 }
 
 // VERIFY: 462f140c manual
 // OFFSET: 0x00566110
 void MACRONODE::DecrementActionBarCount() {
-    this->m_actionBarCount--;
+    STORM_ASSERT(actionBarCount > 0);
 
-    if (this->m_dynamic && !this->m_actionBarCount) {
+    this->actionBarCount--;
+
+    if (this->m_dynamic && !this->actionBarCount) {
         s_dynamicMacros.UnlinkNode(this);
     }
 }
@@ -178,7 +180,7 @@ void CGUIMacros::GetFullIconPath(uint32_t id, char* buffer, uint32_t size) {
         return;
     }
 
-    if (macro->m_dynamic && !macro->m_actionBarCount) {
+    if (macro->m_dynamic && !macro->actionBarCount) {
         macro->FindSpellID();
     }
 
@@ -267,6 +269,8 @@ void CGUIMacros::Initialize() {
 // VERIFY: 7d331447 auto
 // OFFSET: 0x00567FD0
 void CGUIMacros::LoadMacros() {
+    STORM_ASSERT(s_initCounter);
+
     s_pendingLoads = 0x30000;
     LoadAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_GLOBAL_MACROS, CGUIMacros::LoadMacrosCallback, reinterpret_cast<void*>(static_cast<uintptr_t>(s_initCounter | 0x10000)));
     LoadAccountData(ACCOUNT_DATA_TYPE::ACCOUNT_DATA_CHARACTER_MACROS, CGUIMacros::LoadMacrosCallback, reinterpret_cast<void*>(static_cast<uintptr_t>(s_initCounter | 0x20000)));
@@ -474,7 +478,7 @@ MACRONODE::MACRONODE() {
     this->m_name[0] = '\0';
     this->m_icon[0] = '\0';
     this->m_body[0] = '\0';
-    this->m_actionBarCount = 0;
+    this->actionBarCount = 0;
     this->m_spellID = 0;
     this->m_itemID = 0;
     this->m_spellFlags = 0;
@@ -606,7 +610,7 @@ int32_t MACRONODE::Parse() {
         }
     }
 
-    if (this->m_dynamic && static_cast<int32_t>(this->m_actionBarCount) > 0) {
+    if (this->m_dynamic && static_cast<int32_t>(this->actionBarCount) > 0) {
         s_dynamicMacros.LinkToTail(this);
     } else {
         s_dynamicMacros.UnlinkNode(this);
@@ -618,7 +622,7 @@ int32_t MACRONODE::Parse() {
 // VERIFY: 2141c271 auto
 // OFFSET: 0x005661C0
 void CGUIMacros::CountActionBarSlots(MACRONODE* macro) {
-    macro->m_actionBarCount = 0;
+    macro->actionBarCount = 0;
     CGUIMacros::RemoveDynamicMacro(macro);
 
     for (uint32_t slot = 0; slot < 144; slot++) {
@@ -626,11 +630,11 @@ void CGUIMacros::CountActionBarSlots(MACRONODE* macro) {
         uint32_t id = action && (action & CGActionBar::ACTION_MASK::ACTION_MASK_TAG) == CGActionBar::ACTION_TAG::ACTION_TAG_MACRO ? action & CGActionBar::ACTION_MASK::ACTION_MASK_MACRO_ID : 0;
 
         if (id == macro->m_id) {
-            if (macro->m_dynamic && !macro->m_actionBarCount) {
+            if (macro->m_dynamic && !macro->actionBarCount) {
                 s_dynamicMacros.LinkToTail(macro);
             }
 
-            macro->m_actionBarCount++;
+            macro->actionBarCount++;
         }
     }
 }
@@ -724,7 +728,7 @@ void CGUIMacros::DeleteMacro(uint32_t id) {
 // OFFSET: 0x00567520
 void CGUIMacros::CheckActionBar() {
     for (MACRONODE* macro = s_macros.m_fulllist.Head(); macro; macro = s_macros.m_fulllist.Next(macro)) {
-        macro->m_actionBarCount = 0;
+        macro->actionBarCount = 0;
         s_dynamicMacros.UnlinkNode(macro);
     }
 

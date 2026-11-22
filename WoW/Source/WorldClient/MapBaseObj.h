@@ -33,6 +33,11 @@ class CMapBaseObj {
     /* 0010 */ TSLink<CMapBaseObj> m_lameAssLink;
     /* 0018 */ TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_ownerLink)> m_parentLinkList;
 
+    // INLINED
+    uint16_t GetType() const {
+        return this->m_type;
+    }
+
     virtual ~CMapBaseObj();
     virtual void SelectLights(CM2Lighting* lighting);
     virtual void SelectUnderwater(CM2Lighting* lighting);

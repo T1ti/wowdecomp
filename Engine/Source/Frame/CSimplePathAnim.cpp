@@ -135,6 +135,8 @@ void CSimplePathAnim::UpdateControlPointPositions() {
 // VERIFY: c544ae9e manual
 // OFFSET: 0x00499090
 void CSimplePathAnim::NotifyOrderChanged(CSimpleControlPoint* point) {
+    STORM_ASSERT_RECOVERABLE(point);
+
     if (!point) {
         return;
     }

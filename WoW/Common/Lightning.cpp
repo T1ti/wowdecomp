@@ -238,11 +238,11 @@ void CLightning::SetDstPos(const C3Vector& pos) {
 // VERIFY: d866a813 manual
 // OFFSET: 0x009A96E0
 CLightning* CLightningManager::GetTempPtr(uint32_t index) {
-    if (index == 0xFFFFFFFF || index >= this->m_bolts.Count()) {
+    if (index == 0xFFFFFFFF || index >= this->mLiveBolts.Count()) {
         return nullptr;
     }
 
-    CLightning* bolt = this->m_bolts.m_data[index];
+    CLightning* bolt = this->mLiveBolts.m_data[index];
 
     if (reinterpret_cast<uintptr_t>(bolt) & 0x1) {
         return nullptr;
@@ -253,9 +253,11 @@ CLightning* CLightningManager::GetTempPtr(uint32_t index) {
 
 // VERIFY: e8370b8f manual
 // OFFSET: 0x009A9710
-void CLightningManager::Move(uint32_t index, C3Vector* srcPos, C3Vector* dstPos) {
+void CLightningManager::Move(uint32_t boltId, C3Vector* srcPos, C3Vector* dstPos) {
+    STORM_ASSERT(BADBOLT != boltId && boltId < mLiveBolts.Count());
+
     if (srcPos) {
-        this->m_bolts.m_data[index]->m_srcPos = *srcPos;
+        this->mLiveBolts.m_data[boltId]->m_srcPos = *srcPos;
 
         if (!dstPos) {
             return;
@@ -265,17 +267,17 @@ void CLightningManager::Move(uint32_t index, C3Vector* srcPos, C3Vector* dstPos)
         return;
     }
 
-    this->m_bolts.m_data[index]->m_dstPos = *dstPos;
+    this->mLiveBolts.m_data[boltId]->m_dstPos = *dstPos;
 }
 
 // VERIFY: bb005ebb manual
 // OFFSET: 0x009A9770
 void CLightningManager::SetBoltVisible(uint32_t index, bool visible) {
-    if (index == 0xFFFFFFFF || index >= this->m_bolts.Count()) {
+    if (index == 0xFFFFFFFF || index >= this->mLiveBolts.Count()) {
         return;
     }
 
-    CLightning* bolt = this->m_bolts.m_data[index];
+    CLightning* bolt = this->mLiveBolts.m_data[index];
 
     if (reinterpret_cast<uintptr_t>(bolt) & 0x1) {
         return;
@@ -890,8 +892,8 @@ CLightningManager::CLightningManager() {
 // VERIFY: 2597f7c8 manual
 // OFFSET: 0x009AAEA0
 CLightningManager::~CLightningManager() {
-    for (uint32_t i = this->m_bolts.Count(); i; i--) {
-        CLightning* bolt = reinterpret_cast<CLightning*>(reinterpret_cast<uintptr_t>(this->m_bolts.m_data[i - 1]) & ~0x1);
+    for (uint32_t i = this->mLiveBolts.Count(); i; i--) {
+        CLightning* bolt = reinterpret_cast<CLightning*>(reinterpret_cast<uintptr_t>(this->mLiveBolts.m_data[i - 1]) & ~0x1);
 
         if (bolt) {
             delete bolt;
@@ -906,17 +908,17 @@ uint32_t CLightningManager::Add(void (*coordUpdate)(void*, uint32_t, C3Vector*, 
 
     if (this->m_freeList.Count()) {
         index = *this->m_freeList.Top();
-        this->m_bolts.m_data[index] = reinterpret_cast<CLightning*>(reinterpret_cast<uintptr_t>(this->m_bolts.m_data[index]) & ~0x1);
+        this->mLiveBolts.m_data[index] = reinterpret_cast<CLightning*>(reinterpret_cast<uintptr_t>(this->mLiveBolts.m_data[index]) & ~0x1);
         this->m_freeList.SetCount(this->m_freeList.Count() - 1);
-        this->m_bolts.m_data[index]->Init(chainEffects);
+        this->mLiveBolts.m_data[index]->Init(chainEffects);
     } else {
-        index = this->m_bolts.Count();
+        index = this->mLiveBolts.Count();
         CLightning* bolt = new (__FILE__, __LINE__) CLightning();
-        this->m_bolts.New(bolt);
-        this->m_bolts.m_data[index]->Init(chainEffects);
+        this->mLiveBolts.New(bolt);
+        this->mLiveBolts.m_data[index]->Init(chainEffects);
     }
 
-    CLightning* bolt = this->m_bolts.m_data[index];
+    CLightning* bolt = this->mLiveBolts.m_data[index];
     bolt->m_coordUpdateData.callback = coordUpdate;
     bolt->m_coordUpdateData.context = param;
 
@@ -941,10 +943,10 @@ void CLightningManager::Render(const C3Vector& cameraPos) {
     g_theGxDevicePtr->RsSet(GxRs_ColorWrite, 15);
 
     for (int32_t layer = 0; layer < 4; layer++) {
-        for (uint32_t i = this->m_bolts.Count(); i;) {
+        for (uint32_t i = this->mLiveBolts.Count(); i;) {
             i--;
 
-            CLightning* bolt = this->m_bolts.m_data[i];
+            CLightning* bolt = this->mLiveBolts.m_data[i];
 
             if (reinterpret_cast<uintptr_t>(bolt) & 0x1) {
                 continue;
@@ -976,7 +978,7 @@ void CLightningManager::Render(const C3Vector& cameraPos) {
 // VERIFY: ac4c6214 auto
 // OFFSET: 0x009AB2B0
 void CLightningManager::Remove(uint32_t index) {
-    this->m_bolts.m_data[index] = reinterpret_cast<CLightning*>(reinterpret_cast<uintptr_t>(this->m_bolts.m_data[index]) | 0x1);
+    this->mLiveBolts.m_data[index] = reinterpret_cast<CLightning*>(reinterpret_cast<uintptr_t>(this->mLiveBolts.m_data[index]) | 0x1);
     this->m_freeList.Add(1, &index);
 }
 
@@ -1134,11 +1136,11 @@ void CLightning::Update(float elapsed) {
 // VERIFY: c2448686 auto
 // OFFSET: 0x009AB730
 void CLightningManager::Update(float elapsed) {
-    for (uint32_t i = this->m_bolts.Count(); i;) {
+    for (uint32_t i = this->mLiveBolts.Count(); i;) {
         i--;
 
-        if (!(reinterpret_cast<uintptr_t>(this->m_bolts.m_data[i]) & 0x1)) {
-            this->m_bolts.m_data[i]->Update(elapsed);
+        if (!(reinterpret_cast<uintptr_t>(this->mLiveBolts.m_data[i]) & 0x1)) {
+            this->mLiveBolts.m_data[i]->Update(elapsed);
         }
     }
 }

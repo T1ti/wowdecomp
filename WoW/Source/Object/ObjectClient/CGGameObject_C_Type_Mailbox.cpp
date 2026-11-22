@@ -1,4 +1,5 @@
 #include "CGGameObject_C_Type_Mailbox.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/UIUtil/Types.h"
 #include "WoW/Source/Object/ObjectClient/Player_C.h"
 
@@ -29,6 +30,8 @@ int32_t CGGameObject_C_Type_Mailbox::CanChangeCursor() const {
 // VERIFY: 617bd209 auto
 // OFFSET: 0x0070C9D0
 bool CGGameObject_C_Type_Mailbox::Use() {
+    STORM_ASSERT(m_owner);
+
     CGPlayer_C::TalkToMailbox(this->m_owner->m_obj->m_guid);
 
     return true;

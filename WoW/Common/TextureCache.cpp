@@ -25,7 +25,7 @@ static TSHashTable<CACHEENTRY, HASHKEY_NONE> s_cacheTable;
 // VERIFY: dead4cbd manual
 // OFFSET: 0x004F2B40
 static void FreeRequest(CAsyncObject* object) {
-    void* buffer = object->m_buffer;
+    void* buffer = object->buffer;
     AsyncFileReadDestroyObject(object);
     SMemFree(buffer, __FILE__, __LINE__, 0);
 }
@@ -65,14 +65,14 @@ int32_t CACHEENTRY::LoadTexture() {
     }
 
     this->m_asyncObject = AsyncFileReadAllocObject();
-    this->m_asyncObject->m_userArg = this;
-    this->m_asyncObject->m_userPostloadCallback = &LoadSuccessCallback;
-    this->m_asyncObject->m_file = file;
-    this->m_asyncObject->m_size = SFileGetFileSize(file, nullptr);
-    this->m_asyncObject->m_priority = 130;
-    this->m_size = this->m_asyncObject->m_size;
+    this->m_asyncObject->userArg = this;
+    this->m_asyncObject->userPostloadCallback = &LoadSuccessCallback;
+    this->m_asyncObject->file = file;
+    this->m_asyncObject->size = SFileGetFileSize(file, nullptr);
+    this->m_asyncObject->priority = 130;
+    this->m_size = this->m_asyncObject->size;
     this->m_data = static_cast<BLPHeader*>(SMemAlloc(this->m_size, __FILE__, __LINE__, 0));
-    this->m_asyncObject->m_buffer = this->m_data;
+    this->m_asyncObject->buffer = this->m_data;
     AsyncFileReadObject(this->m_asyncObject, 0);
 
     return 1;

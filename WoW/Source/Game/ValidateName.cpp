@@ -1110,12 +1110,16 @@ bool StripHyperlinks(const char* text, char* buffer, uint32_t size) {
 // VERIFY: ab213c53 auto
 // OFFSET: 0x0076DD20
 int32_t NameNeedsDeclensions(int32_t locale, const char* name) {
+    STORM_ASSERT(name);
+
     return locale == LOCALE_ru_RU && RussianNameNeedsDeclensions(name);
 }
 
 // VERIFY: d8c709a0 auto
 // OFFSET: 0x0076DD40
 uint32_t GetNumNameDeclensionSets(int32_t locale, const char* name, int32_t sex) {
+    STORM_ASSERT(name);
+
     if (locale == LOCALE_ru_RU) {
         return GetNumRussianNameDeclensionSets(name, sex);
     }
@@ -1125,9 +1129,12 @@ uint32_t GetNumNameDeclensionSets(int32_t locale, const char* name, int32_t sex)
 
 // VERIFY: d0bee4f8 auto
 // OFFSET: 0x0076DD60
-int32_t GetNameDeclensions(int32_t locale, char* declensions, const char* name, int32_t sex, uint32_t set) {
+int32_t GetNameDeclensions(int32_t locale, char* declinedNames, const char* name, int32_t sex, uint32_t set) {
+    STORM_ASSERT(declinedNames);
+    STORM_ASSERT(name);
+
     if (locale == LOCALE_ru_RU) {
-        return GetRussianNameDeclensions(declensions, name, sex, set);
+        return GetRussianNameDeclensions(declinedNames, name, sex, set);
     }
 
     return 0;
@@ -1353,6 +1360,8 @@ int32_t RussianNameNeedsDeclensions(const char* name) {
 // VERIFY: 407be8ad manual
 // OFFSET: 0x0076E2B0
 int32_t GetNumRussianNameDeclensionSets(const char* name, int32_t sex) {
+    STORM_ASSERT(name);
+
     RussianNameInfo info;
     info.m_rule = RUSSIAN_DECLENSION_RULE_DEFAULT_MALE;
     info.m_stemLen = 0;
@@ -1377,7 +1386,10 @@ int32_t GetNumRussianNameDeclensionSets(const char* name, int32_t sex) {
 
 // VERIFY: 42c2d552 auto
 // OFFSET: 0x0076E330
-int32_t GetRussianNameDeclensions(char* declensions, const char* name, int32_t sex, uint32_t set) {
+int32_t GetRussianNameDeclensions(char* declinedNames, const char* name, int32_t sex, uint32_t set) {
+    STORM_ASSERT(declinedNames);
+    STORM_ASSERT(name);
+
     if (set > 2) {
         return 0;
     }
@@ -1390,7 +1402,7 @@ int32_t GetRussianNameDeclensions(char* declensions, const char* name, int32_t s
     info.m_rule = RUSSIAN_DECLENSION_RULE_DEFAULT_MALE;
     GetNameInfo(name, &info, sex);
 
-    return FormatCase(declensions, set, &info);
+    return FormatCase(declinedNames, set, &info);
 }
 
 // VERIFY: f13e815d auto

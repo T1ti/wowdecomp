@@ -207,6 +207,7 @@ enum INVENTORY_TYPES : int32_t {
     INVTYPE_QUIVER = 27,
     INVTYPE_RELIC = 28,
     INVTYPE_COUNT = 29,
+    INDEX_NUMSLOTS = 29, // bound named by the 12213 assertion "type <= INDEX_NUMSLOTS"
     INVTYPE_INVALID = -1, // Inventory-token lookup / unfiltered query sentinel.
 };
 
@@ -224,7 +225,7 @@ enum ITEM_SLOT {
     ITEMSLOT_TABARD = 9, // Tabard
     ITEMSLOT_CAPE = 10, // Cloak
     ITEMSLOT_11 = 11, // ammo ?
-    NUM_ITEM_SLOTS = 12,
+    NUM_ITEM_SLOT = 12,
 };
 
 enum SHEATHE_TYPE {

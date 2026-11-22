@@ -1,4 +1,5 @@
 #include "Passenger.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/CMath.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "WoW/Source/Object/ObjectClient/Movement_C.h"
@@ -102,6 +103,8 @@ C4Quaternion CPassenger::GetRotation() const {
 // VERIFY: a4878ae8 manual
 // OFFSET: 0x004F4630
 float CPassenger::GetRawFacingFromRotation() const {
+    STORM_ASSERT(UsesQuat());
+
     C4Quaternion rotation = this->GetRotation();
     float x = 1.0f - (rotation.z * rotation.z + rotation.y * rotation.y) * 2.0f;
     float y = (rotation.w * rotation.z + rotation.y * rotation.x) * 2.0f;

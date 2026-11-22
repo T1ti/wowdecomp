@@ -692,6 +692,8 @@ void CSimpleAnimGroup::NotifyAnimAdded(CSimpleAnim* anim) {
 // VERIFY: 0fe08e97 auto
 // OFFSET: 0x0049AD30
 void CSimpleAnimGroup::NotifyOrderChanged(CSimpleAnim* anim, int32_t oldOrder) {
+    STORM_ASSERT_RECOVERABLE(anim);
+
     if (!anim) {
         return;
     }

@@ -33,7 +33,7 @@ class MACRONODE : public TSHashObject<MACRONODE, HASHKEY_NONE> {
     /* 0020 */ char m_name[64];
     /* 0060 */ char m_icon[256];
     /* 0160 */ char m_body[1024];
-    /* 0560 */ uint32_t m_actionBarCount;
+    /* 0560 */ uint32_t actionBarCount;
     /* 0564 */ int32_t m_spellID;
     /* 0568 */ int32_t m_itemID;
     /* 056C */ int32_t m_spellFlags;

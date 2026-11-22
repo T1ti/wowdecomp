@@ -43,6 +43,8 @@ DanceCache& DanceCache::operator=(const DanceCache& source) {
 // VERIFY: cb0294c9 manual
 // OFFSET: 0x0098D290
 void DanceCache::Pack(CDataStore* msg) {
+    STORM_ASSERT(msg);
+
     msg->Put(static_cast<uint32_t>(this->m_id));
     *msg << static_cast<const SmartGUID&>(this->m_guid);
     msg->PutString(this->m_name);
@@ -54,6 +56,8 @@ void DanceCache::Pack(CDataStore* msg) {
 // VERIFY: 54057452 manual
 // OFFSET: 0x0098D300
 void DanceCache::Unpack(CDataStore* msg) {
+    STORM_ASSERT(msg);
+
     msg->Get(reinterpret_cast<uint32_t&>(this->m_id));
 
     if (this->m_id < 0) {

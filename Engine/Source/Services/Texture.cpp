@@ -66,10 +66,10 @@ static TSExplicitList<CMipBitsCache, offsetof(CMipBitsCache, m_link)> s_mipBitsC
 static TSExplicitList<CTextureAtlas, offsetof(CTextureAtlas, m_link)> s_atlasList;
 
 // STATIC: 0x00AC337C
-static TSExplicitList<CAsyncObject, offsetof(CAsyncObject, m_link)> s_asyncLoadList;
+static TSExplicitList<CAsyncObject, offsetof(CAsyncObject, link)> s_asyncLoadList;
 
 // STATIC: 0x00AC3388
-static TSExplicitList<CAsyncObject, offsetof(CAsyncObject, m_link)> s_asyncTextureList;
+static TSExplicitList<CAsyncObject, offsetof(CAsyncObject, link)> s_asyncTextureList;
 
 // STATIC: 0x00B49C78
 static uint32_t s_currentTime;
@@ -166,8 +166,8 @@ void CTextureAtlas::Update(CTexture* texture) {
 // VERIFY: 89c9895e manual
 // OFFSET: 0x004B5130
 void AsyncTextureDestroyedCallback(CAsyncObject* object) {
-    s_asyncLoadBufferUsed -= object->m_size;
-    void* buffer = object->m_buffer;
+    s_asyncLoadBufferUsed -= object->size;
+    void* buffer = object->buffer;
     AsyncFileReadDestroyObject(object);
     SMemFree(buffer, __FILE__, __LINE__, 0);
 }
@@ -245,8 +245,8 @@ MipBits* GetDefaultTexture(uint32_t width, uint32_t height) {
 // OFFSET: 0x004B5300
 void AsyncTextureFailureCallback(CTexture* texture) {
     CAsyncObject* object = texture->m_asyncObject;
-    s_asyncLoadBufferUsed -= object->m_size;
-    void* buffer = object->m_buffer;
+    s_asyncLoadBufferUsed -= object->size;
+    void* buffer = object->buffer;
     AsyncFileReadDestroyObject(object);
     SMemFree(buffer, __FILE__, __LINE__, 0);
 }
@@ -1041,9 +1041,9 @@ void CTextureAtlas::Reload() {
 // VERIFY: 7f5ee904 manual
 // OFFSET: 0x004B64E0
 void AsyncTextureProcess(CAsyncObject* object, BOOL immediate) {
-    object->m_link.Unlink();
-    object->m_buffer = SMemAlloc(object->m_size, __FILE__, __LINE__, 0);
-    s_asyncLoadBufferUsed += object->m_size;
+    object->link.Unlink();
+    object->buffer = SMemAlloc(object->size, __FILE__, __LINE__, 0);
+    s_asyncLoadBufferUsed += object->size;
     AsyncFileReadObject(object, immediate);
 }
 
@@ -1053,7 +1053,7 @@ void AsyncTextureWait(CTexture* texture) {
     CAsyncObject* object = texture->m_asyncObject;
 
     if (object) {
-        if (!object->m_buffer) {
+        if (!object->buffer) {
             AsyncTextureProcess(object, 1);
         }
 
@@ -1104,7 +1104,7 @@ int32_t TextureGetDimensions(CTexture* texture, uint32_t* width, uint32_t* heigh
             return 0;
         }
 
-        if (!object->m_buffer) {
+        if (!object->buffer) {
             AsyncTextureProcess(object, 1);
         }
 
@@ -1228,9 +1228,9 @@ void AsyncTextureHandler() {
     for (CAsyncObject* object = s_asyncLoadList.Head(); !s_asyncLoadList.IsEnd(object); ) {
         CAsyncObject* next = s_asyncLoadList.RawNext(object);
 
-        if (available >= object->m_size) {
+        if (available >= object->size) {
             AsyncTextureProcess(object, 0);
-            available -= object->m_size;
+            available -= object->size;
         }
 
         object = next;
@@ -1239,9 +1239,9 @@ void AsyncTextureHandler() {
     for (CAsyncObject* object = s_asyncTextureList.Head(); !s_asyncTextureList.IsEnd(object); ) {
         CAsyncObject* next = s_asyncTextureList.RawNext(object);
 
-        if (available >= object->m_size) {
+        if (available >= object->size) {
             AsyncTextureProcess(object, 0);
-            available -= object->m_size;
+            available -= object->size;
         }
 
         object = next;
@@ -1294,11 +1294,11 @@ void TextureIncreasePriority(CTexture* texture) {
         return;
     }
 
-    if (texture->m_asyncObject->m_buffer) {
+    if (texture->m_asyncObject->buffer) {
         AsyncFile::EnterQueueLock();
         CAsyncObject* object = texture->m_asyncObject;
 
-        if (!object->m_isCurrent && !object->m_isRead && !object->m_isProcessed) {
+        if (!object->isCurrent && !object->isRead && !object->isProcessed) {
             AsyncFileReadIncreasePriority(texture->m_asyncObject);
         }
 
@@ -1872,7 +1872,7 @@ int32_t PumpBlpTextureAsync(CTexture* texture, void* data) {
 // VERIFY: 85a7ce70 manual
 // OFFSET: 0x004B7E80
 void AsyncTextureSuccessCallback(CTexture* texture) {
-    if (!PumpBlpTextureAsync(texture, texture->m_asyncObject->m_buffer)) {
+    if (!PumpBlpTextureAsync(texture, texture->m_asyncObject->buffer)) {
         if (!texture->m_status.IsEmpty()) {
             SysMsgAdd(&texture->m_status);
         }
@@ -1880,10 +1880,10 @@ void AsyncTextureSuccessCallback(CTexture* texture) {
         FillInSolidTexture(s_defaultColor, texture);
     }
 
-    SFileCloseFile(texture->m_asyncObject->m_file);
-    texture->m_asyncObject->m_file = nullptr;
-    s_asyncLoadBufferUsed -= texture->m_asyncObject->m_size;
-    SMemFree(texture->m_asyncObject->m_buffer, __FILE__, __LINE__, 0);
+    SFileCloseFile(texture->m_asyncObject->file);
+    texture->m_asyncObject->file = nullptr;
+    s_asyncLoadBufferUsed -= texture->m_asyncObject->size;
+    SMemFree(texture->m_asyncObject->buffer, __FILE__, __LINE__, 0);
     AsyncFileReadDestroyObject(texture->m_asyncObject);
     texture->m_asyncObject = nullptr;
 }
@@ -2128,14 +2128,14 @@ CTexture::~CTexture() {
 
     if (this->m_asyncObject) {
         if (this->m_flags & CTexture::FLAGS::STREAMING_ASYNC) {
-            this->m_asyncObject->m_userArg = this->m_asyncObject;
-            this->m_asyncObject->m_userPostUnloadCallback = reinterpret_cast<CAsyncObject::POST_CALLBACK>(AsyncTextureDestroyedCallback);
-            this->m_asyncObject->m_userPostloadCallback = this->m_asyncObject->m_userPostUnloadCallback;
+            this->m_asyncObject->userArg = this->m_asyncObject;
+            this->m_asyncObject->userPostUnloadCallback = reinterpret_cast<CAsyncObject::POST_CALLBACK>(AsyncTextureDestroyedCallback);
+            this->m_asyncObject->userPostloadCallback = this->m_asyncObject->userPostUnloadCallback;
         } else {
-            void* buffer = this->m_asyncObject->m_buffer;
+            void* buffer = this->m_asyncObject->buffer;
 
             if (AsyncFile::Cancel(this->m_asyncObject, AsyncTextureDestroyedCallback)) {
-                s_asyncLoadBufferUsed -= this->m_asyncObject->m_size;
+                s_asyncLoadBufferUsed -= this->m_asyncObject->size;
                 SMemFree(buffer, __FILE__, __LINE__, 0);
             }
         }
@@ -2243,23 +2243,23 @@ CTexture* CreateBlpAsync(char* extension, const char* fileName, uint32_t flags, 
     }
 
     texture->m_asyncObject = AsyncFileReadAllocObject();
-    texture->m_asyncObject->m_userArg = texture;
-    texture->m_asyncObject->m_userPostloadCallback = reinterpret_cast<CAsyncObject::POST_CALLBACK>(AsyncTextureSuccessCallback);
-    texture->m_asyncObject->m_userPostUnloadCallback = reinterpret_cast<CAsyncObject::POST_CALLBACK>(AsyncTextureFailureCallback);
-    texture->m_asyncObject->m_file = file;
-    texture->m_asyncObject->m_size = SFileGetFileSize(file, nullptr);
+    texture->m_asyncObject->userArg = texture;
+    texture->m_asyncObject->userPostloadCallback = reinterpret_cast<CAsyncObject::POST_CALLBACK>(AsyncTextureSuccessCallback);
+    texture->m_asyncObject->userPostUnloadCallback = reinterpret_cast<CAsyncObject::POST_CALLBACK>(AsyncTextureFailureCallback);
+    texture->m_asyncObject->file = file;
+    texture->m_asyncObject->size = SFileGetFileSize(file, nullptr);
 
     if (blobTexture) {
-        texture->m_asyncObject->m_priority = 131;
+        texture->m_asyncObject->priority = 131;
     } else if (flags & 0x10) {
-        texture->m_asyncObject->m_priority = 129;
+        texture->m_asyncObject->priority = 129;
     } else {
-        texture->m_asyncObject->m_priority = 130;
+        texture->m_asyncObject->priority = 130;
     }
 
     CAsyncObject* object = texture->m_asyncObject;
 
-    if (0x400000 - s_asyncLoadBufferUsed < object->m_size) {
+    if (0x400000 - s_asyncLoadBufferUsed < object->size) {
         s_asyncTextureList.LinkNode(object, TSLIST_LINK_BEFORE, nullptr);
     } else {
         AsyncTextureProcess(object, 0);

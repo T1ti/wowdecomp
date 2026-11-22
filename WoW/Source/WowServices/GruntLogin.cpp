@@ -326,17 +326,21 @@ void GruntLogin::SetPinInfo(bool enabled, uint32_t seed, const uint8_t* salt) {
 
 // VERIFY: 49a3ec8d auto
 // OFFSET: 0x008CA3B0
-void GruntLogin::GetPinInfo(bool* enabled, uint8_t** salt, uint8_t** hash) {
-    *enabled = this->m_pinEnabled;
-    *salt = this->m_pinClientSalt;
-    *hash = this->m_pinHash;
+void GruntLogin::GetPinInfo(bool* required, uint8_t** clientSalt, uint8_t** clientProof) {
+    STORM_ASSERT(required && clientSalt && clientProof);
+
+    *required = this->m_pinEnabled;
+    *clientSalt = this->m_pinClientSalt;
+    *clientProof = this->m_pinHash;
 }
 
 // VERIFY: 00c628e1 auto
 // OFFSET: 0x008CA3E0
-void GruntLogin::GetMatrixProof(bool* enabled, const uint8_t** proof) const {
-    *enabled = this->m_matrixEnabled;
-    *proof = this->m_matrixProof;
+void GruntLogin::GetMatrixProof(bool* required, const uint8_t** clientProof) const {
+    STORM_ASSERT(required && clientProof);
+
+    *required = this->m_matrixEnabled;
+    *clientProof = this->m_matrixProof;
 }
 
 // VERIFY: 42ddcf82 auto
@@ -348,9 +352,11 @@ void GruntLogin::SetTokenInfo(bool enabled, uint8_t required) {
 
 // VERIFY: 7861663c auto
 // OFFSET: 0x008CA420
-void GruntLogin::GetTokenInfo(bool* enabled, char* token) {
-    *enabled = this->m_tokenEnabled;
-    SStrCopy(token, this->m_token, sizeof(this->m_token));
+void GruntLogin::GetTokenInfo(bool* required, char* tokenString) {
+    STORM_ASSERT(required && tokenString);
+
+    *required = this->m_tokenEnabled;
+    SStrCopy(tokenString, this->m_token, sizeof(this->m_token));
 }
 
 // VERIFY: af8b5075 manual
@@ -534,15 +540,17 @@ void GruntLogin::EnterToken(const char* token) {
 
 // VERIFY: d42deb51 auto
 // OFFSET: 0x008CAA30
-bool GruntLogin::GetMatrixInfo(uint32_t* width, uint32_t* height, uint32_t* minDigits, uint32_t* maxDigits, bool* flipCoords, uint32_t* challengeCount) {
+bool GruntLogin::GetMatrixInfo(uint32_t* width, uint32_t* height, uint32_t* minDigitCount, uint32_t* maxDigitCount, bool* flipCoords, uint32_t* challengeCount) {
+    STORM_ASSERT(width && height && minDigitCount && maxDigitCount && flipCoords && challengeCount);
+
     if (!this->m_matrixEnabled) {
         return false;
     }
 
     *width = this->m_matrixWidth;
     *height = this->m_matrixHeight;
-    *minDigits = this->m_matrixMinDigitCount;
-    *maxDigits = this->m_matrixMaxDigitCount;
+    *minDigitCount = this->m_matrixMinDigitCount;
+    *maxDigitCount = this->m_matrixMaxDigitCount;
     *flipCoords = this->m_matrixFlipCoords;
     *challengeCount = this->m_matrixChallengeCount;
     return true;
@@ -551,6 +559,8 @@ bool GruntLogin::GetMatrixInfo(uint32_t* width, uint32_t* height, uint32_t* minD
 // VERIFY: ab7f843b auto
 // OFFSET: 0x008CAA90
 bool GruntLogin::GetMatrixCoordinates(uint32_t index, uint32_t* x, uint32_t* y) {
+    STORM_ASSERT(x && y);
+
     if (!this->m_matrixEnabled || !this->m_matrixCoordinates || index >= this->m_matrixChallengeCount) {
         return false;
     }

@@ -200,6 +200,8 @@ static void InitializePropContext() {
 // VERIFY: 8093d1d7 manual
 // OFFSET: 0x00631D30
 int32_t NetClient::Initialize() {
+    STORM_ASSERT(m_netState == NS_UNINITIALIZED);
+
     if (!NetClient::s_clientCount) {
         s_propContext = PropGetSelectedContext();
 
@@ -348,14 +350,16 @@ void NetClient::PollEventQueue() {
 
 // VERIFY: 1eecebd5 auto
 // OFFSET: 0x006323C0
-int32_t NetClient::Connect(const char* address) {
+int32_t NetClient::Connect(const char* hostName) {
+    STORM_ASSERT(hostName);
+
     if (this->m_netState != NS_INITIALIZED) {
         SErrDisplayAppFatal("Expected (m_netState == NS_INITIALIZED), got %d", this->m_netState);
     }
 
     uint16_t port = 9090;
     char host[1024];
-    SStrCopy(host, address, sizeof(host));
+    SStrCopy(host, hostName, sizeof(host));
 
     char* separator = SStrChr(host, ':');
 
