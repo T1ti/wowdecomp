@@ -172,8 +172,8 @@ class SI2 {
     static int32_t CreditsMusicUpdate(const void* data, void* param);
     static void DestroyVSoundLookup();
     static void Detach(SE2SoundKitObject* object);
-    static void DSP_AttachCustomDspChain(FMOD::Channel* channel, char* name);
-    static void DSP_CreateDsp(const char* name, SI2_DSP_TYPE type, const float* params);
+    static void DSP_AttachCustomDspChain(FMOD::Channel* pFmodChannel, char* name);
+    static void DSP_CreateDsp(const char* pszDspChainName, SI2_DSP_TYPE type, const float* afParams);
     static void DSP_Init();
     static void DSP_MakeDSPsExpire(float elapsed);
     static void UpdateTaxiSounds(float elapsed);

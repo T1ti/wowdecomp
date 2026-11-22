@@ -90,7 +90,10 @@ void SI2::DSP_ShutDown() {
 
 // VERIFY: 015e69f4 manual
 // OFFSET: 0x004CDF70
-void SI2::DSP_CreateDsp(const char* name, SI2_DSP_TYPE type, const float* params) {
+void SI2::DSP_CreateDsp(const char* pszDspChainName, SI2_DSP_TYPE type, const float* afParams) {
+    STORM_ASSERT(pszDspChainName);
+    STORM_ASSERT(afParams);
+
     static CVar* s_enableDSPEffects = CVar::Lookup("Sound_EnableDSPEffects");
 
     if (!s_enableDSPEffects->m_intValue) {
@@ -107,43 +110,44 @@ void SI2::DSP_CreateDsp(const char* name, SI2_DSP_TYPE type, const float* params
         return;
     }
 
-    DSP_CHAIN_HEAD_LOOKUP* head = s_dspChains.Ptr(name);
-    head->m_chain.m_nodes.LinkToTail(node);
+    DSP_CHAIN_HEAD_LOOKUP* pDSPChainHeadLookup = s_dspChains.Ptr(pszDspChainName);
+    STORM_ASSERT(pDSPChainHeadLookup);
+    pDSPChainHeadLookup->m_chain.m_nodes.LinkToTail(node);
     node->m_type = type;
 
     switch (type) {
         case SI2_DSP_TYPE_PITCHSHIFT:
-            SE2::SetDspParam(node->m_dsp, 0, params[1]);
+            SE2::SetDspParam(node->m_dsp, 0, afParams[1]);
             SE2::SetDspParam(node->m_dsp, 1, 512.0f);
             break;
 
         case SI2_DSP_TYPE_HIGHPASS:
         case SI2_DSP_TYPE_LOWPASS:
-            SE2::SetDspParam(node->m_dsp, 0, params[1]);
-            SE2::SetDspParam(node->m_dsp, 1, params[2]);
+            SE2::SetDspParam(node->m_dsp, 0, afParams[1]);
+            SE2::SetDspParam(node->m_dsp, 1, afParams[2]);
             break;
 
         case SI2_DSP_TYPE_CHORUS:
-            SE2::SetDspParam(node->m_dsp, 0, params[1]);
-            SE2::SetDspParam(node->m_dsp, 1, params[2]);
-            SE2::SetDspParam(node->m_dsp, 2, params[3]);
-            SE2::SetDspParam(node->m_dsp, 3, params[4]);
-            SE2::SetDspParam(node->m_dsp, 4, params[5]);
-            SE2::SetDspParam(node->m_dsp, 5, params[6]);
-            SE2::SetDspParam(node->m_dsp, 6, params[7]);
-            SE2::SetDspParam(node->m_dsp, 7, params[8]);
+            SE2::SetDspParam(node->m_dsp, 0, afParams[1]);
+            SE2::SetDspParam(node->m_dsp, 1, afParams[2]);
+            SE2::SetDspParam(node->m_dsp, 2, afParams[3]);
+            SE2::SetDspParam(node->m_dsp, 3, afParams[4]);
+            SE2::SetDspParam(node->m_dsp, 4, afParams[5]);
+            SE2::SetDspParam(node->m_dsp, 5, afParams[6]);
+            SE2::SetDspParam(node->m_dsp, 6, afParams[7]);
+            SE2::SetDspParam(node->m_dsp, 7, afParams[8]);
             break;
 
         case SI2_DSP_TYPE_ECHO:
-            SE2::SetDspParam(node->m_dsp, 0, params[1]);
-            SE2::SetDspParam(node->m_dsp, 1, params[2]);
-            SE2::SetDspParam(node->m_dsp, 3, params[3]);
-            SE2::SetDspParam(node->m_dsp, 4, params[4]);
+            SE2::SetDspParam(node->m_dsp, 0, afParams[1]);
+            SE2::SetDspParam(node->m_dsp, 1, afParams[2]);
+            SE2::SetDspParam(node->m_dsp, 3, afParams[3]);
+            SE2::SetDspParam(node->m_dsp, 4, afParams[4]);
             break;
 
         case SI2_DSP_TYPE_VOLUME:
-            if (params[0] > 0.0f) {
-                SE2::SetFMODChannelGroupVolume(head->m_chain.m_channelGroup, params[1]);
+            if (afParams[0] > 0.0f) {
+                SE2::SetFMODChannelGroupVolume(pDSPChainHeadLookup->m_chain.m_channelGroup, afParams[1]);
             }
 
             break;
@@ -153,14 +157,16 @@ void SI2::DSP_CreateDsp(const char* name, SI2_DSP_TYPE type, const float* params
     }
 
     if (type != SI2_DSP_TYPE_VOLUME) {
-        SE2::BypassDsp(node->m_dsp, 0.0f == params[0]);
-        SE2::ConnectDspToChannelGroup(node->m_dsp, head->m_chain.m_channelGroup);
+        SE2::BypassDsp(node->m_dsp, 0.0f == afParams[0]);
+        SE2::ConnectDspToChannelGroup(node->m_dsp, pDSPChainHeadLookup->m_chain.m_channelGroup);
     }
 }
 
 // VERIFY: e4c6f172 manual
 // OFFSET: 0x004CE250
-void SI2::DSP_AttachCustomDspChain(FMOD::Channel* channel, char* name) {
+void SI2::DSP_AttachCustomDspChain(FMOD::Channel* pFmodChannel, char* name) {
+    STORM_ASSERT(pFmodChannel);
+
     DSP_CHAIN_HEAD_LOOKUP* head = s_dspChains.Ptr(name);
 
     if (!head) {
@@ -172,20 +178,21 @@ void SI2::DSP_AttachCustomDspChain(FMOD::Channel* channel, char* name) {
     }
 
     head->m_chain.m_expireTime = 3.0f;
-    SE2::AddChannelToChannelGroup(channel, head->m_chain.m_channelGroup);
+    SE2::AddChannelToChannelGroup(pFmodChannel, head->m_chain.m_channelGroup);
 }
 
 // VERIFY: 1f3d2404 manual
 // OFFSET: 0x004CE7C0
 void SI2::DSP_Init() {
     for (int32_t i = 0; i < g_soundFilterDB.m_nNumRecords; i++) {
-        SoundFilterRec* rec = (i < 0 || i >= g_soundFilterDB.m_nNumRecords) ? nullptr : &g_soundFilterDB.m_records[i];
+        SoundFilterRec* pRec = (i < 0 || i >= g_soundFilterDB.m_nNumRecords) ? nullptr : &g_soundFilterDB.m_records[i];
+        STORM_ASSERT(pRec);
 
-        if (s_dspChains.Ptr(rec->m_name)) {
+        if (s_dspChains.Ptr(pRec->m_name)) {
             continue;
         }
 
-        const char* name = rec->m_name;
+        const char* name = pRec->m_name;
         DSP_CHAIN_HEAD_LOOKUP* head = s_dspChains.New(name, 0, 0);
 
         for (SI2DspNode* node = head->m_chain.m_nodes.Head(); node; node = head->m_chain.m_nodes.Next(node)) {
@@ -196,15 +203,20 @@ void SI2::DSP_Init() {
         head->m_chain.m_nodes.Clear();
 
         if (!head->m_chain.m_channelGroup) {
-            head->m_chain.m_channelGroup = SE2::CreateChannelGroup(rec->m_name);
+            // 12213: "sChannelGroupName", "sChannelGroupName[0]"
+            STORM_ASSERT(pRec->m_name);
+            STORM_ASSERT(pRec->m_name[0]);
+            head->m_chain.m_channelGroup = SE2::CreateChannelGroup(pRec->m_name);
         }
     }
 
     for (int32_t i = 0; i < g_soundFilterElemDB.m_nNumRecords; i++) {
-        SoundFilterElemRec* elem = (i < 0 || i >= g_soundFilterElemDB.m_nNumRecords) ? nullptr : &g_soundFilterElemDB.m_records[i];
-        SoundFilterRec* filter = g_soundFilterDB.GetRecord(elem->m_soundFilterID);
+        SoundFilterElemRec* pFilterElemRec = (i < 0 || i >= g_soundFilterElemDB.m_nNumRecords) ? nullptr : &g_soundFilterElemDB.m_records[i];
+        STORM_ASSERT(pFilterElemRec);
+        SoundFilterRec* pFilterRec = g_soundFilterDB.GetRecord(pFilterElemRec->m_soundFilterID);
+        STORM_ASSERT(pFilterRec);
 
-        SI2::DSP_CreateDsp(filter->m_name, elem->m_filterType, elem->m_params);
+        SI2::DSP_CreateDsp(pFilterRec->m_name, pFilterElemRec->m_filterType, pFilterElemRec->m_params);
     }
 
     for (DSP_CHAIN_HEAD_LOOKUP* head = s_dspChains.m_fulllist.Head(); head; head = s_dspChains.m_fulllist.Next(head)) {
