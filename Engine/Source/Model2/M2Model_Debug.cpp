@@ -71,20 +71,17 @@ static void DrawBounds(const M2Data* data, CM2Model::DEBUG_BOUNDS mode, const C4
 static const uint32_t HIT_TEST_COLOR = 0x7FFF0000;
 static const float HIT_TEST_LIFT = 0.02f; // yards the display sits outside the model's surface
 
-// The triangles CM2Scene::HitTestGeometry tests: the same batch filter (no material layers, no NO_HIT_TEST batches,
-// the model's hit-test mode, invisible batches skipped) and the same skinning (one bone, or the blended bones), with
-// the bone matrices taking the vertices to M2 view space, and viewInv from there to world space. A model last
-// hit-tested in HIT_TEST_COLLISION mode shows its collision mesh instead (CM2Scene::HitTestCollision).
-static void DrawCollisionMesh(const M2Data* data, const C44Matrix& world);
-
-static void DrawHitTestGeometry(const CM2Model* model, const C44Matrix& viewInv, const C44Matrix& world) {
+// The triangles the cursor picks an object by: CM2Scene::HitTestGeometry in the mode CGWorldFrame::
+// AddObjectToHitTestList gives object models (HIT_TEST_RENDER, or HIT_TEST_UNKNOWN_4, which no reader tells apart).
+// Same batch filter (no material layers, no NO_HIT_TEST batches, invisible batches skipped) and same skinning (one
+// bone, or the blended bones), with the bone matrices taking the vertices to M2 view space, and viewInv from there to
+// world space.
+//
+// Not the model's m_hitTestMode: world queries set it too (CMap's doodad and object queries set HIT_TEST_COLLISION for
+// camera and movement collision), so it changes from one query to the next and a display following it flickers
+// between the render triangles and the collision mesh. The collision mesh has its own display (showCollision).
+static void DrawHitTestGeometry(const CM2Model* model, const C44Matrix& viewInv) {
     M2Data* data = model->m_shared->m_data;
-
-    if (model->m_hitTestMode == CM2Model::HIT_TEST_COLLISION) {
-        DrawCollisionMesh(data, world);
-        return;
-    }
-
     M2SkinProfile* skinData = model->m_shared->m_skinData;
 
     if (!skinData || !model->m_boneMatrices) {
@@ -98,16 +95,6 @@ static void DrawHitTestGeometry(const CM2Model* model, const C44Matrix& viewInv,
         M2Batch* batch = &skinData->m_batches[i];
 
         if (batch->m_materialLayer || (batch->m_flags & M2Batch::FLAGS::NO_HIT_TEST)) {
-            continue;
-        }
-
-        M2Material* material = &data->m_materials[batch->m_materialIndex];
-
-        if (model->m_hitTestMode == CM2Model::HIT_TEST_NON_OPAQUE && material->m_blendMode == M2BLEND_OPAQUE) {
-            continue;
-        }
-
-        if (model->m_hitTestMode == CM2Model::HIT_TEST_OPAQUE && material->m_blendMode && !(material->m_flags & M2Material::FLAGS::HIT_TEST_NON_OPAQUE)) {
             continue;
         }
 
@@ -272,7 +259,7 @@ void CM2Model::DebugDraw(const C44Matrix& viewInv) const {
     }
 
     if (collision & DEBUG_HIT_TEST) {
-        DrawHitTestGeometry(this, viewInv, world);
+        DrawHitTestGeometry(this, viewInv);
     }
 }
 
@@ -319,9 +306,9 @@ void CM2Model::SetDebugWorldCollision(BOOL mesh, BOOL aaBox) {
 // The MDL models of those clients carried hit-test shapes of their own (MDLHITTESTSHAPE: spheres, boxes, cylinders and
 // planes on bones), and ModelShowHitTestGeometry, when the model had some, built a display of them with a
 // TextureCreateSolid texture of CImVector 0x7FFF0000 (half transparent red) and set CModelBase flag 8. M2 has no
-// separate shapes: 3.3.5 picks a model with a ray against its skinned render triangles (CM2Scene::HitTestGeometry),
-// or against its collision mesh for HIT_TEST_COLLISION (CM2Scene::HitTestCollision). So the display shows exactly
-// that geometry, in the 0.9.1 color; see DrawHitTestGeometry.
+// separate shapes: 3.3.5 picks an object with a ray against its model's skinned render triangles
+// (CM2Scene::HitTestGeometry). So the display shows exactly those triangles, in the 0.9.1 color; see
+// DrawHitTestGeometry.
 void CM2Model::ShowHitTestGeometry() {
     this->m_debugCollision |= DEBUG_HIT_TEST;
 }

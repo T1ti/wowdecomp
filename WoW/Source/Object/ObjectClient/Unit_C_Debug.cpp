@@ -119,7 +119,7 @@ void UnitDebugCombatLogOnEnable(BOOL enable) {
 //   - A white line from the start to the end, draped on the ground (sampled every yard and dropped onto the collision
 //     geometry), since 1 yard additive circles on a 3.3.5 spline's few points are hard to follow. 0.5.3 had the
 //     server's dense debug path for that.
-//   - Green spheres at the path points, as the flying display has (half spheres, being centered on the ground).
+//   - Small green spheres at the path points, inside their circles (half spheres, being centered on the ground).
 //
 // Port addition: transports. A transport (boat, zeppelin) is a game object moving along its ShipPath, the TaxiPath
 // curve CGGameObject_C_Type_MapObjTransport builds (ShipPath::BuildLegs), not a unit spline. While the active player
@@ -367,12 +367,17 @@ static void DrawDebugPathStrip(const C3Vector* points, uint32_t count, const C44
     }
 }
 
-static void DrawDebugPathSphere(const C3Vector& point) {
+// Sphere radii: the 0.5.3 flying display's ModelCreateSolidSphere(0.5), and a smaller port marker for ground paths, whose
+// 0.5.3 circles are 1 yard across: a 0.5 sphere centered on the ground would cover its circle completely.
+static const float DEBUG_PATH_SPHERE_RADIUS = 0.5f;
+static const float DEBUG_PATH_GROUND_SPHERE_RADIUS = 0.15f;
+
+static void DrawDebugPathSphere(const C3Vector& point, float radius = DEBUG_PATH_SPHERE_RADIUS) {
     CImVector green(0x00, 0xFF, 0x00, 0xFF);
     C44Matrix sphere;
-    sphere.a0 = 0.5f;
-    sphere.b1 = 0.5f;
-    sphere.c2 = 0.5f;
+    sphere.a0 = radius;
+    sphere.b1 = radius;
+    sphere.c2 = radius;
     sphere.d0 = point.x;
     sphere.d1 = point.y;
     sphere.d2 = point.z;
@@ -525,8 +530,8 @@ void CGUnit_C::RenderDebugPathing() {
             QueueDebugPathCircle(point, circle.m_color);
         }
 
-        // Port addition: green spheres at the ground path's points, from the start (circle 2, point 1) to the end
-        // (point count - 2), as the flying display has. Centered on the ground, they show as half spheres.
+        // Port addition: small green spheres at the ground path's points, from the start (circle 2, point 1) to the
+        // end (point count - 2), inside their circles. Centered on the ground, they show as half spheres.
         for (uint32_t i = 2; last->m_ground && i + 1 < last->m_circles.m_count; i++) {
             C3Vector point = last->m_circles.m_data[i].m_position;
 
@@ -534,7 +539,7 @@ void CGUnit_C::RenderDebugPathing() {
                 point = point * lastTransport;
             }
 
-            DrawDebugPathSphere(point);
+            DrawDebugPathSphere(point, DEBUG_PATH_GROUND_SPHERE_RADIUS);
         }
 
         DrawDebugPathStrip(last->m_draped.m_data, last->m_draped.m_count, lastOnTransport ? &lastTransport : nullptr);
