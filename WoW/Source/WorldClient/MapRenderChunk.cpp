@@ -259,13 +259,13 @@ void CMapRenderChunk::SetVertexFormat(EGxVertexBufferFormat format) {
 void CMapRenderChunk::FreeLayers() {
     for (uint32_t i = 0; i < this->m_nLayers; i++) {
         CMapRenderChunkLayer& layer = this->m_layers[i];
-        layer.m_texture = nullptr;
-        layer.m_textureId = -1;
+        layer.diffuseTexture = nullptr;
+        layer.textureId = -1;
         layer.m_flags = SMLayer::LAYER_FLAGS::NONE;
 
-        if (layer.m_layerTexture) {
-            HandleClose(reinterpret_cast<HOBJECT>(layer.m_layerTexture));
-            layer.m_layerTexture = nullptr;
+        if (layer.blendTexture) {
+            HandleClose(reinterpret_cast<HOBJECT>(layer.blendTexture));
+            layer.blendTexture = nullptr;
         }
     }
 
@@ -287,7 +287,7 @@ void CMapRenderChunk::FreeLayers() {
 // OFFSET: 0x007B73E0
 void CMapRenderChunk::UpdateLoaded() {
     for (int32_t i = 0; i < this->m_nLayers; i++) {
-        if (!TextureGetGxTex(this->m_layers[i].m_texture, 0, nullptr)) {
+        if (!TextureGetGxTex(this->m_layers[i].diffuseTexture, 0, nullptr)) {
             return;
         }
     }
@@ -352,7 +352,7 @@ void CMapRenderChunk::CreateLayer(CMapArea* area, SMLayer* layer, int32_t checkD
 
     if (checkDuplicate) {
         for (int32_t i = 0; i < this->m_nLayers; i++) {
-            if (this->m_layers[i].m_textureId == layer->m_textureId) {
+            if (this->m_layers[i].textureId == layer->m_textureId) {
                 return;
             }
         }
@@ -370,9 +370,9 @@ void CMapRenderChunk::CreateLayer(CMapArea* area, SMLayer* layer, int32_t checkD
         area->LoadTerrainTexture(*areaTexture, layer->m_textureId);
     }
 
-    renderLayer->m_texture = areaTexture->m_texture;
-    renderLayer->m_textureId = layer->m_textureId;
-    renderLayer->m_layerTexture = nullptr;
+    renderLayer->diffuseTexture = areaTexture->m_texture;
+    renderLayer->textureId = layer->m_textureId;
+    renderLayer->blendTexture = nullptr;
     renderLayer->m_owner = this;
 
     if (renderLayer->m_flags & SMLayer::LAYER_FLAGS::OVERBRIGHT) {
@@ -891,11 +891,20 @@ void CMapRenderChunk::RenderSinglePass() {
 CMapRenderChunkLayer::CMapRenderChunkLayer() {
     this->m_flags = SMLayer::LAYER_FLAGS::NONE;
     this->m_layerIndex = 0;
-    this->m_texture = nullptr;
-    this->m_textureId = -1;
-    this->m_layerTexture = nullptr;
+    this->diffuseTexture = nullptr;
+    this->textureId = -1;
+    this->blendTexture = nullptr;
     this->m_owner = nullptr;
 }
+
+#if defined(WOWDECOMP_ASSERTIONS)
+// INLINED
+CMapRenderChunkLayer::~CMapRenderChunkLayer() {
+    STORM_ASSERT(blendTexture == 0);
+    STORM_ASSERT(diffuseTexture == 0);
+    STORM_ASSERT(textureId == 0xffffffff);
+}
+#endif
 
 // VERIFY: d15abdb3 auto
 // OFFSET: 0x007B7420
@@ -1778,7 +1787,7 @@ void CMapRenderChunk::CreateShaderTexture() {
         SMLayer* chunkLayer = &this->m_chunks[1]->m_layers[chunkLayerIndex];
 
         for (uint32_t j = 0; j < this->m_nLayers; j++) {
-            if (this->m_layers[j].m_textureId != chunkLayer->m_textureId) {
+            if (this->m_layers[j].textureId != chunkLayer->m_textureId) {
                 continue;
             }
 
@@ -1891,11 +1900,11 @@ void CMapRenderChunk::UpdateShaderGxTexture(EGxTexCommand cmd, uint32_t w, uint3
 void CMapRenderChunk::AllocLayerTexture(CMapRenderChunkLayer* layer) {
     STORM_ASSERT(m_chunks[1] == NULL);
 
-    if (layer->m_layerTexture) {
-        HandleClose(reinterpret_cast<HOBJECT>(layer->m_layerTexture));
+    if (layer->blendTexture) {
+        HandleClose(reinterpret_cast<HOBJECT>(layer->blendTexture));
     }
 
-    layer->m_layerTexture = nullptr;
+    layer->blendTexture = nullptr;
 
     uint32_t bigAlpha = (CMap::header.m_flags & SMMapHeader::MAP_FLAGS::BIG_ALPHA) != 0;
     int32_t baseLayer = bigAlpha && layer->m_layerIndex == 0;
@@ -1921,7 +1930,7 @@ void CMapRenderChunk::AllocLayerTexture(CMapRenderChunkLayer* layer) {
         texture = CMapRenderChunk::AllocTexture(width, height, layer, CMapRenderChunk::UpdateLayerGxTexture, GxTex_Argb4444, GxTex_Argb4444);
     }
 
-    layer->m_layerTexture = texture;
+    layer->blendTexture = texture;
     GxTexUpdate(TextureGetGxTex(texture, 1, nullptr), 0, 0, width, height, 1);
 }
 
@@ -2239,7 +2248,7 @@ void CMapRenderChunk::RenderMultiPassAdditive(CMapRenderChunk* renderChunk) {
 
     for (int32_t i = 0; i < renderChunk->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &renderChunk->m_layers[i];
-        CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
+        CGxTex* gxTex = TextureGetGxTex(layer->diffuseTexture, 0, nullptr);
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
         GxTexSetWrap(gxTex, GxTex_Wrap, GxTex_Wrap);
 
@@ -2273,8 +2282,8 @@ void CMapRenderChunk::RenderMultiPassAdditive(CMapRenderChunk* renderChunk) {
             GxRsSet(GxRs_FogColor, *reinterpret_cast<int32_t*>(&black));
         }
 
-        if (layer->m_layerTexture) {
-            g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(layer->m_layerTexture, 1, nullptr));
+        if (layer->blendTexture) {
+            g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(layer->blendTexture, 1, nullptr));
         } else {
             GxRsSet(GxRs_Texture1, 0);
         }
@@ -2317,7 +2326,7 @@ void CMapRenderChunk::RenderMultiPassAlpha(CMapRenderChunk* renderChunk) {
 
     for (int32_t i = 0; i < renderChunk->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &renderChunk->m_layers[i];
-        CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
+        CGxTex* gxTex = TextureGetGxTex(layer->diffuseTexture, 0, nullptr);
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
         GxTexSetWrap(gxTex, GxTex_Wrap, GxTex_Wrap);
 
@@ -2344,8 +2353,8 @@ void CMapRenderChunk::RenderMultiPassAlpha(CMapRenderChunk* renderChunk) {
             GxUpdateAlphaRef(GxRs_AlphaRef);
         }
 
-        if (layer->m_layerTexture) {
-            g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(layer->m_layerTexture, 1, nullptr));
+        if (layer->blendTexture) {
+            g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(layer->blendTexture, 1, nullptr));
         } else {
             GxRsSet(GxRs_Texture1, 0);
         }
@@ -2398,7 +2407,7 @@ void CMapRenderChunk::RenderMultiPassPixelShaderBigAlpha(CMapRenderChunk* render
 
     for (int32_t i = 0; i < renderChunk->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &renderChunk->m_layers[i];
-        CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
+        CGxTex* gxTex = TextureGetGxTex(layer->diffuseTexture, 0, nullptr);
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
         GxTexSetWrap(gxTex, GxTex_Wrap, GxTex_Wrap);
 
@@ -2493,7 +2502,7 @@ void CMapRenderChunk::RenderMultiPassPixelShader(CMapRenderChunk* renderChunk) {
 
     for (int32_t i = 0; i < renderChunk->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &renderChunk->m_layers[i];
-        CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
+        CGxTex* gxTex = TextureGetGxTex(layer->diffuseTexture, 0, nullptr);
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
         GxTexSetWrap(gxTex, GxTex_Wrap, GxTex_Wrap);
 
@@ -2566,7 +2575,7 @@ void CMapRenderChunk::RenderMultiPassVertexPixelShaderBigAlpha(CMapRenderChunk* 
 
     for (int32_t i = 0; i < renderChunk->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &renderChunk->m_layers[i];
-        CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
+        CGxTex* gxTex = TextureGetGxTex(layer->diffuseTexture, 0, nullptr);
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
         GxTexSetWrap(gxTex, GxTex_Wrap, GxTex_Wrap);
 
@@ -2658,7 +2667,7 @@ void CMapRenderChunk::RenderMultiPassVertexPixelShader(CMapRenderChunk* renderCh
 
     for (int32_t i = 0; i < renderChunk->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &renderChunk->m_layers[i];
-        CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
+        CGxTex* gxTex = TextureGetGxTex(layer->diffuseTexture, 0, nullptr);
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
         GxTexSetWrap(gxTex, GxTex_Wrap, GxTex_Wrap);
 
@@ -2732,7 +2741,7 @@ void CMapRenderChunk::RenderSinglePassPixelShader() {
 
     for (; i < this->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &this->m_layers[i];
-        CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
+        CGxTex* gxTex = TextureGetGxTex(layer->diffuseTexture, 0, nullptr);
         g_theGxDevicePtr->RsSet(static_cast<EGxRenderState>(GxRs_Texture0 + i), gxTex);
         GxTexSetWrap(gxTex, GxTex_Wrap, GxTex_Wrap);
 
@@ -2763,6 +2772,14 @@ void CMapRenderChunk::RenderSinglePassPixelShader() {
     }
 }
 
+// INLINED (name inferred)
+static void SetTerrainTextureOffset(CMapRenderChunk::SVertexShaderConstants& consts, uint32_t texIdx, float x, float y) {
+    // 12213: "texIdx < 5"
+    STORM_ASSERT(texIdx < ARRSIZE(consts.m_texOffset));
+    consts.m_texOffset[texIdx].x = x;
+    consts.m_texOffset[texIdx].y = y;
+}
+
 // VERIFY: cad126b2 manual
 // OFFSET: 0x007D2D70
 void CMapRenderChunk::RenderSinglePassVertexPixelShader() {
@@ -2788,15 +2805,14 @@ void CMapRenderChunk::RenderSinglePassVertexPixelShader() {
 
     for (; i < this->m_nLayers; i++) {
         CMapRenderChunkLayer* layer = &this->m_layers[i];
-        CGxTex* gxTex = TextureGetGxTex(layer->m_texture, 0, nullptr);
+        CGxTex* gxTex = TextureGetGxTex(layer->diffuseTexture, 0, nullptr);
         g_theGxDevicePtr->RsSet(static_cast<EGxRenderState>(GxRs_Texture0 + i), gxTex);
         GxTexSetWrap(gxTex, GxTex_Wrap, GxTex_Wrap);
 
         if (layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
             C4Vector dir = World::texVect[layer->m_flags & SMLayer::LAYER_FLAGS::ANIMATION_DIRECTION_MASK];
             float moveScale = 1.0f / CMapChunk::s_geoToTex / s_texAnimRate[(layer->m_flags >> SMLayer::LAYER_BITS::ANIMATION_SPEED_SHIFT) & SMLayer::LAYER_FLAGS::ANIMATION_SPEED_INDEX_MASK];
-            consts.m_texOffset[i].x = -(dir.x * moveScale * 0.125f);
-            consts.m_texOffset[i].y = -(dir.y * moveScale * 0.125f);
+            SetTerrainTextureOffset(consts, i, -(dir.x * moveScale * 0.125f), -(dir.y * moveScale * 0.125f));
         }
     }
 
@@ -2808,8 +2824,7 @@ void CMapRenderChunk::RenderSinglePassVertexPixelShader() {
 
     for (uint32_t j = 0; j < this->m_nLayers; j++) {
         if (this->m_layers[j].m_flags & SMLayer::LAYER_FLAGS::ANIMATED) {
-            consts.m_texOffset[j].x = 0.0f;
-            consts.m_texOffset[j].y = 0.0f;
+            SetTerrainTextureOffset(consts, j, 0.0f, 0.0f);
             GxShaderConstantsSet(GxSh_Vertex, 13 + j, &consts.m_texOffset[j].x, 1);
         }
     }

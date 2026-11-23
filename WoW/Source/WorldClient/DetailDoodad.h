@@ -168,6 +168,10 @@ inline void CDetailDoodadInstBatch::Free() {
 // INLINED
 inline CDetailDoodadInstBatch::~CDetailDoodadInstBatch() {
     this->Free();
+    // 12213: "m_vertexBuf == __null"
+    STORM_ASSERT(m_vertexBuf == nullptr);
+    // 12213: "m_indexBuf == __null"
+    STORM_ASSERT(m_indexBuf == nullptr);
 }
 
 #endif

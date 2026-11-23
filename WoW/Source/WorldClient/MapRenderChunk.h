@@ -54,12 +54,15 @@ class CMapRenderChunkLayer {
     public:
     /* 0000 */ int16_t m_flags;
     /* 0002 */ int16_t m_layerIndex;
-    /* 0004 */ CTexture* m_texture;
-    /* 0008 */ int32_t m_textureId;
-    /* 000C */ CTexture* m_layerTexture;
+    /* 0004 */ CTexture* diffuseTexture;
+    /* 0008 */ int32_t textureId;
+    /* 000C */ CTexture* blendTexture;
     /* 0010 */ CMapRenderChunk* m_owner;
 
     CMapRenderChunkLayer();
+#if defined(WOWDECOMP_ASSERTIONS)
+    ~CMapRenderChunkLayer();
+#endif
 };
 
 class CMapRenderChunk {
