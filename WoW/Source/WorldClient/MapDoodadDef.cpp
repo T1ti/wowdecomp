@@ -83,7 +83,7 @@ void CMapDoodadDef::UpdateBounds() {
     center.x = (collisionBox.t.x + collisionBox.b.x) * 0.5f;
     center.y = (collisionBox.t.y + collisionBox.b.y) * 0.5f;
     center.z = 0.5f * (collisionBox.t.z + collisionBox.b.z);
-    this->m_vec2 = center * this->m_mat;
+    this->visCenter = center * this->m_mat;
 
     float size = this->m_bbox.t.x - this->m_bbox.b.x;
 

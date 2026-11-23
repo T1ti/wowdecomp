@@ -1041,14 +1041,14 @@ void CMap::ObjectUpdate(CMapEntity* baseObj, C44Matrix& mat, CAaBox& box, CAaSph
     }
 
     C3Vector positionDelta = baseObj->m_position - position;
-    C3Vector vec2Delta = baseObj->m_vec2 - vec2;
+    C3Vector vec2Delta = baseObj->visCenter - vec2;
     C3Vector bottomDelta = baseObj->m_bbox.b - bbox.b;
     C3Vector topDelta = baseObj->m_bbox.t - bbox.t;
     C3Vector centerDelta = baseObj->m_sphere.c - center;
     float radiusDelta = baseObj->m_sphere.r - radius;
 
     baseObj->m_position = position;
-    baseObj->m_vec2 = vec2;
+    baseObj->visCenter = vec2;
     baseObj->m_bbox = bbox;
     baseObj->m_scale = scale;
     baseObj->m_sphere.c = center;
@@ -1129,7 +1129,7 @@ CMapEntity* CMap::ObjectCreate(CM2Model* model, MAP_OBJECT_FUNC func, void* func
     entity->m_funcParam32 = param32;
     entity->m_position = C3Vector(10000000.0f, 10000000.0f, 10000000.0f);
     entity->m_diffuseLightScale = 1.0f;
-    entity->m_vec2 = C3Vector(10000000.0f, 10000000.0f, 10000000.0f);
+    entity->visCenter = C3Vector(10000000.0f, 10000000.0f, 10000000.0f);
     entity->m_targetDiffuseLightScale = 1.0f;
     entity->AddType(CMapBaseObj::Type_UserCreated);
     entity->m_staticFlags = (entity->m_staticFlags & ~MAP_STATIC_FLAGS::MAP_STATIC_FLAG_CREATE_CLEAR_MASK) | MapStaticFlagsFromObjectCreateFlags(flags);
@@ -5016,7 +5016,7 @@ CMapEntity* CMap::ObjectCreateStatic(CM2Model* model, const C44Matrix& matrix, M
     entity->m_sphere.c.z = matrix.d2;
     entity->m_targetDiffuseLightScale = 1.0f;
     entity->m_sphere.r = 0.0f;
-    entity->m_vec2 = entity->m_sphere.c;
+    entity->visCenter = entity->m_sphere.c;
     ambient = CMap::s_mapLight->m_light.m_ambColor;
     color.b = static_cast<uint8_t>(static_cast<int32_t>(ambient.z > 0.0f ? (ambient.z < 1.0f ? ambient.z * 255.0f + 0.5f : 255.0f) : 0.0f));
     color.g = static_cast<uint8_t>(static_cast<int32_t>(ambient.y > 0.0f ? (ambient.y < 1.0f ? ambient.y * 255.0f + 0.5f : 255.0f) : 0.0f));
@@ -5075,7 +5075,7 @@ CMapEntity* CMap::ObjectCreateStaticEx(CM2Model* model, const C44Matrix& matrix,
     entity->m_sphere.c.z = matrix.d2;
     entity->m_targetDiffuseLightScale = 1.0f;
     entity->m_sphere.r = 0.0f;
-    entity->m_vec2 = entity->m_sphere.c;
+    entity->visCenter = entity->m_sphere.c;
     ambient = CMap::s_mapLight->m_light.m_ambColor;
     color.b = static_cast<uint8_t>(static_cast<int32_t>(ambient.z > 0.0f ? (ambient.z < 1.0f ? ambient.z * 255.0f + 0.5f : 255.0f) : 0.0f));
     color.g = static_cast<uint8_t>(static_cast<int32_t>(ambient.y > 0.0f ? (ambient.y < 1.0f ? ambient.y * 255.0f + 0.5f : 255.0f) : 0.0f));
@@ -5508,7 +5508,7 @@ CMapBaseObj* CWorld::ObjectCreate(const char* name, const C3Vector& position, fl
 
     CMapDoodadDef* doodadDef = CMap::CreateDoodadDef(name, &position, facing, waitLoad);
     STORM_ASSERT(doodadDef);
-    doodadDef->m_staticFlags |= (MAP_STATIC_FLAGS::MAP_STATIC_FLAG_RUNTIME_DOODAD | MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS);
+    doodadDef->m_staticFlags |= (MAP_STATIC_FLAGS::MAP_STATIC_FLAG_EXTERNAL | MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS);
     doodadDef->m_collisionGuid.m_guid = guid;
 
     if (snap) {

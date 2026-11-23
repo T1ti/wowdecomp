@@ -30,7 +30,7 @@ enum MAP_STATIC_FLAGS : uint32_t {
     // Terrain shadow shading is applied to the entity.
     MAP_STATIC_FLAG_SHADOWED                     = 0x00000008u,
     // Created by CWorld::ObjectCreate; bypasses terrain-doodad preparation.
-    MAP_STATIC_FLAG_RUNTIME_DOODAD               = 0x00000010u,
+    MAP_STATIC_FLAG_EXTERNAL               = 0x00000010u,
     MAP_STATIC_FLAG_IN_LIQUID                    = 0x00000020u,
     // Liquid height is at or below the bounds top; clip lighting against its surface.
     MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP          = 0x00000040u,
@@ -80,7 +80,7 @@ enum MAP_STATIC_FLAGS : uint32_t {
         | MAP_STATIC_FLAG_COLLIDABLE
         | MAP_STATIC_FLAG_HIDDEN
         | MAP_STATIC_FLAG_SHADOWED
-        | MAP_STATIC_FLAG_RUNTIME_DOODAD
+        | MAP_STATIC_FLAG_EXTERNAL
         | MAP_STATIC_FLAG_IN_LIQUID
         | MAP_STATIC_FLAG_LIQUID_SURFACE_CLIP
         | MAP_STATIC_FLAG_LIQUID_QUERY_CACHED
@@ -161,7 +161,7 @@ class CMapStaticEntity : public CMapBaseObj {
     /* 0034 */ CM2Model* model;
     /* 0038 */ CAaSphere m_sphere;
     /* 0048 */ CAaBox m_bbox;
-    /* 0060 */ C3Vector m_vec2;
+    /* 0060 */ C3Vector visCenter;
     /* 006C */ C3Vector m_position;
     /* 0078 */ float m_scale;
     /* 007C */ uint32_t m_staticFlags; // MAP_STATIC_FLAGS

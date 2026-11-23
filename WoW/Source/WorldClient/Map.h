@@ -161,7 +161,7 @@ struct MapObjIntersectCandidate {
 };
 
 struct MapObjIntersectData {
-    /* 0000 */ CMapObjDef* def;
+    /* 0000 */ CMapObjDef* mapObjDef;
     /* 0004 */ CMapObjDefGroup* group;
     /* 0008 */ float t;
     /* 000C */ int16_t faceIndex;

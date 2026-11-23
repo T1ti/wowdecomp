@@ -43,7 +43,7 @@ CMapStaticEntity::CMapStaticEntity() {
     this->m_shadowStamps[2] = 0;
     this->unused_002B = 0;
     this->m_fadeLevel = 0;
-    this->m_vec2 = C3Vector(0.0f, 0.0f, 0.0f);
+    this->visCenter = C3Vector(0.0f, 0.0f, 0.0f);
     this->m_culled = CULL_UNTESTED;
 }
 
