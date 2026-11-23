@@ -123,7 +123,7 @@ class Real64 : public Base {
 
 class Int : public Base {
     public:
-    /* 0018 */ Type::Bounds m_bounds;
+    /* 0018 */ Type::Bounds bounds;
 
     Int(const Protocol* protocol, uint32_t typeId);
 };
@@ -159,7 +159,7 @@ class Array : public Base {
 
 class Enum : public Base {
     public:
-    /* 0018 */ Type::Bounds m_bounds;
+    /* 0018 */ Type::Bounds bounds;
     /* 0038 */ uint32_t m_count;
 
     Enum(const Protocol* protocol, uint32_t typeId);
@@ -168,7 +168,7 @@ class Enum : public Base {
 
 class Choice : public Base {
     public:
-    /* 0018 */ Type::Bounds m_bounds;
+    /* 0018 */ Type::Bounds bounds;
     /* 0038 */ uint32_t m_count;
 
     Choice(const Protocol* protocol, uint32_t typeId);
@@ -180,7 +180,7 @@ class Choice : public Base {
 class Struct : public Base {
     public:
     /* 0018 */ Type::Bounds m_bounds;
-    /* 0038 */ uint32_t m_count;
+    /* 0038 */ uint32_t fieldCount;
 
     Struct(const Protocol* protocol, uint32_t typeId);
     bool GetMember(uint32_t index, uint32_t& offset, uint32_t& typeId) const;
@@ -190,7 +190,7 @@ class String : public Base {
     public:
     static bool IsValid(uint32_t length, const uint8_t* data, uint32_t& count);
 
-    /* 0018 */ Type::Bounds m_bounds;
+    /* 0018 */ Type::Bounds bounds;
     /* 0038 */ Type::Bounds m_charBounds;
 
     String(const Protocol* protocol, uint32_t typeId);

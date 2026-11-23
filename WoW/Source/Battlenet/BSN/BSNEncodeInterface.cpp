@@ -55,13 +55,13 @@ uint64_t BSN::BSNPrimitiveEncoder::GetUInt(const EncodeContext* context) const {
 
     if (context->m_header == BSN::META_INT) {
         BSN::Protocol::Meta::Int meta(context->m_protocol, context->m_typeId);
-        BSN::Cpp::ReadInt(context->m_data, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(meta.m_codeInfo[0])), (meta.m_bounds.m_intType & BSN::Protocol::Type::Int::TYPE_UNSIGNED) == 0, value);
+        BSN::Cpp::ReadInt(context->m_data, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(meta.m_codeInfo[0])), (meta.bounds.m_intType & BSN::Protocol::Type::Int::TYPE_UNSIGNED) == 0, value);
         return value;
     }
 
     if (context->m_header == BSN::META_ENUM) {
         BSN::Protocol::Meta::Enum meta(context->m_protocol, context->m_typeId);
-        BSN::Cpp::ReadInt(context->m_data, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(meta.m_codeInfo[0])), (meta.m_bounds.m_intType & BSN::Protocol::Type::Int::TYPE_UNSIGNED) == 0, value);
+        BSN::Cpp::ReadInt(context->m_data, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(meta.m_codeInfo[0])), (meta.bounds.m_intType & BSN::Protocol::Type::Int::TYPE_UNSIGNED) == 0, value);
         return value;
     }
 
@@ -266,7 +266,7 @@ bool BSN::BSNPrimitiveEncoder::GetMemberContext(const EncodeContext* context, co
 
     if (context->m_header == BSN::META_STRUCT) {
         BSN::Protocol::Meta::Struct meta(context->m_protocol, context->m_typeId);
-        uint32_t count = meta.m_count;
+        uint32_t count = meta.fieldCount;
 
         if (!count) {
             return false;
@@ -371,7 +371,7 @@ bool BSN::BSNPrimitiveEncoder::SetUInt(EncodeContext* context, uint64_t value) c
     if (context->m_header == BSN::META_INT) {
         BSN::Protocol::Meta::Int meta(context->m_protocol, context->m_typeId);
 
-        if (meta.m_bounds.Contains(value)) {
+        if (meta.bounds.Contains(value)) {
             BSN::Cpp::WriteInt(value, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(meta.m_codeInfo[0])), context->m_data);
             return true;
         }
@@ -381,7 +381,7 @@ bool BSN::BSNPrimitiveEncoder::SetUInt(EncodeContext* context, uint64_t value) c
         BSN::Protocol::Meta::Enum meta(context->m_protocol, context->m_typeId);
         uint32_t field;
 
-        if (meta.GetEnumField(value, field) || (meta.m_bounds.m_variable && meta.m_bounds.Contains(value))) {
+        if (meta.GetEnumField(value, field) || (meta.bounds.m_variable && meta.bounds.Contains(value))) {
             BSN::Cpp::WriteInt(value, static_cast<uint32_t>(reinterpret_cast<uintptr_t>(meta.m_codeInfo[0])), context->m_data);
             return true;
         }
@@ -821,7 +821,7 @@ int32_t BSN::BSNPrimitiveWalker::Struct(const Protocol::Meta::Struct& meta, cons
         return BSN::WALK_INVALID;
     }
 
-    uint32_t count = meta.m_count;
+    uint32_t count = meta.fieldCount;
 
     for (uint32_t index = 0; index < count; index++) {
         if (result) {

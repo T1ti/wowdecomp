@@ -44,22 +44,22 @@ BSN::Protocol::Meta::Blob::Blob(const Protocol* protocol, uint32_t typeId) : Bas
 // OFFSET: 0x00888AE0
 bool BSN::Protocol::Meta::Choice::GetTagField(uint64_t tag, uint32_t& field) const {
     if (!(this->m_header & BSN::META_HEADER_FIXED)) {
-        uint32_t size = BSN::Protocol::Type::Int::ByteSize(this->m_bounds.m_intType);
+        uint32_t size = BSN::Protocol::Type::Int::ByteSize(this->bounds.m_intType);
         field = 0;
 
         if (this->m_count) {
             do {
                 const uint8_t* cursor = &this->m_typeInfo[size * field];
                 uint64_t value;
-                BSN::Protocol::Type::Int::Get(this->m_bounds.m_intType, cursor, value);
+                BSN::Protocol::Type::Int::Get(this->bounds.m_intType, cursor, value);
 
                 if (tag == value) {
                     return true;
                 }
             } while (++field < this->m_count);
         }
-    } else if (this->m_bounds.Contains(tag)) {
-        field = static_cast<uint32_t>(tag - this->m_bounds.m_min);
+    } else if (this->bounds.Contains(tag)) {
+        field = static_cast<uint32_t>(tag - this->bounds.m_min);
         return true;
     }
 
@@ -71,14 +71,14 @@ bool BSN::Protocol::Meta::Choice::GetTagField(uint64_t tag, uint32_t& field) con
 bool BSN::Protocol::Meta::Choice::GetFieldTag(uint32_t field, uint64_t& tag) const {
     if (!(this->m_header & BSN::META_HEADER_FIXED)) {
         if (field < this->m_count) {
-            const uint8_t* cursor = &this->m_typeInfo[field * BSN::Protocol::Type::Int::ByteSize(this->m_bounds.m_intType)];
-            BSN::Protocol::Type::Int::Get(this->m_bounds.m_intType, cursor, tag);
+            const uint8_t* cursor = &this->m_typeInfo[field * BSN::Protocol::Type::Int::ByteSize(this->bounds.m_intType)];
+            BSN::Protocol::Type::Int::Get(this->bounds.m_intType, cursor, tag);
             return true;
         }
     } else {
-        tag = field + this->m_bounds.m_min;
+        tag = field + this->bounds.m_min;
 
-        if (this->m_bounds.Contains(tag)) {
+        if (this->bounds.Contains(tag)) {
             return true;
         }
     }
@@ -96,7 +96,7 @@ bool BSN::Protocol::Meta::Choice::GetFieldTypeId(uint32_t field, uint32_t& typeI
     const uint8_t* cursor;
 
     if (!(this->m_header & BSN::META_HEADER_FIXED)) {
-        cursor = &this->m_typeInfo[this->m_count * BSN::Protocol::Type::Int::ByteSize(this->m_bounds.m_intType) + 4 * field];
+        cursor = &this->m_typeInfo[this->m_count * BSN::Protocol::Type::Int::ByteSize(this->bounds.m_intType) + 4 * field];
     } else {
         cursor = &this->m_typeInfo[4 * field];
     }
@@ -115,15 +115,15 @@ bool BSN::Protocol::Meta::Enum::GetEnumField(uint64_t value, uint32_t& field) co
         if (this->m_count) {
             do {
                 uint64_t entry;
-                BSN::Protocol::Type::Int::Get(this->m_bounds.m_intType, cursor, entry);
+                BSN::Protocol::Type::Int::Get(this->bounds.m_intType, cursor, entry);
 
                 if (value == entry) {
                     return true;
                 }
             } while (++field < this->m_count);
         }
-    } else if (this->m_bounds.Contains(value)) {
-        field = static_cast<uint32_t>(value - this->m_bounds.m_min);
+    } else if (this->bounds.Contains(value)) {
+        field = static_cast<uint32_t>(value - this->bounds.m_min);
         return true;
     }
 
@@ -133,7 +133,7 @@ bool BSN::Protocol::Meta::Enum::GetEnumField(uint64_t value, uint32_t& field) co
 // VERIFY: 1a17d977 auto
 // OFFSET: 0x00888D00
 BSN::Protocol::Meta::Int::Int(const Protocol* protocol, uint32_t typeId) : Base(protocol, typeId) {
-    BSN::Protocol::Type::Bounds::Get(false, this->m_typeInfo, this->m_bounds);
+    BSN::Protocol::Type::Bounds::Get(false, this->m_typeInfo, this->bounds);
 }
 
 // VERIFY: e404c9f1 auto
@@ -182,24 +182,24 @@ BSN::Protocol::Meta::Real64::Real64(const Protocol* protocol, uint32_t typeId) :
 // VERIFY: c8d2bcd7 manual
 // OFFSET: 0x00888D80
 BSN::Protocol::Meta::Enum::Enum(const Protocol* protocol, uint32_t typeId) : Base(protocol, typeId) {
-    BSN::Protocol::Type::Bounds::Get(false, this->m_typeInfo, this->m_bounds);
+    BSN::Protocol::Type::Bounds::Get(false, this->m_typeInfo, this->bounds);
 
     if (!(this->m_header & BSN::META_HEADER_FIXED)) {
         BSN::Protocol::Type::Int::GetSize(this->m_typeInfo, this->m_count);
     } else {
-        this->m_count = static_cast<uint32_t>(this->m_bounds.m_max) - static_cast<uint32_t>(this->m_bounds.m_min) + 1;
+        this->m_count = static_cast<uint32_t>(this->bounds.m_max) - static_cast<uint32_t>(this->bounds.m_min) + 1;
     }
 }
 
 // VERIFY: 8b106e47 manual
 // OFFSET: 0x00888D80
 BSN::Protocol::Meta::Choice::Choice(const Protocol* protocol, uint32_t typeId) : Base(protocol, typeId) {
-    BSN::Protocol::Type::Bounds::Get(false, this->m_typeInfo, this->m_bounds);
+    BSN::Protocol::Type::Bounds::Get(false, this->m_typeInfo, this->bounds);
 
     if (!(this->m_header & BSN::META_HEADER_FIXED)) {
         BSN::Protocol::Type::Int::GetSize(this->m_typeInfo, this->m_count);
     } else {
-        this->m_count = static_cast<uint32_t>(this->m_bounds.m_max) - static_cast<uint32_t>(this->m_bounds.m_min) + 1;
+        this->m_count = static_cast<uint32_t>(this->bounds.m_max) - static_cast<uint32_t>(this->bounds.m_min) + 1;
     }
 }
 
@@ -209,16 +209,16 @@ BSN::Protocol::Meta::Struct::Struct(const Protocol* protocol, uint32_t typeId) :
     BSN::Protocol::Type::Bounds::Get(false, this->m_typeInfo, this->m_bounds);
 
     if (!(this->m_header & BSN::META_HEADER_FIXED)) {
-        BSN::Protocol::Type::Int::GetSize(this->m_typeInfo, this->m_count);
+        BSN::Protocol::Type::Int::GetSize(this->m_typeInfo, this->fieldCount);
     } else {
-        this->m_count = static_cast<uint32_t>(this->m_bounds.m_max) - static_cast<uint32_t>(this->m_bounds.m_min) + 1;
+        this->fieldCount = static_cast<uint32_t>(this->m_bounds.m_max) - static_cast<uint32_t>(this->m_bounds.m_min) + 1;
     }
 }
 
 // VERIFY: e1ec8bc2 manual
 // OFFSET: 0x00888DE0
 bool BSN::Protocol::Meta::Struct::GetMember(uint32_t index, uint32_t& offset, uint32_t& typeId) const {
-    if (index >= this->m_count) {
+    if (index >= this->fieldCount) {
         return false;
     }
 
@@ -227,7 +227,7 @@ bool BSN::Protocol::Meta::Struct::GetMember(uint32_t index, uint32_t& offset, ui
     const uint8_t* cursor;
 
     if (!(this->m_header & BSN::META_HEADER_FIXED)) {
-        cursor = &this->m_typeInfo[4 * index + this->m_count * BSN::Protocol::Type::Int::ByteSize(this->m_bounds.m_intType)];
+        cursor = &this->m_typeInfo[4 * index + this->fieldCount * BSN::Protocol::Type::Int::ByteSize(this->m_bounds.m_intType)];
     } else {
         cursor = &this->m_typeInfo[4 * index];
     }
@@ -240,9 +240,9 @@ bool BSN::Protocol::Meta::Struct::GetMember(uint32_t index, uint32_t& offset, ui
 // OFFSET: 0x00888E60
 BSN::Protocol::Meta::String::String(const Protocol* protocol, uint32_t typeId) : Base(protocol, typeId) {
     BSN::Protocol::Type::Bounds::Get(false, this->m_typeInfo, this->m_charBounds);
-    this->m_bounds = this->m_charBounds;
-    this->m_bounds.m_bits += 2;
-    this->m_bounds.m_max *= 4;
+    this->bounds = this->m_charBounds;
+    this->bounds.m_bits += 2;
+    this->bounds.m_max *= 4;
 }
 
 // VERIFY: d65c5c93 manual
