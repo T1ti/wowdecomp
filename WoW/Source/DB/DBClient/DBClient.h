@@ -515,7 +515,6 @@ void GameTablesInitialize();
 void InitLights(bool transform);
 void InitResistances();
 void InitTerrainTypeFlags();
-void InitWeaponSubclasses();
 void SDBItemSubclassInitialize();
 const ItemSubClassRec* SDBItemSubclassGetSubClassRec(ITEM_CLASS classID, uint32_t subClassID);
 int32_t GetPhysicalDamageClassID();

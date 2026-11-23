@@ -18,7 +18,7 @@ static int32_t s_physicalDamageClassID = -1;
 static const ItemSubClassRec* s_unarmedWeaponSubclass;
 
 // STATIC: 0x00C5D664
-static const ItemClassRec* s_weaponItemClass;
+static const ItemClassRec* s_weaponClassRecPtr;
 
 // STATIC: 0x00C5D668
 static TSFixedArray<const ResistancesRec*> s_resistances;
@@ -1013,15 +1013,26 @@ int32_t ClientDBGetUnarmedWeapon() {
 // VERIFY: 88034703 manual
 // OFFSET: 0x006348C0
 static void LocateWeaponSubclass() {
-    s_weaponItemClass = nullptr;
+    s_weaponClassRecPtr = nullptr;
 
     for (int32_t i = g_itemClassDB.GetNumRecords() - 1; i >= 0; i--) {
         const ItemClassRec* rec = i >= 0 && i < g_itemClassDB.GetNumRecords() ? &g_itemClassDB.m_records[i] : nullptr;
 
         if (rec->m_flags & ITEM_CLASS_FLAG_WEAPON) {
-            s_weaponItemClass = rec;
+#if defined(WOWDECOMP_ASSERTIONS)
+            if (s_weaponClassRecPtr) {
+                STORM_ASSERT(!"Error, only one entry in the ItemClass can be a weapon!");
+            }
+#endif
+            s_weaponClassRecPtr = rec;
         }
     }
+
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (!s_weaponClassRecPtr) {
+        STORM_ASSERT(!"Error, at least one entry in the ItemClass has to be a weapon!");
+    }
+#endif
 }
 
 // VERIFY: d0f3ca01 auto
@@ -1095,12 +1106,13 @@ void ClientDBShutdown() {
 
 // VERIFY: e620a1d6 manual
 // OFFSET: 0x00634CC0
-void InitWeaponSubclasses() {
+static void InitWeaponSubclasses() {
     s_weaponSubclasses.SetCount(0);
     s_unarmedWeaponSubclass = nullptr;
     LocateWeaponSubclass();
 
-    ITEM_CLASS weaponClass = s_weaponItemClass->m_classID;
+    STORM_ASSERT(s_weaponClassRecPtr);
+    ITEM_CLASS weaponClass = s_weaponClassRecPtr->m_classID;
     int32_t count = 0;
 
     for (int32_t i = g_itemSubClassDB.GetNumRecords() - 1; i >= 0; i--) {
@@ -1132,10 +1144,27 @@ void InitWeaponSubclasses() {
             s_weaponSubclasses[rec->m_subClassID] = rec;
 
             if (rec->m_flags & ITEM_SUBCLASS_FLAG_UNARMED) {
+#if defined(WOWDECOMP_ASSERTIONS)
+                if (s_unarmedWeaponSubclass) {
+                    STORM_ASSERT(!"Error, only one weapon subclass can be unarmed!");
+                }
+#endif
                 s_unarmedWeaponSubclass = rec;
             }
         }
     }
+
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (!s_unarmedWeaponSubclass) {
+        STORM_ASSERT(!"Error, there has to be one weapon subclass that's marked as unarmed!");
+    }
+
+    for (uint32_t i = s_weaponSubclasses.Count(); i > 0; --i) {
+        if (!s_weaponSubclasses[i - 1]) {
+            STORM_ASSERT(!"Error, weapon subclasses in the ItemSubClass table have to be contiguous!");
+        }
+    }
+#endif
 }
 
 // VERIFY: f26ccc9b auto
