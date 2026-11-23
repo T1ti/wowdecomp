@@ -42,6 +42,7 @@ class CRibbonEmitter {
         INITIAL_ENABLED_MASK = 0xE,
     };
 
+    private:
     /* 0000 */ int32_t m_refCount;
     /* 0004 */ TSGrowableArray<float> m_edges; // Ring of edge ages in seconds; newly interpolated ages can be negative.
     /* 0014 */ uint32_t m_writePos; // Next emitted edge's slot.
@@ -84,18 +85,26 @@ class CRibbonEmitter {
     /* 0178 */ float m_below;
     /* 017C */ float m_gravity;
 
+    void CloseTextureHandles();
+    void ConvertTexSlotToTexCoords();
+    void InitInterpDeltas();
+    void InterpEdge(float age, float t, uint32_t advance);
+    void AdvanceEdge(uint32_t& edge, uint32_t amount) const; // (inferred)
+
+    public:
+    // INLINED
+    const CAaBox& GetWorldBounds() const { // (inferred)
+        return this->m_worldBounds;
+    }
+
     CRibbonEmitter();
     ~CRibbonEmitter();
     void ChangeFrameOfReference(const C44Matrix* matrix);
-    void CloseTextureHandles();
-    void ConvertTexSlotToTexCoords();
     void DecRef();
-    uint32_t GetNumBatches();
-    uint32_t GetNumPrimitives();
-    void InitInterpDeltas();
-    void Initialize(float edgesPerSecond, float edgeLifetime, const CImVector& color, const TSGrowableArray<CTexture*>& textures, const TSGrowableArray<CRibbonMat>& materials, const TSGrowableArray<uint32_t>& textureTypes, const CAaRect& texCoords, uint32_t rows, uint32_t cols);
-    void InterpEdge(float age, float t, uint32_t advance);
-    BOOL IsDead();
+    uint32_t GetNumBatches() const;
+    uint32_t GetNumPrimitives() const;
+    void Initialize(float edgesPerSec, float edgeLifeSpanInSec, const CImVector& color, const TSGrowableArray<CTexture*>& textures, const TSGrowableArray<CRibbonMat>& materials, const TSGrowableArray<uint32_t>& replaces, const CAaRect& texCoords, uint32_t rows, uint32_t cols);
+    BOOL IsDead() const;
     int32_t Render(const C44Matrix* frameOfReference);
     int32_t ReplaceTexture(uint32_t type, CTexture* texture);
     void SetAbove(float above);

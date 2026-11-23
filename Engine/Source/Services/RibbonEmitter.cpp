@@ -63,6 +63,8 @@ void CRibbonEmitter::SetUserEnabled(uint32_t enabled) {
 // VERIFY: f8d931dc auto
 // OFFSET: 0x0097F5F0
 void CRibbonEmitter::SetTexSlot(uint32_t slot) {
+    STORM_ASSERT(slot < m_rows * m_cols);
+
     if (this->m_texSlot != slot) {
         this->m_texSlot = slot;
         this->ConvertTexSlotToTexCoords();
@@ -72,12 +74,16 @@ void CRibbonEmitter::SetTexSlot(uint32_t slot) {
 // VERIFY: a4ee293a auto
 // OFFSET: 0x0097F610
 void CRibbonEmitter::SetAbove(float above) {
+    STORM_ASSERT(above >= 0.0f);
+
     this->m_above = above;
 }
 
 // VERIFY: 3fe02f2e auto
 // OFFSET: 0x0097F620
 void CRibbonEmitter::SetBelow(float below) {
+    STORM_ASSERT(below >= 0.0f);
+
     this->m_below = below;
 }
 
@@ -89,7 +95,7 @@ void CRibbonEmitter::SetGravity(float gravity) {
 
 // VERIFY: bfe848c9 auto
 // OFFSET: 0x0097F640
-BOOL CRibbonEmitter::IsDead() {
+BOOL CRibbonEmitter::IsDead() const {
     return this->m_readPos == this->m_writePos;
 }
 
@@ -207,18 +213,27 @@ void CRibbonEmitter::ChangeFrameOfReference(const C44Matrix* matrix) {
 
 // VERIFY: b79ec970 auto
 // OFFSET: 0x0097FE40
-uint32_t CRibbonEmitter::GetNumBatches() {
+uint32_t CRibbonEmitter::GetNumBatches() const {
     return this->m_materials.Count();
 }
 
 // VERIFY: a63fdf92 manual
 // OFFSET: 0x0097FE50
-uint32_t CRibbonEmitter::GetNumPrimitives() {
+uint32_t CRibbonEmitter::GetNumPrimitives() const {
     if (this->m_readPos >= this->m_writePos) {
         return 2 * (this->m_writePos + this->m_edges.Count() - this->m_readPos);
     }
 
     return 2 * (this->m_writePos - this->m_readPos);
+}
+
+// INLINED
+inline void CRibbonEmitter::AdvanceEdge(uint32_t& edge, uint32_t amount) const {
+    STORM_ASSERT(amount <= m_edges.Count());
+    edge += amount;
+    if (edge >= this->m_edges.Count()) {
+        edge -= this->m_edges.Count();
+    }
 }
 
 // VERIFY: bcdbf864 manual
@@ -236,16 +251,15 @@ void CRibbonEmitter::InterpEdge(float age, float t, uint32_t advance) {
     vertex[1].p.z = s * (t * this->m_prevDirScaled.z + this->m_above0.z) + (this->m_above1.z - s * this->m_currDirScaled.z) * t;
 
     this->m_edges.m_data[this->m_writePos] = age;
-    this->m_writePos += advance;
-
-    if (this->m_writePos >= this->m_edges.Count()) {
-        this->m_writePos -= this->m_edges.Count();
-    }
+    this->AdvanceEdge(this->m_writePos, advance);
+    STORM_ASSERT(m_writePos != m_readPos || advance == 0);
 }
 
 // VERIFY: b2cbdd07 manual
 // OFFSET: 0x00980090
 void CRibbonEmitter::Update(float deltaTime, int32_t suppressNewEdges) {
+    STORM_ASSERT(m_flags & INITIALIZED); // 12213: "m_initialized"
+
     float dt = deltaTime;
     float start = 1.0f;
 
@@ -264,9 +278,7 @@ void CRibbonEmitter::Update(float deltaTime, int32_t suppressNewEdges) {
             break;
         }
 
-        if (++this->m_readPos >= this->m_edges.Count()) {
-            this->m_readPos -= this->m_edges.Count();
-        }
+        this->AdvanceEdge(this->m_readPos, 1);
     }
 
     if (!suppressNewEdges && (this->m_flags & CRibbonEmitter::RUNTIME_FLAGS::DATA_ENABLED) && (this->m_flags & CRibbonEmitter::RUNTIME_FLAGS::USER_ENABLED) && (this->m_flags & CRibbonEmitter::RUNTIME_FLAGS::POSITION_SET)) {
@@ -356,9 +368,7 @@ void CRibbonEmitter::Update(float deltaTime, int32_t suppressNewEdges) {
         vertex[1].tc.x = u;
         vertex[1].tc.y = this->m_texSlotBox.maxX;
 
-        if (++i >= this->m_edges.Count()) {
-            i -= this->m_edges.Count();
-        }
+        this->AdvanceEdge(i, 1);
     }
 
     this->m_flags = (this->m_flags & ~CRibbonEmitter::RUNTIME_FLAGS::UPDATE_STATE_MASK) | CRibbonEmitter::RUNTIME_FLAGS::UPDATED;
@@ -405,14 +415,20 @@ CRibbonEmitter::CRibbonEmitter() {
 
 // VERIFY: 85ed808e manual
 // OFFSET: 0x009808A0
-void CRibbonEmitter::Initialize(float edgesPerSecond, float edgeLifetime, const CImVector& color, const TSGrowableArray<CTexture*>& textures, const TSGrowableArray<CRibbonMat>& materials, const TSGrowableArray<uint32_t>& textureTypes, const CAaRect& texCoords, uint32_t rows, uint32_t cols) {
-    float edgesPerSec = ceil(edgesPerSecond);
+void CRibbonEmitter::Initialize(float edgesPerSec, float edgeLifeSpanInSec, const CImVector& color, const TSGrowableArray<CTexture*>& textures, const TSGrowableArray<CRibbonMat>& materials, const TSGrowableArray<uint32_t>& replaces, const CAaRect& texCoords, uint32_t rows, uint32_t cols) {
+    STORM_ASSERT((m_flags & INITIALIZED) == 0); // 12213: "m_initialized == 0"
+    STORM_ASSERT(edgesPerSec >= 1);
+    STORM_ASSERT(edgeLifeSpanInSec > 0);
+    STORM_ASSERT(materials.Count() == textures.Count());
+    STORM_ASSERT(textures.Count() == replaces.Count());
 
-    if (edgeLifetime < MIN_EDGE_LIFE_SPAN) {
-        edgeLifetime = MIN_EDGE_LIFE_SPAN;
+    float roundedEdgesPerSec = ceil(edgesPerSec);
+
+    if (edgeLifeSpanInSec < MIN_EDGE_LIFE_SPAN) {
+        edgeLifeSpanInSec = MIN_EDGE_LIFE_SPAN;
     }
 
-    uint32_t edgeCount = static_cast<uint32_t>(ceil(edgesPerSec * edgeLifetime) + 2.0f);
+    uint32_t edgeCount = static_cast<uint32_t>(ceil(roundedEdgesPerSec * edgeLifeSpanInSec) + 2.0f);
     this->m_edges.SetCount(edgeCount);
 
     this->m_flags &= ~CRibbonEmitter::RUNTIME_FLAGS::POSITION_SET;
@@ -427,17 +443,17 @@ void CRibbonEmitter::Initialize(float edgesPerSecond, float edgeLifetime, const 
         this->m_gxIndices.m_data[i] = i % (2 * edgeCount);
     }
 
-    this->m_ooLifeSpan = 1.0f / edgeLifetime;
+    this->m_ooLifeSpan = 1.0f / edgeLifeSpanInSec;
     this->m_tmpDU = (texCoords.maxY - texCoords.minY) / cols;
     this->m_tmpDV = (texCoords.maxX - texCoords.minX) / rows;
     this->m_ooTmpDU = 1.0f / this->m_tmpDU;
     this->m_ooTmpDV = 1.0f / this->m_tmpDV;
-    this->m_edgesPerSec = edgesPerSec;
-    this->m_edgeLifeSpan = edgeLifetime;
+    this->m_edgesPerSec = roundedEdgesPerSec;
+    this->m_edgeLifeSpan = edgeLifeSpanInSec;
     this->m_diffuseClr = color;
     this->m_materials = materials;
     DuplicateTextures(textures, this->m_textures);
-    this->m_replaces = textureTypes;
+    this->m_replaces = replaces;
     this->m_texBox = texCoords;
     this->m_rows = rows;
     this->m_cols = cols;
@@ -460,6 +476,8 @@ void CRibbonEmitter::DecRef() {
 // VERIFY: b28c0986 manual
 // OFFSET: 0x00980B70
 int32_t CRibbonEmitter::Render(const C44Matrix* frameOfReference) {
+    STORM_ASSERT(m_flags & INITIALIZED); // 12213: "m_initialized"
+
     if (!s_ribbonRenderEnable || this->m_readPos == this->m_writePos) {
         return 0;
     }

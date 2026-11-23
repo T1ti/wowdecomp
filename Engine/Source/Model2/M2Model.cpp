@@ -933,7 +933,7 @@ CAaBox CM2Model::GetCurrentBoundingBox() {
     }
 
     for (uint32_t i = 0; i < this->m_shared->m_data->m_ribbons.m_count; i++) {
-        box = box | this->m_ribbonEmitters[i]->m_worldBounds;
+        box = box | this->m_ribbonEmitters[i]->GetWorldBounds();
     }
 
     return box;
@@ -1002,7 +1002,7 @@ CAaBox CM2Model::GetSplitBodyBoundingBox(uint32_t boneId) {
     }
 
     for (uint32_t i = 0; i < this->m_shared->m_data->m_ribbons.m_count; i++) {
-        box |= this->m_ribbonEmitters[i]->m_worldBounds;
+        box |= this->m_ribbonEmitters[i]->GetWorldBounds();
     }
 
     return box;
@@ -4012,7 +4012,7 @@ CAaSphere CM2Model::GetCurrentBoundingSphere() {
     uint32_t ribbonCount = this->m_shared->m_data->m_ribbons.m_count;
 
     for (uint32_t i = 0; i < ribbonCount; i++) {
-        const CAaBox& ribbonBox = this->m_ribbonEmitters[i]->m_worldBounds;
+        const CAaBox& ribbonBox = this->m_ribbonEmitters[i]->GetWorldBounds();
         C3Vector top;
         top.x = box.t.x > ribbonBox.t.x ? box.t.x : ribbonBox.t.x;
         top.y = box.t.y > ribbonBox.t.y ? box.t.y : ribbonBox.t.y;
