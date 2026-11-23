@@ -33,8 +33,9 @@ EvtContext::~EvtContext() {
     this->m_queueMessageList.Clear();
     this->m_queueSyncKeyDownList.Clear();
 
-    for (uint32_t i = 1; i < this->m_timerIdTable.m_allocArray.Count(); i++) {
-        delete this->m_timerIdTable.m_allocArray[i];
+    for (uint32_t loop = 1; loop < this->m_timerIdTable.Count(); loop++) {
+        STORM_ASSERT(m_timerIdTable[loop]);
+        delete this->m_timerIdTable[loop];
     }
 
     PropDeleteContext(this->m_propContext);

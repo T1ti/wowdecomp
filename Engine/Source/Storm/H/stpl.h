@@ -102,7 +102,7 @@ class TSBaseArray {
     /* 0008 */ T* m_data;
 
     T& operator[](uint32_t index);
-    uint32_t Count();
+    uint32_t Count() const;
     const char* MemFileName();
     int32_t MemLineNo();
     T* Ptr();
@@ -679,7 +679,7 @@ T& TSBaseArray<T>::operator[](uint32_t index) {
 
 // INLINED
 template <class T>
-uint32_t TSBaseArray<T>::Count() {
+uint32_t TSBaseArray<T>::Count() const {
     return this->m_count;
 }
 

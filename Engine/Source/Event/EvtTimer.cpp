@@ -13,7 +13,7 @@ uint32_t IEvtTimerGetNextTime(EvtContext* context, uint32_t currTime) {
         return 0;
     }
 
-    context->m_critsect.Enter();
+    context->TimerLock();
 
     uint32_t nextTime = static_cast<uint32_t>(-1);
 
@@ -22,7 +22,7 @@ uint32_t IEvtTimerGetNextTime(EvtContext* context, uint32_t currTime) {
         nextTime = delta < 0 ? 0 : delta;
     }
 
-    context->m_critsect.Leave();
+    context->TimerUnlock();
 
     return nextTime;
 }
@@ -35,7 +35,7 @@ int32_t IEvtTimerDispatch(EvtContext* context) {
         return 0;
     }
 
-    context->m_critsect.Enter();
+    context->TimerLock();
 
     uint32_t currTime = OsGetAsyncTimeMs();
     int32_t dispatched = 0;
@@ -71,7 +71,7 @@ int32_t IEvtTimerDispatch(EvtContext* context) {
                 context->m_timerIdTable.Free(timer->m_id);
             }
 
-            context->m_critsect.Leave();
+            context->TimerUnlock();
             handler(&data, param);
         } else {
             EVENTHANDLERGUIDFUNC guidHandler = timer->m_guidHandler;
@@ -84,15 +84,15 @@ int32_t IEvtTimerDispatch(EvtContext* context) {
                 context->m_timerIdTable.Free(timer->m_id);
             }
 
-            context->m_critsect.Leave();
+            context->TimerUnlock();
             guidHandler(&data, guidParam, guidParam2);
         }
 
-        context->m_critsect.Enter();
+        context->TimerLock();
         dispatched = 1;
     }
 
-    context->m_critsect.Leave();
+    context->TimerUnlock();
 
     return dispatched;
 }
@@ -110,9 +110,9 @@ void IEvtTimerKill(EvtContext* context, uint32_t id, EVENTHANDLERFUNC handler, c
         return;
     }
 
-    context->m_critsect.Enter();
+    context->TimerLock();
 
-    EvtTimer* timer = context->m_timerIdTable.m_allocArray[id];
+    EvtTimer* timer = context->m_timerIdTable[id];
 
     if (timer && (timer->m_handler || timer->m_guidHandler)) {
         if ((timer->m_handler && timer->m_handler != handler) || (timer->m_guidHandler && reinterpret_cast<EVENTHANDLERFUNC>(timer->m_guidHandler) != handler)) {
@@ -137,7 +137,7 @@ void IEvtTimerKill(EvtContext* context, uint32_t id, EVENTHANDLERFUNC handler, c
         }
     }
 
-    context->m_critsect.Leave();
+    context->TimerUnlock();
 }
 
 // VERIFY: 1d10b345 manual
@@ -153,14 +153,14 @@ uint32_t IEvtTimerSet(EvtContext* context, uint32_t delay, EVENTHANDLERFUNC hand
         return 0;
     }
 
-    context->m_critsect.Enter();
+    context->TimerLock();
 
     uint32_t id = context->m_timerIdTable.Alloc();
-    EvtTimer* timer = context->m_timerIdTable.m_allocArray[id];
+    EvtTimer* timer = context->m_timerIdTable[id];
 
     if (!timer) {
         timer = new (SMemAlloc(sizeof(EvtTimer), __FILE__, __LINE__, 0)) EvtTimer;
-        context->m_timerIdTable.m_allocArray[id] = timer;
+        context->m_timerIdTable[id] = timer;
     }
 
     timer->m_targetTime.SetVal(OsGetAsyncTimeMs() + delay);
@@ -174,7 +174,7 @@ uint32_t IEvtTimerSet(EvtContext* context, uint32_t delay, EVENTHANDLERFUNC hand
 
     context->m_timerQueue.Enqueue(timer);
 
-    context->m_critsect.Leave();
+    context->TimerUnlock();
 
     return id;
 }

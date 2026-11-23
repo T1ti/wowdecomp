@@ -107,12 +107,12 @@ void IEvtSchedulerShutdown() {
 // VERIFY: d9dbe259 auto
 // OFFSET: 0x0047DB40
 int32_t SynthesizeInitialize(EvtContext* context) {
-    if (context->m_schedFlags & EvtContext::SCHED_INITIALIZED) {
+    if (context->SchedGetFlags() & EvtContext::SCHED_INITIALIZED) {
         return 0;
     }
 
-    context->m_schedFlags |= EvtContext::SCHED_INITIALIZED;
-    context->m_schedLastIdle = OsGetAsyncTimeMs();
+    context->SchedAddFlags(EvtContext::SCHED_INITIALIZED);
+    context->SchedSetLastIdle(OsGetAsyncTimeMs());
     IEvtQueueDispatch(context, EVENT_ID_INITIALIZE, nullptr);
 
     return 1;
@@ -142,8 +142,8 @@ void SynthesizeIdle(EvtContext* context, uint32_t currTime, float elapsedSec) {
     context->m_critsect.Leave();
 
     if (!closed) {
-        if (context->m_schedFlags & EvtContext::SCHED_INTERACTIVE) {
-            context->m_schedFlags |= EvtContext::SCHED_PAINT_PENDING;
+        if (context->SchedGetFlags() & EvtContext::SCHED_INTERACTIVE) {
+            context->SchedAddFlags(EvtContext::SCHED_PAINT_PENDING);
         }
 
         EVENT_DATA_IDLE data;
@@ -173,8 +173,8 @@ void SynthesizePaint(EvtContext* context) {
     int32_t closed = context->m_schedState == SCHEDSTATE_CLOSED;
     context->m_critsect.Leave();
 
-    if (!closed && (context->m_schedFlags & EvtContext::SCHED_PAINT_PENDING)) {
-        context->m_schedFlags &= ~EvtContext::SCHED_PAINT_PENDING;
+    if (!closed && (context->SchedGetFlags() & EvtContext::SCHED_PAINT_PENDING)) {
+        context->SchedRemoveFlags(EvtContext::SCHED_PAINT_PENDING);
         IEvtQueueDispatch(context, EVENT_ID_PAINT, nullptr);
     }
 }
@@ -182,7 +182,7 @@ void SynthesizePaint(EvtContext* context) {
 // VERIFY: f0d6cd9f auto
 // OFFSET: 0x0047DC90
 int32_t IEvtSchedulerIsContextInteractive(EvtContext* context) {
-    return (context->m_schedFlags & EvtContext::SCHED_INTERACTIVE) != 0;
+    return (context->SchedGetFlags() & EvtContext::SCHED_INTERACTIVE) != 0;
 }
 
 // VERIFY: 17d819bf manual
@@ -207,8 +207,8 @@ void EventForceIdleProcessing() {
         s_watchdogStarted = 1;
     }
 
-    float elapsedSec = static_cast<float>(static_cast<int32_t>(currTime - context->m_schedLastIdle)) * 0.001f;
-    context->m_schedLastIdle = currTime;
+    float elapsedSec = static_cast<float>(static_cast<int32_t>(currTime - context->SchedGetLastIdle())) * 0.001f;
+    context->SchedSetLastIdle(currTime);
 
     IEvtDispatchUpdate(context, currTime, elapsedSec);
     IEvtTimerDispatch(context);
@@ -277,7 +277,7 @@ void IEvtSchedulerDestroy() {
 void SynthesizeDestroy(EvtContext* context) {
     SynthesizeInitialize(context);
 
-    if ((context->m_schedFlags & EvtContext::SCHED_INTERACTIVE) && !InterlockedDecrement(&Event::s_interactiveCount)) {
+    if ((context->SchedGetFlags() & EvtContext::SCHED_INTERACTIVE) && !InterlockedDecrement(&Event::s_interactiveCount)) {
         IEvtSchedulerShutdown();
     }
 
@@ -290,6 +290,7 @@ void SynthesizeDestroy(EvtContext* context) {
     IEvtQueueDispatchAll(context);
     IEvtQueueDispatch(context, EVENT_ID_DESTROY, nullptr);
 
+    STORM_ASSERT(context->IsCurrentContext()); // 12213: "IsCurrentContext()"
     OsCallResetContext(context->m_callContext);
     PropSelectContext(nullptr);
 
@@ -603,13 +604,13 @@ int32_t SchedulerThreadProcProcess(uint32_t hThread, int32_t* watchdogStarted) {
             *watchdogStarted = 1;
         }
 
-        float elapsedSec = static_cast<float>(static_cast<int32_t>(currTime - context->m_schedLastIdle)) * 0.001f;
-        context->m_schedLastIdle = currTime;
+        float elapsedSec = static_cast<float>(static_cast<int32_t>(currTime - context->SchedGetLastIdle())) * 0.001f;
+        context->SchedSetLastIdle(currTime);
 
         IEvtDispatchUpdate(context, currTime, elapsedSec);
         IEvtTimerDispatch(context);
 
-        if (context->m_schedFlags & EvtContext::SCHED_INTERACTIVE) {
+        if (context->SchedGetFlags() & EvtContext::SCHED_INTERACTIVE) {
             int32_t shutdown = 0;
             IEvtInputProcess(context, &shutdown);
 
@@ -641,16 +642,16 @@ int32_t SchedulerThreadProcProcess(uint32_t hThread, int32_t* watchdogStarted) {
 
     uint32_t delay;
 
-    if (context->m_schedFlags & EvtContext::SCHED_PAINT_PENDING) {
+    if (context->SchedGetFlags() & EvtContext::SCHED_PAINT_PENDING) {
         delay = 0;
     } else {
         delay = IEvtTimerGetNextTime(context, currTime);
 
-        if (context->m_schedIdleTime != context->m_schedInitialIdleTime) {
-            delay = context->m_schedIdleTime;
+        if (context->SchedGetIdleTime() != context->SchedGetInitialIdleTime()) {
+            delay = context->SchedGetIdleTime();
         }
 
-        int32_t idleDelay = context->m_schedLastIdle - currTime + context->m_schedIdleTime;
+        int32_t idleDelay = context->SchedGetLastIdle() - currTime + context->SchedGetIdleTime();
 
         if (idleDelay < 0) {
             idleDelay = 0;
@@ -661,6 +662,7 @@ int32_t SchedulerThreadProcProcess(uint32_t hThread, int32_t* watchdogStarted) {
         }
     }
 
+    STORM_ASSERT(context->IsCurrentContext()); // 12213: "IsCurrentContext()"
     OsCallResetContext(context->m_callContext);
     PropSelectContext(nullptr);
 
