@@ -472,8 +472,7 @@ void NetClient::HandlePong(WowConnection* connection, CDataStore* msg) {
 // OFFSET: 0x00632690
 void NetClient::EnableEncryption(WowConnection* connection, const uint8_t* seed, uint8_t seedLength) {
     connection->SetEncryptionKey(this->m_loginData.m_sessionKey, sizeof(this->m_loginData.m_sessionKey), 1, seed, seedLength);
-    connection->m_uint375 = 4;
-    connection->m_uint376 = 2;
+    connection->SetEncryptedOpcodeSizes(4, 2);
     connection->SetEncryption(true);
 }
 
@@ -542,8 +541,7 @@ void NetClient::HandleAuthChallenge(WowConnection* connection, CDataStore* msg) 
 
         WowConnection* redirect = this->m_redirectConnection;
         redirect->SetEncryptionKey(this->m_loginData.m_sessionKey, sizeof(this->m_loginData.m_sessionKey), 1, reinterpret_cast<const uint8_t*>(seeds), sizeof(seeds));
-        redirect->m_uint375 = 4;
-        redirect->m_uint376 = 2;
+        redirect->SetEncryptedOpcodeSizes(4, 2);
         redirect->SetEncryption(true);
     } else {
         connection->Disconnect();
@@ -604,7 +602,7 @@ void NetClient::Send(CDataStore* msg) {
     s_stats[1]++;
     this->m_bytesSent += size;
 
-    if (!connection->m_encrypt) {
+    if (!connection->IsEncrypted()) {
         this->EnableEncryption(connection, nullptr, 0);
     }
 }
@@ -628,7 +626,7 @@ void NetClient::WCCantConnect(WowConnection* connection, uint32_t timeStamp, con
 // VERIFY: af338d14 manual
 // OFFSET: 0x00632CD0
 void NetClient::Ping() {
-    if (!this->m_serverConnection->m_encrypt) {
+    if (!this->m_serverConnection->IsEncrypted()) {
         return;
     }
 

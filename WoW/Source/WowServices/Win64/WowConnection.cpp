@@ -111,11 +111,12 @@ WC_SEND_RESULT WowConnection::SendPacket(CDataStore* msg, int32_t headroom) {
     if (size <= 0) {
         result = WC_SEND_ERROR;
     } else if (this->m_connState == WOWC_CONNECTED) {
+        STORM_ASSERT(m_sock >= 0);
         if (WowConnection::s_lagTestDelayMin || this->m_sendList.Head()) {
             WowConnection::SENDNODE* node = this->NewSendNodePacket(data, size, false);
 
             if (this->m_encrypt) {
-                uint32_t length = this->m_uint375 - node->m_datasize + node->m_size;
+                uint32_t length = this->m_sendEncryptedOpcodeSize - node->m_datasize + node->m_size;
 
                 if (length > node->m_size) {
                     length = node->m_size;
@@ -126,7 +127,7 @@ WC_SEND_RESULT WowConnection::SendPacket(CDataStore* msg, int32_t headroom) {
 
             this->m_sendList.LinkToTail(node);
             this->m_sendDepth++;
-            this->m_sendBytes += node->m_size;
+            this->m_sendDepthBytes += node->m_size;
             WowConnection::s_network->PlatformChangeState(this, this->m_connState);
 
             if (this->m_sendDepth >= this->m_maxSendDepth) {
@@ -163,7 +164,7 @@ WC_SEND_RESULT WowConnection::SendPacket(CDataStore* msg, int32_t headroom) {
             }
 
             if (this->m_encrypt) {
-                uint32_t length = this->m_uint375 - node->m_datasize + node->m_size;
+                uint32_t length = this->m_sendEncryptedOpcodeSize - node->m_datasize + node->m_size;
 
                 if (length > node->m_size) {
                     length = node->m_size;
@@ -197,7 +198,7 @@ WC_SEND_RESULT WowConnection::SendPacket(CDataStore* msg, int32_t headroom) {
 
                 this->m_sendList.LinkToTail(node);
                 this->m_sendDepth++;
-                this->m_sendBytes += node->m_size;
+                this->m_sendDepthBytes += node->m_size;
 
                 if (this->m_sendDepth >= this->m_maxSendDepth) {
                     this->SetState(WOWC_DISCONNECTING);
@@ -231,7 +232,7 @@ WC_SEND_RESULT WowConnection::Send(uint8_t* data, int32_t size, bool raw) {
     this->m_lock.Enter();
 
     if (!raw && this->m_encrypt) {
-        int32_t length = this->m_uint375 + (size - 2 > 0x7FFF) + 2;
+        int32_t length = this->m_sendEncryptedOpcodeSize + (size - 2 > 0x7FFF) + 2;
 
         if (length > size) {
             length = size;
@@ -241,6 +242,7 @@ WC_SEND_RESULT WowConnection::Send(uint8_t* data, int32_t size, bool raw) {
     }
 
     if (size > 0 && this->m_connState == WOWC_CONNECTED) {
+        STORM_ASSERT(m_sock >= 0);
         if (!this->m_sendList.Head()) {
             int32_t sent = send(this->m_sock, reinterpret_cast<char*>(data), size, 0);
 
@@ -263,7 +265,7 @@ WC_SEND_RESULT WowConnection::Send(uint8_t* data, int32_t size, bool raw) {
             this->m_sendList.LinkToTail(node);
             result = WC_SEND_QUEUED;
             this->m_sendDepth++;
-            this->m_sendBytes += node->m_size;
+            this->m_sendDepthBytes += node->m_size;
             WowConnection::s_network->PlatformChangeState(this, this->m_connState);
         } else {
             result = WC_SEND_QUEUED;
@@ -271,7 +273,7 @@ WC_SEND_RESULT WowConnection::Send(uint8_t* data, int32_t size, bool raw) {
             WowConnection::SENDNODE* node = this->NewSendNodePacket(data, size, true);
             this->m_sendList.LinkToTail(node);
             this->m_sendDepth++;
-            this->m_sendBytes += node->m_size;
+            this->m_sendDepthBytes += node->m_size;
 
             if (this->m_sendDepth >= this->m_maxSendDepth) {
                 this->SetState(WOWC_DISCONNECTING);
@@ -342,7 +344,7 @@ void WowConnection::DoMessageReads() {
 
     while (true) {
         int32_t headerSize = 2;
-        int32_t packetSize = -1;
+        int32_t sizeWanted = -1;
 
         if (this->m_readBytes >= 2) {
             uint8_t* buffer = this->m_readBuffer;
@@ -351,10 +353,10 @@ void WowConnection::DoMessageReads() {
                 headerSize = 3;
 
                 if (this->m_readBytes >= 3) {
-                    packetSize = (buffer[2] | ((buffer[1] | ((buffer[0] & 0x7F) << 8)) << 8)) + 3;
+                    sizeWanted = (buffer[2] | ((buffer[1] | ((buffer[0] & 0x7F) << 8)) << 8)) + 3;
                 }
             } else {
-                packetSize = (buffer[1] | ((buffer[0] & 0x7F) << 8)) + 2;
+                sizeWanted = (buffer[1] | ((buffer[0] & 0x7F) << 8)) + 2;
             }
         }
 
@@ -368,23 +370,26 @@ void WowConnection::DoMessageReads() {
             }
         }
 
-        int32_t toRead;
+        int32_t sizeToRead;
 
-        if (packetSize >= 0) {
-            toRead = packetSize - this->m_readBytes;
+        if (sizeWanted >= 0) {
+            sizeToRead = sizeWanted - this->m_readBytes;
 
-            if (this->m_readBufferSize - this->m_readBytes < toRead) {
-                toRead = this->m_readBufferSize - this->m_readBytes;
+            if (this->m_readBufferSize - this->m_readBytes < sizeToRead) {
+                sizeToRead = this->m_readBufferSize - this->m_readBytes;
             }
+
+            STORM_ASSERT(sizeToRead <= sizeWanted - m_readBytes);
         } else {
-            toRead = headerSize - this->m_readBytes;
+            sizeToRead = headerSize - this->m_readBytes;
+            STORM_ASSERT(sizeToRead <= m_readBufferSize - m_readBytes);
         }
 
-        if (toRead <= 0) {
+        if (sizeToRead <= 0) {
             bytes = 0;
         } else {
             do {
-                bytes = recv(this->m_sock, reinterpret_cast<char*>(this->m_readBuffer + this->m_readBytes), toRead, 0);
+                bytes = recv(this->m_sock, reinterpret_cast<char*>(this->m_readBuffer + this->m_readBytes), sizeToRead, 0);
             } while (bytes < 0 && WSAGetLastError() == WSAEINTR);
 
             if (bytes <= 0) {
@@ -393,7 +398,7 @@ void WowConnection::DoMessageReads() {
         }
 
         if (this->m_encrypt) {
-            int32_t length = headerSize + this->m_uint376 - this->m_readBytes;
+            int32_t length = headerSize + this->m_receiveEncryptedOpcodeSize - this->m_readBytes;
 
             if (length <= 0) {
                 length = 0;
@@ -408,14 +413,14 @@ void WowConnection::DoMessageReads() {
 
         this->m_readBytes += bytes;
 
-        if (packetSize >= 0 && this->m_readBytes >= packetSize) {
-            CDataStore msg(this->m_readBuffer + headerSize, packetSize - headerSize);
+        if (sizeWanted >= 0 && this->m_readBytes >= sizeWanted) {
+            CDataStore msg(this->m_readBuffer + headerSize, sizeWanted - headerSize);
 
             this->AcquireResponseRef();
             WowConnectionResponse* response = this->m_response;
 
             if (WowConnection::s_lagTestDelayMin) {
-                WowConnection::SENDNODE* node = this->NewSendNodePacket(this->m_readBuffer + headerSize, packetSize - headerSize, true);
+                WowConnection::SENDNODE* node = this->NewSendNodePacket(this->m_readBuffer + headerSize, sizeWanted - headerSize, true);
                 this->m_lagTestRecvList.LinkToTail(node);
             } else if (response) {
                 this->m_lock.Leave();
@@ -572,22 +577,24 @@ void WowConnection::DoWrites() {
                 break;
             }
 
-            uint32_t bytes = node->m_size - node->m_offset;
+            uint32_t writeLen = node->m_size - node->m_offset;
+            STORM_ASSERT(static_cast<int32_t>(writeLen) >= 0); // 12213: "writeLen >= 0"
 
-            if (bytes >= 0x400) {
-                bytes = 0x400;
+            if (writeLen >= 0x400) {
+                writeLen = 0x400;
             }
 
-            if (bytes) {
-                int32_t sent = send(this->m_sock, reinterpret_cast<char*>(node->m_data + node->m_offset), bytes, 0);
+            if (writeLen) {
+                int32_t w = send(this->m_sock, reinterpret_cast<char*>(node->m_data + node->m_offset), writeLen, 0);
 
-                if (sent != static_cast<int32_t>(bytes)) {
-                    if (sent > 0) {
-                        node->m_offset += sent;
+                if (w != static_cast<int32_t>(writeLen)) {
+                    STORM_ASSERT(w < static_cast<int32_t>(writeLen)); // 12213: "w < writeLen"
+                    if (w > 0) {
+                        node->m_offset += w;
                         break;
                     }
 
-                    if (sent >= 0 || WSAGetLastError() == WSAEWOULDBLOCK) {
+                    if (w >= 0 || WSAGetLastError() == WSAEWOULDBLOCK) {
                         break;
                     }
 
@@ -596,13 +603,15 @@ void WowConnection::DoWrites() {
             }
 
             if (!disconnected) {
-                if (bytes == node->m_size - node->m_offset) {
+                if (writeLen == node->m_size - node->m_offset) {
                     this->m_sendList.UnlinkNode(node);
                     this->m_sendDepth--;
-                    this->m_sendBytes -= node->m_size;
+                    this->m_sendDepthBytes -= node->m_size;
+                    STORM_ASSERT(m_sendDepthBytes >= 0);
+                    STORM_ASSERT(m_sendDepth >= 0);
                     WDataStore::FreeBuffer(node, node->m_datasize + sizeof(WowConnection::SENDNODE) + 3);
                 } else {
-                    node->m_offset += bytes;
+                    node->m_offset += writeLen;
                 }
             }
 

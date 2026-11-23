@@ -181,6 +181,7 @@ void WowConnection::SetResponse(WowConnectionResponse* response, bool deferred) 
 // OFFSET: 0x00466750
 void WowConnection::AcquireResponseRef() {
     this->m_responseLock.Enter();
+    STORM_ASSERT(m_responseRef == 0 || GetState() == WOWC_LISTENING);
     this->m_responseRef++;
     this->m_responseRefThread = SGetCurrentThreadId();
     this->m_responseLock.Leave();
@@ -192,6 +193,7 @@ void WowConnection::ReleaseResponseRef() {
     this->m_responseLock.Enter();
 
     WowConnectionResponse* pendingResponse = this->m_pendingResponse;
+    STORM_ASSERT(m_responseRef > 0);
     this->m_responseRef--;
 
     if (pendingResponse) {
@@ -243,7 +245,7 @@ void WowConnection::Init(WowConnectionResponse* response, void (*threadInit)()) 
     this->m_pendingResponse = nullptr;
     this->m_maxSendDepth = 100000;
     this->m_sendDepth = 0;
-    this->m_sendBytes = 0;
+    this->m_sendDepthBytes = 0;
     this->m_oldsock = -1;
     this->m_notifyWriteReady = 0;
     this->unused_0144 = -1;
@@ -274,8 +276,7 @@ void WowConnection::Init(WowConnectionResponse* response, void (*threadInit)()) 
     this->m_readBufferSize = 0;
     this->m_event = nullptr;
     this->m_encrypt = false;
-    this->m_uint375 = 0;
-    this->m_uint376 = 0;
+    this->SetEncryptedOpcodeSizes(0, 0);
     memset(this->m_sendKeyInit, 0, sizeof(this->m_sendKeyInit));
     memset(this->m_receiveKeyInit, 0, sizeof(this->m_receiveKeyInit));
 

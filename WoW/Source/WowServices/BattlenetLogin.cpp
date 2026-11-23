@@ -476,7 +476,7 @@ void BattlenetApplication::Disconnect(uint32_t connection) {
 
     if (this->m_wowConnection) {
         this->m_wowConnection->Disconnect();
-        BattlenetLogin::LogConnectionStatus("Disconnected from %x", this->m_wowConnection->m_connectAddress);
+        BattlenetLogin::LogConnectionStatus("Disconnected from %x", this->m_wowConnection->GetConnectAddress());
     }
 }
 

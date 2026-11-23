@@ -8,7 +8,7 @@
 void WowConnectionNet::PlatformChangeState(WowConnection* connection, WOW_CONN_STATE state) {
     long networkEvents = 0;
 
-    switch (connection->m_connState) {
+    switch (connection->GetState()) {
         case WOWC_CONNECTING:
             networkEvents = FD_CONNECT | FD_CLOSE | FD_WRITE;
             break;
@@ -56,7 +56,7 @@ void WowConnectionNet::PlatformRun() {
 
             HANDLE event = connection->m_event;
 
-            switch (connection->m_connState) {
+            switch (connection->GetState()) {
                 case WOWC_CONNECTING:
                     WSAEventSelect(connection->m_sock, event, FD_CONNECT | FD_CLOSE);
                     break;
@@ -114,7 +114,7 @@ void WowConnectionNet::PlatformRun() {
                     flags |= SERVICE_WRITES;
                 }
 
-                if (connection->m_connState == WOWC_DISCONNECTING) {
+                if (connection->GetState() == WOWC_DISCONNECTING) {
                     flags |= SERVICE_DISCONNECT;
                 }
 
