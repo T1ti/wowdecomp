@@ -4256,7 +4256,7 @@ static void CacheVehicleUIIndicatorRec(int32_t id) {
     s_vehicleUIIndicatorTexture = indicator->m_backgroundTexture;
     s_vehicleUIIndicatorSeats.m_count = 0;
 
-    for (int32_t i = 1; i < g_vehicleUIIndSeatDB.m_maxID + 1; i++) {
+    for (int32_t i = 1; i < g_vehicleUIIndSeatDB.GetMaxID() + 1; i++) {
         VehicleUIIndSeatRec* seat = g_vehicleUIIndSeatDB.GetRecord(i);
 
         if (seat && seat->m_vehicleUiindicatorID == id) {

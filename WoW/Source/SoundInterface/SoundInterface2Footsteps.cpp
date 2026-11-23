@@ -107,7 +107,7 @@ FOOTSTEPSNDCACHE::FOOTSTEPSNDCACHE() {
 void SI2::InitFootstepSounds() {
     s_footstepSounds.Clear();
 
-    uint32_t count = g_terrainTypeSoundsDB.m_maxID + 1;
+    uint32_t count = g_terrainTypeSoundsDB.GetMaxID() + 1;
 
     for (int32_t i = g_footstepTerrainLookupDB.m_nNumRecords; i;) {
         i--;

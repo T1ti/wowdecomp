@@ -441,7 +441,7 @@ int32_t SI2::LookupSoundKitId(const char* name) {
 // VERIFY: 9c167174 manual
 // OFFSET: 0x004CD4A0
 void SI2::InitSoundKitLookup() {
-    uint32_t count = g_soundEntriesDB.m_maxID + 1;
+    uint32_t count = g_soundEntriesDB.GetMaxID() + 1;
     s_soundKitDefs.SetCount(count);
     memset(s_soundKitDefs.Ptr(), 0, sizeof(VSOUNDKITDEF*) * count);
 

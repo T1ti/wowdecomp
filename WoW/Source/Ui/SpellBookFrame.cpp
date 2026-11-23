@@ -206,9 +206,9 @@ void CGSpellBook::UpdateUsable() {
 // VERIFY: bcebf4cf manual
 // OFFSET: 0x0053F1F0
 void CGSpellBook::InitializeGame() {
-    s_knownSpellBits.m_count = g_spellDB.m_maxID + 1;
+    s_knownSpellBits.m_count = g_spellDB.GetMaxID() + 1;
     s_knownSpellBits.m_bits.SetCount(s_knownSpellBits.m_count ? ((s_knownSpellBits.m_count - 1) >> 5) + 1 : 0);
-    CGSpellBook::m_languageSpells.SetCount(g_languagesDB.m_maxID + 1);
+    CGSpellBook::m_languageSpells.SetCount(g_languagesDB.GetMaxID() + 1);
     CGSpellBook::ClearSpells();
     memset(s_petSpellList, 0, sizeof(s_petSpellList));
     CGSpellBook::m_numPetSpells = 0;
@@ -1354,7 +1354,7 @@ int32_t CGSpellBook::FindCompanionSlotByID(int32_t spellId, int32_t type) {
 // VERIFY: 67b33918 auto
 // OFFSET: 0x0053B900
 bool HasPetSpell(int32_t spellId) {
-    if (static_cast<uint32_t>(spellId) > static_cast<uint32_t>(g_spellDB.m_maxID)) {
+    if (static_cast<uint32_t>(spellId) > static_cast<uint32_t>(g_spellDB.GetMaxID())) {
         return false;
     }
 
@@ -1794,7 +1794,7 @@ bool CGSpellBook::IsUnlearnedSpell(int32_t spellId) {
 // VERIFY: 64002cc0 manual
 // OFFSET: 0x0053C5B0
 bool HasSpell(uint32_t spellId) {
-    return spellId <= static_cast<uint32_t>(g_spellDB.m_maxID) && s_knownSpellBits.IsSet(spellId);
+    return spellId <= static_cast<uint32_t>(g_spellDB.GetMaxID()) && s_knownSpellBits.IsSet(spellId);
 }
 
 // VERIFY: 230462f8 manual

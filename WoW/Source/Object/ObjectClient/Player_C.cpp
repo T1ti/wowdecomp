@@ -4748,7 +4748,7 @@ int16_t CGPlayer_C::GetSkillModifier(int32_t index) {
 // VERIFY: c0b0e280 auto
 // OFFSET: 0x006E7B00
 void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t slot, BOOL notify, int32_t addToSpellBook) {
-    if (spellId > g_spellDB.m_maxID) {
+    if (spellId > g_spellDB.GetMaxID()) {
         SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "NOSPELLIDFOUND|%d", spellId);
         return;
     }
@@ -7955,7 +7955,7 @@ int32_t OnUpdatePlayerAuraVision(WOWGUID guid, uint32_t offset, uint32_t count, 
 // VERIFY: 5071e977 manual
 // OFFSET: 0x006E71D0
 void CGPlayer_C::DelKnownSpell(int32_t spellId, BOOL silent) {
-    if (spellId > g_spellDB.m_maxID) {
+    if (spellId > g_spellDB.GetMaxID()) {
         SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "NOSPELLIDFOUND|%d", spellId);
         return;
     }

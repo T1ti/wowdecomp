@@ -1036,7 +1036,7 @@ int32_t SI2::ChaosModeUpdate(const void* data, void* param) {
         mode = s_chaosMode->m_intValue;
     }
 
-    static uint32_t s_maxSoundKitId = g_soundEntriesDB.m_maxID;
+    static uint32_t s_maxSoundKitId = g_soundEntriesDB.GetMaxID();
 
     C3Vector position;
     position.x = 0.0f;

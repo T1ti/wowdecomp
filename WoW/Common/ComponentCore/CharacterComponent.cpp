@@ -5334,7 +5334,7 @@ bool CCharacterComponent::Initialize(EGxTexFormat format, uint32_t mipLevels, BO
 
     TextureCacheResetLoadCount();
 
-    uint32_t count = 2 * g_chrRacesDB.m_maxID + 2;
+    uint32_t count = 2 * g_chrRacesDB.GetMaxID() + 2;
     CCharacterComponent::s_chrVarArrayLength = count;
     BuildComponentArray(count, &CCharacterComponent::s_chrVarArray);
     CountFacialFeatures(count, &CCharacterComponent::s_characterFacialHairStylesList);
@@ -5561,7 +5561,7 @@ bool CCharacterComponent::Init(ComponentData* data, const char* debug) {
     this->m_handItemDisplayID[1] = 0;
     this->m_handItemDisplayID[2] = 0;
 
-    if (static_cast<int32_t>(data->m_preferences.m_raceID) < 0 || static_cast<int32_t>(data->m_preferences.m_raceID) > g_chrRacesDB.m_maxID || !ComponentValidateBase(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID)) {
+    if (static_cast<int32_t>(data->m_preferences.m_raceID) < 0 || static_cast<int32_t>(data->m_preferences.m_raceID) > g_chrRacesDB.GetMaxID() || !ComponentValidateBase(CCharacterComponent::s_chrVarArray, this->m_data.m_preferences.m_raceID, this->m_data.m_preferences.m_sexID, CHARTEXTUREVAR_SKIN, 0, this->m_data.m_preferences.m_skinID)) {
         return false;
     }
 

@@ -15431,7 +15431,7 @@ void CGUnit_C::OnVisFlagChanged(uint8_t oldFlags) {
 // OFFSET: 0x007260E0
 bool CGUnit_C::IsSpellKnown(int32_t spellId) {
     if (this->IsActivePlayer()) {
-        if (static_cast<uint32_t>(spellId) <= static_cast<uint32_t>(g_spellDB.m_maxID)) {
+        if (static_cast<uint32_t>(spellId) <= static_cast<uint32_t>(g_spellDB.GetMaxID())) {
             return s_knownSpellBits.IsSet(spellId);
         }
     } else if (this->m_obj->m_guid == CGPetInfo::GetPet(0)) {

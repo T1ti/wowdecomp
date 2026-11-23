@@ -2527,7 +2527,7 @@ static int32_t Script_GetFramerate(lua_State* L) {
 // VERIFY: ee32b2a0 auto
 // OFFSET: 0x005165E0
 static int32_t Script_GetNumTitles(lua_State* L) {
-    lua_pushnumber(L, g_charTitlesDB.m_maxID + 1);
+    lua_pushnumber(L, g_charTitlesDB.GetMaxID() + 1);
     return 1;
 }
 

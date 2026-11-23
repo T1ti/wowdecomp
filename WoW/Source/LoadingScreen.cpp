@@ -249,7 +249,7 @@ static void BuildTiles() {
 void LoadingScreenInitialize() {
     g_theGxDevicePtr->ShaderCreate(s_vertexShader, GxSh_Vertex, "Shaders\\Vertex", "UI", 2);
     g_theGxDevicePtr->ShaderCreate(s_pixelShader, GxSh_Pixel, "Shaders\\Pixel", "UI", 1);
-    s_shipInfo.Initialize(&g_taxiPathNodeDB, g_taxiPathDB.m_maxID + 1);
+    s_shipInfo.Initialize(&g_taxiPathNodeDB, g_taxiPathDB.GetMaxID() + 1);
     BuildTiles();
 }
 

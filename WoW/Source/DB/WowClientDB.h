@@ -18,8 +18,11 @@ class WowClientDB_Base {
     public:
     /* 0004 */ BOOL m_loaded;
     /* 0008 */ int32_t m_nNumRecords;
+    private:
     /* 000C */ int32_t m_maxID;
     /* 0010 */ int32_t m_minID;
+
+    public:
     /* 0014 */ const char* m_strings;
 
     virtual ~WowClientDB_Base();
@@ -31,6 +34,19 @@ class WowClientDB_Base {
     }
 
     WowClientDB_Base();
+
+    protected:
+    int32_t GetMinID() const { // (inferred)
+        return this->m_minID;
+    }
+
+    void SetMaxID(int32_t maxID) { // (inferred)
+        this->m_maxID = maxID;
+    }
+
+    void SetMinID(int32_t minID) { // (inferred)
+        this->m_minID = minID;
+    }
 };
 
 template <class T>
@@ -158,8 +174,8 @@ void WowClientDB_Common<T>::Load(const char* file, int32_t line) {
 
     char* strings = static_cast<char*>(SMemAlloc(stringSize, file, line, 0));
     this->m_strings = strings;
-    this->m_maxID = 0;
-    this->m_minID = 0xFFFFFFF;
+    this->SetMaxID(0);
+    this->SetMinID(0xFFFFFFF);
 
     this->LoadRecords(f, file, line);
 
@@ -211,18 +227,18 @@ void WowClientDB<T>::LoadRecords(SFileImpl* f, const char* file, int32_t line) {
             id = this->m_records[i].m_id;
         }
 
-        this->m_maxID = id > this->m_maxID ? id : this->m_maxID;
-        this->m_minID = id < this->m_minID ? id : this->m_minID;
+        this->SetMaxID(id > this->GetMaxID() ? id : this->GetMaxID());
+        this->SetMinID(id < this->GetMinID() ? id : this->GetMinID());
     }
 
-    this->m_recordsById = new (__FILE__, __LINE__) T*[this->m_maxID - this->m_minID + 1];
-    memset(this->m_recordsById, 0, sizeof(T*) * (this->m_maxID - this->m_minID + 1));
+    this->m_recordsById = new (__FILE__, __LINE__) T*[this->GetMaxID() - this->GetMinID() + 1];
+    memset(this->m_recordsById, 0, sizeof(T*) * (this->GetMaxID() - this->GetMinID() + 1));
 
     for (int32_t i = 0; i < this->m_nNumRecords; i++) {
         if constexpr (T::s_generatedID) {
-            this->m_recordsById[this->m_records[i].m_generatedID - this->m_minID] = &this->m_records[i];
+            this->m_recordsById[this->m_records[i].m_generatedID - this->GetMinID()] = &this->m_records[i];
         } else {
-            this->m_recordsById[this->m_records[i].m_id - this->m_minID] = &this->m_records[i];
+            this->m_recordsById[this->m_records[i].m_id - this->GetMinID()] = &this->m_records[i];
         }
     }
 }
@@ -272,8 +288,8 @@ void WowClientDB<T>::Reset() {
     this->m_strings = nullptr;
     this->m_loaded = 0;
     this->m_nNumRecords = 0;
-    this->m_maxID = -1;
-    this->m_minID = 0xFFFFFFF;
+    this->SetMaxID(-1);
+    this->SetMinID(0xFFFFFFF);
 }
 
 // VERIFY: fe64b5f1 auto
@@ -287,11 +303,11 @@ void* WowClientDB<T>::GetRecordIndex() {
 // OFFSET: [0x0065C290<LiquidTypeRec>]
 template <class T>
 T* WowClientDB<T>::GetRecord(int32_t id) const {
-    if (id < this->m_minID || id > this->m_maxID) {
+    if (id < this->GetMinID() || id > this->GetMaxID()) {
         return nullptr;
     }
 
-    return this->m_recordsById[id - this->m_minID];
+    return this->m_recordsById[id - this->GetMinID()];
 }
 
 // INLINED
@@ -327,32 +343,32 @@ void WowClientDB_RLE<T>::LoadRecords(SFileImpl* f, const char* file, int32_t lin
             rec.Read(f, this->m_strings);
             compressedSize += CompressRow(reinterpret_cast<const uint8_t*>(&rec), sizeof(T), nullptr);
 
-            if (rec.m_id > this->m_maxID) {
-                this->m_maxID = rec.m_id;
+            if (rec.m_id > this->GetMaxID()) {
+                this->SetMaxID(rec.m_id);
             }
 
-            if (rec.m_id < this->m_minID) {
-                this->m_minID = rec.m_id;
+            if (rec.m_id < this->GetMinID()) {
+                this->SetMinID(rec.m_id);
             }
         } else {
             this->m_data[i].Read(f, this->m_strings);
 
-            if (this->m_data[i].m_id > this->m_maxID) {
-                this->m_maxID = this->m_data[i].m_id;
+            if (this->m_data[i].m_id > this->GetMaxID()) {
+                this->SetMaxID(this->m_data[i].m_id);
             }
 
-            if (this->m_data[i].m_id < this->m_minID) {
-                this->m_minID = this->m_data[i].m_id;
+            if (this->m_data[i].m_id < this->GetMinID()) {
+                this->SetMinID(this->m_data[i].m_id);
             }
         }
     }
 
     STORM_ASSERT(this->m_nNumRecords > 0);
 
-    T** index = static_cast<T**>(SMemAlloc(sizeof(T*) * this->m_nNumRecords + sizeof(T*) * (this->m_maxID - this->m_minID) + sizeof(T*), file, line, 0));
+    T** index = static_cast<T**>(SMemAlloc(sizeof(T*) * this->m_nNumRecords + sizeof(T*) * (this->GetMaxID() - this->GetMinID()) + sizeof(T*), file, line, 0));
     this->m_records = index;
     this->m_papRLErecordsByID = &index[this->m_nNumRecords];
-    memset(this->m_papRLErecordsByID, 0, sizeof(T*) * (this->m_maxID - this->m_minID) + sizeof(T*));
+    memset(this->m_papRLErecordsByID, 0, sizeof(T*) * (this->GetMaxID() - this->GetMinID()) + sizeof(T*));
 
     if (g_clientDbPerformCompress) {
         this->m_data = static_cast<T*>(SMemAlloc(compressedSize, file, line, 0));
@@ -363,13 +379,13 @@ void WowClientDB_RLE<T>::LoadRecords(SFileImpl* f, const char* file, int32_t lin
         for (int32_t i = 0; i < this->m_nNumRecords; i++) {
             rec.Read(f, this->m_strings);
             this->m_records[i] = reinterpret_cast<T*>(dst);
-            this->m_papRLErecordsByID[rec.m_id - this->m_minID] = reinterpret_cast<T*>(dst);
+            this->m_papRLErecordsByID[rec.m_id - this->GetMinID()] = reinterpret_cast<T*>(dst);
             dst += CompressRow(reinterpret_cast<const uint8_t*>(&rec), sizeof(T), dst);
         }
     } else {
         for (int32_t i = 0; i < this->m_nNumRecords; i++) {
             this->m_records[i] = &this->m_data[i];
-            this->m_papRLErecordsByID[this->m_data[i].m_id - this->m_minID] = &this->m_data[i];
+            this->m_papRLErecordsByID[this->m_data[i].m_id - this->GetMinID()] = &this->m_data[i];
         }
     }
 }
@@ -411,8 +427,8 @@ void WowClientDB_RLE<T>::Reset() {
     this->m_strings = nullptr;
     this->m_loaded = 0;
     this->m_nNumRecords = 0;
-    this->m_maxID = -1;
-    this->m_minID = 0xFFFFFFF;
+    this->SetMaxID(-1);
+    this->SetMinID(0xFFFFFFF);
 }
 
 template <class T>
@@ -441,11 +457,11 @@ int32_t WowClientDB_RLE<T>::GetRecordByIndex(int32_t index, T* rec) const {
 // OFFSET: [0x004CFD20<SpellRec>, 0x004CFD90<ItemDisplayInfoRec>, 0x007EB210]
 template <class T>
 int32_t WowClientDB_RLE<T>::GetRecord(int32_t id, T* rec) const {
-    if (id < this->m_minID || id > this->m_maxID) {
+    if (id < this->GetMinID() || id > this->GetMaxID()) {
         return 0;
     }
 
-    T** slot = &this->m_papRLErecordsByID[id - this->m_minID];
+    T** slot = &this->m_papRLErecordsByID[id - this->GetMinID()];
 
     if (!*slot) {
         return 0;
@@ -463,12 +479,12 @@ int32_t WowClientDB_RLE<T>::GetRecord(int32_t id, T* rec) const {
 // INLINED
 template <class T>
 int32_t WowClientDB_RLE<T>::RecordExists(int32_t id) const {
-    if (id < this->m_minID || id > this->m_maxID) {
+    if (id < this->GetMinID() || id > this->GetMaxID()) {
         return 0;
     }
 
     STORM_ASSERT(this->m_papRLErecordsByID);
-    return this->m_papRLErecordsByID[id - this->m_minID] != nullptr;
+    return this->m_papRLErecordsByID[id - this->GetMinID()] != nullptr;
 }
 
 // VERIFY: 040a5e1f auto

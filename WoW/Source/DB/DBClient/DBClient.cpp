@@ -1072,7 +1072,7 @@ void InitResistances() {
 // VERIFY: 88c5149f manual
 // OFFSET: 0x00634BA0
 void InitTerrainTypeFlags() {
-    uint32_t count = g_terrainTypeDB.m_maxID + 1;
+    uint32_t count = g_terrainTypeDB.GetMaxID() + 1;
     s_terrainTypeSoundIDs.SetCount(count);
 
     for (uint32_t i = 0; i < count; i++) {

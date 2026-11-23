@@ -43,7 +43,7 @@ inline DEATTHUDSOUNDINFO::DEATTHUDSOUNDINFO() : m_soundEntryId(0), m_soundEntryI
 // VERIFY: 1674f405 manual
 // OFFSET: 0x00747760
 static void UnitSoundLoadDeathThuds() {
-    int32_t maxSoundId = g_terrainTypeSoundsDB.m_maxID;
+    int32_t maxSoundId = g_terrainTypeSoundsDB.GetMaxID();
 
     for (int32_t i = 0; i < 5; i++) {
         s_deathThudSounds[i].SetCount(maxSoundId + 1);

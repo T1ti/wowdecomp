@@ -521,7 +521,7 @@ void SI2::StopAIMusic() {
 // VERIFY: 373e56ae manual
 // OFFSET: 0x004C9330
 void SI2::InitZoneIntros() {
-    uint32_t count = g_soundEntriesDB.m_maxID + 1;
+    uint32_t count = g_soundEntriesDB.GetMaxID() + 1;
     SI2::sm_aIntroMusicNextValidPlayTime.SetCount(count);
 
     for (uint32_t i = 0; i < count; i++) {

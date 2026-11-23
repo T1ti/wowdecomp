@@ -633,7 +633,7 @@ void CGTaxiMap::SetupMap(const WOWGUID& unit, int32_t currentNode, const uint64_
 // VERIFY: d4891602 manual
 // OFFSET: 0x005938D0
 void CGTaxiMap::InitializeGame() {
-    uint32_t maxNodeID = g_taxiNodesDB.m_maxID;
+    uint32_t maxNodeID = g_taxiNodesDB.GetMaxID();
     uint32_t maskSize = (maxNodeID >> 6) + 1;
 
     CGTaxiMap::m_unit.m_guid = 0;

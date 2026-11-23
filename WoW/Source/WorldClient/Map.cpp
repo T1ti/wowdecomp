@@ -836,7 +836,7 @@ void CMap::FootprintInitialize() {
 
     s_nextFootprint = 64;
     s_nextPlayerFootprint = 0;
-    s_footprintTextures.SetCount(g_footprintTexturesDB.m_maxID + 1);
+    s_footprintTextures.SetCount(g_footprintTexturesDB.GetMaxID() + 1);
 
     int32_t index = g_footprintTexturesDB.m_nNumRecords;
 

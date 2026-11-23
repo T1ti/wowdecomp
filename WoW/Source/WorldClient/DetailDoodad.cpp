@@ -454,7 +454,7 @@ void CDetailDoodad::DestroyModels() {
 void CDetailDoodad::Initialize() {
     CDetailDoodad::s_instHeap = new (__FILE__, __LINE__) uint32_t(ObjectAllocAddHeap(sizeof(CDetailDoodadInst), 16, "WDETAILDOODADINST", true));
 
-    uint32_t count = g_groundEffectDoodadDB.m_maxID + 1;
+    uint32_t count = g_groundEffectDoodadDB.GetMaxID() + 1;
     CDetailDoodad::s_doodadList.SetCount(count);
 
     for (uint32_t i = 0; i < CDetailDoodad::s_doodadList.Count(); i++) {

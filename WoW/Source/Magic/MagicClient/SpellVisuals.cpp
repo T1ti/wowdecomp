@@ -264,8 +264,8 @@ void SpellVisualsShutdownModelAttachLookup() {
 void SpellVisualsInitializeModelAttachLookup() {
     SpellVisualsShutdownModelAttachLookup();
 
-    uint32_t maxKitID = g_spellVisualKitDB.m_maxID <= 0 ? 0 : g_spellVisualKitDB.m_maxID;
-    uint32_t maxAttachID = g_spellVisualKitModelAttachDB.m_maxID <= 0 ? 0 : g_spellVisualKitModelAttachDB.m_maxID;
+    uint32_t maxKitID = g_spellVisualKitDB.GetMaxID() <= 0 ? 0 : g_spellVisualKitDB.GetMaxID();
+    uint32_t maxAttachID = g_spellVisualKitModelAttachDB.GetMaxID() <= 0 ? 0 : g_spellVisualKitModelAttachDB.GetMaxID();
 
     s_modelAttachLookup = new (SMemAlloc(sizeof(TSGrowableArray<TSGrowableArray<const SpellVisualKitModelAttachRec*>*>), __FILE__, __LINE__, 0)) TSGrowableArray<TSGrowableArray<const SpellVisualKitModelAttachRec*>*>();
     s_modelAttachLookup->GrowToFit(maxKitID, 1);

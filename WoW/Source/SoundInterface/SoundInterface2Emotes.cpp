@@ -64,7 +64,7 @@ void SI2::InitEmoteSounds() {
         return;
     }
 
-    s_textEmoteLookupById.SetCount(g_emotesTextDB.m_maxID + 1);
+    s_textEmoteLookupById.SetCount(g_emotesTextDB.GetMaxID() + 1);
     memset(s_textEmoteLookupById.Ptr(), 0, sizeof(TEXTEMOTELOOKUP*) * s_textEmoteLookupById.Count());
 
     int32_t last = -1;
