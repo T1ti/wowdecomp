@@ -364,7 +364,7 @@ void CMapRenderChunk::CreateLayer(CMapArea* area, SMLayer* layer, int32_t checkD
     CMapAreaTexture* areaTexture = &area->m_textures[layer->m_textureId];
 
     if (!areaTexture->m_texture) {
-        area->LoadTerrainTexture(areaTexture, layer->m_textureId);
+        area->LoadTerrainTexture(*areaTexture, layer->m_textureId);
     }
 
     renderLayer->m_texture = areaTexture->m_texture;

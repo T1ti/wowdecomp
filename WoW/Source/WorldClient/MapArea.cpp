@@ -158,8 +158,8 @@ void CMapArea::BatchChunks(const C2iVector& pos) {
 
 // VERIFY: bb694f33 manual
 // OFFSET: 0x007D6980
-void CMapArea::LoadTerrainTexture(CMapAreaTexture* mapAreaTexture, int32_t textureId) {
-    STORM_ASSERT(mapAreaTexture->m_texture == NULL);  // 12213: "mapAreaTexture.m_texture == __null"
+void CMapArea::LoadTerrainTexture(CMapAreaTexture& mapAreaTexture, int32_t textureId) {
+    STORM_ASSERT(mapAreaTexture.m_texture == NULL);  // 12213: "mapAreaTexture.m_texture == __null"
 
     bool shaders = g_theGxDevicePtr->Caps().m_texTarget[1] && g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Vertex] && g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel];
 
@@ -171,22 +171,23 @@ void CMapArea::LoadTerrainTexture(CMapAreaTexture* mapAreaTexture, int32_t textu
 
     if ((flags & TEXTURE_FLAG_NO_SPECULAR) || !CMap::enableSpecularTerrain) {
         if (!(flags & TEXTURE_FLAG_NO_SPECULAR) || shaders) {
-            mapAreaTexture->m_texture = CMap::LoadTexture(mapAreaTexture->m_texName);
+            mapAreaTexture.m_texture = CMap::LoadTexture(mapAreaTexture.m_texName);
         } else {
             CImVector color;
             color.b = 0x00;
             color.g = 0x00;
             color.r = 0x00;
             color.a = 0xFF;
-            mapAreaTexture->m_texture = TextureCreateSolid(color);
+            mapAreaTexture.m_texture = TextureCreateSolid(color);
         }
     } else {
         char fileName[256];
-        SStrCopy(fileName, mapAreaTexture->m_texName, STORM_MAX_STR);
+        STORM_ASSERT((SStrLen(mapAreaTexture.m_texName) + 2) < sizeof(fileName)); // 12213: "(SStrLen(mapAreaTexture.m_texName) + 2) < 260"
+        SStrCopy(fileName, mapAreaTexture.m_texName, STORM_MAX_STR);
         char* dot = SStrChrR(fileName, '.');
         STORM_ASSERT(dot);
         SStrCopy(dot, "_s.blp", STORM_MAX_STR);
-        mapAreaTexture->m_texture = CMap::LoadTexture(fileName);
+        mapAreaTexture.m_texture = CMap::LoadTexture(fileName);
     }
 }
 
@@ -298,7 +299,7 @@ void CMapArea::LoadTextures(char* texNames, uint32_t fileNamesSize) {
         areaTexture->m_texture = nullptr;
 
         if (!streaming) {
-            this->LoadTerrainTexture(&this->m_textures.m_data[this->m_textures.Count() - 1], this->m_textures.Count() - 1);
+            this->LoadTerrainTexture(this->m_textures.m_data[this->m_textures.Count() - 1], this->m_textures.Count() - 1);
         }
 
         while (texNames[offset]) {
@@ -315,32 +316,64 @@ void CMapArea::ProcessIffChunks() {
     STORM_ASSERT(CMap::bActive);
     STORM_ASSERT(this->rawAreaData);  // 12213: "data"
 
-    SIffChunk* version = static_cast<SIffChunk*>(this->rawAreaData);
-    uint8_t* header = reinterpret_cast<uint8_t*>(&version->m_data) + version->m_size + offsetof(SIffChunk, m_data);
+    SIffChunk* mIffChunk = static_cast<SIffChunk*>(this->rawAreaData);
+    STORM_ASSERT(mIffChunk->token == SIffChunk::TOKEN_MVER); // 12213: "mIffChunk->token == 'MVER'"
+#if defined(WOWDECOMP_ASSERTIONS)
+    const uint32_t adtVersion = *reinterpret_cast<const uint32_t*>(&mIffChunk->m_data);
+    STORM_ASSERT(adtVersion == 0x0012);
+#endif
 
+    auto* headerChunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&mIffChunk->m_data) + mIffChunk->m_size);
+    mIffChunk = headerChunk;
+    STORM_ASSERT(mIffChunk->token == SIffChunk::TOKEN_MHDR); // 12213: "mIffChunk->token == 'MHDR'"
+    uint8_t* header = reinterpret_cast<uint8_t*>(&headerChunk->m_data);
     this->m_header = reinterpret_cast<SMAreaHeader*>(header);
-    this->m_chunkInfo = reinterpret_cast<SMChunkInfo*>(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_mcin)->m_data);
-    char* textureNames = reinterpret_cast<char*>(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_mtex)->m_data);
-    this->m_doodadDef = reinterpret_cast<SMDoodadDef*>(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_mddf)->m_data);
-    this->m_mapObjDef = reinterpret_cast<SMMapObjDef*>(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_modf)->m_data);
-    this->m_m2FileNames = reinterpret_cast<char*>(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_mmdx)->m_data);
-    this->m_wmoFileNames = reinterpret_cast<char*>(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_mwmo)->m_data);
-    this->m_modelFilenamesOffsets = reinterpret_cast<uint32_t*>(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_mmid)->m_data);
-    this->m_wmoFilenamesOffsets = reinterpret_cast<uint32_t*>(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_mwid)->m_data);
+    mIffChunk = reinterpret_cast<SIffChunk*>(header + this->m_header->m_mcin);
+    STORM_ASSERT(mIffChunk->token == SIffChunk::TOKEN_MCIN); // 12213: "mIffChunk->token == 'MCIN'"
+    this->m_chunkInfo = reinterpret_cast<SMChunkInfo*>(&mIffChunk->m_data);
+    mIffChunk = reinterpret_cast<SIffChunk*>(header + this->m_header->m_mtex);
+    STORM_ASSERT(mIffChunk->token == SIffChunk::TOKEN_MTEX); // 12213: "mIffChunk->token == 'MTEX'"
+    char* textureNames = reinterpret_cast<char*>(&mIffChunk->m_data);
+    mIffChunk = reinterpret_cast<SIffChunk*>(header + this->m_header->m_mddf);
+    STORM_ASSERT(mIffChunk->token == SIffChunk::TOKEN_MDDF); // 12213: "mIffChunk->token == 'MDDF'"
+    this->m_doodadDef = reinterpret_cast<SMDoodadDef*>(&mIffChunk->m_data);
+    mIffChunk = reinterpret_cast<SIffChunk*>(header + this->m_header->m_modf);
+    STORM_ASSERT(mIffChunk->token == SIffChunk::TOKEN_MODF); // 12213: "mIffChunk->token == 'MODF'"
+    this->m_mapObjDef = reinterpret_cast<SMMapObjDef*>(&mIffChunk->m_data);
+    mIffChunk = reinterpret_cast<SIffChunk*>(header + this->m_header->m_mmdx);
+    STORM_ASSERT(mIffChunk->token == SIffChunk::TOKEN_MMDX); // 12213: "mIffChunk->token == 'MMDX'"
+    this->m_m2FileNames = reinterpret_cast<char*>(&mIffChunk->m_data);
+    mIffChunk = reinterpret_cast<SIffChunk*>(header + this->m_header->m_mwmo);
+    STORM_ASSERT(mIffChunk->token == SIffChunk::TOKEN_MWMO); // 12213: "mIffChunk->token == 'MWMO'"
+    this->m_wmoFileNames = reinterpret_cast<char*>(&mIffChunk->m_data);
+    mIffChunk = reinterpret_cast<SIffChunk*>(header + this->m_header->m_mmid);
+    STORM_ASSERT(mIffChunk->token == SIffChunk::TOKEN_MMID); // 12213: "mIffChunk->token == 'MMID'"
+    this->m_modelFilenamesOffsets = reinterpret_cast<uint32_t*>(&mIffChunk->m_data);
+    mIffChunk = reinterpret_cast<SIffChunk*>(header + this->m_header->m_mwid);
+    STORM_ASSERT(mIffChunk->token == SIffChunk::TOKEN_MWID); // 12213: "mIffChunk->token == 'MWID'"
+    this->m_wmoFilenamesOffsets = reinterpret_cast<uint32_t*>(&mIffChunk->m_data);
 
     if (this->m_header->m_flags & SMAreaHeader::FLAGS::HAS_FLYING_BBOX) {
-        this->m_flyingBbox = reinterpret_cast<int16_t*>(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_mfbo)->m_data);
+        mIffChunk = reinterpret_cast<SIffChunk*>(header + this->m_header->m_mfbo);
+        STORM_ASSERT(mIffChunk->token == SIffChunk::TOKEN_MFBO); // 12213: "mIffChunk->token == 'MFBO'"
+        this->m_flyingBbox = reinterpret_cast<int16_t*>(&mIffChunk->m_data);
     }
 
-    if (this->m_header->m_mh2o && reinterpret_cast<SIffChunk*>(header + this->m_header->m_mh2o)->m_size) {
-        void* mem = SMemAlloc(sizeof(Liquid::CAreaData), __FILE__, __LINE__, 0);
-        Liquid::CAreaData* liquid = mem ? new (mem) Liquid::CAreaData(nullptr) : nullptr;
-        this->m_liquid = liquid;
-        liquid->SetData(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_mh2o)->m_data);
+    if (this->m_header->m_mh2o) {
+        mIffChunk = reinterpret_cast<SIffChunk*>(header + this->m_header->m_mh2o);
+        STORM_ASSERT(mIffChunk->token == SIffChunk::TOKEN_MH2O); // 12213: "mIffChunk->token == 'MH2O'"
+        if (mIffChunk->m_size) {
+            void* mem = SMemAlloc(sizeof(Liquid::CAreaData), __FILE__, __LINE__, 0);
+            Liquid::CAreaData* liquid = mem ? new (mem) Liquid::CAreaData(nullptr) : nullptr;
+            this->m_liquid = liquid;
+            liquid->SetData(&mIffChunk->m_data);
+        }
     }
 
     if (this->m_header->m_mtxf) {
-        this->m_textureFlags = reinterpret_cast<int32_t*>(&reinterpret_cast<SIffChunk*>(header + this->m_header->m_mtxf)->m_data);
+        mIffChunk = reinterpret_cast<SIffChunk*>(header + this->m_header->m_mtxf);
+        STORM_ASSERT(mIffChunk->token == SIffChunk::TOKEN_MTXF); // 12213: "mIffChunk->token == 'MTXF'"
+        this->m_textureFlags = reinterpret_cast<int32_t*>(&mIffChunk->m_data);
     }
 
     this->LoadTextures(textureNames, reinterpret_cast<SIffChunk*>(header + this->m_header->m_mtex)->m_size);

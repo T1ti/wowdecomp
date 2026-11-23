@@ -87,9 +87,12 @@ class CMapArea : public CMapBaseObj {
         return this->GetChunk(cellX >> MAP_CELL_TO_CHUNK_SHIFT, cellY >> MAP_CELL_TO_CHUNK_SHIFT);
     }
     void Load(const char* fileName);
+    void LoadTerrainTexture(CMapAreaTexture& mapAreaTexture, int32_t textureId);
+    private:
     void LoadTextures(char* texNames, uint32_t fileNamesSize);
-    void LoadTerrainTexture(CMapAreaTexture* mapAreaTexture, int32_t textureId);
     void ProcessIffChunks();
+
+    public:
     CMapChunk* PrepareChunk(int32_t x, int32_t y);
     void PurgeChunks(CiRect* chunkRect);
     static void PurgeChunk(CMapChunk* chunk);
