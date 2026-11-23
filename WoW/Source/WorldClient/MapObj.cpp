@@ -174,7 +174,8 @@ CMapObj::LIGHTING_MODE CMapObj::s_lightingMode;
 static uint32_t s_smolVertCacheSize;
 
 // STATIC: 0x00D1BF00
-static SMOLVert s_smolVertCache[64];
+static constexpr uint32_t MAX_SMOLVERTCACHE_SIZE = 64;
+static SMOLVert s_smolVertCache[MAX_SMOLVERTCACHE_SIZE];
 
 // VERIFY: 7a37847b auto
 // OFFSET: 0x007A6140
@@ -296,7 +297,7 @@ float CMapObj::CalcPortalFarthestDistance(SMOPortal* portal) {
 
 // VERIFY: ceb264eb manual
 // OFFSET: 0x007A7210
-void CMapObj::ClassifyPortalPlane(SMOPortal* portal, SPortalExt* portalExt) {
+void CMapObj::ClassifyPortalPlane(const SMOPortal* portal, SPortalExt* portalExt) {
     float dist = portal->m_plane.n.y * s_camPosLocal.y + portal->m_plane.n.z * s_camPosLocal.z + portal->m_plane.n.x * s_camPosLocal.x + portal->m_plane.d;
 
     if (dist > -0.01f && dist < 0.01f && NTempest::Intersect(s_camPosLocal, &this->m_portalVertexList[portal->m_startVertex], portal->m_count, portal->m_plane.n.MajorAxis())) {
@@ -465,6 +466,8 @@ static void __stdcall WriteLiquidVertex(CMapObjGroup* group, const C44Matrix& ma
 // VERIFY: be9e0132 manual
 // OFFSET: 0x007A7E50
 static void* PolyClipVtxLerpTexCoords(const void* a, const void* b, float t) {
+    STORM_ASSERT(s_smolVertCacheSize < MAX_SMOLVERTCACHE_SIZE);
+
     const uint16_t* from = static_cast<const uint16_t*>(a);
     const uint16_t* to = static_cast<const uint16_t*>(b);
     uint16_t* vert = reinterpret_cast<uint16_t*>(&s_smolVertCache[s_smolVertCacheSize++]);
@@ -477,6 +480,8 @@ static void* PolyClipVtxLerpTexCoords(const void* a, const void* b, float t) {
 // VERIFY: 734af3f1 manual
 // OFFSET: 0x007A7F00
 static void* PolyClipVtxLerpDepth(const void* a, const void* b, float t) {
+    STORM_ASSERT(s_smolVertCacheSize < MAX_SMOLVERTCACHE_SIZE);
+
     const uint8_t* from = static_cast<const uint8_t*>(a);
     const uint8_t* to = static_cast<const uint8_t*>(b);
     uint8_t* vert = reinterpret_cast<uint8_t*>(&s_smolVertCache[s_smolVertCacheSize++]);
@@ -835,7 +840,10 @@ void CMapObj::AddExteriorPortalView(SMOPortal* portal, SMOPortalRef* ref, SPorta
 
 // VERIFY: 9de874f4 manual
 // OFFSET: 0x007A9090
-void CMapObj::TransformPortal(SMOPortal* portal, SPortalExt* portalExt) {
+void CMapObj::TransformPortal(const SMOPortal* portal, SPortalExt* portalExt) {
+    STORM_ASSERT(portal);
+    STORM_ASSERT(portalExt);
+
     this->ClassifyPortalPlane(portal, portalExt);
 
     C3Vector* clipped = nullptr;
@@ -1004,7 +1012,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
         g_theGxDevicePtr->RsSet(GxRs_Texture1, gxTex1);
         effect->SetCurrent();
 
-        if (i >= group->m_transparencyBatchesCount) {
+        if (i >= group->transBatchCount) {
             if (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK) {
                 CMapObjGroup::SetLighting(group, (material.m_flags & SMOMaterial::F_UNLIT) == 0);
                 if (s_shadowInterior) {
@@ -1361,6 +1369,9 @@ void CMapObj::ExteriorRender(CMapObjGroup* group, uint32_t index) {
         return;
     }
 
+    STORM_ASSERT(group->transBatchCount == 0);
+    STORM_ASSERT(group->intBatchCount == 0);
+
     group->m_timer = 0.0f;
     group->AllocVB();
     group->SetIndexVB();
@@ -1559,8 +1570,8 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
         g_theGxDevicePtr->RsSet(GxRs_Texture1, gxTex1);
         effect->SetCurrent();
 
-        if (i >= group->m_transparencyBatchesCount) {
-            bool interiorBatch = i < static_cast<uint32_t>(group->m_transparencyBatchesCount + group->m_intBatchCount);
+        if (i >= group->transBatchCount) {
+            bool interiorBatch = i < static_cast<uint32_t>(group->transBatchCount + group->intBatchCount);
             SetShaderFogFromDayNight((material.m_flags & SMOMaterial::F_UNFOGGED) == 0 ? fogMode : CMapObj::SHADER_FOG_MODE::DISABLED);
 
             if (interiorBatch) {
@@ -1734,7 +1745,9 @@ void CMapObj::PrepareUpdate() {
 
 // VERIFY: d0b199c6 manual
 // OFFSET: 0x007AD1F0
-void CMapObj::RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget, TSGrowableArray<uint32_t>* groups) {
+void CMapObj::RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget, TSGrowableArray<uint32_t>* inGroups) {
+    STORM_ASSERT(inGroups->Count()); // 12213: "inGroups.Count()"
+
     this->SetupMapObjDefCull(mat, invMat, worldPos, camTarget);
     s_interiorPass = 1;
     CWorldScene::s_interiorGroupRendered = 0;
@@ -1752,18 +1765,21 @@ void CMapObj::RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldP
     ndcRect.maxY = 1.0f;
     ndcRect.maxX = 1.0f;
 
-    for (uint32_t i = 0; i < groups->Count(); i++) {
-        CMapObjGroup* group = this->GetGroup(groups->m_data[i], 0);
+    for (uint32_t i = 0; i < inGroups->Count(); i++) {
+        CMapObjGroup* group = this->GetGroup(inGroups->m_data[i], 0);
 
         if (!group) {
             continue;
         }
 
+        // 12213: "(group->flags & SMOGroup::EXTERIOR) == 0"
+        STORM_ASSERT((group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR) == 0);
+
         if (!(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
             CWorldScene::s_interiorGroupRendered = 1;
         }
 
-        this->RenderThruPortals(groups->m_data[i], 0xFFFF, ndcRect, 0, 1);
+        this->RenderThruPortals(inGroups->m_data[i], 0xFFFF, ndcRect, 0, 1);
     }
 
     CWorldScene::FrustumPop();
@@ -1858,6 +1874,15 @@ void CMapObj::AsyncFailedCallback(CAsyncObject* object) {
 // VERIFY: f7f5970e auto
 // OFFSET: 0x007AE1A0
 void CMapObj::ReadGroup(uint32_t index) {
+#if defined(WOWDECOMP_ASSERTIONS)
+    const CMapObjGroup* group = this->groupPtrList[index];
+    STORM_ASSERT(group);
+    // 12213: "group->rawData == __null"
+    STORM_ASSERT(group->rawData == nullptr);
+    // 12213: "group->asyncObject == __null"
+    STORM_ASSERT(group->asyncObject == nullptr);
+#endif
+
     this->ReadGroup(index, false);
 }
 
@@ -1928,8 +1953,9 @@ void CMapObj::Clear() {
 
 // VERIFY: c6f5dc77 manual
 // OFFSET: 0x007AE4C0
-BOOL CMapObj::IsGroupLoaded(int32_t index) {
+BOOL CMapObj::IsGroupLoaded(int32_t index) const {
     if (this->m_isGroupLoaded) {
+        STORM_ASSERT(groupPtrList[index]);
         return this->groupPtrList[index]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED;
     }
 
@@ -1938,8 +1964,13 @@ BOOL CMapObj::IsGroupLoaded(int32_t index) {
 
 // VERIFY: 2a027261 manual
 // OFFSET: 0x007AE4F0
-BOOL CMapObj::IsGroupLoading(int32_t index) {
-    return this->m_isGroupLoaded && this->groupPtrList[index]->m_asyncObjPtr != nullptr;
+BOOL CMapObj::IsGroupLoading(int32_t index) const {
+    if (!this->m_isGroupLoaded) {
+        return 0;
+    }
+
+    STORM_ASSERT(groupPtrList[index]);
+    return this->groupPtrList[index]->asyncObject != nullptr;
 }
 
 // VERIFY: bd150d57 manual
@@ -2084,8 +2115,11 @@ CMapObjGroup* CMapObj::GetGroup(int32_t index, BOOL allowUnloaded) {
 void CMapObj::WaitLoadGroup(uint32_t index) {
     CMapObjGroup* group = this->groupPtrList[index];
 
-    while (group->m_asyncObjPtr) {
-        AsyncFileReadWait(group->m_asyncObjPtr);
+    STORM_ASSERT(group);
+
+    while (group->asyncObject) {
+        STORM_ASSERT(group->asyncObject);
+        AsyncFileReadWait(group->asyncObject);
     }
 }
 
@@ -2235,6 +2269,8 @@ void CMapObj::Initialize() {
     CMapObj::s_unifiedShaders[CMapObj::SHADER_TYPE::COMPOSITE] = CShaderEffectManager::GetEffect("MapObjUComposite");
 
     CMapObj::bPoolsDirty = 1;
+    // 12213: "occluderHeap == __null"
+    STORM_ASSERT(occluderHeap == nullptr);
     CMapObj::occluderHeap = new (__FILE__, __LINE__) uint32_t(ObjectAllocAddHeap(sizeof(CMapObjOccluder), 128, "MAPOBJOCC", true));
 }
 
@@ -3859,7 +3895,7 @@ void CMapObj::RenderGroupRenderFaces(CMapObjGroup* group, uint32_t index) {
 // VERIFY: ac639cbe manual
 // OFFSET: 0x007AAE00
 void CMapObj::RenderGroupTransFaces(CMapObjGroup* group, uint32_t index) {
-    if (index || !group->m_transparencyBatchesCount) {
+    if (index || !group->transBatchCount) {
         return;
     }
 
@@ -4129,7 +4165,7 @@ void CMapObj::ProcessAsyncLoadQueue() {
     uint32_t count = 0;
 
     for (CMapObjGroup* group = CMapObj::s_loadedGroups.Head(); group; group = CMapObj::s_loadedGroups.Next(group)) {
-        if (group->m_asyncObjPtr) {
+        if (group->asyncObject) {
             pending[count++] = group;
         }
     }
@@ -4142,7 +4178,7 @@ void CMapObj::ProcessAsyncLoadQueue() {
             CMapObjGroup* group = static_cast<CMapObjGroup*>(pending[i]);
 
             if (group->m_distToCamera < 40000.0f) {
-                CAsyncObject* object = group->m_asyncObjPtr;
+                CAsyncObject* object = group->asyncObject;
 
                 if (object->isCurrent || object->isRead || object->isProcessed) {
                     continue;

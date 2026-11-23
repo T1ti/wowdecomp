@@ -248,8 +248,8 @@ class CMapObjGroup {
     /* 0050 */ int32_t m_portalStart;
     /* 0054 */ int32_t m_portalCount;
     /* 0058 */ uint8_t m_fogs [4];
-    /* 005C */ uint16_t m_transparencyBatchesCount;
-    /* 005E */ uint16_t m_intBatchCount;
+    /* 005C */ uint16_t transBatchCount;
+    /* 005E */ uint16_t intBatchCount;
     /* 0060 */ uint16_t m_extBatchCount;
     /* 0062 */ uint8_t unused_0062[2];
     /* 0064 */ CAaBsp m_aaBsp;
@@ -300,11 +300,11 @@ class CMapObjGroup {
     /* 0178 */ int32_t m_colorVertexListSize;
     /* 017C */ int32_t m_colorVertexListExtraSize;
     /* 0180 */ int32_t m_wmoGroupId;
-    /* 0184 */ void* m_filePtr;
+    /* 0184 */ void* rawData;
     /* 0188 */ int32_t m_fileSize;
     /* 018C */ CMapObj* m_parent;
     /* 0190 */ float unused_0190;
-    /* 0194 */ CAsyncObject* m_asyncObjPtr;
+    /* 0194 */ CAsyncObject* asyncObject;
     /* 0198 */ uint32_t m_runtimeFlags; // RUNTIME_FLAGS
     /* 019C */ uint32_t m_indexMin;
     /* 01A0 */ uint32_t m_indexMax;

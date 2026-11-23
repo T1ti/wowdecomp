@@ -916,7 +916,7 @@ void CMapObjGroup::FillVertexVB(CGxBuf* buf, EGxVertexBufferFormat format) {
 // VERIFY: 745d4cbb manual
 // OFFSET: 0x007C8A70
 void CMapObjGroup::FillTransparencyVB(CGxBuf* buf) {
-    uint32_t count = this->m_batchList[this->m_transparencyBatchesCount - 1].m_vertexEnd + 1;
+    uint32_t count = this->m_batchList[this->transBatchCount - 1].m_vertexEnd + 1;
     CGxVertexPNCT* vertex = reinterpret_cast<CGxVertexPNCT*>(g_theGxDevicePtr->BufLock(buf));
 
     for (uint32_t i = 0; i < count; i++, vertex++) {
@@ -982,10 +982,10 @@ void CMapObjGroup::Init() {
     this->m_bbox.t = C3Vector(0.0f, 0.0f, 0.0f);
     this->unused_00D0 = 0;
     this->m_minimapTag = 0;
-    this->m_filePtr = nullptr;
+    this->rawData = nullptr;
     this->m_fileSize = 0;
     this->m_parent = nullptr;
-    this->m_asyncObjPtr = nullptr;
+    this->asyncObject = nullptr;
     this->m_portalStart = 0;
     this->m_portalCount = 0;
     for (uint32_t i = 0; i < sizeof(this->m_fogs) / sizeof(this->m_fogs[0]); i++) {
@@ -1033,7 +1033,7 @@ void CMapObjGroup::SetVertexVB() {
 // VERIFY: a3616c6f auto
 // OFFSET: 0x007C9D20
 void CMapObjGroup::SetTransparencyVB() {
-    CGxBuf* buf = this->m_transparencyVertsBlock ? this->m_transparencyVertsBlock->buf : g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPNCT), this->m_batchList[this->m_transparencyBatchesCount - 1].m_vertexEnd + 1);
+    CGxBuf* buf = this->m_transparencyVertsBlock ? this->m_transparencyVertsBlock->buf : g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPNCT), this->m_batchList[this->transBatchCount - 1].m_vertexEnd + 1);
 
     if (!buf->m_hasData || !buf->m_valid) {
         this->FillTransparencyVB(buf);
@@ -1480,8 +1480,8 @@ void CMapObjGroup::AllocVB() {
         CMapObjGroup::vertexVBList.AllocVBB(&this->m_vertsBlock, vertexSize, this->m_vertexListCount);
     }
 
-    if (!CShaderEffect::s_enableShaders && (this->m_parent->m_header->m_flags & SMOHeader::FLAGS::UNIFIED_RENDER) && this->cvertexList && this->m_transparencyBatchesCount && !this->m_transparencyVertsBlock) {
-        uint32_t count = this->m_batchList[this->m_transparencyBatchesCount - 1].m_vertexEnd + 1;
+    if (!CShaderEffect::s_enableShaders && (this->m_parent->m_header->m_flags & SMOHeader::FLAGS::UNIFIED_RENDER) && this->cvertexList && this->transBatchCount && !this->m_transparencyVertsBlock) {
+        uint32_t count = this->m_batchList[this->transBatchCount - 1].m_vertexEnd + 1;
         CMapObjGroup::vertexVBList.AllocVBB(&this->m_transparencyVertsBlock, GxVertexSize(GxVBF_PNCT), count);
     }
 
@@ -1555,9 +1555,9 @@ void CMapObjGroup::FreeLiquidVB() {
 void CMapObjGroup::Clear() {
     int32_t freeFile = 1;
 
-    if (this->m_asyncObjPtr) {
-        freeFile = AsyncFile::Cancel(this->m_asyncObjPtr, CMapObjGroup::AsyncFailedCallback);
-        this->m_asyncObjPtr = nullptr;
+    if (this->asyncObject) {
+        freeFile = AsyncFile::Cancel(this->asyncObject, CMapObjGroup::AsyncFailedCallback);
+        this->asyncObject = nullptr;
     }
 
     this->m_aaBsp.Clear();
@@ -1570,12 +1570,12 @@ void CMapObjGroup::Clear() {
 
     this->InitPtrs();
 
-    if (this->m_filePtr) {
+    if (this->rawData) {
         if (freeFile) {
-            SMemFree(this->m_filePtr, __FILE__, __LINE__, 0);
+            SMemFree(this->rawData, __FILE__, __LINE__, 0);
         }
 
-        this->m_filePtr = nullptr;
+        this->rawData = nullptr;
     }
 
     CMapObjOccluder* occluder = this->m_occluderList.Head();

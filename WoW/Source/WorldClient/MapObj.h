@@ -108,7 +108,6 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     static RENDER_CALLBACK gRenderCallback;
     static void* gRenderUserParam;
     static int32_t bPoolsDirty;
-    static uint32_t* occluderHeap;
     static RENDER_MODE s_renderMode;
     static void (CMapObj::*s_renderGroupExterior)(CMapObjGroup* group, uint32_t index);
     static void (CMapObj::*s_renderGroupInterior)(CMapObjGroup* group, uint32_t index);
@@ -234,10 +233,10 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     void QueryMapObjMinimapGroup(int32_t groupNum, int32_t fromGroup, CAaBox* box, TSStackArray<MINIMAPQUADINFO>* quads, uint32_t maxQuads, int32_t inside, uint32_t flagsMask, uint32_t depth);
     void GetMinimapQuads(CAaBox* box, TSStackArray<MINIMAPQUADINFO>* quads, uint32_t maxQuads);
     SMOGroupInfo* GetGroupInfo(int32_t index);
-    BOOL IsGroupLoaded(int32_t index);
+    BOOL IsGroupLoaded(int32_t index) const;
     char* GetGroupName(int32_t index);
     CMapObjGroup* GetGroup(int32_t index, BOOL allowUnloaded);
-    BOOL IsGroupLoading(int32_t index);
+    BOOL IsGroupLoading(int32_t index) const;
     void RenderGroup(int32_t groupIndex, C44Matrix& matrix, TSExplicitList<CWFrustum, offsetof(CWFrustum, m_link)>* frustumList);
     void CreateMaterial(uint8_t texture);
     void CreateMaterials();
@@ -271,13 +270,11 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
 #endif
     CMapObjGroup* AttenTransVerts(CMapObjGroup* group);
     void SetupMapObjDefCull(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget);
-    void ClassifyPortalPlane(SMOPortal* portal, SPortalExt* portalExt);
     uint32_t TransformAndClipVerts(uint32_t noOcclusion, C3Vector* verts, uint32_t vertCount, C3Vector& offset, C3Vector*& clippedVerts, uint32_t& clippedCount);
     void AddExteriorPortalView(SMOPortal* portal, SMOPortalRef* ref, SPortalExt* ext, uint32_t destIsExterior);
-    void TransformPortal(SMOPortal* portal, SPortalExt* portalExt);
     void AddInteriorPortalView(SMOPortal* portal, SMOPortalRef* ref, SPortalExt* ext, TSGrowableArray<CPortalView>* views);
     void RenderThruPortals(uint32_t groupNum, uint32_t fromGroup, CRect& ndcRect, uint32_t depth, int32_t interior);
-    void RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget, TSGrowableArray<uint32_t>* groups);
+    void RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget, TSGrowableArray<uint32_t>* inGroups);
     bool VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* groups, BOOL useSphere);
     void RenderThruPortalsExterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget, CRect& ndcRect, int32_t groupNum);
     bool Intersect(C3Vector& start, C3Vector& end, float* distance, uint32_t flags, uint32_t ignoreFlags, uint32_t groupNum, int32_t* hitIndex);
@@ -287,6 +284,11 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     uint16_t BuildLiquidVerts(CMapObjGroup* group, const C44Matrix& matrix, const CImVector* color, int32_t magma, float texCoord1U, const TSGrowableArray<uint8_t>* sharedVerts, uint32_t stride, C3Vector** position, C3Vector** normal, CImVector** vertexColor, C2Vector** texCoord0, C2Vector** texCoord1);
     void BuildLiquidIndices(CMapObjGroup* group, const TSGrowableArray<uint8_t>* sharedVerts, uint16_t** indices, uint16_t baseVertex);
     uint16_t ClipGroupGeometry(CMapObjGroup* group, const C44Matrix& matrix, const CImVector* color, int32_t magma, float texCoord1U, uint32_t stride, C3Vector** position, C3Vector** normal, CImVector** vertexColor, C2Vector** texCoord0, C2Vector** texCoord1, uint16_t** indices, uint16_t baseVertex);
+    private:
+    static uint32_t* occluderHeap;
+
+    void ClassifyPortalPlane(const SMOPortal* portal, SPortalExt* portalExt);
+    void TransformPortal(const SMOPortal* portal, SPortalExt* portalExt);
 };
 
 struct SMOBatch {

@@ -31,7 +31,7 @@ void CMapObj::CreateMaterials() {
 // VERIFY: 12bdf795 manual
 // OFFSET: 0x007D7380
 void CMapObjGroup::FixColorVertexAlpha() {
-    uint32_t firstExterior = this->m_transparencyBatchesCount ? this->m_batchList[this->m_transparencyBatchesCount - 1].m_vertexEnd + 1 : 0;
+    uint32_t firstExterior = this->transBatchCount ? this->m_batchList[this->transBatchCount - 1].m_vertexEnd + 1 : 0;
 
     for (uint32_t i = 0; i < static_cast<uint32_t>(this->m_colorVertexListSize); i++) {
         CImVector& color = this->cvertexList[i];
@@ -215,11 +215,11 @@ void CMapObj::CreateMaterial(uint8_t materialId) {
 CMapObjGroup* CMapObj::AttenTransVerts(CMapObjGroup* group) {
     group->m_runtimeFlags |= CMapObjGroup::RUNTIME_FLAGS::TRANS_VERTEX_ATTENUATION_HANDLED;
 
-    if (!group->m_transparencyBatchesCount) {
+    if (!group->transBatchCount) {
         return group;
     }
 
-    uint32_t vertexEnd = group->m_batchList[group->m_transparencyBatchesCount - 1].m_vertexEnd;
+    uint32_t vertexEnd = group->m_batchList[group->transBatchCount - 1].m_vertexEnd;
 
     for (uint32_t i = 0; i <= vertexEnd; i++) {
         C3Vector& vert = group->m_vertexList[i];
@@ -534,14 +534,14 @@ void CMapObjGroup::HandleAntiportal() {
     }
 
     this->m_extBatchCount = 0;
-    this->m_intBatchCount = 0;
+    this->intBatchCount = 0;
 }
 
 // VERIFY: 579978be manual
 // OFFSET: 0x007D82E0
 void CMapObjGroup::Create() {
 #if defined(WOWDECOMP_ASSERTIONS)
-    const auto* iffChunk = static_cast<const SIffChunk*>(this->m_filePtr);
+    const auto* iffChunk = static_cast<const SIffChunk*>(this->rawData);
     STORM_ASSERT(iffChunk->token == WMOTOKEN_MVER); // 12213: "iffChunk->token == 'MVER'"
     const auto* version = reinterpret_cast<const uint32_t*>(&iffChunk->m_data);
     STORM_ASSERT(*version == 0x0011);
@@ -549,7 +549,7 @@ void CMapObjGroup::Create() {
     STORM_ASSERT(iffChunk->token == WMOTOKEN_MOGP); // 12213: "iffChunk->token=='MOGP'"
 #endif
 
-    SMOGroupHeader* smoGroup = reinterpret_cast<SMOGroupHeader*>(static_cast<uint8_t*>(this->m_filePtr) + 20);
+    SMOGroupHeader* smoGroup = reinterpret_cast<SMOGroupHeader*>(static_cast<uint8_t*>(this->rawData) + 20);
     CMapObj* parent = this->m_parent;
     STORM_ASSERT(parent);
     parent->m_mapObjGroupList.LinkToTail(this);
@@ -564,8 +564,8 @@ void CMapObjGroup::Create() {
     this->m_bbox = smoGroup->m_boundingBox;
     this->m_portalStart = smoGroup->m_portalStart;
     this->m_portalCount = smoGroup->m_portalCount;
-    this->m_transparencyBatchesCount = smoGroup->m_transBatchCount;
-    this->m_intBatchCount = smoGroup->m_intBatchCount;
+    this->transBatchCount = smoGroup->m_transBatchCount;
+    this->intBatchCount = smoGroup->m_intBatchCount;
     this->m_extBatchCount = smoGroup->m_extBatchCount;
     memcpy(this->m_fogs, smoGroup->m_fogIds, sizeof(this->m_fogs));
     this->m_wmoGroupId = smoGroup->m_uniqueID;
@@ -652,8 +652,8 @@ void CMapObjGroup::AsyncPostloadCallback(void* arg) {
     CMapObjGroup* mapObjGroup = static_cast<CMapObjGroup*>(arg);
     STORM_ASSERT(mapObjGroup);
 
-    AsyncFileReadDestroyObject(mapObjGroup->m_asyncObjPtr);
-    mapObjGroup->m_asyncObjPtr = nullptr;
+    AsyncFileReadDestroyObject(mapObjGroup->asyncObject);
+    mapObjGroup->asyncObject = nullptr;
     mapObjGroup->m_asyncLoadLink.Unlink();
     mapObjGroup->Create();
 }
@@ -677,11 +677,11 @@ void CMapObj::ReadGroup(uint32_t index, bool preLoad) {
     CMap::SafeOpen(fileName, &file);
 
     group->m_fileSize = SFileGetFileSize(file, nullptr);
-    group->m_filePtr = SMemAlloc(group->m_fileSize, __FILE__, __LINE__, 0);
+    group->rawData = SMemAlloc(group->m_fileSize, __FILE__, __LINE__, 0);
     group->m_parent = this;
 
     if (preLoad) {
-        CMap::SafeRead(fileName, file, group->m_filePtr, group->m_fileSize);
+        CMap::SafeRead(fileName, file, group->rawData, group->m_fileSize);
         group->Create();
         SFileCloseFile(file);
         return;
@@ -690,11 +690,11 @@ void CMapObj::ReadGroup(uint32_t index, bool preLoad) {
     CAsyncObject* asyncObject = AsyncFileReadAllocObject();
     STORM_ASSERT(asyncObject);
     asyncObject->file = file;
-    asyncObject->buffer = group->m_filePtr;
+    asyncObject->buffer = group->rawData;
     asyncObject->size = group->m_fileSize;
     asyncObject->userArg = group;
     asyncObject->userPostloadCallback = CMapObjGroup::AsyncPostloadCallback;
-    group->m_asyncObjPtr = asyncObject;
+    group->asyncObject = asyncObject;
     AsyncFileReadObject(asyncObject, 0);
 
     CMapObj::s_loadedGroups.LinkToTail(group);

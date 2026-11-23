@@ -151,8 +151,8 @@ int32_t MapObjGroupToBin(const CMapObjGroup& group, TSGrowableArray<uint8_t>& ou
     header.m_boundingBox = group.m_bbox;
     header.m_portalStart = static_cast<uint16_t>(group.m_portalStart);
     header.m_portalCount = static_cast<uint16_t>(group.m_portalCount);
-    header.m_transBatchCount = group.m_transparencyBatchesCount;
-    header.m_intBatchCount = group.m_intBatchCount;
+    header.m_transBatchCount = group.transBatchCount;
+    header.m_intBatchCount = group.intBatchCount;
     header.m_extBatchCount = group.m_extBatchCount;
     memcpy(header.m_fogIds, group.m_fogs, sizeof(header.m_fogIds));
     header.m_groupLiquid = 0; // TODO: the reader keeps the resolved liquid type, not the raw MOGP value.

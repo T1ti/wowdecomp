@@ -2272,7 +2272,7 @@ void CMap::PrepareMapObjDefs(bool addToScene) {
 
             if (CWorld::s_objectAreaOfInterest.b.x <= box.t.x && CWorld::s_objectAreaOfInterest.b.y <= box.t.y && CWorld::s_objectAreaOfInterest.b.z <= box.t.z && CWorld::s_objectAreaOfInterest.t.x >= box.b.x && CWorld::s_objectAreaOfInterest.t.y >= box.b.y && CWorld::s_objectAreaOfInterest.t.z >= box.b.z) {
                 if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
-                    if (!group->m_asyncObjPtr) {
+                    if (!group->asyncObject) {
                         mapObj->ReadGroup(defGroup->groupNum);
                     }
 
