@@ -20807,7 +20807,7 @@ void CGUnit_C::UpdateMountTransitionModel() {
     C3Vector up = { 0.0f, 0.0f, 0.0f };
     C44Matrix inverse;
     float facing;
-    SpellVisualsGetMountTransitionTransform(this->m_mountTransitionObject, &position, &up, &facing);
+    SpellVisualsGetMountTransitionPosAndNormal(this->m_mountTransitionObject, &position, &up, &facing);
 
     C44Matrix world = this->m_worldModel->m_worldTransform;
     inverse = world.AffineInverse(this->GetTrueScale());
@@ -21085,7 +21085,7 @@ void CGUnit_C::CreateProceduralEffect(const SpellRec* spell, const SpellVisualRe
             case SPELL_VISUAL_CHAR_PROC_ECLIPSE: {
                 CImVector color;
                 *reinterpret_cast<uint32_t*>(&color) = static_cast<uint32_t>(static_cast<int64_t>(param0)) | 0xFF000000;
-                SpellVisualsHandleEclipse(&color, param1, spell);
+                SpellVisualsHandleEclipse(color, param1, spell);
                 break;
             }
 

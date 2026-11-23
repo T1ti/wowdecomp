@@ -59,10 +59,10 @@ static EclipseState s_eclipse;
 static TSList<MountTransitionObject> s_mountTransitions;
 
 // STATIC: 0x00D39758
-static TSGrowableArray<TSGrowableArray<const SpellVisualKitModelAttachRec*>*>* s_modelAttachLookup;
+static TSGrowableArray<TSGrowableArray<const SpellVisualKitModelAttachRec*>*>* s_modelAttachRecByKitRecID;
 
 // INLINED
-LightningObject::LightningObject() : m_refCount(1) {
+LightningObject::LightningObject() : refCount(1) {
 }
 
 // VERIFY: 67173777 auto
@@ -179,10 +179,11 @@ bool LightningObject::Tick(uint32_t time) {
 
             if (bolt.m_lightning == 0xFFFFFFFF) {
                 bolt.m_lightning = s_lightningManager->Add(nullptr, nullptr, this->m_chainEffects);
-                CLightning* lightning = s_lightningManager->GetTempPtr(bolt.m_lightning);
-                lightning->SetSrcPos(sourcePos);
-                lightning->SetDstPos(targetPos);
-                lightning->SetTexture(this->m_texture);
+                CLightning* litObj = s_lightningManager->GetTempPtr(bolt.m_lightning);
+                STORM_ASSERT(litObj);
+                litObj->SetSrcPos(sourcePos);
+                litObj->SetDstPos(targetPos);
+                litObj->SetTexture(this->m_texture);
             } else {
                 s_lightningManager->Move(bolt.m_lightning, &sourcePos, &targetPos);
             }
@@ -243,20 +244,20 @@ LightningObject::~LightningObject() {
 // VERIFY: 1522f2db manual
 // OFFSET: 0x007FBB80
 void SpellVisualsShutdownModelAttachLookup() {
-    if (!s_modelAttachLookup) {
+    if (!s_modelAttachRecByKitRecID) {
         return;
     }
 
-    uint32_t count = s_modelAttachLookup->Count();
+    uint32_t count = s_modelAttachRecByKitRecID->Count();
 
     for (uint32_t i = 0; i < count; i++) {
-        if ((*s_modelAttachLookup)[i]) {
-            delete (*s_modelAttachLookup)[i];
+        if ((*s_modelAttachRecByKitRecID)[i]) {
+            delete (*s_modelAttachRecByKitRecID)[i];
         }
     }
 
-    delete s_modelAttachLookup;
-    s_modelAttachLookup = nullptr;
+    delete s_modelAttachRecByKitRecID;
+    s_modelAttachRecByKitRecID = nullptr;
 }
 
 // VERIFY: f470cb1c manual
@@ -267,8 +268,8 @@ void SpellVisualsInitializeModelAttachLookup() {
     uint32_t maxKitID = g_spellVisualKitDB.GetMaxID() <= 0 ? 0 : g_spellVisualKitDB.GetMaxID();
     uint32_t maxAttachID = g_spellVisualKitModelAttachDB.GetMaxID() <= 0 ? 0 : g_spellVisualKitModelAttachDB.GetMaxID();
 
-    s_modelAttachLookup = new (SMemAlloc(sizeof(TSGrowableArray<TSGrowableArray<const SpellVisualKitModelAttachRec*>*>), __FILE__, __LINE__, 0)) TSGrowableArray<TSGrowableArray<const SpellVisualKitModelAttachRec*>*>();
-    s_modelAttachLookup->GrowToFit(maxKitID, 1);
+    s_modelAttachRecByKitRecID = new (SMemAlloc(sizeof(TSGrowableArray<TSGrowableArray<const SpellVisualKitModelAttachRec*>*>), __FILE__, __LINE__, 0)) TSGrowableArray<TSGrowableArray<const SpellVisualKitModelAttachRec*>*>();
+    s_modelAttachRecByKitRecID->GrowToFit(maxKitID, 1);
 
     for (uint32_t id = 1; id <= maxAttachID; id++) {
         const SpellVisualKitModelAttachRec* rec = g_spellVisualKitModelAttachDB.GetRecord(id);
@@ -277,7 +278,7 @@ void SpellVisualsInitializeModelAttachLookup() {
             continue;
         }
 
-        TSGrowableArray<const SpellVisualKitModelAttachRec*>*& kitAttachments = (*s_modelAttachLookup)[rec->m_parentSpellVisualKitID];
+        TSGrowableArray<const SpellVisualKitModelAttachRec*>*& kitAttachments = (*s_modelAttachRecByKitRecID)[rec->m_parentSpellVisualKitID];
 
         if (!kitAttachments) {
             kitAttachments = new (SMemAlloc(sizeof(TSGrowableArray<const SpellVisualKitModelAttachRec*>), __FILE__, __LINE__, 0)) TSGrowableArray<const SpellVisualKitModelAttachRec*>();
@@ -351,8 +352,9 @@ float SpellVisualsGetMountTransitionHeight(const MountTransitionObject* transiti
 
 // VERIFY: 37dce2c2 auto
 // OFFSET: 0x007F9F60
-void SpellVisualsFlagMountTransitionFinished(MountTransitionObject* transition) {
-    transition->m_flags |= MountTransitionObject::TRANSITION_FLAGS::TRANSITION_RISE_FINISHED;
+void SpellVisualsFlagMountTransitionFinished(MountTransitionObject* mountTransObj) {
+    STORM_ASSERT(mountTransObj);
+    mountTransObj->m_flags |= MountTransitionObject::TRANSITION_FLAGS::TRANSITION_RISE_FINISHED;
 }
 
 // VERIFY: 96ae8133 manual
@@ -415,16 +417,18 @@ void SpellVisualsPlayCameraShakeID(int32_t id, const C3Vector* position) {
 
 // VERIFY: 3532766c auto
 // OFFSET: 0x007FA680
-void SpellVisualsBlizzardSetFrameOfReference(BlizzardObject* object, const C44Matrix* matrix) {
-    object->SetFrameOfReference(matrix);
+void SpellVisualsBlizzardSetFrameOfReference(BlizzardObject* blizard, const C44Matrix* matrix) {
+    STORM_ASSERT(blizard);
+    blizard->SetFrameOfReference(matrix);
 }
 
 // VERIFY: eeefbc3b manual
 // OFFSET: 0x007FA930
-void SpellVisualsComputeMountTransitionJumpVec(const MountTransitionObject* transition, C3Vector* jump) {
-    *jump = transition->m_jumpVector;
+void SpellVisualsComputeMountTransitionJumpVec(const MountTransitionObject* mountTransObj, C3Vector* jump) {
+    STORM_ASSERT(mountTransObj);
+    *jump = mountTransObj->m_jumpVector;
 
-    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(transition->m_unitGuid, TYPE_UNIT, __FILE__, __LINE__));
+    CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(mountTransObj->m_unitGuid, TYPE_UNIT, __FILE__, __LINE__));
 
     if (!unit || !unit->m_mountTransitionEffect) {
         return;
@@ -442,7 +446,7 @@ void SpellVisualsComputeMountTransitionJumpVec(const MountTransitionObject* tran
     jump->y = attach.y - world.y;
     jump->z = attach.z - world.z;
 
-    float height = transition->m_height;
+    float height = mountTransObj->m_height;
     jump->x = jump->x * height;
     jump->y = jump->y * height;
     jump->z = height * jump->z;
@@ -450,9 +454,11 @@ void SpellVisualsComputeMountTransitionJumpVec(const MountTransitionObject* tran
 
 // VERIFY: 32467c5c manual
 // OFFSET: 0x007FA9F0
-uint32_t SpellVisualsGetModelAttachRecCount(uint32_t kitId) {
-    if (kitId < s_modelAttachLookup->m_count && s_modelAttachLookup->m_data[kitId]) {
-        return s_modelAttachLookup->m_data[kitId]->m_count;
+uint32_t SpellVisualsGetModelAttachRecCount(uint32_t spellVisualKitRecID) {
+    STORM_ASSERT(s_modelAttachRecByKitRecID);
+
+    if (spellVisualKitRecID < s_modelAttachRecByKitRecID->Count() && (*s_modelAttachRecByKitRecID)[spellVisualKitRecID]) {
+        return (*s_modelAttachRecByKitRecID)[spellVisualKitRecID]->Count();
     }
 
     return 0;
@@ -582,7 +588,7 @@ void LightningObject::CreateFromSpell(CGObject_C* caster, CEffect* effect, uint3
         object->InitializeBolts(caster, targets, count, reverse, attachment);
 
         if (persist) {
-            object->m_refCount++;
+            object->refCount++;
 
             if (lightning) {
                 lightning[created++] = object;
@@ -617,16 +623,22 @@ void SpellVisualsCreateChainLightning(CGUnit_C* caster, CEffect* effect, uint32_
     }
 }
 
+inline void LightningObject::Release() { // (inferred)
+    STORM_ASSERT(refCount > 0);
+
+    if (--this->refCount == 0) {
+        delete this;
+    }
+}
+
 // VERIFY: a30f6eda manual
 // OFFSET: 0x007FC990
-void LightningObjectReleaseRef(LightningObject* object) {
+void SpellVisualClearLightning(LightningObject* object) {
     uint32_t time = OsGetAsyncTimeMs();
     object->m_flags &= ~LightningObject::LIGHTNING_FLAGS::FLAG_PERSISTENT;
     object->m_endTime = time;
 
-    if (--object->m_refCount == 0) {
-        delete object;
-    }
+    object->Release();
 }
 
 // VERIFY: c6399436 auto
@@ -639,8 +651,12 @@ void SpellVisualsCancelMountTransition(MountTransitionObject* transition) {
 
 // VERIFY: 1bb4ee05 auto
 // OFFSET: 0x007FAA20
-const SpellVisualKitModelAttachRec* SpellVisualsGetModelAttachRec(uint32_t kitId, uint32_t index) {
-    return s_modelAttachLookup->m_data[kitId]->m_data[index];
+const SpellVisualKitModelAttachRec* SpellVisualsGetModelAttachRec(uint32_t spellVisualKitRecID, uint32_t index) {
+    STORM_ASSERT(s_modelAttachRecByKitRecID);
+    STORM_ASSERT(spellVisualKitRecID < s_modelAttachRecByKitRecID->Count());
+    STORM_ASSERT((*s_modelAttachRecByKitRecID)[spellVisualKitRecID]);
+    STORM_ASSERT(index < (*s_modelAttachRecByKitRecID)[spellVisualKitRecID]->Count());
+    return (*(*s_modelAttachRecByKitRecID)[spellVisualKitRecID])[index];
 }
 
 // VERIFY: 4bfbe4ed manual
@@ -668,13 +684,14 @@ void EclipseState::Update(uint32_t time) {
 
 // VERIFY: 21c0a07b manual
 // OFFSET: 0x007FA450
-void SpellVisualsHandleEclipse(const CImVector* color, float fadeIn, const SpellRec* spell) {
+void SpellVisualsHandleEclipse(const CImVector& color, float fadeRatio, const SpellRec* spell) {
+    STORM_ASSERT((fadeRatio >= 0.0f) && (fadeRatio <= 1.0f));
     uint32_t castTime = SpellRec::GetCastTime(spell, 0, 0, 0);
-    s_eclipse.m_color = *color;
+    s_eclipse.m_color = color;
     uint32_t now = OsGetAsyncTimeMs();
     s_eclipse.m_start = now;
     s_eclipse.m_holdEnd = now + castTime;
-    s_eclipse.m_fadeInEnd = static_cast<int32_t>(castTime * fadeIn) + now;
+    s_eclipse.m_fadeInEnd = static_cast<int32_t>(castTime * fadeRatio) + now;
     s_eclipse.m_end = now + castTime + 100;
 }
 
@@ -686,10 +703,11 @@ float SpellVisualsGetMountTransitionAlpha(const MountTransitionObject* transitio
 
 // VERIFY: 85b7ab4a auto
 // OFFSET: 0x007F9F20
-void SpellVisualsGetMountTransitionTransform(const MountTransitionObject* transition, C3Vector* position, C3Vector* up, float* facing) {
-    *position = transition->m_position;
-    *up = transition->m_groundNormal;
-    *facing = transition->m_facing;
+void SpellVisualsGetMountTransitionPosAndNormal(const MountTransitionObject* mountTransObj, C3Vector* position, C3Vector* up, float* facing) {
+    STORM_ASSERT(mountTransObj);
+    *position = mountTransObj->m_position;
+    *up = mountTransObj->m_groundNormal;
+    *facing = mountTransObj->m_facing;
 }
 
 // VERIFY: 84edc23e manual
@@ -704,9 +722,7 @@ void SpellVisualsTick() {
         if (!lightning->Tick(time)) {
             s_lightningObjects.UnlinkNode(lightning);
 
-            if (--lightning->m_refCount == 0) {
-                delete lightning;
-            }
+            lightning->Release();
         }
 
         lightning = next;

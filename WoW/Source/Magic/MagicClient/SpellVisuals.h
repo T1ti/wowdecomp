@@ -88,6 +88,13 @@ class LightningObject : public TSLinkedNode<LightningObject> {
     };
 
     static void CreateFromSpell(CGObject_C* caster, CEffect* effect, uint32_t chainEffectsId, const WOWGUID* targets, uint32_t count, uint32_t spellId, bool persist, bool reverse, LightningObject** lightning, uint32_t maxLightning, const C3Vector* location, int32_t attachment);
+    LightningObject();
+    ~LightningObject();
+
+    private:
+    friend void SpellVisualClearLightning(LightningObject* object);
+    friend void SpellVisualsTick();
+
     static C3Vector GetCasterPosition(CGUnit_C* unit, uint32_t attachment, const C3Vector& offset, int32_t raw);
     static C3Vector GetImpactPosition(CGUnit_C* unit, uint32_t spellId);
 
@@ -102,15 +109,14 @@ class LightningObject : public TSLinkedNode<LightningObject> {
     /* 0050 */ uint32_t m_flags;
     /* 0054 */ CEffect* m_effect;
     /* 0058 */ SpellChainEffectsRec* m_chainEffects;
-    /* 005C */ int32_t m_refCount;
+    /* 005C */ int32_t refCount;
 
-    LightningObject();
-    ~LightningObject();
+    void Release();
     void InitializeBolts(CGObject_C* caster, const WOWGUID* targets, uint32_t count, bool reverse, int32_t attachment);
     bool Tick(uint32_t time);
 };
 
-void LightningObjectReleaseRef(LightningObject* object);
+void SpellVisualClearLightning(LightningObject* object);
 
 class MountTransitionObject : public TSLinkedNode<MountTransitionObject> {
     public:
@@ -160,17 +166,17 @@ void SpellVisualsShutdown();
 void SpellVisualsShutdownModelAttachLookup();
 int32_t SpellVisualsIsMountTransitionFinished(const MountTransitionObject* transition);
 float SpellVisualsGetMountTransitionHeight(const MountTransitionObject* transition);
-void SpellVisualsGetMountTransitionTransform(const MountTransitionObject* transition, C3Vector* position, C3Vector* up, float* facing);
+void SpellVisualsGetMountTransitionPosAndNormal(const MountTransitionObject* mountTransObj, C3Vector* position, C3Vector* up, float* facing);
 float SpellVisualsGetMountTransitionAlpha(const MountTransitionObject* transition);
-void SpellVisualsFlagMountTransitionFinished(MountTransitionObject* transition);
+void SpellVisualsFlagMountTransitionFinished(MountTransitionObject* mountTransObj);
 void SpellVisualsPlayCameraShakeID(int32_t id, const C3Vector* position);
-void SpellVisualsBlizzardSetFrameOfReference(BlizzardObject* object, const C44Matrix* matrix);
-void SpellVisualsComputeMountTransitionJumpVec(const MountTransitionObject* transition, C3Vector* jump);
-uint32_t SpellVisualsGetModelAttachRecCount(uint32_t kitId);
-const SpellVisualKitModelAttachRec* SpellVisualsGetModelAttachRec(uint32_t kitId, uint32_t index);
+void SpellVisualsBlizzardSetFrameOfReference(BlizzardObject* blizard, const C44Matrix* matrix);
+void SpellVisualsComputeMountTransitionJumpVec(const MountTransitionObject* mountTransObj, C3Vector* jump);
+uint32_t SpellVisualsGetModelAttachRecCount(uint32_t spellVisualKitRecID);
+const SpellVisualKitModelAttachRec* SpellVisualsGetModelAttachRec(uint32_t spellVisualKitRecID, uint32_t index);
 MountTransitionObject* SpellVisualsStartMountTransition(CGUnit_C* unit);
 void SpellVisualsCancelMountTransition(MountTransitionObject* transition);
 void SpellVisualsCreateChainLightning(CGUnit_C* caster, CEffect* effect, uint32_t chainEffectsId, bool persist, bool reverse, uint32_t spellId, const WOWGUID* targets, uint32_t count, LightningObject** lightning, uint32_t maxLightning, const C3Vector* location, int32_t attachment);
-void SpellVisualsHandleEclipse(const CImVector* color, float fadeIn, const SpellRec* spell);
+void SpellVisualsHandleEclipse(const CImVector& color, float fadeRatio, const SpellRec* spell);
 
 #endif

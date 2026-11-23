@@ -630,7 +630,7 @@ void CEffect::AddSpecialByPosition(int32_t type, C3Vector position, const WOWGUI
 void CEffect::ClearLightning() {
     for (uint32_t i = 0; i < sizeof(this->m_lightning) / sizeof(this->m_lightning[0]); i++) {
         if (this->m_lightning[i]) {
-            LightningObjectReleaseRef(this->m_lightning[i]);
+            SpellVisualClearLightning(this->m_lightning[i]);
         }
 
         this->m_lightning[i] = nullptr;
