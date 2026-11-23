@@ -589,65 +589,66 @@ BOOL CGWorldFrame::IsLegalSelection(CGObject_C* object, uint32_t flags) {
 // OFFSET: 0x004F7650
 uint32_t CGWorldFrame::GetHitTestFilterFlags(int32_t unknown1) const {
     if (Spell_C_IsTargeting()) {
-        uint32_t flags = 0;
+        uint32_t hitFilter = 0;
 
         if (Spell_C_CanTargetTerrain()) {
-            flags = HIT_TEST_TERRAIN;
+            hitFilter = HIT_TEST_TERRAIN;
         }
 
         if (Spell_C_CanTargetObjects()) {
-            flags |= HIT_TEST_OBJECTS;
+            hitFilter |= HIT_TEST_OBJECTS;
         }
 
         if (Spell_C_CanTargetUnits()) {
-            flags |= HIT_TEST_UNITS | HIT_TEST_PLAYERS;
+            hitFilter |= HIT_TEST_UNITS | HIT_TEST_PLAYERS;
 
             if (Spell_C_CanTargetMe()) {
-                flags |= HIT_TEST_ME;
+                hitFilter |= HIT_TEST_ME;
             }
 
             if (Spell_C_CanTargetParty()) {
-                flags |= HIT_TEST_PARTY;
+                hitFilter |= HIT_TEST_PARTY;
             }
 
             if (Spell_C_CanTargetFriends()) {
-                flags |= HIT_TEST_FRIENDS;
+                hitFilter |= HIT_TEST_FRIENDS;
             }
 
             if (Spell_C_CanTargetEnemies()) {
-                flags |= HIT_TEST_ENEMIES;
+                hitFilter |= HIT_TEST_ENEMIES;
             }
 
             if (Spell_C_CanTargetRaid()) {
-                flags |= HIT_TEST_RAID;
+                hitFilter |= HIT_TEST_RAID;
             }
 
             if (Spell_C_CanTargetDead()) {
-                flags |= HIT_TEST_CORPSES | HIT_TEST_DEAD;
+                hitFilter |= HIT_TEST_CORPSES | HIT_TEST_DEAD;
             }
 
             if (Spell_C_CanTargetAlive()) {
-                flags |= HIT_TEST_LIVE;
+                hitFilter |= HIT_TEST_LIVE;
             }
 
             if (Spell_C_CanTargetNonCombatPet()) {
-                flags |= HIT_TEST_NON_COMBAT_PET;
+                hitFilter |= HIT_TEST_NON_COMBAT_PET;
             }
 
             if (Spell_C_CanTargetPossessedFriends()) {
-                flags |= HIT_TEST_POSSESSED_FRIENDS;
+                hitFilter |= HIT_TEST_POSSESSED_FRIENDS;
             }
         }
 
         if (Spell_C_CanTargetFriendCorpses()) {
-            flags |= HIT_TEST_CORPSES | HIT_TEST_FRIENDS;
+            hitFilter |= HIT_TEST_CORPSES | HIT_TEST_FRIENDS;
         }
 
         if (Spell_C_CanTargetEnemyCorpses()) {
-            flags |= HIT_TEST_CORPSES | HIT_TEST_ENEMIES;
+            hitFilter |= HIT_TEST_CORPSES | HIT_TEST_ENEMIES;
         }
 
-        return flags;
+        STORM_ASSERT(Spell_C_CanTargetItems() || Spell_C_WaitingForStringInput() || Spell_C_CanTargetGlyphSlot() || (hitFilter != HIT_TEST_NOTHING));
+        return hitFilter;
     }
 
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));

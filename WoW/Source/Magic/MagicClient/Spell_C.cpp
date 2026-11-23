@@ -155,7 +155,7 @@ static int32_t s_autoRangedCombatSpell;
 static int32_t s_autoRepeatingSpell;
 
 // STATIC: 0x00D3F4E0
-uint32_t s_needTargets; // SPELL_TARGET_TYPE
+static uint32_t s_needTargets; // SPELL_TARGET_TYPE
 
 // STATIC: 0x00D3F4E4
 PendingSpellCast* s_targetingSpell;
@@ -4309,6 +4309,14 @@ int32_t Spell_C_CanTargetItems() {
     return (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK) != 0;
 }
 
+int32_t Spell_C_WaitingForStringInput() {
+    return (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_STRING) != 0;
+}
+
+int32_t Spell_C_CanTargetGlyphSlot() {
+    return (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_GLYPH_SLOT) != 0;
+}
+
 // VERIFY: e4e8f874 auto
 // OFFSET: 0x007FD7A0
 CM2Model* Spell_C_GetCursorWorldObjectModel() {
@@ -8131,7 +8139,7 @@ static bool Spell_C_BeginCast(CGUnit_C* caster, const SpellRec* spell, WOWGUID t
             break;
     }
 
-    if ((s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_STRING) && s_targetString[0]) {
+    if (Spell_C_WaitingForStringInput() && s_targetString[0]) {
         SStrPrintf(cast->m_data.m_targetString, sizeof(cast->m_data.m_targetString), "%s", s_targetString);
         s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_STRING;
         s_targetString[0] = 0;
@@ -8940,7 +8948,7 @@ bool Spell_C_HandleGlyphClick(int32_t socket) {
         cast->m_data.m_glyphSlot = socket;
         bool result = false;
 
-        if (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_GLYPH_SLOT) {
+        if (Spell_C_CanTargetGlyphSlot()) {
             cast->m_data.m_targetFlags |= SPELL_TARGET_TYPE::TARGET_FLAG_GLYPH_SLOT;
             s_needTargets &= ~SPELL_TARGET_TYPE::TARGET_FLAG_GLYPH_SLOT;
             result = true;

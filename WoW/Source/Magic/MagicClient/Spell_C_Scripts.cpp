@@ -30,7 +30,7 @@ static int32_t Script_SpellIsTargeting(lua_State* L) {
 // VERIFY: 2d5e9a32 auto
 // OFFSET: 0x007FDD10
 static int32_t Script_SpellCanTargetItem(lua_State* L) {
-    if (s_targetingSpell && (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK)) {
+    if (s_targetingSpell && Spell_C_CanTargetItems()) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -42,7 +42,7 @@ static int32_t Script_SpellCanTargetItem(lua_State* L) {
 // VERIFY: caa8802f manual
 // OFFSET: 0x007FDD60
 static int32_t Script_SpellCanTargetGlyph(lua_State* L) {
-    if (s_targetingSpell && (s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_GLYPH_SLOT)) {
+    if (s_targetingSpell && Spell_C_CanTargetGlyphSlot()) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -68,7 +68,7 @@ static int32_t Script_CannotBeResurrected(lua_State* L) {
 // VERIFY: 7914559b manual
 // OFFSET: 0x008007E0
 static int32_t Script_SpellTargetItem(lua_State* L) {
-    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_CAST_SPELL) || !s_targetingSpell || !(s_needTargets & SPELL_TARGET_TYPE::TARGET_FLAG_ITEM_SELECTION_MASK)) {
+    if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_CAST_SPELL) || !s_targetingSpell || !Spell_C_CanTargetItems()) {
         return 0;
     }
 

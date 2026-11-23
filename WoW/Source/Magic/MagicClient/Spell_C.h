@@ -193,7 +193,6 @@ bool Spell_C_CanTargetObject(const CGGameObject_C* object);
 bool Spell_C_IsTargeting();
 bool Spell_C_RangeCheckSelected(CGUnit_C* caster, const SpellRec* spell, WOWGUID target, uint8_t* inRange, bool report, PendingSpellCast* cast);
 extern PendingSpellCast* s_targetingSpell;
-extern uint32_t s_needTargets; // SPELL_TARGET_TYPE
 int32_t Spell_C_IsCursorWorldObjectHousing();
 void Spell_C_CursorWorldObjectRotate();
 void Spell_C_CancelPlayerSpells();
@@ -316,6 +315,8 @@ const char* GetSpellFailedResult(int32_t reason);
 bool Spell_C_SpellUsesReagent(const SpellRec* spell, int32_t itemId);
 PendingSpellCast* Spell_C_GetTargetingSpellCast();
 int32_t Spell_C_CanTargetItems();
+int32_t Spell_C_WaitingForStringInput();
+int32_t Spell_C_CanTargetGlyphSlot();
 CM2Model* Spell_C_GetCursorWorldObjectModel();
 void Spell_C_SetCursorWorldObjectPosition(const C3Vector& position);
 const C3Vector& Spell_C_GetCursorWorldObjectPosition();
