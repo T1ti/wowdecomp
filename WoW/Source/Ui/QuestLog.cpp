@@ -373,7 +373,7 @@ BOOL CGQuestLog::IsQuestCompleteEx(uint32_t index, BOOL requireObjectives) {
     }
 
     for (uint32_t i = 0; i < QUEST_OBJECTIVES; i++) {
-        if (quest->m_objectiveId[i] && entry->m_counts[i] < quest->m_objectiveRequiredCount[i]) {
+        if (quest->m_objectiveId[i] && entry->GetCount(i) < quest->m_objectiveRequiredCount[i]) {
             return 0;
         }
     }
@@ -384,7 +384,7 @@ BOOL CGQuestLog::IsQuestCompleteEx(uint32_t index, BOOL requireObjectives) {
         }
     }
 
-    return static_cast<int32_t>(entry->m_counts[0]) >= static_cast<int32_t>(quest->m_requiredPlayersKilled);
+    return static_cast<int32_t>(entry->GetCount(0)) >= static_cast<int32_t>(quest->m_requiredPlayersKilled);
 }
 
 // VERIFY: 7a39ad3c manual
@@ -1405,7 +1405,7 @@ int32_t CGQuestLog::GetQuestLeaderBoardByID(int32_t questId, QuestLogLeaderBoard
             continue;
         }
 
-        int32_t count = entry ? entry->m_counts[i] : 0;
+        int32_t count = entry ? entry->GetCount(i) : 0;
         int32_t required = quest->m_objectiveRequiredCount[i];
         int32_t objective = quest->m_objectiveId[i];
         const char* objectiveText = quest->m_objectiveText[i];
@@ -1528,7 +1528,7 @@ int32_t CGQuestLog::GetQuestLeaderBoardByID(int32_t questId, QuestLogLeaderBoard
     }
 
     if (quest->m_requiredPlayersKilled) {
-        int32_t count = entry ? entry->m_counts[0] : 0;
+        int32_t count = entry ? entry->GetCount(0) : 0;
 
         if (showProgress) {
             SStrPrintf(buffer, sizeof(buffer), FrameScript_GetText("QUEST_PLAYERS_KILLED", -1, GENDER_NOT_APPLICABLE), count, quest->m_requiredPlayersKilled);
@@ -1731,7 +1731,7 @@ int32_t CGQuestLog::GetQuestLeaderBoardForObject(int32_t questId, int32_t object
         }
     }
 
-    int32_t count = entry->m_counts[i];
+    int32_t count = entry->GetCount(i);
     int32_t objective = quest->m_objectiveId[i];
     const char* format = quest->m_objectiveText[i];
     char buffer[4096];
@@ -2138,7 +2138,7 @@ uint32_t CGQuestLog::ComputeBlobQuestObjectives(int32_t questId) {
     }
 
     for (uint32_t i = 0; i < QUEST_OBJECTIVES; i++) {
-        if (quest->m_objectiveId[i] && entry->m_counts[i] < quest->m_objectiveRequiredCount[i]) {
+        if (quest->m_objectiveId[i] && entry->GetCount(i) < quest->m_objectiveRequiredCount[i]) {
             result |= 1 << i;
         }
     }

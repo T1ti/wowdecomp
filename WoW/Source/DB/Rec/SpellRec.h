@@ -193,7 +193,7 @@ class SpellRec {
     /* 0238 */ int32_t m_startRecoveryTime;
     /* 023C */ int32_t m_maxTargetLevel;
     /* 0240 */ int32_t m_spellClassSet;
-    /* 0244 */ int32_t m_spellClassMask [NUM_SPELL_CLASS_MASK_WORDS];
+    /* 0244 */ int32_t m_spellClassMask [NUM_SPELL_CLASSES_MASK];
     /* 0250 */ int32_t m_maxTargets;
     /* 0254 */ SPELL_DAMAGE_CLASS m_defenseType;
     /* 0258 */ int32_t m_preventionType; // SPELL_PREVENTION_TYPE

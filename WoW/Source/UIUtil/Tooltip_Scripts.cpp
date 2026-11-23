@@ -931,7 +931,7 @@ static int32_t Script_SetGlyph(lua_State* L) {
 
     if (player && group) {
         uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 2)) - 1;
-        tooltip->SetGlyph(player->m_player->m_playerFieldGlyphSlots1[index], group->GetGlyph(index), (player->m_player->m_playerGlyphsEnabled & (1 << index)) != 0, 0, 0);
+        tooltip->SetGlyph(player->GetGlyphSlot(index), group->GetGlyph(index), player->IsGlyphSlotEnabled(index), 0, 0);
     }
 
     return 0;

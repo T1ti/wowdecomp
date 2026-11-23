@@ -3074,7 +3074,7 @@ static int32_t Script_GetRuneCooldown(lua_State* L) {
     }
 
     uint32_t lastUsed = CGRuneInfo::GetRuneLastUsedTime(slot);
-    float regen = player->m_player->m_playerRuneRegen1[CGRuneInfo::GetRuneTypeByIndex(slot, false)];
+    float regen = player->GetRuneRegen(CGRuneInfo::GetRuneTypeByIndex(slot, false));
     float duration = regen > 0.01f ? 1.0f / regen : 0.0f;
     lua_pushnumber(L, lastUsed * 0.001);
     lua_pushnumber(L, duration);

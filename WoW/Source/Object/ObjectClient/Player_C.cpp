@@ -2355,15 +2355,15 @@ int32_t OnUpdatePlayerGlyph(WOWGUID guid, uint32_t offset, uint32_t count, const
         return 1;
     }
 
-    uint32_t slot = (offset - offsetof(CGPlayerLocalData, m_playerFieldGlyphs1)) / sizeof(uint32_t);
+    uint32_t slot = CGPlayer::GetGlyphFieldIndex(offset);
 
     if (value && g_glyphPropertiesDB.GetRecord(*static_cast<const int32_t*>(value))) {
-        if (g_glyphPropertiesDB.GetRecord(player->m_player->m_playerFieldGlyphs1[slot])) {
+        if (g_glyphPropertiesDB.GetRecord(player->GetGlyph(slot))) {
             FrameScript_SignalEvent(SCRIPT_EVENT_GLYPH_UPDATED, "%d", slot + 1);
         } else {
             FrameScript_SignalEvent(SCRIPT_EVENT_GLYPH_REMOVED, "%d", slot + 1);
         }
-    } else if (g_glyphPropertiesDB.GetRecord(player->m_player->m_playerFieldGlyphs1[slot])) {
+    } else if (g_glyphPropertiesDB.GetRecord(player->GetGlyph(slot))) {
         FrameScript_SignalEvent(SCRIPT_EVENT_GLYPH_ADDED, "%d", slot + 1);
     }
 
@@ -2381,7 +2381,7 @@ int32_t OnUpdatePlayerGlyphSlotsEnabled(WOWGUID guid, uint32_t offset, uint32_t 
         for (uint32_t i = 0; i < NUM_GLYPH_SLOTS; i++) {
             uint32_t bit = 1 << i;
 
-            if (player->m_player->m_playerGlyphsEnabled & bit) {
+            if (player->IsGlyphSlotEnabled(i)) {
                 if (!(bit & enabled)) {
                     FrameScript_SignalEvent(SCRIPT_EVENT_GLYPH_ENABLED, "%d", i + 1);
                 }
@@ -14233,7 +14233,7 @@ int32_t OnUpdatePlayerRuneRegen(WOWGUID guid, uint32_t offset, uint32_t count, c
     float rate = *static_cast<const float*>(value);
     uint32_t type = (offset - 0x1214) >> 2;
     uint32_t predicted = CGRuneInfo::GetPredictedRunes();
-    float current = player->m_player->m_playerRuneRegen1[type];
+    float current = player->GetRuneRegen(type);
 
     if (rate < 0.01f || current < 0.01f) {
         return 1;

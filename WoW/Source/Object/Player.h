@@ -4,6 +4,7 @@
 #include <cstddef>
 #include <cstdint>
 #include <windows.h>
+#include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/Magic/MagicClient/SpellEnums.h"
 #include "WoW/Source/Object/Types.h"
 #include "WoW/Source/Object/ObjectClient/VisibleItem_C.h"
@@ -79,10 +80,20 @@ enum QUEST_LOG_ENTRY_STATE : uint32_t {
     QUEST_LOG_ENTRY_FAILED = 0x2,
 };
 
+constexpr uint32_t QUESTLOG_FLAGS_NUM_COUNTS = 4;
+
 struct PlayerQuestLogEntry {
+    uint16_t GetCount(uint32_t n) const { // (inferred)
+        STORM_ASSERT(n < QUESTLOG_FLAGS_NUM_COUNTS);
+        return this->m_counts[n];
+    }
+
     /* 0000 */ uint32_t m_questId;
     /* 0004 */ uint32_t m_state;
-    /* 0008 */ uint16_t m_counts [QUEST_OBJECTIVES];
+    private:
+    /* 0008 */ uint16_t m_counts [QUESTLOG_FLAGS_NUM_COUNTS];
+
+    public:
     /* 0010 */ uint32_t m_time;
 };
 
@@ -99,6 +110,12 @@ class CGPlayer {
     public:
     PlayerQuestLogEntry* GetQuestLogEntry(uint32_t slot);
     uint32_t GetBuybackPrice(uint32_t slot);
+    float GetRuneRegen(int32_t i) const; // (inferred)
+    uint32_t GetNoReagentCostMask(int32_t i) const; // (inferred)
+    uint32_t GetGlyphSlot(uint32_t index) const; // (inferred)
+    uint32_t GetGlyph(uint32_t index) const; // (inferred)
+    bool IsGlyphSlotEnabled(uint32_t index) const; // (inferred)
+    static uint32_t GetGlyphFieldIndex(uint32_t offset); // (inferred)
     bool HasPvpMedal(uint32_t medal);
     bool HasAuraVision(uint8_t vision);
     static const int32_t NUM_REMOTE_MIRROR_FIELDS = 173;
@@ -508,13 +525,55 @@ class CGPlayerLocalData : public CGPlayerData {
     /* 11A8 */ uint32_t m_playerFieldArenaCurrency;
     /* 11AC */ uint32_t m_playerFieldMaxLevel;
     /* 11B0 */ uint32_t m_playerFieldDailyQuests1 [MAX_DAILY_QUESTS];
-    /* 1214 */ float m_playerRuneRegen1 [4];
-    /* 1224 */ uint32_t m_playerNoReagentCost1 [NUM_SPELL_CLASS_MASK_WORDS];
+    private:
+    friend class CGPlayer; // (inferred)
+    static constexpr int32_t NUM_RUNE_TYPES = 4;
+    /* 1214 */ float m_playerRuneRegen1 [NUM_RUNE_TYPES];
+    /* 1224 */ uint32_t m_playerNoReagentCost1 [NUM_SPELL_CLASSES_MASK];
     /* 1230 */ uint32_t m_playerFieldGlyphSlots1 [6];
     /* 1248 */ uint32_t m_playerFieldGlyphs1 [6];
     /* 1260 */ uint32_t m_playerGlyphsEnabled;
+    public:
     /* 1264 */ uint32_t m_playerPetSpellPower;
 };
+
+// INLINED
+inline float CGPlayer::GetRuneRegen(int32_t i) const {
+#if defined(WOWDECOMP_ASSERTIONS)
+    constexpr int32_t NUM_RUNE_TYPES = CGPlayerLocalData::NUM_RUNE_TYPES;
+    STORM_ASSERT(i >= 0 && i < NUM_RUNE_TYPES);
+#endif
+    return this->m_player->m_playerRuneRegen1[i];
+}
+
+// INLINED
+inline uint32_t CGPlayer::GetNoReagentCostMask(int32_t i) const {
+    STORM_ASSERT(i >= 0 && i < NUM_SPELL_CLASSES_MASK);
+    return this->m_player->m_playerNoReagentCost1[i];
+}
+
+// INLINED
+inline uint32_t CGPlayer::GetGlyphSlot(uint32_t index) const {
+    STORM_ASSERT(index < 6);
+    return this->m_player->m_playerFieldGlyphSlots1[index];
+}
+
+// INLINED
+inline uint32_t CGPlayer::GetGlyph(uint32_t index) const {
+    STORM_ASSERT(index < 6);
+    return this->m_player->m_playerFieldGlyphs1[index];
+}
+
+// INLINED
+inline bool CGPlayer::IsGlyphSlotEnabled(uint32_t index) const {
+    STORM_ASSERT(index < 6);
+    return (this->m_player->m_playerGlyphsEnabled & (1 << index)) != 0;
+}
+
+// INLINED
+inline uint32_t CGPlayer::GetGlyphFieldIndex(uint32_t offset) {
+    return (offset - offsetof(CGPlayerLocalData, m_playerFieldGlyphs1)) / sizeof(uint32_t);
+}
 
 // INLINED
 inline uint32_t CGPlayer::GetDataSize() {

@@ -43,13 +43,13 @@ static int32_t Script_GetGlyphSocketInfo(lua_State* L) {
         return 0;
     }
 
-    if (player->m_player->m_playerGlyphsEnabled & (1 << index)) {
+    if (player->IsGlyphSlotEnabled(index)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
     }
 
-    GlyphSlotRec* slot = g_glyphSlotDB.GetRecord(player->m_player->m_playerFieldGlyphSlots1[index]);
+    GlyphSlotRec* slot = g_glyphSlotDB.GetRecord(player->GetGlyphSlot(index));
 
     if (slot) {
         lua_pushnumber(L, slot->m_type + 1);
@@ -105,7 +105,7 @@ static int32_t Script_GlyphMatchesSocket(lua_State* L) {
         }
 
         GlyphPropertiesRec* glyph = g_glyphPropertiesDB.GetRecord(spell.m_effectMiscValue[i]);
-        GlyphSlotRec* slot = g_glyphSlotDB.GetRecord(player->m_player->m_playerFieldGlyphSlots1[index]);
+        GlyphSlotRec* slot = g_glyphSlotDB.GetRecord(player->GetGlyphSlot(index));
 
         if (!glyph || !slot) {
             continue;
@@ -157,7 +157,7 @@ static int32_t Script_RemoveGlyphFromSocket(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
-    if (index < NUM_GLYPH_SLOTS && player && player->m_player->m_playerFieldGlyphSlots1[index]) {
+    if (index < NUM_GLYPH_SLOTS && player && player->GetGlyphSlot(index)) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_REMOVE_GLYPH));
         msg.Put(index);
@@ -184,7 +184,7 @@ static int32_t Script_GetGlyphLink(lua_State* L) {
         return 0;
     }
 
-    lua_pushstring(L, CGTooltip::GetGlyphLink(player->m_player->m_playerFieldGlyphSlots1[index], group->GetGlyph(index)));
+    lua_pushstring(L, CGTooltip::GetGlyphLink(player->GetGlyphSlot(index), group->GetGlyph(index)));
     return 1;
 }
 

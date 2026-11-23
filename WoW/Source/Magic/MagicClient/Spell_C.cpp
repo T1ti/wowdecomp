@@ -87,6 +87,7 @@
 #include "WoW/Source/DB/Rec/SkillLineRec.h"
 #include "WoW/Source/UIUtil/Tooltip.h"
 #include "WoW/Source/Ui/Tutorial.h"
+#include "WoW/Source/Ui/TalentInfo.h"
 #include "WoW/Source/Ui/UIMacros.h"
 #include "Engine/Source/Event/Event.h"
 #include "Engine/Source/ConsoleBase/IConsole.h"
@@ -3477,7 +3478,7 @@ bool SpellRec::IsAffectedBy(const SpellRec* spell, const SpellRec* modifier, int
 
     const int32_t* mask = SpellRec::GetClassMask(modifier, effect);
 
-    for (uint32_t i = 0; i < NUM_SPELL_CLASS_MASK_WORDS; i++) {
+    for (uint32_t i = 0; i < NUM_SPELL_CLASSES_MASK; i++) {
         if (mask[i] & spell->m_spellClassMask[i]) {
             return true;
         }
@@ -3864,8 +3865,8 @@ bool Spell_C_HasNoReagentCost(CGPlayer_C* player, const SpellRec* spell) {
         return false;
     }
 
-    for (uint32_t i = 0; i < NUM_SPELL_CLASS_MASK_WORDS; i++) {
-        if (spell->m_spellClassMask[i] & player->m_player->m_playerNoReagentCost1[i]) {
+    for (uint32_t i = 0; i < NUM_SPELL_CLASSES_MASK; i++) {
+        if (spell->m_spellClassMask[i] & player->GetNoReagentCostMask(i)) {
             return true;
         }
     }
@@ -8912,9 +8913,7 @@ bool Spell_C_HandleGlyphClick(int32_t socket) {
         return false;
     }
 
-    CGPlayerLocalData* data = static_cast<CGPlayerLocalData*>(player->m_player);
-
-    if (!((1 << socket) & data->m_playerGlyphsEnabled)) {
+    if (!player->IsGlyphSlotEnabled(socket)) {
         Spell_C_SpellFailed(cast, &spell, SPELL_FAILED_GLYPH_SOCKET_LOCKED, -1, -1, false);
         return false;
     }
@@ -8925,7 +8924,7 @@ bool Spell_C_HandleGlyphClick(int32_t socket) {
         }
 
         GlyphPropertiesRec* properties = g_glyphPropertiesDB.GetRecord(spell.m_effectMiscValue[i]);
-        GlyphSlotRec* slot = g_glyphSlotDB.GetRecord(data->m_playerFieldGlyphSlots1[socket]);
+        GlyphSlotRec* slot = g_glyphSlotDB.GetRecord(player->GetGlyphSlot(socket));
 
         if (!properties || !slot) {
             cast = s_targetingSpell;
@@ -8937,8 +8936,8 @@ bool Spell_C_HandleGlyphClick(int32_t socket) {
             return false;
         }
 
-        for (uint32_t j = 0; j < sizeof(data->m_playerFieldGlyphs1) / sizeof(data->m_playerFieldGlyphs1[0]); j++) {
-            if (data->m_playerFieldGlyphs1[j] == static_cast<uint32_t>(spell.m_effectMiscValue[i])) {
+        for (uint32_t j = 0; j < NUM_GLYPH_SLOTS; j++) {
+            if (player->GetGlyph(j) == static_cast<uint32_t>(spell.m_effectMiscValue[i])) {
                 Spell_C_SpellFailed(s_targetingSpell, &spell, SPELL_FAILED_UNIQUE_GLYPH, -1, -1, false);
                 return false;
             }

@@ -345,7 +345,7 @@ void CGRuneInfo::ComputeRuneRechargeTime(int32_t rune, float progress) {
         return;
     }
 
-    float rate = player->m_player->m_playerRuneRegen1[CGRuneInfo::m_runes[rune]];
+    float rate = player->GetRuneRegen(CGRuneInfo::m_runes[rune]);
 
     if (rate >= 0.01f) {
         CGRuneInfo::m_runeCooldowns[rune] = OsGetAsyncTimeMs() - static_cast<int32_t>(1.0f / rate * (1.0f - progress) * -TIME_MILLISECONDS_PER_SECOND_FLOAT);
