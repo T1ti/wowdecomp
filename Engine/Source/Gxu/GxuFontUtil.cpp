@@ -304,7 +304,7 @@ bool ParseEmbeddedTexture(const char* text, GXUEMBEDDEDTEXTUREINFO* info, float 
     info->m_pathLength = 0;
     info->m_hasTexCoords = 0;
 
-    const char* start = text + g_quotedCodeLengths[CODE_TEXTURESTART];
+    const char* start = text + g_quotedCodeLengths[CODE_EMBEDDEDTEXTURESTART];
     const char* end = SStrChr(start, '|');
 
     if (!end || start >= end || end[1] != 't') {
@@ -542,11 +542,11 @@ void InternalGetTextExtent(CGxFont* face, const char* text, uint32_t numBytes, f
             case CODE_COLORRESTORE:
             case CODE_HYPERLINKSTART:
             case CODE_HYPERLINKSTOP:
-            case CODE_TEXTURESTOP: {
+            case CODE_EMBEDDEDTEXTURESTOP: {
                 break;
             }
 
-            case CODE_TEXTURESTART: {
+            case CODE_EMBEDDEDTEXTURESTART: {
                 GXUEMBEDDEDTEXTUREINFO info;
                 float fontPixelHeight = ScreenToPixelHeight(flags & EGxStringFlags::EGxStringFlags_Unscaled, fontHeight);
 
@@ -670,11 +670,11 @@ uint32_t InternalGetMaxCharsWithinWidth(CGxFont* face, const char* text, float f
             break;
         }
 
-        if (code == CODE_COLORON || code == CODE_COLORRESTORE || code == CODE_HYPERLINKSTART || code == CODE_HYPERLINKSTOP || code == CODE_TEXTURESTOP) {
+        if (code == CODE_COLORON || code == CODE_COLORRESTORE || code == CODE_HYPERLINKSTART || code == CODE_HYPERLINKSTOP || code == CODE_EMBEDDEDTEXTURESTOP) {
             continue;
         }
 
-        if (code == CODE_TEXTURESTART) {
+        if (code == CODE_EMBEDDEDTEXTURESTART) {
             GXUEMBEDDEDTEXTUREINFO info;
 
             if (!ParseEmbeddedTexture(text - advance, &info, fontPixelHeight, scale, fontHeight)) {
@@ -784,11 +784,11 @@ static void CalcWrapPointBillboarded(const char* text, uint32_t flags, CGxFont* 
             case CODE_COLORRESTORE:
             case CODE_HYPERLINKSTART:
             case CODE_HYPERLINKSTOP:
-            case CODE_TEXTURESTOP: {
+            case CODE_EMBEDDEDTEXTURESTOP: {
                 break;
             }
 
-            case CODE_TEXTURESTART: {
+            case CODE_EMBEDDEDTEXTURESTART: {
                 GXUEMBEDDEDTEXTUREINFO info;
                 float fontPixelHeight;
 
@@ -894,7 +894,7 @@ static void CalcWrapPointNonBillboarded(const char* text, CGxFont* face, float f
             break;
         }
 
-        if (code == CODE_TEXTURESTART) {
+        if (code == CODE_EMBEDDEDTEXTURESTART) {
             GXUEMBEDDEDTEXTUREINFO info;
 
             if (!ParseEmbeddedTexture(text, &info, fontPixelHeight, scale, fontHeight)) {
@@ -917,7 +917,7 @@ static void CalcWrapPointNonBillboarded(const char* text, CGxFont* face, float f
 
             lastCode = wide;
             advance = 0;
-        } else if (code == CODE_COLORON || code == CODE_COLORRESTORE || code == CODE_HYPERLINKSTART || code == CODE_HYPERLINKSTOP || code == CODE_TEXTURESTOP) {
+        } else if (code == CODE_COLORON || code == CODE_COLORRESTORE || code == CODE_HYPERLINKSTART || code == CODE_HYPERLINKSTOP || code == CODE_EMBEDDEDTEXTURESTOP) {
             text += advance;
             continue;
         }

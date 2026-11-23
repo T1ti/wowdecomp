@@ -615,7 +615,7 @@ QUOTEDCODE GxuDetermineQuotedCode(const char* text, int32_t& advance, CImVector*
 
                 if (wideChar == 't' && current - text != 4) {
                     advance = current - text;
-                    return CODE_TEXTURESTART;
+                    return CODE_EMBEDDEDTEXTURESTART;
                 }
             }
 
@@ -638,7 +638,7 @@ QUOTEDCODE GxuDetermineQuotedCode(const char* text, int32_t& advance, CImVector*
             }
 
             advance = 2;
-            return CODE_TEXTURESTOP;
+            return CODE_EMBEDDEDTEXTURESTOP;
 
         case '|':
             advance = 2;
@@ -811,7 +811,7 @@ const char* GxuFontStripEscapeCodes(const char* text, uint32_t textLength, uint3
             case CODE_COLORON:
             case CODE_COLORRESTORE:
             case CODE_HYPERLINKSTART:
-            case CODE_TEXTURESTART:
+            case CODE_EMBEDDEDTEXTURESTART:
                 if (flags & s_quotedCodeInfo[code].m_ignoreFlag) {
                     text += advance;
                     remaining -= advance;
@@ -823,7 +823,7 @@ const char* GxuFontStripEscapeCodes(const char* text, uint32_t textLength, uint3
             case CODE_NEWLINE:
             case CODE_PIPE:
             case CODE_HYPERLINKSTOP:
-            case CODE_TEXTURESTOP:
+            case CODE_EMBEDDEDTEXTURESTOP:
                 remaining -= advance;
                 text += advance;
 

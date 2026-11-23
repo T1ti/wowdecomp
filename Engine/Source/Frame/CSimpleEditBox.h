@@ -62,11 +62,15 @@ class CSimpleEditBox : public CSimpleFrame, public CSimpleFontedFrame {
     };
 
     static CDataAllocator s_allocator;
+    private:
     static CSimpleEditBox* s_currentFocus;
     static int32_t s_metatable;
     static int32_t s_objectType;
-    static const char* s_objectTypeName;
-    static const char* s_inputLanguageNames[4];
+    static const char* const s_objectTypeName;
+    static const char* const s_inputLanguageNames[4];
+
+    public:
+    static CSimpleEditBox* GetCurrentFocus() { return s_currentFocus; } // (inferred)
 
     static void operator delete(void* ptr);
     static void ClearKeyboardFocus(CSimpleEditBox* editBox, bool runScript);
@@ -76,26 +80,38 @@ class CSimpleEditBox : public CSimpleFrame, public CSimpleFontedFrame {
     static void RegisterScriptMethods(lua_State* L);
     static void SetKeyboardFocus(CSimpleEditBox* editBox);
 
+    private:
     /* 02A0 */ uint32_t m_editBoxFlags;
+
+    public:
     /* 02A4 */ uint32_t m_dirtyBits;
     /* 02A8 */ const char* m_textTaint;
     /* 02AC */ CSimpleFontedFrameFont* m_font;
     /* 02B0 */ CSimpleFontString* m_string; // Rendered text region; the byte buffer is m_text.
     /* 02B4 */ char* m_text;
+    private:
     /* 02B8 */ uint32_t* m_textInfo;
+
+    public:
     /* 02BC */ char* m_textHidden;
     /* 02C0 */ int32_t m_textLength;
     /* 02C4 */ int32_t m_textLengthMax; // Maximum text bytes excluding the terminator; -1 disables the byte limit.
     /* 02C8 */ int32_t m_textLettersMax; // Character-count limit; zero disables it. Counting follows edit-box flags.
     /* 02CC */ uint32_t m_textSize;
+    private:
     /* 02D0 */ int32_t m_visiblePos; // Byte offset of the visible substring.
     /* 02D4 */ int32_t m_visibleLen; // Byte length of the visible substring.
+
+    public:
     /* 02D8 */ CSimpleTexture* m_highlight[3]; // First-line, middle-line and last-line selection textures.
     /* 02E4 */ int32_t m_highlightLeft;
     /* 02E8 */ int32_t m_highlightRight;
     /* 02EC */ int32_t m_highlightDrag;
     /* 02F0 */ CSimpleTexture* m_cursor;
+    private:
     /* 02F4 */ int32_t m_cursorPos;
+
+    public:
     /* 02F8 */ float m_cursorBlinkSpeed;
     /* 02FC */ float m_blinkElapsedTime;
     /* 0300 */ TSGrowableArray<uint32_t> m_visibleLines;
@@ -208,6 +224,10 @@ class CSimpleEditBox : public CSimpleFrame, public CSimpleFontedFrame {
     void SetHistoryLines(int32_t lines);
     void SetMultiLine(BOOL enable);
     void SetNumeric(BOOL enable);
+    bool HasEditBoxFlag(EDITBOX_FLAGS flag) const { return (this->m_editBoxFlags & flag) != 0; } // (inferred)
+    bool IsMultiLine() const { return this->HasEditBoxFlag(EDITBOX_FLAGS::EDITBOX_MULTILINE); }
+    bool IsPassword() const { return this->HasEditBoxFlag(EDITBOX_FLAGS::EDITBOX_PASSWORD); }
+    int32_t GetCursorPosition() const { return this->m_cursorPos; } // (inferred)
     void SetPassword(BOOL enable);
     void SetText(const char* text, const char* taint);
     void ToggleInputLanguage();

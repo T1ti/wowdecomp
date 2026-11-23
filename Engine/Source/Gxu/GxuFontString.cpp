@@ -314,7 +314,7 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
                 }
 
                 case CODE_NEWLINE:
-                case CODE_TEXTURESTOP: {
+                case CODE_EMBEDDEDTEXTURESTOP: {
                     break;
                 }
 
@@ -362,7 +362,7 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
                     break;
                 }
 
-                case CODE_TEXTURESTART: {
+                case CODE_EMBEDDEDTEXTURESTART: {
                     if (parseInfo.m_state == HYPERLINKTEXTURE) {
                         break;
                     }

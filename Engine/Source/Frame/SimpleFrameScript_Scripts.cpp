@@ -77,7 +77,7 @@ static int32_t Script_CreateFont(lua_State* L) {
 // VERIFY: 9415d77e auto
 // OFFSET: 0x0081B820
 static int32_t Script_GetCurrentKeyBoardFocus(lua_State* L) {
-    CSimpleEditBox* focus = CSimpleEditBox::s_currentFocus;
+    CSimpleEditBox* focus = CSimpleEditBox::GetCurrentFocus();
 
     if (!focus) {
         lua_pushnil(L);
