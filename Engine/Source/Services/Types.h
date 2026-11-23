@@ -33,7 +33,7 @@ class CAsyncObject {
     /* 0026 */ uint16_t m_padding;
     /* 0028 */ TSLink<CAsyncObject> link;
 
-    BOOL IsPending();
+    BOOL IsPending() const;
 };
 
 // Font flags taken by TextBlockGenerateFont; names from the FrameXML s_fontFlags strings
