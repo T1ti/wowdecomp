@@ -28,8 +28,8 @@ class CMapAreaLow {
     /* 002C */ C3Vector m_topLeft;
     /* 0038 */ C2iVector m_index;
     /* 0040 */ uint32_t m_indexCount;
-    /* 0044 */ int16_t* m_heights;
-    /* 0048 */ uint16_t* m_holes;
+    /* 0044 */ const int16_t* m_heights;
+    /* 0048 */ const uint16_t* m_holes;
     /* 004C */ TSLink<CMapAreaLow> m_horizonLink;
     /* 0054 */ FVBBList::Block* m_block;
     /* 0058 */ uint32_t m_flags;
@@ -45,17 +45,21 @@ class CMapAreaLowHeap {
 };
 
 class CMapLowDetail {
-    public:
+    private:
     /* 0000 */ char* m_data;
     /* 0004 */ char* m_mapObjNames;
-    /* 0008 */ uint32_t* m_mapObjNameOffsets;
+    /* 0008 */ const uint32_t* m_mapObjNameOffsets;
     /* 000C */ SMMapObjDef* m_mapObjDefs;
     /* 0010 */ uint32_t m_mapObjDefCount;
-    /* 0014 */ uint32_t* m_areaOffsets;
-    /* 0018 */ CMapAreaLow* m_areas [MAP_AREA_COUNT];
+    /* 0014 */ const uint32_t* m_areaOffsets;
+    /* 0018 */ CMapAreaLow* m_areaTable [MAP_AREA_COUNT];
     /* 4018 */ TSGrowableArray<CMapObjDef*> m_mapObjDefList;
 
+    public:
     CMapLowDetail();
+#if defined(WOWDECOMP_ASSERTIONS)
+    ~CMapLowDetail();
+#endif
     void CullHorizonAreas(const C3Vector* pos);
     void Load(const char* mapPath, const char* mapName);
     void Purge();

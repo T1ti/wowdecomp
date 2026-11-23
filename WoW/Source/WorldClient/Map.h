@@ -337,7 +337,7 @@ class CMap {
     static void FreeAreaLow(CMapAreaLow* areaLow);
     static void RenderLowDetail(CMapAreaLow* area);
     static void BuildLowDetailGridVertices(CMapAreaLow* area, CGxBuf* buf);
-    static void BuildLowDetailGridIndices(uint16_t* holes, int32_t pass, CGxBuf* buf);
+    static void BuildLowDetailGridIndices(const uint16_t* holes, int32_t pass, CGxBuf* buf);
     static void FreeArea(CMapArea* area);
     static void FreeAreaMed(CMapAreaMed* areaMed);
     static void FreeChunk(CMapChunk* chunk);

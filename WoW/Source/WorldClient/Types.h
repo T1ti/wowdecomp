@@ -121,6 +121,8 @@ struct SIffChunk {
     // Chunk tags the client compares; the file stores each tag byte-reversed, so the dword reads as the tag.
     enum TOKEN : uint32_t {
         TOKEN_MAHO = 0x4D41484F, // 'MAHO'
+        TOKEN_MAOF = 0x4D414F46, // 'MAOF'
+        TOKEN_MARE = 0x4D415245, // 'MARE'
         TOKEN_MCAL = 0x4D43414C, // 'MCAL'
         TOKEN_MCCV = 0x4D434356, // 'MCCV'
         TOKEN_MCLQ = 0x4D434C51, // 'MCLQ'
