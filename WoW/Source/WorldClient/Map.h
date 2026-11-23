@@ -219,7 +219,13 @@ class CMap {
     static int32_t bspRecurseCount;
     static uint32_t s_queryTag;
     static uint32_t cCount;
-    static CMapAreaMed* unk[MAP_AREA_COUNT];
+    private:
+    static TSList<CMapArea, TSGetExplicitLink<CMapArea> > areaList;
+    static TSList<CMapDoodadDef, TSGetExplicitLink<CMapDoodadDef> > doodadDefList;
+    static TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > chunkLiquidList;
+    static CMapAreaMed* areaMedArray[MAP_AREA_COUNT]; // (inferred)
+
+    public:
     static CMapArea* m_areaTable[MAP_AREA_COUNT];
     static SMAreaInfo m_areaInfo[MAP_AREA_COUNT];
     static TSGrowableArray<uint32_t> scCollideList;
@@ -255,13 +261,12 @@ class CMap {
     static FVBBList s_vbbList;
     static TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> s_mapRenderChunkFreeList;
     static TSExplicitList<CMapChunkBuf, offsetof(CMapChunkBuf, m_link)> s_chunkBufFreeList;
-    static TSList<CMapArea, TSGetExplicitLink<CMapArea> > s_allocatedAreas;
-    static TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > s_mapChunkList;
+    static TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > chunkList;
     static TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > s_mapChunkSortList;
     static TSList<CMapObjDefGroup, TSGetExplicitLink<CMapObjDefGroup> > mapObjDefGroupList;
     static TSList<CMapEntity, TSGetExplicitLink<CMapEntity> > entityList;
     static TSList<CMapLight, TSGetExplicitLink<CMapLight> > lightList;
-    // Every prepared ADT area (PrepareArea links, PurgeMaps frees). Name inferred, after mapObjDefLinkList.
+    // Every prepared ADT area (PrepareArea links, PurgeMaps frees).
     static TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > areaLinkList;
     static TSList<CDetailDoodadInst, TSGetExplicitLink<CDetailDoodadInst> > s_detailDoodadUpdateList;
     static TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> s_mapRenderChunkUpdateList;
@@ -275,13 +280,11 @@ class CMap {
     static int32_t s_fanIndices[8];
     static uint16_t s_2bitSplatMask[8];
     static uint32_t s_2bitSplatShft[8];
-    static TSList<CMapDoodadDef, TSGetExplicitLink<CMapDoodadDef> > doodadDefList;
     static TSHashTable<CMapObjDef, HASHKEY_NONE> mapObjDefHash;
     static TSHashTable<CMapDoodadDef, HASHKEY_DWORD> doodadDefHash;
-    static TSExplicitList<CDestructibleProxy, offsetof(CDestructibleProxy, m_link)> s_destructibleProxyList;
+    static TSExplicitList<CDestructibleProxy, offsetof(CDestructibleProxy, m_link)> destructibleProxies;
     static HASHKEY_NONE s_mapObjDefHashKey;
     static int32_t enableChunkBatching;
-    static TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > s_chunkLiquidList;
     static TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > s_mapChunkLiquidUpdateList;
     static DepthCoordTable* s_depthCoordTables[2];
 

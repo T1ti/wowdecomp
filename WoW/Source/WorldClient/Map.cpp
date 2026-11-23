@@ -118,10 +118,10 @@ TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> CM
 TSExplicitList<CMapChunkBuf, offsetof(CMapChunkBuf, m_link)> CMap::s_chunkBufFreeList;
 
 // STATIC: 0x00AEED8C
-TSList<CMapArea, TSGetExplicitLink<CMapArea> > CMap::s_allocatedAreas = TSExplicitList<CMapArea, offsetof(CMapArea, m_lameAssLink)>();
+TSList<CMapArea, TSGetExplicitLink<CMapArea> > CMap::areaList = TSExplicitList<CMapArea, offsetof(CMapArea, m_lameAssLink)>();
 
 // STATIC: 0x00AEEDA4
-TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > CMap::s_mapChunkList = TSExplicitList<CMapChunk, offsetof(CMapChunk, m_lameAssLink)>();
+TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > CMap::chunkList = TSExplicitList<CMapChunk, offsetof(CMapChunk, m_lameAssLink)>();
 
 // STATIC: 0x00AEEDBC
 TSList<CMapObjDefGroup, TSGetExplicitLink<CMapObjDefGroup> > CMap::mapObjDefGroupList = TSExplicitList<CMapObjDefGroup, offsetof(CMapObjDefGroup, m_lameAssLink)>();
@@ -196,7 +196,7 @@ uint32_t CMap::s_queryTag;
 uint32_t CMap::cCount;
 
 // STATIC: 0x00CE08D0
-CMapAreaMed* CMap::unk[MAP_AREA_COUNT];
+CMapAreaMed* CMap::areaMedArray[MAP_AREA_COUNT];
 
 // STATIC: 0x00CE48D0
 CMapArea* CMap::m_areaTable[MAP_AREA_COUNT];
@@ -316,7 +316,7 @@ int32_t CMap::enableChunkBatching;
 DepthCoordTable* CMap::s_depthCoordTables[2] = { &CMap::s_depthCoordTable0, &CMap::s_depthCoordTable1 };
 
 // STATIC: 0x00AEEDB0
-TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > CMap::s_chunkLiquidList = TSExplicitList<CChunkLiquid, offsetof(CChunkLiquid, m_link)>();
+TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > CMap::chunkLiquidList = TSExplicitList<CChunkLiquid, offsetof(CChunkLiquid, m_link)>();
 
 // STATIC: 0x00ADFC34
 TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > CMap::s_mapChunkLiquidUpdateList = TSExplicitList<CChunkLiquid, offsetof(CChunkLiquid, m_updateLink)>();
@@ -373,7 +373,7 @@ TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > CMap::s_mapChunkSortList = TSEx
 TSHashTable<CMapDoodadDef, HASHKEY_DWORD> CMap::doodadDefHash;
 
 // STATIC: 0x00AEEDE0
-TSExplicitList<CDestructibleProxy, offsetof(CDestructibleProxy, m_link)> CMap::s_destructibleProxyList;
+TSExplicitList<CDestructibleProxy, offsetof(CDestructibleProxy, m_link)> CMap::destructibleProxies;
 
 // STATIC: 0x00CE04BC
 int32_t CMap::mapGetFacetsCount;
@@ -440,7 +440,8 @@ DepthCoordTable* CMap::GetDepthCoordTable(uint32_t liquidType) {
 // VERIFY: e651a57d manual
 // OFFSET: 0x0079E5C0
 CGxShader* CMap::GetTerrainPixelShader(int32_t bigAlpha, int32_t layers, int32_t shadowMode, int32_t specular, int32_t unlitLayers) {
-    int32_t layerIndex = layers - 1;
+    const int32_t layerIndex = layers - 1;
+    STORM_ASSERT(static_cast<uint32_t>(layerIndex) < 4); // 12213: "layers < 4"
 
     switch (shadowMode) {
         case 0:
@@ -465,7 +466,7 @@ CGxShader* CMap::GetTerrainPixelShader(int32_t bigAlpha, int32_t layers, int32_t
 // VERIFY: 2fffff6e manual
 // OFFSET: 0x0079E730
 void CMap::ClearChunkDetailDoodads() {
-    for (CMapChunk* chunk = CMap::s_mapChunkList.Head(); chunk; chunk = CMap::s_mapChunkList.Next(chunk)) {
+    for (CMapChunk* chunk = CMap::chunkList.Head(); chunk; chunk = CMap::chunkList.Next(chunk)) {
         if (chunk->detailDoodadInst) {
             CDetailDoodad::FreeInst(chunk->detailDoodadInst);
             chunk->detailDoodadInst = nullptr;
@@ -476,7 +477,7 @@ void CMap::ClearChunkDetailDoodads() {
 // VERIFY: 77579752 manual
 // OFFSET: 0x0079E780
 void CMap::ClearAllRenderChunks() {
-    for (CMapChunk* chunk = CMap::s_mapChunkList.Head(); chunk; chunk = CMap::s_mapChunkList.Next(chunk)) {
+    for (CMapChunk* chunk = CMap::chunkList.Head(); chunk; chunk = CMap::chunkList.Next(chunk)) {
         if (chunk->m_renderChunk) {
             chunk->m_renderChunk->FreeBuf();
         }
@@ -487,21 +488,21 @@ void CMap::ClearAllRenderChunks() {
 // OFFSET: 0x0079EFF0
 void CDestructibleProxy::FindOrCreate(CDestructibleProxy* proxy) {
     if (!proxy->m_uniqueId) {
-        CMap::s_destructibleProxyList.LinkToHead(proxy);
+        CMap::destructibleProxies.LinkToHead(proxy);
         return;
     }
 
-    for (CDestructibleProxy* node = CMap::s_destructibleProxyList.Head(); !CMap::s_destructibleProxyList.IsEnd(node); node = CMap::s_destructibleProxyList.RawNext(node)) {
+    for (CDestructibleProxy* node = CMap::destructibleProxies.Head(); !CMap::destructibleProxies.IsEnd(node); node = CMap::destructibleProxies.RawNext(node)) {
         if (node->m_uniqueId == proxy->m_uniqueId) {
             return;
         }
     }
 
-    CDestructibleProxy* created = CMap::s_destructibleProxyList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
+    CDestructibleProxy* created = CMap::destructibleProxies.NewNode(TSLIST_LINK_BEFORE, 0, 0);
     created->unused_0000 = proxy->unused_0000;
     created->m_sphere = proxy->m_sphere;
     created->m_uniqueId = proxy->m_uniqueId;
-    CMap::s_destructibleProxyList.LinkToHead(created);
+    CMap::destructibleProxies.LinkToHead(created);
 }
 
 // VERIFY: ee012d34 manual
@@ -509,14 +510,14 @@ void CDestructibleProxy::FindOrCreate(CDestructibleProxy* proxy) {
 void CDestructibleProxy::FreeMatching(CDestructibleProxy* proxy) {
     CDestructibleProxy* next;
 
-    for (CDestructibleProxy* node = CMap::s_destructibleProxyList.Head(); node; node = next) {
-        next = CMap::s_destructibleProxyList.Next(node);
+    for (CDestructibleProxy* node = CMap::destructibleProxies.Head(); node; node = next) {
+        next = CMap::destructibleProxies.Next(node);
 
         if (proxy == node || (proxy->m_uniqueId && node->m_uniqueId == proxy->m_uniqueId)) {
-            CMap::s_destructibleProxyList.UnlinkNode(node);
+            CMap::destructibleProxies.UnlinkNode(node);
 
             if (proxy != node) {
-                CMap::s_destructibleProxyList.DeleteNode(node);
+                CMap::destructibleProxies.DeleteNode(node);
             }
         }
     }
@@ -528,6 +529,23 @@ void CMap::Destroy() {
     if (CMap::bActive) {
         CMap::Unload();
     }
+
+    STORM_ASSERT(areaList.Head() == nullptr); // 12213: "areaList.Head() == __null"
+#if defined(WOWDECOMP_ASSERTIONS)
+    for (const CMapAreaMed* areaMed : areaMedArray) {
+        STORM_ASSERT(areaMed == nullptr); // 12213: "areaMedList.Head() == __null"
+    }
+#endif
+    STORM_ASSERT(chunkList.Head() == nullptr); // 12213: "chunkList.Head() == __null"
+    STORM_ASSERT(entityList.Head() == nullptr); // 12213: "entityList.Head() == __null"
+    STORM_ASSERT(mapObjDefHash.Head() == nullptr); // 12213: "mapObjDefHash.Head() == __null"
+    STORM_ASSERT(mapObjDefGroupList.Head() == nullptr); // 12213: "mapObjDefGroupList.Head() == __null"
+    STORM_ASSERT(doodadDefHash.Head() == nullptr); // 12213: "doodadDefHash.Head() == __null"
+    STORM_ASSERT(chunkLiquidList.Head() == nullptr); // 12213: "chunkLiquidList.Head() == __null"
+    STORM_ASSERT(areaLinkList.Head() == nullptr); // 12213: "areaLinkList.Head() == __null"
+    STORM_ASSERT(doodadDefLinkList.Head() == nullptr); // 12213: "doodadDefLinkList.Head() == __null"
+    STORM_ASSERT(mapObjDefLinkList.Head() == nullptr); // 12213: "mapObjDefLinkList.Head() == __null"
+    STORM_ASSERT(destructibleProxies.Head() == nullptr); // 12213: "destructibleProxies.Head() == __null"
 
     WaterRipple::Destroy();
     CMapObj::Destroy();
@@ -696,7 +714,7 @@ void CMap::Initialize() {
 
     memset(CMap::counts, 0, sizeof(CMap::counts));
     memset(CMap::freeCounts, 0, sizeof(CMap::freeCounts));
-    memset(CMap::unk, 0, sizeof(CMap::unk));
+    memset(CMap::areaMedArray, 0, sizeof(CMap::areaMedArray));
     memset(CMap::m_areaTable, 0, sizeof(CMap::m_areaTable));
 
     for (uint32_t i = 0; i < sizeof(CMap::m_areaInfo) / sizeof(CMap::m_areaInfo[0]); i++) {
@@ -3341,13 +3359,13 @@ CMapArea* CMap::AllocArea() {
     void* object = nullptr;
 
     if (!ObjectAlloc(*CMap::areaHeap, &memHandle, &object, false)) {
-        CMap::s_allocatedAreas.LinkToTail(nullptr);
+        CMap::areaList.LinkToTail(nullptr);
         return nullptr;
     }
 
     CMapArea* area = new (object) CMapArea();
     area->m_objectIndex = memHandle;
-    CMap::s_allocatedAreas.LinkToTail(area);
+    CMap::areaList.LinkToTail(area);
 
     return area;
 }
@@ -3359,13 +3377,13 @@ CMapChunk* CMap::AllocMapChunk() {
     void* object = nullptr;
 
     if (!ObjectAlloc(*CMap::chunkHeap, &memHandle, &object, false)) {
-        CMap::s_mapChunkList.LinkToTail(nullptr);
+        CMap::chunkList.LinkToTail(nullptr);
         return nullptr;
     }
 
     CMapChunk* chunk = new (object) CMapChunk();
     chunk->m_objectIndex = memHandle;
-    CMap::s_mapChunkList.LinkToTail(chunk);
+    CMap::chunkList.LinkToTail(chunk);
 
     return chunk;
 }
@@ -3413,13 +3431,13 @@ CChunkLiquid* CMap::AllocChunkLiquid() {
     void* object = nullptr;
 
     if (!ObjectAlloc(*CMap::chunkLiquidHeap, &memHandle, &object, false)) {
-        CMap::s_chunkLiquidList.LinkToTail(nullptr);
+        CMap::chunkLiquidList.LinkToTail(nullptr);
         return nullptr;
     }
 
     CChunkLiquid* liquid = new (object) CChunkLiquid();
     liquid->m_objectIndex = memHandle;
-    CMap::s_chunkLiquidList.LinkToTail(liquid);
+    CMap::chunkLiquidList.LinkToTail(liquid);
 
     return liquid;
 }
@@ -4087,9 +4105,9 @@ void CMap::PurgeMaps() {
     }
 
     for (uint32_t i = 0; i < 4096; i++) {
-        if (CMap::unk[i]) {
-            CMap::FreeAreaMed(CMap::unk[i]);
-            CMap::unk[i] = nullptr;
+        if (CMap::areaMedArray[i]) {
+            CMap::FreeAreaMed(CMap::areaMedArray[i]);
+            CMap::areaMedArray[i] = nullptr;
         }
     }
 
@@ -4458,7 +4476,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
     centered.b = box->b - center;
     centered.t = box->t - center;
 
-    for (CDestructibleProxy* proxy = CMap::s_destructibleProxyList.Head(); proxy; proxy = CMap::s_destructibleProxyList.Next(proxy)) {
+    for (CDestructibleProxy* proxy = CMap::destructibleProxies.Head(); proxy; proxy = CMap::destructibleProxies.Next(proxy)) {
         C3Vector extent = box->t - box->b;
         float radius = sqrtf(extent.x * extent.x + (extent.y * extent.y + extent.z * extent.z)) + proxy->m_sphere.r;
         C3Vector delta = proxy->m_sphere.c - center;
@@ -5811,20 +5829,20 @@ void CMap::Unload() {
         link = next;
     }
 
-    CDestructibleProxy* proxy = CMap::s_destructibleProxyList.Head();
+    CDestructibleProxy* proxy = CMap::destructibleProxies.Head();
 
-    while (!CMap::s_destructibleProxyList.IsEnd(proxy)) {
-        CDestructibleProxy* next = CMap::s_destructibleProxyList.RawNext(proxy);
+    while (!CMap::destructibleProxies.IsEnd(proxy)) {
+        CDestructibleProxy* next = CMap::destructibleProxies.RawNext(proxy);
 
         if (proxy->m_uniqueId) {
-            CMap::s_destructibleProxyList.UnlinkNode(proxy);
-            CMap::s_destructibleProxyList.DeleteNode(proxy);
+            CMap::destructibleProxies.UnlinkNode(proxy);
+            CMap::destructibleProxies.DeleteNode(proxy);
         }
 
         proxy = next;
     }
 
-    CMap::s_destructibleProxyList.Clear();
+    CMap::destructibleProxies.Clear();
     CMapObj::ClearCache(1);
     World::s_m2Scene->PurgeModelCache();
     CMap::ClearAllFootprints();

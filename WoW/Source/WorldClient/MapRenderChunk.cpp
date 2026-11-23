@@ -2021,7 +2021,18 @@ void CMapRenderChunk::AllocLayerTextures() {
 // VERIFY: 7488cd14 manual
 // OFFSET: 0x0079E470
 CGxShader* CMapRenderChunk::GetVertexShader(int32_t pointLights, int32_t layers, int32_t specular, int32_t vertexColor, int32_t chunkSpecular, int32_t shadow) {
-    return CMap::vertexShader_Terrain[64 * pointLights + 16 * (layers - 1) + 8 * specular + 4 * vertexColor + 2 * chunkSpecular + (shadow != 0)];
+    constexpr uint32_t TERRAIN_VS_POINT_LIGHTS = 2;
+    constexpr uint32_t TERRAIN_VS_NUM_LAYERS = 4;
+    constexpr uint32_t TERRAIN_VS_SPECULAR_COLOR = 2;
+    constexpr uint32_t TERRAIN_VS_VERTEX_COLOR = 2;
+    constexpr uint32_t TERRAIN_VS_ENV_MAP = 2;
+    constexpr uint32_t TERRAIN_VS_SHADOWS = 2;
+
+    const int32_t layerIndex = layers - 1;
+    STORM_ASSERT(static_cast<uint32_t>(layerIndex) < 4); // 12213: "layers < 4"
+    const int32_t idx = 64 * pointLights + 16 * layerIndex + 8 * specular + 4 * vertexColor + 2 * chunkSpecular + (shadow != 0);
+    STORM_ASSERT(idx < (TERRAIN_VS_POINT_LIGHTS * TERRAIN_VS_NUM_LAYERS * TERRAIN_VS_SPECULAR_COLOR * TERRAIN_VS_VERTEX_COLOR * TERRAIN_VS_ENV_MAP * TERRAIN_VS_SHADOWS));
+    return CMap::vertexShader_Terrain[idx];
 }
 
 // VERIFY: a33ed04d auto

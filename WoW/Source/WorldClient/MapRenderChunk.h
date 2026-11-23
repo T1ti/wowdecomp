@@ -121,7 +121,10 @@ class CMapRenderChunk {
     static void RenderMultiPassAdditive(CMapRenderChunk* renderChunk);
     static void SetShaders(int32_t specular, int32_t unlitLayers);
     static void InitializeVertexShaderConstants(const C44Matrix& world, const C44Matrix& view);
+    private:
     static CGxShader* GetVertexShader(int32_t pointLights, int32_t layers, int32_t specular, int32_t vertexColor, int32_t chunkSpecular, int32_t shadow);
+
+    public:
     static void ComputeTexMatrices(C44Matrix& layerMatrix, C44Matrix& alphaMatrix, const C3Vector& offset, float scale);
     static void RenderMultiPassPixelShaderBigAlpha(CMapRenderChunk* renderChunk);
     static void RenderMultiPassPixelShader(CMapRenderChunk* renderChunk);

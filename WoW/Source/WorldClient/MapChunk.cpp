@@ -979,13 +979,13 @@ void CMapChunk::CreateRefs(CMapArea* area, uint32_t* ref, uint32_t doodadRefs, u
                 continue;
             }
 
-            CDestructibleProxy* node = CMap::s_destructibleProxyList.Head();
+            CDestructibleProxy* node = CMap::destructibleProxies.Head();
 
-            while (!CMap::s_destructibleProxyList.IsEnd(node) && node->m_uniqueId != def->m_uniqueId) {
-                node = CMap::s_destructibleProxyList.RawNext(node);
+            while (!CMap::destructibleProxies.IsEnd(node) && node->m_uniqueId != def->m_uniqueId) {
+                node = CMap::destructibleProxies.RawNext(node);
             }
 
-            if (!CMap::s_destructibleProxyList.IsEnd(node)) {
+            if (!CMap::destructibleProxies.IsEnd(node)) {
                 continue;
             }
 
