@@ -5,7 +5,7 @@
 
 // VERIFY: 0827e897 auto
 // OFFSET: 0x006AB5C0
-uint32_t GetBitDepth(uint32_t format) {
+static uint32_t GetBitDepth(uint32_t format) {
     switch (format) {
         case PIXEL_DXT1:
             return 4;
@@ -24,6 +24,7 @@ uint32_t GetBitDepth(uint32_t format) {
             return 16;
 
         default:
+            STORM_ASSERT(!"GetBitDepth(): unhandled format");
             return 0;
     }
 }
@@ -55,7 +56,7 @@ uint32_t CalcLevelSize(uint32_t level, uint32_t width, uint32_t height, uint32_t
 
 // VERIFY: 2fcca72c auto
 // OFFSET: 0x006AB6C0
-uint32_t CalcLevelOffset(uint32_t level, uint32_t width, uint32_t height, uint32_t format) {
+static uint32_t CalcLevelOffset(uint32_t level, uint32_t width, uint32_t height, uint32_t format) {
     uint32_t offset = 0;
 
     for (uint32_t i = 0; i < level; i++) {
@@ -108,21 +109,30 @@ uint32_t MippedImgCalcSize(uint32_t format, uint32_t width, uint32_t height) {
 
 // VERIFY: 311166eb manual
 // OFFSET: 0x006AB810
-void MippedImgSet(uint32_t format, uint32_t width, uint32_t height, MipBits* images) {
+void MippedImgSet(uint32_t format, uint32_t width, uint32_t height, MipBits* bits) {
     uint32_t levelCount = CalcLevelCount(width, height);
+    STORM_ASSERT(bits);
     uint32_t offset = 0;
 
     for (uint32_t i = 0; i < levelCount; i++) {
-        images[i].m_mip[0] = reinterpret_cast<C4Pixel*>(reinterpret_cast<uint8_t*>(&images[levelCount]) + offset);
+        bits[i].m_mip[0] = reinterpret_cast<C4Pixel*>(reinterpret_cast<uint8_t*>(&bits[levelCount]) + offset);
         offset += CalcLevelSize(i, width, height, format);
     }
+
+#if defined(WOWDECOMP_ASSERTIONS)
+    uint32_t levelDataSize = CalcLevelOffset(levelCount, width, height, format);
+    STORM_ASSERT(offset == levelDataSize);
+#endif
 }
 
 // VERIFY: aa44b82f manual
 // OFFSET: 0x006AB860
-void FullShrink(C4Pixel* dest, uint32_t destWidth, uint32_t destHeight, C4Pixel* source, uint32_t sourceWidth, uint32_t sourceHeight) {
-    uint32_t xRatio = sourceWidth / destWidth;
-    uint32_t yRatio = sourceHeight / destHeight;
+void FullShrink(C4Pixel* dest, uint32_t destWidth, uint32_t destHeight, const C4Pixel* source, uint32_t sourceWidth, uint32_t sourceHeight) {
+    uint32_t xScale = sourceWidth / destWidth;
+    uint32_t yScale = sourceHeight / destHeight;
+
+    STORM_ASSERT(destWidth * xScale == sourceWidth);
+    STORM_ASSERT(destHeight * yScale == sourceHeight);
 
     for (uint32_t y = 0; y < destHeight; y++) {
         for (uint32_t x = 0; x < destWidth; x++) {
@@ -134,12 +144,12 @@ void FullShrink(C4Pixel* dest, uint32_t destWidth, uint32_t destHeight, C4Pixel*
             int64_t g = 0;
             int64_t r = 0;
             int64_t count = 0;
-            C4Pixel* row = source;
+            const C4Pixel* row = source;
 
-            for (uint32_t j = 0; j < yRatio; j++) {
-                C4Pixel* pixel = row;
+            for (uint32_t j = 0; j < yScale; j++) {
+                const C4Pixel* pixel = row;
 
-                for (uint32_t i = 0; i < xRatio; i++) {
+                for (uint32_t i = 0; i < xScale; i++) {
                     alpha += pixel->m_a;
                     weightedR += pixel->m_a * pixel->m_r;
                     weightedG += pixel->m_a * pixel->m_g;
@@ -157,6 +167,7 @@ void FullShrink(C4Pixel* dest, uint32_t destWidth, uint32_t destHeight, C4Pixel*
             C4Pixel result;
 
             if (alpha) {
+                STORM_ASSERT(yScale * xScale);
                 result.m_r = static_cast<uint8_t>(weightedR / alpha);
                 result.m_g = static_cast<uint8_t>(weightedG / alpha);
                 result.m_b = static_cast<uint8_t>(weightedB / alpha);
@@ -166,11 +177,11 @@ void FullShrink(C4Pixel* dest, uint32_t destWidth, uint32_t destHeight, C4Pixel*
                 result.m_b = static_cast<uint8_t>(b / count);
             }
 
-            result.m_a = static_cast<uint8_t>(alpha / (xRatio * yRatio));
+            result.m_a = static_cast<uint8_t>(alpha / (xScale * yScale));
             *dest++ = result;
-            source += xRatio;
+            source += xScale;
         }
 
-        source += sourceWidth * (yRatio - 1);
+        source += sourceWidth * (yScale - 1);
     }
 }

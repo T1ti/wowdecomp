@@ -662,7 +662,9 @@ void DxtDecodeBlock(const Dxt1Block* block, CImVector** rows, const DxtRect& rec
 // VERIFY: 32f80391 manual
 // OFFSET: [0x006AD440, 0x006AD660, 0x006AD880, 0x006ADAE0, 0x006ADD20, 0x006ADF90, 0x006AE1D0]
 template <class Block, class Pixel>
-void Blit_DxtUnaligned(const C2iVector& size, const Block* in, uint32_t inStride, Pixel* out, uint32_t outStride) {
+static void Blit_DxtUnaligned(const C2iVector& size, const Block* in, uint32_t inStride, Pixel* out, uint32_t outStride) {
+    STORM_ASSERT(in);
+
     // STATIC: [0x00C608A8, 0x00C608D8, 0x00C60908]
     static Pixel colors[4];
 
@@ -705,7 +707,7 @@ void Blit_DxtUnaligned(const C2iVector& size, const Block* in, uint32_t inStride
 // VERIFY: 4f0b7f9c manual
 // OFFSET: [0x006AD5B0, 0x006AD7D0, 0x006ADA10, 0x006ADC60, 0x006ADEB0, 0x006AE110, 0x006AE360]
 template <class Block, class Pixel>
-void Blit_Dxt(const C2iVector& size, const Block* in, uint32_t inStride, Pixel* out, uint32_t outStride) {
+static void Blit_Dxt(const C2iVector& size, const Block* in, uint32_t inStride, Pixel* out, uint32_t outStride) {
     // STATIC: [0x00C608BC, 0x00C608EC, 0x00C6091C]
     static Pixel colors[4];
 
@@ -838,7 +840,13 @@ static void InitBlit() {
 
 // VERIFY: f1f74b3d auto
 // OFFSET: 0x006AE7C0
-int32_t Blit(const C2iVector& size, BlitAlpha alpha, const void* in, uint32_t inStride, BlitFormat inFormat, void* out, uint32_t outStride, BlitFormat outFormat) {
+int32_t Blit(const C2iVector& size, BlitAlpha alpha, const void* src, uint32_t srcStride, BlitFormat srcFmt, void* dst, uint32_t dstStride, BlitFormat dstFmt) {
+    STORM_ASSERT(alpha < BlitAlphas_Last);
+    STORM_ASSERT(srcFmt < BlitFormats_Last);
+    STORM_ASSERT(dstFmt < BlitFormats_Last);
+    STORM_ASSERT(src);
+    STORM_ASSERT(dst);
+
     // STATIC: 0x00C613C4
     static int32_t initBlit;
 
@@ -847,12 +855,12 @@ int32_t Blit(const C2iVector& size, BlitAlpha alpha, const void* in, uint32_t in
         initBlit = 1;
     }
 
-    BLIT_FUNCTION blit = s_blits[inFormat][outFormat][alpha];
+    BLIT_FUNCTION blit = s_blits[srcFmt][dstFmt][alpha];
     if (!blit) {
         return 0;
     }
 
-    blit(size, in, inStride, out, outStride);
+    blit(size, src, srcStride, dst, dstStride);
 
     return 1;
 }

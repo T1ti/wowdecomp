@@ -146,13 +146,7 @@ void DxtDecodeBlock(const Dxt1Block* block, CRgb565** rows, const DxtRect& rect)
 void DxtDecodeBlock(const Dxt1Block* block, CArgb1555** rows, const DxtRect& rect);
 void DxtDecodeBlock(const Dxt1Block* block, CImVector** rows, const DxtRect& rect);
 
-template <class Block, class Pixel>
-void Blit_DxtUnaligned(const C2iVector& size, const Block* in, uint32_t inStride, Pixel* out, uint32_t outStride);
-
-template <class Block, class Pixel>
-void Blit_Dxt(const C2iVector& size, const Block* in, uint32_t inStride, Pixel* out, uint32_t outStride);
-
 uint32_t CalcRowStride(BlitFormat format, uint32_t width, uint32_t height);
-int32_t Blit(const C2iVector& size, BlitAlpha alpha, const void* in, uint32_t inStride, BlitFormat inFormat, void* out, uint32_t outStride, BlitFormat outFormat);
+int32_t Blit(const C2iVector& size, BlitAlpha alpha, const void* src, uint32_t srcStride, BlitFormat srcFmt, void* dst, uint32_t dstStride, BlitFormat dstFmt);
 
 #endif
