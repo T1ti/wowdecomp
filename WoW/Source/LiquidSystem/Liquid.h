@@ -249,21 +249,28 @@ namespace Liquid {
 
     class CMaterialSettings {
         public:
-        /* 0000 */ char m_textureNames[6][128];
+        enum : uint32_t {
+            INT_CNT = 4,
+            FLOAT_CNT = 18,
+            TEXTURE_CNT = 6,
+            MAX_TEXNAME_LEN = 128,
+        };
+
+        /* 0000 */ char m_textureNames[TEXTURE_CNT][MAX_TEXNAME_LEN];
         /* 0300 */ CImVector m_colors[2];
-        /* 0308 */ int32_t m_ints[4];
-        /* 0318 */ float m_floats[18];
+        /* 0308 */ int32_t m_ints[INT_CNT];
+        /* 0318 */ float m_floats[FLOAT_CNT];
         /* 0360 */ int32_t m_transparent;
-        /* 0364 */ int32_t m_texturesReady[6];
-        /* 037C */ TSGrowableArray<CTexture*> m_textures[6];
-        /* 03DC */ TSGrowableArray<CTexture*> m_pendingTextures[6];
+        /* 0364 */ int32_t m_texturesReady[TEXTURE_CNT];
+        /* 037C */ TSGrowableArray<CTexture*> m_textures[TEXTURE_CNT];
+        /* 03DC */ TSGrowableArray<CTexture*> m_pendingTextures[TEXTURE_CNT];
 
         CMaterialSettings();
         ~CMaterialSettings();
         void Destroy();
-        float GetFloat(uint32_t index) const;
-        int32_t GetInt(uint32_t index) const;
-        CGxTex* GetTexture(uint32_t index, uint32_t period);
+        float GetFloat(uint32_t floatIdx) const;
+        int32_t GetInt(uint32_t intIdx) const;
+        CGxTex* GetTexture(uint32_t texIdx, uint32_t period);
         void InitTexture();
     };
 
@@ -296,8 +303,10 @@ namespace Liquid {
         static int32_t CompareOpaque(const void* a, const void* b);
         static int32_t CompareTransparent(const void* a, const void* b);
 
-        /* 0000 */ TSGrowableArray<CInstance*> m_instances[2];
+        private:
+        /* 0000 */ TSGrowableArray<CInstance*> m_drawList[2];
 
+        public:
         ~CRenderer();
         void Draw(CInstance* instance);
         void Flush(const C3Vector& cameraPos, uint32_t pass);
@@ -305,9 +314,10 @@ namespace Liquid {
     };
 
     class CSettingsBank {
-        public:
-        static TSGrowableArray<CMaterialSettings*> s_settings;
+        static TSGrowableArray<CMaterialSettings*> m_settings;
 
+        public:
+        static inline void Initialize();
         static void Destroy();
         static CMaterialSettings* GetSettings(uint32_t liquidType);
         static void ResetTextures();
@@ -315,9 +325,10 @@ namespace Liquid {
     };
 
     class CMaterialBank {
-        public:
-        static TSGrowableArray<IMaterial*> s_materials;
+        static TSGrowableArray<IMaterial*> m_materials;
 
+        public:
+        static inline void Initialize();
         static void Destroy();
         static IMaterial* GetMaterial(uint32_t liquidType);
     };
@@ -368,7 +379,7 @@ namespace Liquid {
     void ExtWaterDepthTexCallback(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
     const char* GetShaderSuffix();
     C44Matrix* GetTexScrollMtx(const C2Vector& speed);
-    int32_t Initialize(BOOL useCameraRelativeCoords, float worldCoordScale, int32_t shadersEnabled, const char* shaderPath, IDatabase<LiquidTypeRec>* liquidTypeDB, IDatabase<LiquidMaterialRec>* liquidMaterialDB);
+    int32_t Initialize(BOOL useCameraRelativeCoords, float worldCoordScale, int32_t shadersEnabled, const char* shaderPostfix, IDatabase<LiquidTypeRec>* liquidTypeDB, IDatabase<LiquidMaterialRec>* liquidMaterialDB);
     void InvalidateProceduralTextures();
     void SetCircularWave(uint32_t index, const C2Vector& unknown2, const C2Vector& unknown3, float unknown4, float unknown5, float unknown6, float speed);
     void SetDirectionalWave(uint32_t index, const C2Vector& direction, float unknown3, float unknown4, float unknown5, float speed);

@@ -13,14 +13,18 @@ enum LiquidTextureCounts : uint32_t {
 
 // VERIFY: c119ee84 auto
 // OFFSET: 0x008A16C0
-int32_t Liquid::CMaterialSettings::GetInt(uint32_t index) const {
-    return this->m_ints[index];
+int32_t Liquid::CMaterialSettings::GetInt(uint32_t intIdx) const {
+    STORM_ASSERT(intIdx < INT_CNT);
+
+    return this->m_ints[intIdx];
 }
 
 // VERIFY: 7e415766 auto
 // OFFSET: 0x008A16E0
-float Liquid::CMaterialSettings::GetFloat(uint32_t index) const {
-    return this->m_floats[index];
+float Liquid::CMaterialSettings::GetFloat(uint32_t floatIdx) const {
+    STORM_ASSERT(floatIdx < FLOAT_CNT);
+
+    return this->m_floats[floatIdx];
 }
 
 // VERIFY: 64d572f1 manual
@@ -48,8 +52,10 @@ void Liquid::CMaterialSettings::Destroy() {
 
 // VERIFY: d9c082b2 manual
 // OFFSET: 0x008A1D60
-CGxTex* Liquid::CMaterialSettings::GetTexture(uint32_t index, uint32_t period) {
-    TSGrowableArray<CTexture*>* textures = &this->m_textures[index];
+CGxTex* Liquid::CMaterialSettings::GetTexture(uint32_t texIdx, uint32_t period) {
+    STORM_ASSERT(texIdx < TEXTURE_CNT);
+
+    TSGrowableArray<CTexture*>* textures = &this->m_textures[texIdx];
     uint32_t count = textures->Count();
 
     if (!count) {
@@ -60,8 +66,8 @@ CGxTex* Liquid::CMaterialSettings::GetTexture(uint32_t index, uint32_t period) {
         return TextureGetGxTex(textures->m_data[0], 0, nullptr);
     }
 
-    if (!this->m_texturesReady[index]) {
-        TSGrowableArray<CTexture*>* pending = &this->m_pendingTextures[index];
+    if (!this->m_texturesReady[texIdx]) {
+        TSGrowableArray<CTexture*>* pending = &this->m_pendingTextures[texIdx];
 
         if (pending->Count()) {
             bool ready = true;
@@ -76,7 +82,7 @@ CGxTex* Liquid::CMaterialSettings::GetTexture(uint32_t index, uint32_t period) {
             }
 
             if (ready) {
-                this->m_texturesReady[index] = 1;
+                this->m_texturesReady[texIdx] = 1;
 
                 for (uint32_t i = 0; i < pending->Count(); i++) {
                     HandleClose(reinterpret_cast<HOBJECT>(pending->m_data[i]));
@@ -99,7 +105,7 @@ CGxTex* Liquid::CMaterialSettings::GetTexture(uint32_t index, uint32_t period) {
                 return nullptr;
             }
 
-            this->m_texturesReady[index] = 1;
+            this->m_texturesReady[texIdx] = 1;
         }
     }
 

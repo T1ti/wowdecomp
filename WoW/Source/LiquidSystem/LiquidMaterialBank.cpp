@@ -6,18 +6,18 @@
 #include "WoW/Source/DB/Rec/LiquidTypeRec.h"
 
 // STATIC: 0x00D43B24
-TSGrowableArray<Liquid::IMaterial*> Liquid::CMaterialBank::s_materials;
+TSGrowableArray<Liquid::IMaterial*> Liquid::CMaterialBank::m_materials;
 
 // VERIFY: 8e2d4258 manual
 // OFFSET: 0x008A1F50
 void Liquid::CMaterialBank::Destroy() {
-    for (uint32_t i = 0; i < Liquid::CMaterialBank::s_materials.Count(); i++) {
-        if (Liquid::CMaterialBank::s_materials[i]) {
-            Liquid::CMaterialBank::s_materials[i]->Release();
+    for (uint32_t i = 0; i < Liquid::CMaterialBank::m_materials.Count(); i++) {
+        if (Liquid::CMaterialBank::m_materials[i]) {
+            Liquid::CMaterialBank::m_materials[i]->Release();
         }
     }
 
-    Liquid::CMaterialBank::s_materials.SetCount(0);
+    Liquid::CMaterialBank::m_materials.SetCount(0);
 }
 
 // VERIFY: 5f91fa25 auto
@@ -35,6 +35,8 @@ void Liquid::ClearMaterials() {
 // VERIFY: 85245160 auto
 // OFFSET: 0x008A1FA0
 Liquid::IMaterial* Liquid::CMaterialBank::GetMaterial(uint32_t liquidType) {
+    STORM_ASSERT(liquidType);
+
     LiquidTypeRec* typeRec;
 
     while (true) {
@@ -49,52 +51,58 @@ Liquid::IMaterial* Liquid::CMaterialBank::GetMaterial(uint32_t liquidType) {
         }
 
         SysMsgPrintf(SYSMSG_ERROR, SYSMSG_FILTER_WORLD, "Material Bank: Liquid type [%d] not found, defaulting to water!", liquidType);
+        STORM_ASSERT(liquidType != LIQUID_TYPE_WATER); // 12213: "liquidType!=1"
         liquidType = LIQUID_TYPE_WATER;
     }
 
     uint32_t materialId = typeRec->m_materialID;
 
-    if (materialId < Liquid::CMaterialBank::s_materials.Count() && Liquid::CMaterialBank::s_materials.m_data[materialId]) {
-        return Liquid::CMaterialBank::s_materials.m_data[materialId];
+    if (materialId < Liquid::CMaterialBank::m_materials.Count() && Liquid::CMaterialBank::m_materials.m_data[materialId]) {
+        return Liquid::CMaterialBank::m_materials.m_data[materialId];
     }
 
     bool vertexShaders = g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Vertex] >= GxShVS_vs_1_1;
     bool shaders = Liquid::s_shadersEnabled && vertexShaders && g_theGxDevicePtr->Caps().m_shaderTargets[GxSh_Pixel] >= GxShPS_ps_2_0;
 
-    Liquid::IMaterial* material = nullptr;
+    Liquid::IMaterial* mat = nullptr;
 
     switch (materialId) {
         case LIQUID_MATERIAL_WATER:
             if (shaders) {
                 if (Liquid::s_specularEnabled) {
-                    material = Liquid::CMaterialWater::Create();
+                    mat = Liquid::CMaterialWater::Create();
                 } else {
-                    material = Liquid::CMaterialWaterNoSpec::Create();
+                    mat = Liquid::CMaterialWaterNoSpec::Create();
                 }
             } else {
-                material = Liquid::CMaterialWaterFFP::Create();
+                mat = Liquid::CMaterialWaterFFP::Create();
             }
             break;
 
         case LIQUID_MATERIAL_MAGMA:
             if (shaders) {
-                material = Liquid::CMaterialMagma::Create();
+                mat = Liquid::CMaterialMagma::Create();
             } else {
-                material = Liquid::CMaterialMagmaFFP::Create();
+                mat = Liquid::CMaterialMagmaFFP::Create();
             }
             break;
 
         case LIQUID_MATERIAL_PROCEDURAL_WATER:
             if (shaders) {
-                material = Liquid::CMaterialProcWater::Create();
+                mat = Liquid::CMaterialProcWater::Create();
             } else {
-                material = Liquid::CMaterialProcWaterFFP::Create();
+                mat = Liquid::CMaterialProcWaterFFP::Create();
             }
+            break;
+
+        default:
+            STORM_ASSERT(0 && "Unknown material type!");
             break;
     }
 
-    Liquid::CMaterialBank::s_materials.GrowToFit(materialId, 1);
-    Liquid::CMaterialBank::s_materials.m_data[materialId] = material;
+    STORM_ASSERT(mat);
+    Liquid::CMaterialBank::m_materials.GrowToFit(materialId, 1);
+    Liquid::CMaterialBank::m_materials.m_data[materialId] = mat;
 
-    return material;
+    return mat;
 }

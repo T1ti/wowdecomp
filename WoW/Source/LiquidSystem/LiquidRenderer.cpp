@@ -101,7 +101,7 @@ int32_t Liquid::CRenderer::CompareTransparent(const void* a, const void* b) {
 // OFFSET: 0x008A20C0
 void Liquid::CRenderer::Draw(Liquid::CInstance* instance) {
     if (!instance->m_queued) {
-        this->m_instances[instance->m_settings->m_transparent != 0].New(instance);
+        this->m_drawList[instance->m_settings->m_transparent != 0].New(instance);
         instance->m_queued = 1;
     }
 }
@@ -115,7 +115,7 @@ void Liquid::CRenderer::Flush(const C3Vector& cameraPos, uint32_t pass) {
         g_theGxDevicePtr->Light(i, lights[i]);
     }
 
-    TSGrowableArray<Liquid::CInstance*>& instances = this->m_instances[pass];
+    TSGrowableArray<Liquid::CInstance*>& instances = this->m_drawList[pass];
     qsort(instances.m_data, instances.Count(), sizeof(Liquid::CInstance*), Liquid::CRenderer::s_drawListSorter[pass]);
 
     uint32_t count = instances.Count();
@@ -139,4 +139,9 @@ void Liquid::CRenderer::Flush(const C3Vector& cameraPos, uint32_t pass) {
 // VERIFY: 520282aa manual
 // OFFSET: 0x005EEB70
 void Liquid::CRenderer::Validate() {
+#if defined(WOWDECOMP_ASSERTIONS)
+    for (uint32_t i = 0; i < ARRSIZE(m_drawList); i++) {
+        STORM_ASSERT(m_drawList[i].Count() == 0);
+    }
+#endif
 }

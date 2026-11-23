@@ -48,13 +48,29 @@ Liquid::IWaveManager::~IWaveManager() {
 Liquid::IMaterial::~IMaterial() {
 }
 
+// INLINED
+inline void Liquid::CSettingsBank::Initialize() {
+    if (++Liquid::s_settingsBankRefCount == 1) {
+        STORM_ASSERT(m_settings.Count() == 0);
+    }
+}
+
+// INLINED
+inline void Liquid::CMaterialBank::Initialize() {
+    if (++Liquid::s_materialBankRefCount == 1) {
+        STORM_ASSERT(m_materials.Count() == 0);
+    }
+}
+
 // VERIFY: afda035c auto
 // OFFSET: 0x008A1770
-int32_t Liquid::Initialize(BOOL useCameraRelativeCoords, float worldCoordScale, int32_t shadersEnabled, const char* shaderPath, IDatabase<LiquidTypeRec>* liquidTypeDB, IDatabase<LiquidMaterialRec>* liquidMaterialDB) {
-    SStrCopy(Liquid::s_shaderPath, shaderPath, sizeof(Liquid::s_shaderPath));
+int32_t Liquid::Initialize(BOOL useCameraRelativeCoords, float worldCoordScale, int32_t shadersEnabled, const char* shaderPostfix, IDatabase<LiquidTypeRec>* liquidTypeDB, IDatabase<LiquidMaterialRec>* liquidMaterialDB) {
+    STORM_ASSERT(SStrLen(shaderPostfix) < 256 - 1);
+
+    SStrCopy(Liquid::s_shaderPath, shaderPostfix, sizeof(Liquid::s_shaderPath));
     Liquid::s_worldCoordScale = worldCoordScale;
-    Liquid::s_settingsBankRefCount++;
-    Liquid::s_materialBankRefCount++;
+    Liquid::CSettingsBank::Initialize();
+    Liquid::CMaterialBank::Initialize();
     Liquid::s_useCameraRelativeCoords = useCameraRelativeCoords;
     Liquid::s_shadersEnabled = shadersEnabled;
     Liquid::s_specularEnabled = 1;
