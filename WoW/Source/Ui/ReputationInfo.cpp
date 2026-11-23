@@ -36,7 +36,7 @@ uint32_t CGReputationInfo::m_numFactions;
 uint32_t CGReputationInfo::m_numShownFactions;
 
 // STATIC: 0x00C23480
-TSFixedArray<FactionListEntry*> CGReputationInfo::m_factionList;
+TSFixedArray<FactionListEntry*> CGReputationInfo::m_visibleFactions;
 
 // STATIC: 0x00C2348C
 TSGrowableArray<ForcedReaction> CGReputationInfo::m_forcedReactions;
@@ -55,7 +55,7 @@ const int32_t CGReputationInfo::m_reactionThresholds[NUM_UNIT_REACTIONS + 1] = {
 
 // VERIFY: 9f6b81ad auto
 // OFFSET: 0x005CFE40
-static int32_t GetHeaderIndex(int32_t factionId) {
+int32_t CGReputationInfo::GetHeaderIndex(int32_t factionId) {
     for (uint32_t i = 0; i < CGReputationInfo::m_numHeaders; i++) {
         if (CGReputationInfo::m_headers[i]->m_factionId == factionId) {
             return i;
@@ -77,6 +77,7 @@ uint32_t CGReputationInfo::AddHeader(int32_t factionId, int32_t parent) {
     }
 
     if (index == CGReputationInfo::m_numHeaders) {
+        STORM_ASSERT(m_numHeaders < ARRSIZE(m_headers));
         CGReputationInfo::m_headers[CGReputationInfo::m_numHeaders]->m_factionId = factionId;
         CGReputationInfo::m_headers[CGReputationInfo::m_numHeaders]->m_collapsed = 0;
         index = CGReputationInfo::m_numHeaders;
@@ -89,7 +90,7 @@ uint32_t CGReputationInfo::AddHeader(int32_t factionId, int32_t parent) {
 
 // VERIFY: b9b58946 auto
 // OFFSET: 0x005CFEE0
-static bool IsHeaderDescendant(int32_t headerIndex, int32_t ancestor) {
+bool CGReputationInfo::IsHeaderDescendant(int32_t headerIndex, int32_t ancestor) {
     if (ancestor == -1) {
         return false;
     }
@@ -115,7 +116,7 @@ static bool IsHeaderDescendant(int32_t headerIndex, int32_t ancestor) {
 // OFFSET: 0x005D01B0
 int32_t CGReputationInfo::GetSelectedFactionIndex() {
     for (uint32_t i = 0; i < CGReputationInfo::m_numShownFactions; i++) {
-        if (CGReputationInfo::m_factionList.m_data[i]->m_factionId == CGReputationInfo::m_selectedFaction) {
+        if (CGReputationInfo::m_visibleFactions.m_data[i]->m_factionId == CGReputationInfo::m_selectedFaction) {
             return i;
         }
     }
@@ -140,18 +141,19 @@ uint32_t CGReputationInfo::AddFactionHeader(int32_t factionId) {
     }
 
     for (uint32_t i = 0; i < CGReputationInfo::m_numFactions; i++) {
-        FactionListEntry* entry = CGReputationInfo::m_factionList.m_data[i];
+        FactionListEntry* entry = CGReputationInfo::m_visibleFactions.m_data[i];
 
         if (entry->m_isHeader && entry->m_factionId == factionId) {
             return i;
         }
     }
 
-    CGReputationInfo::m_factionList.m_data[CGReputationInfo::m_numFactions + 1]->m_factionId = factionId;
+    STORM_ASSERT((m_numFactions + 1) < m_visibleFactions.Count());
+    CGReputationInfo::m_visibleFactions.m_data[CGReputationInfo::m_numFactions + 1]->m_factionId = factionId;
     FactionRec* rec = g_factionDB.GetRecord(factionId);
-    CGReputationInfo::m_factionList.m_data[CGReputationInfo::m_numFactions + 1]->m_repListId = rec ? rec->m_reputationIndex : -1;
-    CGReputationInfo::m_factionList.m_data[CGReputationInfo::m_numFactions + 1]->m_isHeader = 1;
-    CGReputationInfo::m_factionList.m_data[++CGReputationInfo::m_numFactions]->m_parent = factionId;
+    CGReputationInfo::m_visibleFactions.m_data[CGReputationInfo::m_numFactions + 1]->m_repListId = rec ? rec->m_reputationIndex : -1;
+    CGReputationInfo::m_visibleFactions.m_data[CGReputationInfo::m_numFactions + 1]->m_isHeader = 1;
+    CGReputationInfo::m_visibleFactions.m_data[++CGReputationInfo::m_numFactions]->m_parent = factionId;
     return CGReputationInfo::AddHeader(factionId, parent);
 }
 
@@ -170,7 +172,7 @@ static bool IsFactionPeaceForced(int32_t faction) {
 // VERIFY: 5c19690d auto
 // OFFSET: 0x005D0550
 bool CGReputationInfo::IsFactionInactive(uint32_t index) {
-    int32_t factionId = index <= CGReputationInfo::m_numFactions ? CGReputationInfo::m_factionList.m_data[index]->m_factionId : 0;
+    int32_t factionId = index <= CGReputationInfo::m_numFactions ? CGReputationInfo::m_visibleFactions.m_data[index]->m_factionId : 0;
     FactionRec* faction = g_factionDB.GetRecord(factionId);
 
     if (faction && static_cast<uint32_t>(faction->m_reputationIndex) < MAX_REPUTATION_FACTIONS) {
@@ -247,12 +249,13 @@ bool CGReputationInfo::IsAtWar(int32_t faction) {
 // OFFSET: 0x005D08D0
 int32_t CGReputationInfo::AddVisibleFaction(uint32_t repListId, int32_t announce) {
     for (uint32_t i = 0; i < CGReputationInfo::m_numFactions; i++) {
-        if (static_cast<uint32_t>(CGReputationInfo::m_factionList.m_data[i]->m_repListId) == repListId) {
+        if (static_cast<uint32_t>(CGReputationInfo::m_visibleFactions.m_data[i]->m_repListId) == repListId) {
             return 0;
         }
     }
 
-    FactionListEntry* entry = CGReputationInfo::m_factionList.m_data[CGReputationInfo::m_numFactions];
+    STORM_ASSERT(m_numFactions < m_visibleFactions.Count());
+    FactionListEntry* entry = CGReputationInfo::m_visibleFactions.m_data[CGReputationInfo::m_numFactions];
     entry->m_repListId = repListId;
     entry->m_factionId = repListId >= MAX_REPUTATION_FACTIONS ? 0 : CGReputationInfo::m_factionStandings[repListId].m_factionId;
     entry->m_isHeader = (CGReputationInfo::m_factionStandings[repListId].m_flags & FACTION_FLAG_HEADER) != 0;
@@ -262,12 +265,12 @@ int32_t CGReputationInfo::AddVisibleFaction(uint32_t repListId, int32_t announce
 
     if (entry->m_isHeader) {
         CGReputationInfo::AddHeader(entry->m_factionId, parent);
-        CGReputationInfo::m_factionList.m_data[CGReputationInfo::m_numFactions]->m_parent = CGReputationInfo::m_factionList.m_data[CGReputationInfo::m_numFactions]->m_factionId;
+        CGReputationInfo::m_visibleFactions.m_data[CGReputationInfo::m_numFactions]->m_parent = CGReputationInfo::m_visibleFactions.m_data[CGReputationInfo::m_numFactions]->m_factionId;
     } else {
         entry->m_parent = parent;
     }
 
-    if (!CGReputationInfo::m_factionList.m_data[CGReputationInfo::m_numFactions]->m_isHeader || parent >= 0) {
+    if (!CGReputationInfo::m_visibleFactions.m_data[CGReputationInfo::m_numFactions]->m_isHeader || parent >= 0) {
         CGReputationInfo::AddFactionHeader(parent);
     }
 
@@ -390,7 +393,10 @@ static bool FactionHasReputationForPlayer(const FactionRec* faction) {
 
 // VERIFY: 6161c0df manual
 // OFFSET: 0x005D02F0
-static int QSortFactions(const void* a, const void* b) {
+int CGReputationInfo::QSortFactions(const void* a, const void* b) {
+    STORM_ASSERT(a);
+    STORM_ASSERT(b);
+
     const FactionListEntry* left = *static_cast<FactionListEntry* const*>(a);
     const FactionListEntry* right = *static_cast<FactionListEntry* const*>(b);
     uint32_t leftHeader = left->m_headerIndex;
@@ -411,11 +417,12 @@ static int QSortFactions(const void* a, const void* b) {
         return 0;
     }
 
-    FactionHeader* leftParent = leftHeader > 64 ? nullptr : CGReputationInfo::m_headers[leftHeader];
+    FactionHeader* headerInfo1 = leftHeader > 64 ? nullptr : CGReputationInfo::m_headers[leftHeader];
+    STORM_ASSERT(headerInfo1);
     bool leftHidden = !left->m_isHeader && leftHeader < 64 && !(CGReputationInfo::m_collapsedHeaders & (1 << leftHeader));
 
-    if (leftParent && !leftHidden) {
-        leftHidden = leftParent->m_collapsed || (left->m_isHeader && (!leftParent->m_factionId || leftParent->m_factionId == -1) && !leftParent->m_count);
+    if (headerInfo1 && !leftHidden) {
+        leftHidden = headerInfo1->m_collapsed || (left->m_isHeader && (!headerInfo1->m_factionId || headerInfo1->m_factionId == -1) && !headerInfo1->m_count);
     }
 
     FactionHeader* rightParent = rightHeader > 64 ? nullptr : CGReputationInfo::m_headers[rightHeader];
@@ -450,7 +457,10 @@ static bool FactionSortIsHidden(const FactionHeader* header) {
 
 // VERIFY: 07b6f7dc manual
 // OFFSET: 0x005D1710
-static int QSortFactionHeaders(const void* a, const void* b) {
+int CGReputationInfo::QSortFactionHeaders(const void* a, const void* b) {
+    STORM_ASSERT(a);
+    STORM_ASSERT(b);
+
     FactionHeader* left = *static_cast<FactionHeader* const*>(a);
     FactionHeader* right = *static_cast<FactionHeader* const*>(b);
     bool leftHidden = FactionSortIsHidden(left);
@@ -512,7 +522,7 @@ void CGReputationInfo::SortFactions() {
         header->m_count = 0;
 
         for (uint32_t i = 0; i < CGReputationInfo::m_numFactions; i++) {
-            FactionListEntry* entry = CGReputationInfo::m_factionList.m_data[i];
+            FactionListEntry* entry = CGReputationInfo::m_visibleFactions.m_data[i];
             FactionRec* faction = g_factionDB.GetRecord(entry->m_factionId);
             int32_t parent = faction && static_cast<uint32_t>(faction->m_reputationIndex) < MAX_REPUTATION_FACTIONS && (CGReputationInfo::m_factionStandings[faction->m_reputationIndex].m_flags & FACTION_FLAG_INACTIVE) ? -1 : entry->m_parent;
 
@@ -574,7 +584,7 @@ void CGReputationInfo::SortFactions() {
         uint32_t h;
 
         for (h = 0; h < sortedHeaders; h++) {
-            int32_t parent = CGReputationInfo::IsFactionInactive(i) ? -1 : CGReputationInfo::m_factionList.m_data[i]->m_parent;
+            int32_t parent = CGReputationInfo::IsFactionInactive(i) ? -1 : CGReputationInfo::m_visibleFactions.m_data[i]->m_parent;
 
             if (CGReputationInfo::m_headers[h]->m_factionId == parent) {
                 break;
@@ -582,14 +592,14 @@ void CGReputationInfo::SortFactions() {
         }
 
         if (h < sortedHeaders) {
-            FactionListEntry* entry = CGReputationInfo::m_factionList.m_data[i];
+            FactionListEntry* entry = CGReputationInfo::m_visibleFactions.m_data[i];
             entry->m_headerIndex = h;
 
             if (!entry->m_isHeader && ((h < 64 && !(CGReputationInfo::m_collapsedHeaders & (1 << h))) || CGReputationInfo::m_headers[h]->m_collapsed)) {
                 CGReputationInfo::m_numShownFactions--;
             }
 
-            if (CGReputationInfo::m_factionList.m_data[i]->m_isHeader) {
+            if (CGReputationInfo::m_visibleFactions.m_data[i]->m_isHeader) {
                 FactionHeader* header = CGReputationInfo::m_headers[h];
                 FactionRec* faction = g_factionDB.GetRecord(header->m_factionId);
 
@@ -602,7 +612,7 @@ void CGReputationInfo::SortFactions() {
         sortedHeaders = CGReputationInfo::m_numHeaders;
     }
 
-    qsort(CGReputationInfo::m_factionList.m_data, CGReputationInfo::m_numFactions, sizeof(CGReputationInfo::m_factionList.m_data[0]), QSortFactions);
+    qsort(CGReputationInfo::m_visibleFactions.m_data, CGReputationInfo::m_numFactions, sizeof(CGReputationInfo::m_visibleFactions.m_data[0]), QSortFactions);
     FrameScript_SignalEvent(SCRIPT_EVENT_UPDATE_FACTION, nullptr);
 }
 
@@ -651,13 +661,13 @@ void CGReputationInfo::SetFactionInactive(int32_t faction, bool inactive) {
 // VERIFY: 2fb0cfa5 auto
 // OFFSET: 0x005D1D20
 void CGReputationInfo::CollapseHeader(uint32_t index, int32_t collapse) {
-    if (index >= CGReputationInfo::m_numFactions || !CGReputationInfo::m_factionList.m_data[index]->m_isHeader) {
+    if (index >= CGReputationInfo::m_numFactions || !CGReputationInfo::m_visibleFactions.m_data[index]->m_isHeader) {
         CGReputationInfo::m_collapsedHeaders = (collapse != 0) - 1;
         CGReputationInfo::SortFactions();
         return;
     }
 
-    FactionListEntry* entry = CGReputationInfo::m_factionList.m_data[index];
+    FactionListEntry* entry = CGReputationInfo::m_visibleFactions.m_data[index];
     uint32_t h;
 
     for (h = 0; h < CGReputationInfo::m_numHeaders; h++) {
@@ -754,30 +764,32 @@ void CGReputationInfo::EnterWorld() {
     }
 
     CGReputationInfo::AddHeader(-1, 0);
-    CGReputationInfo::m_factionList.m_data[CGReputationInfo::m_numFactions]->m_repListId = -1;
-    CGReputationInfo::m_factionList.m_data[CGReputationInfo::m_numFactions]->m_factionId = -1;
-    CGReputationInfo::m_factionList.m_data[CGReputationInfo::m_numFactions]->m_isHeader = 1;
-    CGReputationInfo::m_factionList.m_data[CGReputationInfo::m_numFactions++]->m_parent = -1;
+    CGReputationInfo::m_visibleFactions.m_data[CGReputationInfo::m_numFactions]->m_repListId = -1;
+    CGReputationInfo::m_visibleFactions.m_data[CGReputationInfo::m_numFactions]->m_factionId = -1;
+    CGReputationInfo::m_visibleFactions.m_data[CGReputationInfo::m_numFactions]->m_isHeader = 1;
+    CGReputationInfo::m_visibleFactions.m_data[CGReputationInfo::m_numFactions++]->m_parent = -1;
     CGReputationInfo::CollapseHeader(CGReputationInfo::m_numFactions - 1, 1);
     CGReputationInfo::SortFactions();
 }
 
 // VERIFY: 1ec70342 auto
 // OFFSET: 0x005D2E30
-int32_t Packet_SMSG_INITIALIZE_FACTIONS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
-    int32_t count;
-    msg->Get(reinterpret_cast<uint32_t&>(count));
+int32_t CGReputationInfo::OnInitializeFactions(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    int32_t numFactions;
+    msg->Get(reinterpret_cast<uint32_t&>(numFactions));
+    STORM_ASSERT(numFactions == MAX_REPUTATION_FACTIONS);
 
-    for (int32_t i = 0; i < count; i++) {
+    for (int32_t factionIndex = 0; factionIndex < numFactions; factionIndex++) {
         uint8_t flags;
         msg->Get(flags);
-        CGReputationInfo::m_factionStandings[i].m_flags = flags;
+        CGReputationInfo::m_factionStandings[factionIndex].m_flags = flags;
 
         int32_t standing;
         msg->Get(reinterpret_cast<uint32_t&>(standing));
+        STORM_ASSERT((factionIndex >= 0) && (factionIndex < MAX_REPUTATION_FACTIONS));
 
-        if (standing != CGReputationInfo::m_factionStandings[i].m_standing) {
-            CGReputationInfo::m_factionStandings[i].m_standing = standing;
+        if (standing != CGReputationInfo::m_factionStandings[factionIndex].m_standing) {
+            CGReputationInfo::m_factionStandings[factionIndex].m_standing = standing;
         }
     }
 
@@ -788,9 +800,9 @@ int32_t Packet_SMSG_INITIALIZE_FACTIONS(void* param, NETMESSAGE msgId, uint32_t 
 
 // VERIFY: a767ce2c manual
 // OFFSET: 0x005D06E0
-static bool IsChildFaction(int32_t faction) {
+bool CGReputationInfo::IsChildFaction(int32_t faction) {
     for (uint32_t i = 0; i < CGReputationInfo::m_numShownFactions; i++) {
-        FactionListEntry* entry = CGReputationInfo::m_factionList.m_data[i];
+        FactionListEntry* entry = CGReputationInfo::m_visibleFactions.m_data[i];
 
         if (entry->m_factionId == faction && static_cast<int32_t>(entry->m_headerIndex) >= 0) {
             return CGReputationInfo::m_headers[entry->m_headerIndex]->m_parent != 0;
@@ -802,7 +814,7 @@ static bool IsChildFaction(int32_t faction) {
 
 // VERIFY: 7442e639 manual
 // OFFSET: 0x005D0850
-int32_t Packet_SMSG_SET_FACTION_ATWAR(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+int32_t CGReputationInfo::Packet_SMSG_SET_FACTION_ATWAR(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     uint32_t repListId;
     uint8_t flags;
     msg->Get(repListId);
@@ -823,7 +835,7 @@ int32_t Packet_SMSG_SET_FACTION_ATWAR(void* param, NETMESSAGE msgId, uint32_t ti
 
 // VERIFY: 5869752b manual
 // OFFSET: 0x005D15D0
-int32_t Packet_SMSG_SET_FORCED_REACTIONS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+int32_t CGReputationInfo::Packet_SMSG_SET_FORCED_REACTIONS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     uint32_t count;
     msg->Get(count);
     CGReputationInfo::m_forcedReactions.SetCount(count);
@@ -849,7 +861,7 @@ int32_t Packet_SMSG_SET_FORCED_REACTIONS(void* param, NETMESSAGE msgId, uint32_t
 
 // VERIFY: 8e73460f auto
 // OFFSET: 0x005D2050
-int32_t Packet_SMSG_SET_FACTION_VISIBLE(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+int32_t CGReputationInfo::Packet_SMSG_SET_FACTION_VISIBLE(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     uint32_t repListId;
     msg->Get(repListId);
     uint8_t flags = CGReputationInfo::m_factionStandings[repListId].m_flags;
@@ -866,15 +878,15 @@ int32_t Packet_SMSG_SET_FACTION_VISIBLE(void* param, NETMESSAGE msgId, uint32_t 
 // VERIFY: 8476881d manual
 // OFFSET: 0x005D2EB0
 void CGReputationInfo::InitializeGame() {
-    ClientServices::SetMessageHandler(SMSG_INITIALIZE_FACTIONS, Packet_SMSG_INITIALIZE_FACTIONS, nullptr);
+    ClientServices::SetMessageHandler(SMSG_INITIALIZE_FACTIONS, OnInitializeFactions, nullptr);
     ClientServices::SetMessageHandler(SMSG_SET_FACTION_AT_WAR, Packet_SMSG_SET_FACTION_ATWAR, nullptr);
     ClientServices::SetMessageHandler(SMSG_SET_FACTION_VISIBLE, Packet_SMSG_SET_FACTION_VISIBLE, nullptr);
     ClientServices::SetMessageHandler(SMSG_SET_FACTION_STANDING, Packet_SMSG_SET_FACTION_STANDING, nullptr);
     ClientServices::SetMessageHandler(SMSG_SET_FORCED_REACTIONS, Packet_SMSG_SET_FORCED_REACTIONS, nullptr);
-    CGReputationInfo::m_factionList.SetCount(193);
+    CGReputationInfo::m_visibleFactions.SetCount(193);
 
-    for (uint32_t i = 0; i < CGReputationInfo::m_factionList.m_count; i++) {
-        CGReputationInfo::m_factionList.m_data[i] = static_cast<FactionListEntry*>(SMemAlloc(sizeof(FactionListEntry), __FILE__, __LINE__, 0));
+    for (uint32_t i = 0; i < CGReputationInfo::m_visibleFactions.m_count; i++) {
+        CGReputationInfo::m_visibleFactions.m_data[i] = static_cast<FactionListEntry*>(SMemAlloc(sizeof(FactionListEntry), __FILE__, __LINE__, 0));
     }
 
     for (uint32_t i = 0; i < sizeof(CGReputationInfo::m_headers) / sizeof(CGReputationInfo::m_headers[0]); i++) {
@@ -884,7 +896,7 @@ void CGReputationInfo::InitializeGame() {
 
 // VERIFY: d8518e61 manual
 // OFFSET: 0x005D20A0
-int32_t Packet_SMSG_SET_FACTION_STANDING(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+int32_t CGReputationInfo::Packet_SMSG_SET_FACTION_STANDING(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     bool sort = false;
     bool updateQuests = false;
     bool updateReaction = false;
@@ -898,11 +910,11 @@ int32_t Packet_SMSG_SET_FACTION_STANDING(void* param, NETMESSAGE msgId, uint32_t
     msg->Get(count);
 
     for (uint32_t i = 0; i < count; i++) {
-        int32_t repListId;
+        int32_t factionIndex;
         int32_t standing;
-        msg->Get(reinterpret_cast<uint32_t&>(repListId));
+        msg->Get(reinterpret_cast<uint32_t&>(factionIndex));
         msg->Get(reinterpret_cast<uint32_t&>(standing));
-        uint8_t flags = CGReputationInfo::m_factionStandings[repListId].m_flags;
+        uint8_t flags = CGReputationInfo::m_factionStandings[factionIndex].m_flags;
         int32_t logMode = 0;
 
         if (flags & FACTION_FLAG_UNKNOWN_40) {
@@ -911,15 +923,16 @@ int32_t Packet_SMSG_SET_FACTION_STANDING(void* param, NETMESSAGE msgId, uint32_t
             logMode = 1;
         }
 
-        int32_t factionId = (repListId >= 0 && repListId < MAX_REPUTATION_FACTIONS) ? CGReputationInfo::m_factionStandings[repListId].m_factionId : 0;
+        int32_t factionId = (factionIndex >= 0 && factionIndex < MAX_REPUTATION_FACTIONS) ? CGReputationInfo::m_factionStandings[factionIndex].m_factionId : 0;
         UNIT_REACTION oldReaction = CGReputationInfo::GetFactionStandingReaction(factionId);
-        int32_t oldStanding = CGReputationInfo::m_factionStandings[repListId].m_standing;
+        STORM_ASSERT((factionIndex >= 0) && (factionIndex < MAX_REPUTATION_FACTIONS));
+        int32_t oldStanding = CGReputationInfo::m_factionStandings[factionIndex].m_standing;
 
         if (standing != oldStanding) {
-            CGReputationInfo::m_factionStandings[repListId].m_standing = standing;
+            CGReputationInfo::m_factionStandings[factionIndex].m_standing = standing;
 
             if (logMode) {
-                CGChat::LogFactionChanged((repListId >= 0 && repListId < MAX_REPUTATION_FACTIONS) ? CGReputationInfo::m_factionStandings[repListId].m_factionId : 0, standing - oldStanding, logMode == 2, bonus);
+                CGChat::LogFactionChanged((factionIndex >= 0 && factionIndex < MAX_REPUTATION_FACTIONS) ? CGReputationInfo::m_factionStandings[factionIndex].m_factionId : 0, standing - oldStanding, logMode == 2, bonus);
             }
         }
 
@@ -928,7 +941,7 @@ int32_t Packet_SMSG_SET_FACTION_STANDING(void* param, NETMESSAGE msgId, uint32_t
         if (!(flags & (FACTION_FLAG_VISIBLE | FACTION_FLAG_HIDDEN))) {
             flags |= FACTION_FLAG_VISIBLE;
 
-            if (CGReputationInfo::AddVisibleFaction(repListId, 1)) {
+            if (CGReputationInfo::AddVisibleFaction(factionIndex, 1)) {
                 newlyVisible = true;
             }
         }
@@ -939,7 +952,7 @@ int32_t Packet_SMSG_SET_FACTION_STANDING(void* param, NETMESSAGE msgId, uint32_t
             flags &= ~FACTION_FLAG_AT_WAR;
         }
 
-        uint8_t& storedFlags = CGReputationInfo::m_factionStandings[repListId].m_flags;
+        uint8_t& storedFlags = CGReputationInfo::m_factionStandings[factionIndex].m_flags;
 
         if (flags != storedFlags) {
             if ((flags ^ storedFlags) & FACTION_FLAG_AT_WAR) {
@@ -1011,7 +1024,7 @@ int32_t GetRepListRepValue(int32_t faction) {
 
 // VERIFY: 74ff3b1b manual
 // OFFSET: 0x005D0DA0
-int32_t GetFactionInfoHelper(lua_State* L, int32_t faction) {
+int32_t CGReputationInfo::GetFactionInfoHelper(lua_State* L, int32_t faction) {
     FactionRec* rec = g_factionDB.GetRecord(faction);
 
     if (!rec) {
@@ -1076,7 +1089,9 @@ int32_t GetFactionInfoHelper(lua_State* L, int32_t faction) {
     lua_pushnumber(L, reaction + 1);
     int32_t max = CGReputationInfo::m_reactionThresholds[reaction + 1];
     int32_t value = GetRepListRepValue(faction);
-    lua_pushnumber(L, CGReputationInfo::m_reactionThresholds[reaction]);
+    int32_t min = CGReputationInfo::m_reactionThresholds[reaction];
+    STORM_ASSERT((value >= min) && (value <= max));
+    lua_pushnumber(L, min);
     lua_pushnumber(L, max);
     lua_pushnumber(L, value);
 
@@ -1146,9 +1161,9 @@ void CGReputationInfo::ShutdownGame() {
     ClientServices::ClearMessageHandler(SMSG_SET_FACTION_STANDING);
     ClientServices::ClearMessageHandler(SMSG_SET_FORCED_REACTIONS);
 
-    for (uint32_t i = 0; i < CGReputationInfo::m_factionList.m_count; i++) {
-        delete CGReputationInfo::m_factionList.m_data[i];
-        CGReputationInfo::m_factionList.m_data[i] = nullptr;
+    for (uint32_t i = 0; i < CGReputationInfo::m_visibleFactions.m_count; i++) {
+        delete CGReputationInfo::m_visibleFactions.m_data[i];
+        CGReputationInfo::m_visibleFactions.m_data[i] = nullptr;
     }
 
     for (uint32_t i = 0; i < 64; i++) {

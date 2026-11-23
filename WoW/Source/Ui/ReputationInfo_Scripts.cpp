@@ -2,6 +2,7 @@
 #include <cstdint>
 #include "Engine/Source/FrameScript/FrameScript.h"
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/DB/DBClient/DBClient.h"
 #include "WoW/Source/DB/Rec/FactionRec.h"
 #include "WoW/Source/Object/ObjectClient/Player_C.h"
@@ -12,21 +13,21 @@
 // VERIFY: 1e40863f auto
 // OFFSET: 0x005D1FC0
 static int32_t Script_CollapseAllFactionHeaders(lua_State* L) {
-    CGReputationInfo::CollapseHeader(CGReputationInfo::m_numFactions, 1);
+    CGReputationInfo::CollapseHeader(CGReputationInfo::GetNumFactions(), 1);
     return 0;
 }
 
 // VERIFY: 6b33faf0 auto
 // OFFSET: 0x005D1FE0
 static int32_t Script_ExpandAllFactionHeaders(lua_State* L) {
-    CGReputationInfo::CollapseHeader(CGReputationInfo::m_numFactions, 0);
+    CGReputationInfo::CollapseHeader(CGReputationInfo::GetNumFactions(), 0);
     return 0;
 }
 
 // VERIFY: 26793d47 manual
 // OFFSET: 0x005CFF20
 static int32_t Script_GetNumFactions(lua_State* L) {
-    lua_pushnumber(L, CGReputationInfo::m_numShownFactions);
+    lua_pushnumber(L, CGReputationInfo::GetNumShownFactions());
     return 1;
 }
 
@@ -81,11 +82,7 @@ static int32_t Script_SetSelectedFaction(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index <= CGReputationInfo::m_numFactions) {
-        CGReputationInfo::m_selectedFaction = CGReputationInfo::m_factionList.m_data[index]->m_factionId;
-    } else {
-        CGReputationInfo::m_selectedFaction = 0;
-    }
+    CGReputationInfo::SetSelectedFactionIndex(index);
 
     return 0;
 }
@@ -106,8 +103,8 @@ static int32_t Script_GetFactionInfo(lua_State* L) {
     }
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
-    int32_t faction = index <= CGReputationInfo::m_numFactions ? CGReputationInfo::m_factionList.m_data[index]->m_factionId : 0;
-    return GetFactionInfoHelper(L, faction);
+    int32_t faction = index <= CGReputationInfo::GetNumFactions() ? CGReputationInfo::GetVisibleFactionID(index) : 0;
+    return CGReputationInfo::GetFactionInfoHelper(L, faction);
 }
 
 // VERIFY: 5a6cb739 manual
@@ -118,7 +115,7 @@ static int32_t Script_GetFactionInfoByID(lua_State* L) {
         return 0;
     }
 
-    return GetFactionInfoHelper(L, static_cast<int32_t>(lua_tonumber(L, 1)));
+    return CGReputationInfo::GetFactionInfoHelper(L, static_cast<int32_t>(lua_tonumber(L, 1)));
 }
 
 // VERIFY: 941cdb0b manual
@@ -148,7 +145,9 @@ static int32_t Script_GetWatchedFactionInfo(lua_State* L) {
     lua_pushnumber(L, reaction + 1);
     int32_t max = CGReputationInfo::m_reactionThresholds[reaction + 1];
     int32_t value = GetRepListRepValue(faction);
-    lua_pushnumber(L, CGReputationInfo::m_reactionThresholds[reaction]);
+    int32_t min = CGReputationInfo::m_reactionThresholds[reaction];
+    STORM_ASSERT((value >= min) && (value <= max));
+    lua_pushnumber(L, min);
     lua_pushnumber(L, max);
     lua_pushnumber(L, value);
     return 5;
@@ -164,8 +163,8 @@ static int32_t Script_FactionToggleAtWar(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index <= CGReputationInfo::m_numFactions && CGReputationInfo::m_factionList.m_data[index]->m_factionId) {
-        int32_t faction = CGReputationInfo::m_factionList.m_data[index]->m_factionId;
+    if (index <= CGReputationInfo::GetNumFactions() && CGReputationInfo::GetVisibleFactionID(index)) {
+        int32_t faction = CGReputationInfo::GetVisibleFactionID(index);
         CGReputationInfo::SetAtWar(faction, !CGReputationInfo::IsAtWar(faction));
     }
 
@@ -182,8 +181,8 @@ static int32_t Script_SetWatchedFactionIndex(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index <= CGReputationInfo::m_numFactions) {
-        CGReputationInfo::SetWatchedFaction(CGReputationInfo::m_factionList.m_data[index]->m_factionId);
+    if (index <= CGReputationInfo::GetNumFactions()) {
+        CGReputationInfo::SetWatchedFaction(CGReputationInfo::GetVisibleFactionID(index));
     } else {
         CGReputationInfo::SetWatchedFaction(0);
     }
@@ -201,8 +200,8 @@ static int32_t Script_SetFactionInactive(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index <= CGReputationInfo::m_numFactions) {
-        int32_t faction = CGReputationInfo::m_factionList.m_data[index]->m_factionId;
+    if (index <= CGReputationInfo::GetNumFactions()) {
+        int32_t faction = CGReputationInfo::GetVisibleFactionID(index);
 
         if (faction) {
             CGReputationInfo::SetFactionInactive(faction, true);
@@ -222,8 +221,8 @@ static int32_t Script_SetFactionActive(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index <= CGReputationInfo::m_numFactions) {
-        int32_t faction = CGReputationInfo::m_factionList.m_data[index]->m_factionId;
+    if (index <= CGReputationInfo::GetNumFactions()) {
+        int32_t faction = CGReputationInfo::GetVisibleFactionID(index);
 
         if (faction) {
             CGReputationInfo::SetFactionInactive(faction, false);

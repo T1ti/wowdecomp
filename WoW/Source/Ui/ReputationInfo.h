@@ -69,22 +69,9 @@ class CGReputationInfo {
     static TSGrowableArray<const FactionRec*>* GetFactionChildren(int32_t faction);
     static FactionStanding m_factionStandings[MAX_REPUTATION_FACTIONS];
     static const int32_t m_reactionThresholds[NUM_UNIT_REACTIONS + 1];
-    static FactionHeader* m_headers[64];
-    static uint32_t m_numHeaders;
-    static uint32_t m_numFactions;
-    static uint32_t m_numShownFactions;
-    static int32_t m_selectedFaction;
-    static TSFixedArray<FactionListEntry*> m_factionList;
-    static TSGrowableArray<ForcedReaction> m_forcedReactions;
-    static TSHashTable<FACTION, HASHKEY_NONE> m_factions;
-    static uint32_t m_collapsedHeaders;
     static void EnterWorld();
     static void LeaveWorld();
-    static uint32_t AddHeader(int32_t factionId, int32_t parent);
-    static uint32_t AddFactionHeader(int32_t factionId);
-    static int32_t AddVisibleFaction(uint32_t repListId, int32_t announce);
     static void CollapseHeader(uint32_t index, int32_t collapse);
-    static void SortFactions();
     static bool IsFactionInactive(uint32_t index);
     static void InitializeGame();
     static void ShutdownGame();
@@ -95,16 +82,42 @@ class CGReputationInfo {
     static void SetWatchedFaction(int32_t faction);
     static void SetFactionInactive(int32_t faction, bool inactive);
     static int32_t GetSelectedFactionIndex();
+    static uint32_t GetNumFactions() { return m_numFactions; } // (inferred)
+    static uint32_t GetNumShownFactions() { return m_numShownFactions; } // (inferred)
+    static int32_t GetVisibleFactionID(uint32_t index) { return m_visibleFactions.m_data[index]->m_factionId; } // (inferred)
+    static void SetSelectedFactionIndex(uint32_t index) { // (inferred)
+        m_selectedFaction = index <= m_numFactions ? GetVisibleFactionID(index) : 0;
+    }
+    static int32_t GetFactionInfoHelper(lua_State* L, int32_t faction); // (inferred)
+
+    private:
+    static uint32_t AddHeader(int32_t factionId, int32_t parent);
+    static uint32_t AddFactionHeader(int32_t factionId);
+    static int32_t AddVisibleFaction(uint32_t repListId, int32_t announce);
+    static void SortFactions();
+    static int32_t GetHeaderIndex(int32_t factionId); // (inferred)
+    static bool IsHeaderDescendant(int32_t headerIndex, int32_t ancestor); // (inferred)
+    static int QSortFactions(const void* a, const void* b); // (inferred)
+    static int QSortFactionHeaders(const void* a, const void* b); // (inferred)
+    static bool IsChildFaction(int32_t faction); // (inferred)
+    static int32_t OnInitializeFactions(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
+    static int32_t Packet_SMSG_SET_FACTION_ATWAR(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg); // (inferred)
+    static int32_t Packet_SMSG_SET_FACTION_VISIBLE(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg); // (inferred)
+    static int32_t Packet_SMSG_SET_FACTION_STANDING(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg); // (inferred)
+    static int32_t Packet_SMSG_SET_FORCED_REACTIONS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg); // (inferred)
+    static FactionHeader* m_headers[64];
+    static uint32_t m_numHeaders;
+    static TSGrowableArray<ForcedReaction> m_forcedReactions;
+    static TSHashTable<FACTION, HASHKEY_NONE> m_factions;
+    static uint32_t m_collapsedHeaders;
+    static TSFixedArray<FactionListEntry*> m_visibleFactions;
+    static int32_t m_selectedFaction;
+    static uint32_t m_numFactions;
+    static uint32_t m_numShownFactions;
 };
 
-int32_t GetFactionInfoHelper(lua_State* L, int32_t faction);
 void ReputationInfoRegisterScriptFunctions();
 void ReputationInfoUnregisterScriptFunctions();
-int32_t Packet_SMSG_INITIALIZE_FACTIONS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
-int32_t Packet_SMSG_SET_FACTION_ATWAR(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
-int32_t Packet_SMSG_SET_FACTION_VISIBLE(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
-int32_t Packet_SMSG_SET_FACTION_STANDING(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
-int32_t Packet_SMSG_SET_FORCED_REACTIONS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 
 int32_t GetRepListRepValue(int32_t faction);
 
