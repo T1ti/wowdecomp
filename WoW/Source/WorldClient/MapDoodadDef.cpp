@@ -1,4 +1,5 @@
 #include "MapDoodadDef.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/Object/ObjectClient/Types.h"
 #include "WoW/Source/WorldClient/WorldLightingConstants.h"
 #include "Engine/Source/Model2/M2Data.h"
@@ -30,10 +31,11 @@ void CMapDoodadDef::ExtendBounds(CMapDoodadDef* doodadDef, CMapBaseObj* parent) 
         CMapChunk* chunk = static_cast<CMapChunk*>(parent);
         chunk->m_bbox.t.z = doodadDef->m_bbox.t.z < chunk->m_bbox.t.z ? chunk->m_bbox.t.z : doodadDef->m_bbox.t.z;
     } else if (parent->GetType() & CMapBaseObj::Type_MapObjDefGroup) {
-        CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(parent);
-        group->aaBox |= doodadDef->m_bbox;
+        CMapObjDefGroup* mapObjDefGroup = static_cast<CMapObjDefGroup*>(parent);
+        mapObjDefGroup->aaBox |= doodadDef->m_bbox;
 
-        CMapBaseObjLink* link = group->m_parentLinkList.Head();
+        STORM_ASSERT(mapObjDefGroup->m_parentLinkList.Head()->ref->GetType() & CMapBaseObj::Type_MapObjDef);
+        CMapBaseObjLink* link = mapObjDefGroup->m_parentLinkList.Head();
         static_cast<CMapObjDef*>(link->ref)->m_bbox |= doodadDef->m_bbox;
     }
 }
@@ -146,7 +148,7 @@ CMapDoodadDef::CMapDoodadDef() {
     this->AddType(CMapBaseObj::Type_DoodadDef);
     this->model = nullptr;
     this->m_collisionGuid = WOWGUID();
-    this->m_doodadSet = 0;
+    this->wmoSpecialDoodadSet = 0;
 }
 
 // VERIFY: cf40d12f manual

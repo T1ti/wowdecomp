@@ -30,7 +30,7 @@ class CMapDoodadDef : public CMapStaticEntity, public TSHashObject<CMapDoodadDef
     /* 00D8 */ C44Matrix m_mat;
     /* 0118 */ C44Matrix m_lMat; // Local-to-WMO transform, composed with the parent into m_mat.
     /* 0158 */ SE2SoundKitObject m_soundKitObject;
-    /* 016C */ uint16_t m_doodadSet;
+    /* 016C */ uint16_t wmoSpecialDoodadSet;
     /* 016E */ uint8_t unused_016E[2];
 
     virtual void SelectLights(CM2Lighting* lighting);

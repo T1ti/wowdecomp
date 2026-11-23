@@ -279,7 +279,7 @@ void CMapLowDetail::Load(const char* mapPath, const char* mapName) {
             }
         }
 
-        mapObjDef->m_refCount++;
+        mapObjDef->AddRef();
         this->m_mapObjDefList.m_data[i] = mapObjDef;
     }
 }
@@ -456,7 +456,7 @@ void CMapLowDetail::Unload() {
     }
 
     for (uint32_t i = 0; i < this->m_mapObjDefList.m_count; i++) {
-        this->m_mapObjDefList.m_data[i]->m_refCount--;
+        this->m_mapObjDefList.m_data[i]->ReleaseRef();
         CMap::PurgeMapObjDef(this->m_mapObjDefList.m_data[i]);
     }
 

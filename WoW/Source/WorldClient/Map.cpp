@@ -2041,6 +2041,16 @@ void CMap::PrepareMapDoodadDefs() {
     }
 }
 
+// INLINED (name inferred)
+static void AddAreaToSortList(CMapAreaEntry* entries, int32_t& sortCount, int32_t maxCount, CMapArea* area) {
+    STORM_ASSERT(area);
+    const C2Vector pos(World::s_currentWorldPos.x, World::s_currentWorldPos.y);
+    entries[sortCount].m_area = area;
+    entries[sortCount].m_dist = NTempest::DistanceSquared(area->m_bounds, pos);
+    ++sortCount;
+    STORM_ASSERT(sortCount < maxCount);
+}
+
 // VERIFY: d6c4755a manual
 // OFFSET: 0x007B5950
 void CMap::PreUpdateAreas(bool addToScene) {
@@ -2048,8 +2058,9 @@ void CMap::PreUpdateAreas(bool addToScene) {
     int32_t minX = CWorld::gbChunkRect.minX >> 4;
     int32_t minY = CWorld::gbChunkRect.minY >> 4;
     int32_t maxX = CWorld::gbChunkRect.maxX >> 4;
-    int32_t entryCount = 0;
-    CMapAreaEntry* entries = static_cast<CMapAreaEntry*>(alloca(1024 * sizeof(CMapAreaEntry)));
+    int32_t sortCount = 0;
+    constexpr int32_t maxCount = 1024;
+    CMapAreaEntry* entries = static_cast<CMapAreaEntry*>(alloca(maxCount * sizeof(CMapAreaEntry)));
 
     CMap::ClearChunkSortList();
     CMap::ProcessChunkLiquidUpdateList();
@@ -2064,10 +2075,7 @@ void CMap::PreUpdateAreas(bool addToScene) {
         CMapBaseObjLink* next = CMap::areaLinkList.Next(link);
 
         if (area->m_index.x >= minX && area->m_index.x <= maxX && area->m_index.y >= minY && area->m_index.y <= maxY) {
-            C2Vector pos(World::s_currentWorldPos.x, World::s_currentWorldPos.y);
-            entries[entryCount].m_dist = NTempest::DistanceSquared(area->m_bounds, pos);
-            entries[entryCount].m_area = area;
-            entryCount++;
+            AddAreaToSortList(entries, sortCount, maxCount, area);
         } else if (!area->asyncObject || !area->asyncObject->isCurrent) {
             CMap::FreeBaseObjLink(link);
             CMap::PurgeArea(area);
@@ -2082,23 +2090,20 @@ void CMap::PreUpdateAreas(bool addToScene) {
 
             if ((CMap::m_areaInfo[index].m_flags & SMAreaInfo::F_HAS_ADT) && !CMap::m_areaTable[index]) {
                 CMapArea* area = CMap::PrepareArea(x, y);
-                C2Vector pos(World::s_currentWorldPos.x, World::s_currentWorldPos.y);
-                entries[entryCount].m_area = area;
-                entries[entryCount].m_dist = NTempest::DistanceSquared(area->m_bounds, pos);
-                entryCount++;
+                AddAreaToSortList(entries, sortCount, maxCount, area);
             }
         }
     }
 
-    if (entryCount) {
-        qsort(entries, entryCount, sizeof(CMapAreaEntry), CompareAreaEntries);
+    if (sortCount) {
+        qsort(entries, sortCount, sizeof(CMapAreaEntry), CompareAreaEntries);
     }
 
     int32_t lastPending = -1;
     CiRect rect;
     memset(&rect, 0, sizeof(rect));
 
-    for (int32_t i = 0; i < entryCount; i++) {
+    for (int32_t i = 0; i < sortCount; i++) {
         CMapArea* area = entries[i].m_area;
 
         if (!area->rawAreaData) {
@@ -2761,7 +2766,7 @@ CMapDoodadDef* CMap::CreateDoodadDef(uint32_t doodadRef, SMODoodadDef* def, char
     doodadDef->m_sphere.r = 0.0f;
     doodadDef->m_bbox.b = doodadDef->m_position;
     doodadDef->m_bbox.t = doodadDef->m_position;
-    doodadDef->m_doodadSet = doodadSet;
+    doodadDef->wmoSpecialDoodadSet = doodadSet;
     doodadDef->m_flags = MAPOBJ_FLAG_UNPLACED;
 
     if (def->m_flags & SMODoodadDef::F_ACCEPT_PROJ_TEX) {
@@ -6355,6 +6360,8 @@ uint32_t CMap::QueryIntersectingModels(CM2Model** models, uint32_t maxModels, co
 // VERIFY: d3ebe146 manual
 // OFFSET: 0x007B5740
 void CMap::UpdateDoodadDefBounds(CMapDoodadDef* doodadDef) {
+    STORM_ASSERT(doodadDef);
+
     CM2Model* model = doodadDef->model;
     doodadDef->m_flags = static_cast<MapObjFlag>(doodadDef->m_flags | MAPOBJ_FLAG_UNPLACED);
 
@@ -6385,5 +6392,7 @@ void CMap::UpdateDoodadDefBounds(CMapDoodadDef* doodadDef) {
     doodadDef->m_flags = static_cast<MapObjFlag>((doodadDef->m_flags & ~(MAPOBJ_FLAG_UNPLACED | MAPOBJ_FLAG_INTERIOR | MAPOBJ_FLAG_EXTERIOR)) | MAPOBJ_FLAG_UNPLACED);
     CMap::LinkStaticEntity(doodadDef);
     doodadDef->ExtendChunkBounds();
+    // 12213: "doodadDef->flagExternal"
+    STORM_ASSERT(doodadDef->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_EXTERNAL);
     CMap::doodadDefList.LinkToTail(doodadDef);
 }

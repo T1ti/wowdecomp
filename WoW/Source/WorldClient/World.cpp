@@ -1202,7 +1202,7 @@ void CWorld::ObjectDestroy(CMapBaseObj* object) {
     }
 
     uint16_t type = object->GetType();
-    object->m_refCount--;
+    object->ReleaseRef();
 
     if (type & CMapBaseObj::Type_MapObjDef) {
         CMap::PurgeMapObjDef(static_cast<CMapObjDef*>(object));
@@ -5501,7 +5501,7 @@ CMapBaseObj* CWorld::ObjectCreate(const char* name, const C3Vector& position, fl
             CMapObjDef::UpdatePos(mapObjDef, &position, facing, 0.0f, 0.0f);
         }
 
-        mapObjDef->m_refCount++;
+        mapObjDef->AddRef();
 
         return mapObjDef;
     }
@@ -5516,7 +5516,7 @@ CMapBaseObj* CWorld::ObjectCreate(const char* name, const C3Vector& position, fl
         CMap::UpdateDoodadDef(doodadDef, &position, facing);
     }
 
-    doodadDef->m_refCount++;
+    doodadDef->AddRef();
 
     return doodadDef;
 }

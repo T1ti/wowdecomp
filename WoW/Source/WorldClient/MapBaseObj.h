@@ -31,8 +31,10 @@ class CMapBaseObj {
     friend class CMap;
     /* 0008 */ uint16_t m_type;
 
-    public:
+    protected:
     /* 000A */ uint16_t m_refCount;
+
+    public:
     /* 000C */ MapObjFlag m_flags;
     /* 0010 */ TSLink<CMapBaseObj> m_lameAssLink;
     /* 0018 */ TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_ownerLink)> m_parentLinkList;
@@ -41,6 +43,10 @@ class CMapBaseObj {
     uint16_t GetType() const {
         return this->m_type;
     }
+
+    int16_t GetRefCount() const { return static_cast<int16_t>(m_refCount); }
+    void AddRef() { ++m_refCount; } // (inferred)
+    void ReleaseRef() { --m_refCount; } // (inferred)
 
     virtual ~CMapBaseObj();
     virtual void SelectLights(CM2Lighting* lighting);
