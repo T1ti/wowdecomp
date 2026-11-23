@@ -25,19 +25,19 @@ bool HASHKEY_TEXTUREBLOBFILE::operator==(const HASHKEY_TEXTUREBLOBFILE& key) con
 // INLINED
 CTextureBlobTexture::CTextureBlobTexture() {
     this->m_blob = nullptr;
-    this->m_texture = nullptr;
+    this->m_blobTexture = nullptr;
 }
 
 // INLINED
 CTextureBlobTexture::~CTextureBlobTexture() {
     this->m_blob = nullptr;
-    this->m_texture = nullptr;
+    this->m_blobTexture = nullptr;
 }
 
 // INLINED
 CTextureBlob::CTextureBlob() {
     this->m_filename[0] = '\0';
-    this->m_data = nullptr;
+    this->m_fileData = nullptr;
     this->m_textures = nullptr;
     this->m_textureCount = 0;
     this->m_names = nullptr;
@@ -46,14 +46,16 @@ CTextureBlob::CTextureBlob() {
 
 // VERIFY: 9d0b7dab manual
 // OFFSET: 0x004BFE70
-const uint8_t* CTextureBlobTexture::GetLevel(uint32_t level) {
-    SBlobTexture* texture = this->m_texture;
+const uint8_t* CTextureBlobTexture::GetLevel(uint32_t mipLevel) const {
+    STORM_ASSERT(mipLevel < static_cast<uint8_t>(m_blobTexture->m_numLevels)); // 12213: "mipLevel < m_blobTexture->m_numLevels"
+
+    const SBlobTexture* texture = this->m_blobTexture;
     int32_t shift = texture->m_format & SBlobTexture::ENCODING_MASK ? 0 : 1;
     uint32_t width = texture->m_width;
     uint32_t height = texture->m_height;
     const uint8_t* data = this->m_blob->m_levelData + texture->m_dataOffset + 8;
 
-    for (; level; level--) {
+    for (; mipLevel; mipLevel--) {
         uint32_t size = height * width;
 
         if (shift) {
@@ -77,11 +79,11 @@ const uint8_t* CTextureBlobTexture::GetLevel(uint32_t level) {
 CTextureBlob::~CTextureBlob() {
     this->m_filename[0] = '\0';
 
-    if (this->m_data) {
-        SMemFree(this->m_data, __FILE__, __LINE__, 0);
+    if (this->m_fileData) {
+        SMemFree(this->m_fileData, __FILE__, __LINE__, 0);
     }
 
-    this->m_data = nullptr;
+    this->m_fileData = nullptr;
     this->m_textures = nullptr;
     this->m_textureCount = 0;
     this->m_names = nullptr;
@@ -116,24 +118,26 @@ CTextureBlobTexture* CTextureBlob::GetTexture(const char* fileName) {
 // VERIFY: c1e2e8db manual
 // OFFSET: 0x004C0330
 void CTextureBlob::RemoveTextures() {
-    SBlobTexture* texture = this->m_textures;
+    SBlobTexture* record = this->m_textures;
 
-    for (uint32_t i = 0; i < this->m_textureCount; i++, texture++) {
-        if (texture->m_levels >= 0) {
-            const char* name = this->m_names + texture->m_nameOffset;
+    for (uint32_t i = 0; i < this->m_textureCount; i++, record++) {
+        if (record->m_numLevels >= 0) {
+            const char* name = this->m_names + record->m_nameOffset;
             HASHKEY_TEXTUREBLOBFILE key;
             key.m_filename = name;
-            CTextureBlobTexture* blobTexture = s_textureBlobTextureHash.Ptr(SStrHashHT(name), key);
-            s_textureBlobTextureHash.Delete(blobTexture);
+            CTextureBlobTexture* texture = s_textureBlobTextureHash.Ptr(SStrHashHT(name), key);
+            STORM_ASSERT(texture);
+            STORM_ASSERT(texture->m_blob == this);
+            s_textureBlobTextureHash.Delete(texture);
         }
 
-        texture->m_levels &= ~SBlobTexture::LEVELS_DUPLICATE_NAME;
+        record->m_numLevels &= ~SBlobTexture::LEVELS_DUPLICATE_NAME;
     }
 }
 
 // VERIFY: a2e0b946 manual
 // OFFSET: 0x004C03C0
-void UpdateBlobTexture(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
+static void UpdateBlobTexture(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
     CTexture* texture = static_cast<CTexture*>(userArg);
     STORM_ASSERT(texture);
     CTextureBlobTexture* blobTexture = CTextureBlob::GetTexture(texture->m_filename);
@@ -190,24 +194,26 @@ void CTextureBlob::UnloadAll() {
         s_textureBlobList.DeleteNode(blob);
         blob = next;
     }
+    STORM_ASSERT(s_textureBlobList.Head() == nullptr); // 12213: "s_textureBlobList.Head() == __null"
+    STORM_ASSERT(s_textureBlobTextureHash.Head() == nullptr); // 12213: "s_textureBlobTextureHash.Head() == __null"
 }
 
 // VERIFY: d589605f manual
 // OFFSET: 0x004C0710
 int32_t CTextureBlob::CreateTexture(CTexture* texture, CTextureBlobTexture* blobTexture) {
-    texture->m_alphaBits = blobTexture->m_texture->m_format >> 4;
+    texture->m_alphaBits = blobTexture->m_blobTexture->m_format >> 4;
 
     if (!texture->m_alphaBits) {
         texture->m_flags |= CTexture::FLAGS::IS_OPAQUE;
     }
 
-    uint32_t width = blobTexture->m_texture->m_width;
-    uint32_t height = blobTexture->m_texture->m_height;
+    uint32_t width = blobTexture->m_blobTexture->m_width;
+    uint32_t height = blobTexture->m_blobTexture->m_height;
     texture->m_bestMip = 0;
 
     PIXEL_FORMAT pixelFormat;
     EGxTexFormat gxTexFormat;
-    uint32_t encoding = blobTexture->m_texture->m_format & SBlobTexture::ENCODING_MASK;
+    uint32_t encoding = blobTexture->m_blobTexture->m_format & SBlobTexture::ENCODING_MASK;
     TextureGetTextureFormats(pixelFormat, gxTexFormat, encoding == SBlobTexture::ENCODING_DXT3 ? PIXEL_DXT3 : encoding == SBlobTexture::ENCODING_DXT5 ? PIXEL_DXT5 : PIXEL_DXT1, texture->m_alphaBits);
 
     EGxTexTarget target = GxTex_2d;
@@ -217,7 +223,7 @@ int32_t CTextureBlob::CreateTexture(CTexture* texture, CTextureBlobTexture* blob
         width /= 6;
     }
 
-    encoding = blobTexture->m_texture->m_format & SBlobTexture::ENCODING_MASK;
+    encoding = blobTexture->m_blobTexture->m_format & SBlobTexture::ENCODING_MASK;
     EGxTexFormat dataFormat = TexturePixelFormatToGxTexFormat(encoding == SBlobTexture::ENCODING_DXT3 ? PIXEL_DXT3 : encoding == SBlobTexture::ENCODING_DXT5 ? PIXEL_DXT5 : PIXEL_DXT1);
     texture->m_gxTexFormat = gxTexFormat;
     texture->m_dataFormat = dataFormat;
@@ -227,7 +233,7 @@ int32_t CTextureBlob::CreateTexture(CTexture* texture, CTextureBlobTexture* blob
 
     uint32_t filter = texture->m_gxTexFlags.m_filter;
 
-    if (filter != GxTex_Nearest && filter != GxTex_Linear && blobTexture->m_texture->m_levels == 1) {
+    if (filter != GxTex_Nearest && filter != GxTex_Linear && blobTexture->m_blobTexture->m_numLevels == 1) {
         texture->m_gxTexFlags.m_filter = filter == GxTex_NearestMipNearest ? GxTex_Nearest : GxTex_Linear;
     }
 
@@ -252,13 +258,13 @@ void CTextureBlob::HashTexture(SBlobTexture* texture) {
     key.m_filename = name;
 
     if (s_textureBlobTextureHash.Ptr(hash, key)) {
-        texture->m_levels |= SBlobTexture::LEVELS_DUPLICATE_NAME;
+        texture->m_numLevels |= SBlobTexture::LEVELS_DUPLICATE_NAME;
         return;
     }
 
     CTextureBlobTexture* blobTexture = s_textureBlobTextureHash.New(hash, key, 0, 0);
     blobTexture->m_blob = this;
-    blobTexture->m_texture = texture;
+    blobTexture->m_blobTexture = texture;
 }
 
 // VERIFY: cdf3ceec auto
@@ -269,6 +275,42 @@ void CTextureBlob::HashTextures() {
     for (uint32_t i = 0; i < this->m_textureCount; i++, texture++) {
         this->HashTexture(texture);
     }
+}
+
+namespace {
+
+struct TextureBlobChunk { // (inferred)
+    enum TOKEN : uint32_t {
+        TXVR = 0x54585652,
+        TXBT = 0x54584254,
+        TXFN = 0x5458464E,
+        TXMD = 0x54584D44,
+    };
+
+    uint32_t token;
+    uint32_t size;
+};
+
+}
+
+// INLINED
+inline void CTextureBlob::Create() {
+    auto* iffChunk = reinterpret_cast<TextureBlobChunk*>(this->m_fileData);
+    STORM_ASSERT(iffChunk->token == TextureBlobChunk::TXVR); // 12213: "iffChunk->token == 'TXVR'"
+
+    iffChunk = reinterpret_cast<TextureBlobChunk*>(reinterpret_cast<uint8_t*>(iffChunk + 1) + iffChunk->size);
+    STORM_ASSERT(iffChunk->token == TextureBlobChunk::TXBT); // 12213: "iffChunk->token == 'TXBT'"
+    this->m_textures = reinterpret_cast<SBlobTexture*>(iffChunk + 1);
+    this->m_textureCount = iffChunk->size / sizeof(SBlobTexture);
+
+    iffChunk = reinterpret_cast<TextureBlobChunk*>(reinterpret_cast<uint8_t*>(iffChunk + 1) + iffChunk->size);
+    STORM_ASSERT(iffChunk->token == TextureBlobChunk::TXFN); // 12213: "iffChunk->token == 'TXFN'"
+    this->m_names = reinterpret_cast<const char*>(iffChunk + 1);
+
+    iffChunk = reinterpret_cast<TextureBlobChunk*>(reinterpret_cast<uint8_t*>(iffChunk + 1) + iffChunk->size);
+    STORM_ASSERT(iffChunk->token == TextureBlobChunk::TXMD); // 12213: "iffChunk->token == 'TXMD'"
+    this->m_levelData = reinterpret_cast<uint8_t*>(iffChunk);
+    this->HashTextures();
 }
 
 // VERIFY: 6fbb3a53 manual
@@ -284,22 +326,17 @@ int32_t CTextureBlob::Load(const char* fileName) {
         return 0;
     }
 
-    CTextureBlob* blob = s_textureBlobList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
-    SStrCopy(blob->m_filename, fileName, STORM_MAX_STR);
+    CTextureBlob* textureBlob = s_textureBlobList.NewNode(TSLIST_LINK_BEFORE, 0, 0);
+    STORM_ASSERT(textureBlob);
+    SStrCopy(textureBlob->m_filename, fileName, STORM_MAX_STR);
 
     uint32_t size = SFileGetFileSize(file, nullptr);
-    blob->m_data = static_cast<uint8_t*>(SMemAlloc(size, __FILE__, __LINE__, 0));
-    SFileReadFile(file, blob->m_data, size, nullptr, nullptr, 0);
+    textureBlob->m_fileData = static_cast<uint8_t*>(SMemAlloc(size, __FILE__, __LINE__, 0));
+    STORM_ASSERT(textureBlob->m_fileData);
+    SFileReadFile(file, textureBlob->m_fileData, size, nullptr, nullptr, 0);
     SFileCloseFile(file);
 
-    uint8_t* textures = blob->m_data + *reinterpret_cast<uint32_t*>(blob->m_data + 4) + 8;
-    blob->m_textures = reinterpret_cast<SBlobTexture*>(textures + 8);
-    blob->m_textureCount = *reinterpret_cast<uint32_t*>(textures + 4) / sizeof(SBlobTexture);
-
-    uint8_t* names = textures + 8 + *reinterpret_cast<uint32_t*>(textures + 4);
-    blob->m_names = reinterpret_cast<const char*>(names + 8);
-    blob->m_levelData = names + 8 + *reinterpret_cast<uint32_t*>(names + 4);
-    blob->HashTextures();
+    textureBlob->Create();
 
     return 1;
 }
@@ -310,6 +347,8 @@ void CTextureBlob::RebuildHashTable() {
     for (CTextureBlob* blob = s_textureBlobList.Head(); !s_textureBlobList.IsEnd(blob); blob = s_textureBlobList.RawNext(blob)) {
         blob->RemoveTextures();
     }
+
+    STORM_ASSERT(s_textureBlobTextureHash.Head() == nullptr); // 12213: "s_textureBlobTextureHash.Head() == __null"
 
     for (CTextureBlob* blob = s_textureBlobList.Head(); !s_textureBlobList.IsEnd(blob); blob = s_textureBlobList.RawNext(blob)) {
         blob->HashTextures();

@@ -18,7 +18,7 @@ struct SBlobTexture {
         ENCODING_MASK = 0xF,
     };
 
-    // m_levels high bit (so the field reads negative): HashTexture found the name already
+    // m_numLevels high bit (so the field reads negative): HashTexture found the name already
     // hashed by another blob; RemoveTextures skips the hash delete and clears it (inferred).
     static constexpr uint8_t LEVELS_DUPLICATE_NAME = 0x80;
 
@@ -26,7 +26,7 @@ struct SBlobTexture {
     /* 0004 */ uint32_t m_dataOffset;
     /* 0008 */ uint8_t m_width;
     /* 0009 */ uint8_t m_height;
-    /* 000A */ int8_t m_levels;
+    /* 000A */ int8_t m_numLevels;
     /* 000B */ uint8_t m_format;
 };
 
@@ -39,39 +39,46 @@ struct HASHKEY_TEXTUREBLOBFILE {
 
 class CTextureBlobTexture : public TSHashObject<CTextureBlobTexture, HASHKEY_TEXTUREBLOBFILE> {
     public:
-    /* 0018 */ CTextureBlob* m_blob;
-    /* 001C */ SBlobTexture* m_texture;
-
     CTextureBlobTexture();
     ~CTextureBlobTexture();
-    const uint8_t* GetLevel(uint32_t level);
+    const uint8_t* GetLevel(uint32_t mipLevel) const;
+
+    private:
+    friend class CTextureBlob;
+
+    /* 0018 */ CTextureBlob* m_blob;
+    /* 001C */ SBlobTexture* m_blobTexture;
 };
 
 class CTextureBlob {
     public:
     static int32_t CreateTexture(CTexture* texture, CTextureBlobTexture* blobTexture);
-    static CTextureBlob* FindBlob(const char* fileName);
     static CTextureBlobTexture* GetTexture(const char* fileName);
     static int32_t Load(const char* fileName);
-    static void RebuildHashTable();
     static int32_t Unload(const char* fileName);
     static void UnloadAll();
 
+    private:
+    friend class CTextureBlobTexture;
+    static void RebuildHashTable();
+    static CTextureBlob* FindBlob(const char* fileName);
+
     /* 0000 */ char m_filename[260];
-    /* 0104 */ uint8_t* m_data;
+    /* 0104 */ uint8_t* m_fileData;
     /* 0108 */ SBlobTexture* m_textures;
     /* 010C */ uint32_t m_textureCount;
     /* 0110 */ const char* m_names;
     /* 0114 */ uint8_t* m_levelData;
+    public:
     /* 0118 */ TSLink<CTextureBlob> m_link;
 
     CTextureBlob();
     ~CTextureBlob();
+    private:
+    void Create();
     void HashTexture(SBlobTexture* texture);
     void HashTextures();
     void RemoveTextures();
 };
-
-void UpdateBlobTexture(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
 
 #endif
