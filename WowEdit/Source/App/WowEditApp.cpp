@@ -10,6 +10,7 @@
 #include "WoW/Source/ClientTool.h"
 #include "WowEdit/Source/App/WowEditCommands.h"
 #include "WowEdit/Source/App/WowEditModule.h"
+#include "WowEdit/Source/App/WowEditRenderDistance.h"
 #include "WowEdit/Source/App/WowEditSettings.h"
 #include "WowEdit/Source/App/WowEditUndo.h"
 #include "WowEdit/Source/App/WowEditViewToggles.h"
@@ -23,6 +24,9 @@ static bool s_enabled;
 static CWowEditApp* s_app;
 // Posted to the Gx window to attach outside whatever message revealed it (creation, a format change...).
 static UINT s_attachMessage;
+// The Gx window's own procedure (CGxDeviceD3d::WindowProcD3d...), under the cursor subclass.
+static WNDPROC s_gxWindowProc;
+static HWND s_subclassedWindow;
 
 struct WowEditAppMenus {
     COsMenuBar* bar;
@@ -35,6 +39,7 @@ static void InitializeWorld() {
     WowEditWorldInitialize();
     WowEditWorldSetAzerty(settings.m_azerty);
     WowEditViewTogglesInitialize();
+    WowEditRenderDistanceInitialize();
 
     C3Vector start(settings.m_start[0], settings.m_start[1], settings.m_start[2]);
 
@@ -50,6 +55,8 @@ static void ShutdownWorld() {
         WowEditWorldGetCameraPosition(position);
         WowEditSaveStart(WowEditWorldGetMapId(), position);
     }
+
+    WowEditRenderDistanceSave();
 
     WowEditWorldShutdown();
 }
@@ -80,6 +87,43 @@ void WowEditAppStartup() {
     s_attachMessage = RegisterWindowMessageA("WowEditAttach");
     s_app = new CWowEditApp();
     OsSetWindowProc(CWowEditApp::WindowProc);
+}
+
+// ---- Cursor
+
+void WowEditAppUpdateCursor() {
+    SetCursor(WowEditWorldIsLooking() ? nullptr : LoadCursorA(nullptr, IDC_ARROW));
+}
+
+// The Gx window procedure answers WM_SETCURSOR over its client area itself, before OsWindowProc and the chained
+// procedure: it clears the Windows cursor and shows the device's hardware cursor, the game's cursor image, which the
+// game interface loads (CursorInitialize) and the editor does not. An editor wants the Windows cursor, so the window
+// is subclassed for that one message.
+static LRESULT CALLBACK CursorWindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
+    if (message == WM_SETCURSOR && LOWORD(lparam) == HTCLIENT) {
+        WowEditAppUpdateCursor();
+        return TRUE;
+    }
+
+    return CallWindowProcA(s_gxWindowProc, hwnd, message, wparam, lparam);
+}
+
+static void SubclassCursor(HWND hwnd) {
+    if (s_subclassedWindow == hwnd) {
+        return;
+    }
+
+    s_gxWindowProc = reinterpret_cast<WNDPROC>(SetWindowLongPtrA(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(CursorWindowProc)));
+    s_subclassedWindow = hwnd;
+}
+
+static void UnsubclassCursor(HWND hwnd) {
+    if (s_subclassedWindow != hwnd) {
+        return;
+    }
+
+    SetWindowLongPtrA(hwnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(s_gxWindowProc));
+    s_subclassedWindow = nullptr;
 }
 
 // ---- CWowEditApp
@@ -162,6 +206,7 @@ void CWowEditApp::Attach(void* window) {
     }
 
     this->m_window = window;
+    SubclassCursor(static_cast<HWND>(window));
 
     // The menu bar, from the command table: each menu's items in table order, a null text being a separator.
     this->m_menus = new WowEditAppMenus();
@@ -226,6 +271,7 @@ void CWowEditApp::Detach() {
 
     delete this->m_menus;
     this->m_menus = nullptr;
+    UnsubclassCursor(static_cast<HWND>(this->m_window));
     this->m_window = nullptr;
 }
 

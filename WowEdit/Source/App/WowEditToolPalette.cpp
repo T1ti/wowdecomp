@@ -4,6 +4,7 @@
 
 #include <cstdio>
 #include "Engine/Source/Os/Gui.h"
+#include "WowEdit/Source/App/WowEditSlider.h"
 #include "WowEdit/Source/WowEdit.h"
 #include "WowEdit/Source/WowEditTerrain.h"
 
@@ -32,18 +33,6 @@ enum : int16_t {
 static const int32_t EVENT_CHANGED = 2;
 static const int32_t EVENT_CLOSE = 6;
 static const int32_t EVENT_ACTIVATE = 18;
-
-// A trackbar that reports its scroll codes as a change event (the 0.5.3 notification table has none for it).
-class CWowEditSlider : public COsSlider {
-    public:
-    CWowEditSlider(COsDialog* dialog, int16_t id) : COsSlider(dialog, id) {
-    }
-
-    int32_t OnScroll(int32_t code) override {
-        this->SendEvent(EVENT_CHANGED, 0);
-        return 1;
-    }
-};
 
 CWowEditToolPalette::CWowEditToolPalette(void* parentWindow) {
     this->m_refreshing = false;

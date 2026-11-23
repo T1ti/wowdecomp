@@ -51,6 +51,10 @@ bool WowEditAppEnabled();
 // From WowEditRegisterConsoleCommands: hooks the Gx window procedure when the app is enabled.
 void WowEditAppStartup();
 
+// The mouse cursor over the 3D view: the Windows arrow, or none while the mouse turns the camera
+// (WowEditWorldIsLooking). For a change of state the cursor would only see at the next WM_SETCURSOR.
+void WowEditAppUpdateCursor();
+
 class CWowEditApp {
     public:
     static CWowEditApp* Get(); // nullptr until the app starts

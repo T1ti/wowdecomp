@@ -10,6 +10,8 @@
 //   MapId=0                      the map opened at start (Map.dbc ID)
 //   StartX=, StartY=, StartZ=    the camera position on it; empty for a default (Northshire on map 0, the middle
 //                                of the map's terrain on the others)
+//   ViewDistance=, DoodadDistance=, GroundClutter=, HorizonDistance=
+//                                the render distances (WowEditRenderDistance.h); empty for the editor's defaults
 //   Keyboard=AZERTY              the movement keys: QWERTY (W A S D) or AZERTY (Z Q S D); empty for the layout
 //                                Windows has at start (View > AZERTY Movement Keys sets it)
 //
@@ -40,6 +42,10 @@ const WowEditSettings& WowEditGetSettings();
 void WowEditSaveStart(int32_t mapId, const float* position);
 // Saves the movement keys.
 void WowEditSaveKeyboard(bool azerty);
+// Other numbers in the [WowEdit] section (the render distances, WowEditRenderDistance.h); empty or missing gives
+// the fallback.
+float WowEditSettingsGetFloat(const char* key, float fallback);
+void WowEditSettingsSetFloat(const char* key, float value);
 
 #endif
 

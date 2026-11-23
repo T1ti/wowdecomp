@@ -6,6 +6,7 @@
 #include "Engine/Source/Os/Gui.h"
 #include "WowEdit/Source/App/WowEditApp.h"
 #include "WowEdit/Source/App/WowEditCommands.h"
+#include "WowEdit/Source/App/WowEditDistancePalette.h"
 #include "WowEdit/Source/App/WowEditMapDialog.h"
 #include "WowEdit/Source/App/WowEditSettings.h"
 #include "WowEdit/Source/App/WowEditToolPalette.h"
@@ -98,6 +99,7 @@ class CWowEditViewModule : public CWowEditModule {
     public:
     CWowEditViewModule() {
         this->m_palette = nullptr;
+        this->m_distancePalette = nullptr;
     }
 
     ~CWowEditViewModule() override {
@@ -131,6 +133,14 @@ class CWowEditViewModule : public CWowEditModule {
         if (command == WOWEDITCMD_WINDOW_VIEW_PALETTE) {
             if (this->m_palette) {
                 this->m_palette->Show(!this->m_palette->IsShowing());
+            }
+
+            return true;
+        }
+
+        if (command == WOWEDITCMD_WINDOW_DISTANCE_PALETTE) {
+            if (this->m_distancePalette) {
+                this->m_distancePalette->Show(!this->m_distancePalette->IsShowing());
             }
 
             return true;
@@ -170,6 +180,12 @@ class CWowEditViewModule : public CWowEditModule {
             return true;
         }
 
+        if (command == WOWEDITCMD_WINDOW_DISTANCE_PALETTE) {
+            *enabled = this->m_distancePalette != nullptr;
+            *checked = this->m_distancePalette && this->m_distancePalette->IsShowing();
+            return true;
+        }
+
         const WowEditViewToggle* toggle = WowEditFindViewToggle(command);
 
         if (!toggle) {
@@ -183,16 +199,24 @@ class CWowEditViewModule : public CWowEditModule {
     void OnAttach(void* mainWindow) override {
         this->m_palette = new CWowEditViewPalette(mainWindow);
         this->m_palette->Show(true);
+        // Hidden until Window > Render Distance.
+        this->m_distancePalette = new CWowEditDistancePalette(mainWindow);
     }
 
     void OnDetach() override {
         delete this->m_palette;
         this->m_palette = nullptr;
+        delete this->m_distancePalette;
+        this->m_distancePalette = nullptr;
     }
 
     void OnRefresh() override {
         if (this->m_palette) {
             this->m_palette->Refresh();
+        }
+
+        if (this->m_distancePalette) {
+            this->m_distancePalette->Refresh();
         }
     }
 
@@ -213,6 +237,7 @@ class CWowEditViewModule : public CWowEditModule {
     }
 
     CWowEditViewPalette* m_palette;
+    CWowEditDistancePalette* m_distancePalette;
 };
 
 // ---- Terrain tools

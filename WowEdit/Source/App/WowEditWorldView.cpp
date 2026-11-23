@@ -22,7 +22,6 @@
 #include "WoW/Source/DB/DBClient/DBClient.h"
 #include "WoW/Source/DB/Rec/MapRec.h"
 #include "WoW/Source/UIUtil/Camera.h"
-#include "WoW/Source/UIUtil/Cursor.h"
 #include "WoW/Source/Ui/GameUI.h"
 #include "WoW/Source/Ui/WorldFrame.h"
 #include "WoW/Source/WorldClient/DayNight.h"
@@ -33,6 +32,7 @@
 #include "WoW/Source/WorldClient/World.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include "WoW/Source/WorldClient/WorldEditHooks.h"
+#include "WowEdit/Source/App/WowEditApp.h"
 
 // See WowEditWorldView.h.
 
@@ -160,7 +160,7 @@ static void StopLooking() {
     if (s_looking) {
         s_looking = false;
         EventSetMouseMode(MOUSE_MODE_NORMAL, 0);
-        g_theGxDevicePtr->CursorSetVisible(1);
+        WowEditAppUpdateCursor();
     }
 }
 
@@ -184,7 +184,7 @@ static int32_t OnMouseDown(const void* data, void* param) {
         s_looking = true;
         EventSetMouseMode(MOUSE_MODE_RELATIVE, MOUSE_BUTTON_RIGHT);
         // As the game turning its camera (InputControl): no cursor while the mouse turns the view.
-        g_theGxDevicePtr->CursorSetVisible(0);
+        WowEditAppUpdateCursor();
         return 0;
     }
 
@@ -468,10 +468,6 @@ void WowEditWorldInitialize() {
     // The world frame's camera reads the camera cvars (cameraView...), registered by the game interface in the game.
     CameraRegisterCVars();
 
-    // The game's cursor (Interface\Cursor\Point.blp), a Gx hardware cursor: the game interface loads it, and
-    // without it the Gx window has no cursor over its client area (the Gx window procedure clears the Windows one).
-    CursorInitialize();
-
     // The camera constructor also reads "autoInteract" (CGCamera::UpdateAutoInteractState), a game interface cvar.
     if (!g_cvAutoInteract) {
         g_cvAutoInteract = CVar::Register("autoInteract", "Toggles auto-move to interact target", CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0", nullptr, CATEGORY_GAME, false, nullptr, false);
@@ -498,7 +494,6 @@ void WowEditWorldInitialize() {
 
 void WowEditWorldShutdown() {
     StopLooking();
-    CursorDestroy();
 
     if (s_mapId >= 0) {
         World::UnloadMap();
@@ -596,6 +591,10 @@ void WowEditWorldSetAzerty(bool azerty) {
 
 bool WowEditWorldGetAzerty() {
     return s_azerty;
+}
+
+bool WowEditWorldIsLooking() {
+    return s_looking;
 }
 
 #endif

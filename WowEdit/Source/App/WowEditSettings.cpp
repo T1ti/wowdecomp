@@ -74,7 +74,16 @@ static void WriteDefaults(const char* iniPath) {
           "StartY=\n"
           "StartZ=\n"
           "; The movement keys: QWERTY (W A S D) or AZERTY (Z Q S D). Empty: from the keyboard layout.\n"
-          "Keyboard=\n",
+          "Keyboard=\n"
+          "; Render distances (Window > Render Distance); empty for the editor's defaults.\n"
+          "; ViewDistance: the far clip and how far the world loads, 183 to 1583 yards (default 1583).\n"
+          "; DoodadDistance: doodad and WMO fade distance scale, 0.5 to 1.5 (default 1.5).\n"
+          "; GroundClutter: grass distance, 0 to 140 yards (default 70).\n"
+          "; HorizonDistance: WDL horizon reach with the fog on, 3 to 6 times the view distance (default 4).\n"
+          "ViewDistance=\n"
+          "DoodadDistance=\n"
+          "GroundClutter=\n"
+          "HorizonDistance=\n",
         file);
     fclose(file);
 }
@@ -178,6 +187,22 @@ void WowEditSaveStart(int32_t mapId, const float* position) {
         snprintf(value, sizeof(value), "%.2f", position[i]);
         WritePrivateProfileStringA(SECTION, keys[i], value, s_settings.m_iniPath);
     }
+}
+
+float WowEditSettingsGetFloat(const char* key, float fallback) {
+    char value[64];
+    GetPrivateProfileStringA(SECTION, key, "", value, sizeof(value), s_settings.m_iniPath);
+    return value[0] ? static_cast<float>(atof(value)) : fallback;
+}
+
+void WowEditSettingsSetFloat(const char* key, float value) {
+    if (!s_settings.m_iniPath[0]) {
+        return;
+    }
+
+    char text[64];
+    snprintf(text, sizeof(text), "%.2f", value);
+    WritePrivateProfileStringA(SECTION, key, text, s_settings.m_iniPath);
 }
 
 void WowEditSaveKeyboard(bool azerty) {
