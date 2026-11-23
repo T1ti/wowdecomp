@@ -156,7 +156,7 @@ void CSimpleRegion::HideThis() {
 // VERIFY: b0e6ff7b auto
 // OFFSET: 0x00487C40
 void CSimpleRegion::ShowThis() {
-    if (!this->m_shown || !this->m_parent || !this->m_parent->m_isVisible || this->m_visible) {
+    if (!this->m_shown || !this->m_parent || !this->m_parent->IsVisible() || this->m_visible) {
         return;
     }
 

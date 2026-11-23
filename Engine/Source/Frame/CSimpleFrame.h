@@ -88,10 +88,16 @@ class CSimpleFrame : public CScriptRegion {
     static int32_t GetObjectType();
     static void RegisterScriptMethods(lua_State* L);
 
+    bool IsInitialized() const { return m_initialized_state == INITIALIZED_STATE::STATE_INITIALIZED; }
+    bool IsVisible() const { return m_isVisible != 0; }
+    bool IsDeleted() const { return m_initialized_state == INITIALIZED_STATE::STATE_DELETED; } // (inferred)
+
     /* 00A0 */ CSimpleTop* m_simpleTop;
     /* 00A4 */ CSimpleFrame* m_hoverFrame;
     /* 00A8 */ CSimpleTitleRegion* m_titleRegion;
+    private:
     /* 00AC */ INITIALIZED_STATE m_initialized_state;
+    public:
     /* 00B0 */ int32_t m_id;
     /* 00B4 */ uint32_t m_frameFlags;
     /* 00B8 */ float m_frameScale;
@@ -108,7 +114,9 @@ class CSimpleFrame : public CScriptRegion {
     /* 00D4 */ int32_t m_level;
     /* 00D8 */ uint32_t m_enabledEventsBitmask;
     /* 00DC */ uint32_t m_isShown;
+    private:
     /* 00E0 */ uint32_t m_isVisible;
+    public:
     /* 00E4 */ CRect m_hitRect;
     /* 00F4 */ CRect m_hitRectInsets;
     /* 0104 */ CRect m_clampRectInsets;

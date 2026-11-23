@@ -1008,7 +1008,7 @@ static int32_t Script_Hide(lua_State* L) {
 static int32_t Script_IsVisible(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
-    if (frame->m_isVisible) {
+    if (frame->IsVisible()) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

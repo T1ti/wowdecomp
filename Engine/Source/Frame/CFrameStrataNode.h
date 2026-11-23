@@ -8,13 +8,19 @@
 #include "Engine/Source/Storm/H/stpl.h"
 
 class CFrameStrataNode {
-    public:
+    private:
+    friend class CFrameStrata; // Access inferred from frame insertion and batch construction.
+    friend class CSimpleTop; // Access inferred from batch invalidation.
+
     /* 0000 */ TSExplicitList<CSimpleFrame, offsetof(CSimpleFrame, m_strataLink)> m_pendingFrames;
-    /* 000C */ TSExplicitList<CSimpleFrame, offsetof(CSimpleFrame, m_strataLink)> m_frames;
+    public:
+    /* 000C */ TSExplicitList<CSimpleFrame, offsetof(CSimpleFrame, m_strataLink)> frames;
+    private:
     /* 0018 */ CSimpleFrame* m_pendingFrame;
     /* 001C */ CRenderBatch m_batches [NUM_SIMPLEFRAME_DRAWLAYERS];
     /* 010C */ int32_t m_batchDirty;
-    /* 0110 */ TSExplicitList<CRenderBatch, offsetof(CRenderBatch, m_renderLink)> m_renderList;
+    public:
+    /* 0110 */ TSExplicitList<CRenderBatch, offsetof(CRenderBatch, m_renderLink)> renderList;
 
     CFrameStrataNode();
     ~CFrameStrataNode();

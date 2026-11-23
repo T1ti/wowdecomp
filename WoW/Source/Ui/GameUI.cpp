@@ -2088,7 +2088,7 @@ int32_t CGGameUI::Idle(const void* data, void* param) {
     DBCache_Idle();
     Script_SendUniqueSignals();
 
-    int32_t idleTime = OsGetAsyncTimeMs() - CSimpleTop::s_eventTime;
+    int32_t idleTime = OsGetAsyncTimeMs() - CSimpleTop::GetEventTime();
 
     if (idleTime - AUTO_SIT_IDLE_TIME >= 0) {
         if (idleTime - AUTO_LOGOUT_IDLE_TIME < 0) {

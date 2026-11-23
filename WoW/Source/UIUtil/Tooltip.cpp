@@ -7801,7 +7801,7 @@ void CGTooltip::SetFrameStack(bool showHidden) {
             continue;
         }
 
-        uint32_t visible = frame->m_isVisible;
+        uint32_t visible = frame->IsVisible();
 
         if ((!visible && !showHidden) || x < rect.minX || x > rect.maxX || y > rect.maxY || y < rect.minY) {
             continue;

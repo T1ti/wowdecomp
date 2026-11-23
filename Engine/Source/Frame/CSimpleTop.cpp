@@ -36,7 +36,10 @@ uint32_t CSimpleTop::s_eventTime;
 // VERIFY: 29e70871 auto
 // OFFSET: 0x00495810
 static void PaintScreen(void* param, const RECTF* rect, const RECTF* visible, float elapsedSec) {
+    // 12213: "s_instance"
+    STORM_ASSERT(CSimpleTop::s_instance);
     CSimpleTop* top = CSimpleTop::s_instance;
+    STORM_ASSERT(top);
     top->OnLayerUpdate(elapsedSec);
     top->OnLayerRender();
 }
@@ -68,7 +71,7 @@ void CSimpleTop::StopMoveOrResizeFrame() {
 // OFFSET: 0x00493C10
 void CSimpleTop::NotifyFrameLayerChanged(CSimpleFrame* frame, uint32_t drawLayer) {
     CFrameStrata* strata = this->m_strata[frame->m_strata];
-    strata->m_levels[frame->m_level]->m_batchDirty |= 1 << drawLayer;
+    strata->levels[frame->m_level]->m_batchDirty |= 1 << drawLayer;
     strata->m_batchDirty = 1;
 }
 
@@ -76,7 +79,7 @@ void CSimpleTop::NotifyFrameLayerChanged(CSimpleFrame* frame, uint32_t drawLayer
 // OFFSET: 0x00493C50
 void CSimpleTop::NotifyFrameDelayedLoad(CSimpleFrame* frame) {
     CFrameStrata* strata = this->m_strata[frame->m_strata];
-    strata->m_levels[frame->m_level]->m_batchDirty |= BATCH_DIRTY_DELAYED_LOAD;
+    strata->levels[frame->m_level]->m_batchDirty |= BATCH_DIRTY_DELAYED_LOAD;
     strata->m_batchDirty = 1;
 }
 
@@ -156,8 +159,8 @@ void CSimpleTop::HideFrame(CSimpleFrame* frame, BOOL reregister) {
 
     CFrameStrata* strata = this->m_strata[frame->m_strata];
 
-    if (frame->m_level < strata->m_levels.Count()) {
-        strata->m_batchDirty |= strata->m_levels[frame->m_level]->RemoveFrame(frame);
+    if (frame->m_level < strata->levels.Count()) {
+        strata->m_batchDirty |= strata->levels[frame->m_level]->RemoveFrame(frame);
         strata->m_levelsDirty = 1;
     }
 }
@@ -609,9 +612,9 @@ int32_t CSimpleTop::OnFocusChanged(const void* data, void* param) {
 CSimpleFrame* CFrameStrata::GetHitFrame(const C2Vector& pt) {
     for (uint32_t level = this->m_topLevel; level > 0;) {
         level--;
-        CFrameStrataNode* node = this->m_levels[level];
+        CFrameStrataNode* node = this->levels[level];
 
-        for (CSimpleFrame* frame = node->m_frames.Head(); frame; frame = node->m_frames.Next(frame)) {
+        for (CSimpleFrame* frame = node->frames.Head(); frame; frame = node->frames.Next(frame)) {
             if (frame->TestHitRect(pt)) {
                 while (!(frame->m_frameFlags & CSimpleFrame::FrameFlags::FRAME_TOPLEVEL)) {
                     frame = frame->m_parent;
@@ -636,9 +639,9 @@ int32_t CFrameStrata::FrameOccluded(CSimpleFrame* frame) {
     CRect otherRect = { 0.0f, 0.0f, 0.0f, 0.0f };
 
     for (uint32_t level = frame->m_level; level < this->m_topLevel; level++) {
-        CFrameStrataNode* node = this->m_levels[level];
+        CFrameStrataNode* node = this->levels[level];
 
-        for (CSimpleFrame* other = node->m_frames.Head(); other; other = node->m_frames.Next(other)) {
+        for (CSimpleFrame* other = node->frames.Head(); other; other = node->frames.Next(other)) {
             if (other == frame) {
                 continue;
             }
@@ -669,12 +672,13 @@ int32_t CFrameStrata::FrameOccluded(CSimpleFrame* frame) {
 // VERIFY: 8e94ced8 manual
 // OFFSET: 0x00494E60
 void CFrameStrata::CheckOcclusion() {
-    for (uint32_t level = 0; level < this->m_topLevel; level++) {
-        CFrameStrataNode* node = this->m_levels[level];
+    for (uint32_t i = 0; i < this->m_topLevel; i++) {
+        CFrameStrataNode* node = this->levels[i];
 
-        for (CSimpleFrame* frame = node->m_frames.Head(); frame; frame = node->m_frames.Next(frame)) {
+        for (CSimpleFrame* frame = node->frames.Head(); frame; frame = node->frames.Next(frame)) {
             if (frame->m_frameFlags & CSimpleFrame::FrameFlags::FRAME_TOPLEVEL) {
                 frame->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_OCCLUDED, this->FrameOccluded(frame));
+                STORM_ASSERT(levels[i]->frames.IsLinked(frame));
             }
         }
     }
@@ -695,7 +699,7 @@ int32_t CFrameStrata::BuildBatches(int32_t noMouseCapture) {
     this->m_batchDirty = 0;
 
     for (uint32_t level = 0; level < this->m_topLevel; level++) {
-        if (this->m_levels[level]->BuildBatches()) {
+        if (this->levels[level]->BuildBatches()) {
             this->m_batchDirty = 1;
         }
     }
@@ -707,10 +711,12 @@ int32_t CFrameStrata::BuildBatches(int32_t noMouseCapture) {
 // OFFSET: 0x00494F30
 void CFrameStrata::RenderBatches() {
     for (uint32_t level = 0; level < this->m_topLevel; level++) {
-        CFrameStrataNode* node = this->m_levels[level];
+        CFrameStrataNode* node = this->levels[level];
 
-        for (CRenderBatch* batch = node->m_renderList.Head(); batch; batch = node->m_renderList.Next(batch)) {
+        auto& renderList = node->renderList;
+        for (CRenderBatch* batch = renderList.Head(); batch; batch = renderList.Next(batch)) {
             CSimpleRender::DrawBatch(batch);
+            STORM_ASSERT(renderList.IsLinked(batch));
         }
     }
 }
@@ -732,8 +738,8 @@ void CSimpleTop::UnregisterFrame(CSimpleFrame* frame) {
 
     CFrameStrata* strata = this->m_strata[frame->m_strata];
 
-    if (frame->m_level < strata->m_levels.Count()) {
-        strata->m_batchDirty |= strata->m_levels[frame->m_level]->RemoveFrame(frame);
+    if (frame->m_level < strata->levels.Count()) {
+        strata->m_batchDirty |= strata->levels[frame->m_level]->RemoveFrame(frame);
         strata->m_levelsDirty = 1;
     }
 
@@ -758,7 +764,7 @@ void CSimpleTop::CompressStrata(int32_t strata) {
     uint32_t level = 0;
 
     while (level < topLevel) {
-        int32_t used = this->m_strata[strata]->m_levels[level]->m_frames.Head() != nullptr;
+        int32_t used = this->m_strata[strata]->levels[level]->frames.Head() != nullptr;
 
         if (!used) {
             for (CSimpleFrame* frame = this->m_frames.Head(); frame; frame = this->m_frames.Next(frame)) {
@@ -879,7 +885,7 @@ void CSimpleTop::OnLayerUpdate(float elapsedSec) {
         CFrameStrata* frameStrata = this->m_strata[strata];
 
         for (uint32_t level = 0; level < frameStrata->m_topLevel; level++) {
-            frameStrata->m_levels[level]->OnLayerUpdate(elapsedSec);
+            frameStrata->levels[level]->OnLayerUpdate(elapsedSec);
         }
     }
 
@@ -992,6 +998,10 @@ void CSimpleTop::NotifyFrameMovedOrResized(CSimpleFrame* frame) {
 // VERIFY: e3307852 manual
 // OFFSET: 0x00495880
 void CSimpleTop::RegisterForEvent(CSimpleFrame* frame, CSimpleEventType event, BOOL reregister, int32_t priority) {
+    STORM_ASSERT(frame->IsInitialized());
+    STORM_ASSERT(frame->IsVisible());
+    STORM_ASSERT(event < NUM_SIMPLE_EVENTS);
+
     CSimpleSortedArray<FRAMEPRIORITY*>& queue = this->m_eventqueue[event][frame->m_strata];
 
     if (priority == -1) {
@@ -1011,6 +1021,8 @@ void CSimpleTop::RegisterForEvent(CSimpleFrame* frame, CSimpleEventType event, B
 // VERIFY: 4939f5d1 manual
 // OFFSET: 0x00495900
 void CSimpleTop::UnregisterForEvent(CSimpleFrame* frame, CSimpleEventType event, BOOL reregister) {
+    STORM_ASSERT(event < NUM_SIMPLE_EVENTS);
+
     CSimpleSortedArray<FRAMEPRIORITY*>& queue = this->m_eventqueue[event][frame->m_strata];
 
     for (uint32_t i = 0; i < queue.m_count; i++) {
@@ -1042,7 +1054,7 @@ void CSimpleTop::UnregisterForEvent(CSimpleFrame* frame, CSimpleEventType event,
                 this->m_mouseFocus = nullptr;
                 this->m_checkFocus = 1;
 
-                if (frame->m_initialized_state != CSimpleFrame::INITIALIZED_STATE::STATE_DELETED) {
+                if (!frame->IsDeleted()) {
                     frame->OnLayerCursorExit(0, 1);
                 }
             }
@@ -1098,12 +1110,12 @@ CFrameStrata::CFrameStrata() {
 void CFrameStrata::AddFrame(CSimpleFrame* frame) {
     uint32_t level = frame->m_level;
 
-    if (level >= this->m_levels.Count()) {
-        uint32_t count = this->m_levels.Count();
-        this->m_levels.SetCount(level + 1);
+    if (level >= this->levels.Count()) {
+        uint32_t count = this->levels.Count();
+        this->levels.SetCount(level + 1);
 
         for (; count <= level; count++) {
-            this->m_levels[count] = new (SMemAlloc(sizeof(CFrameStrataNode), __FILE__, __LINE__, 0)) CFrameStrataNode;
+            this->levels[count] = new (SMemAlloc(sizeof(CFrameStrataNode), __FILE__, __LINE__, 0)) CFrameStrataNode;
         }
     }
 
@@ -1111,10 +1123,10 @@ void CFrameStrata::AddFrame(CSimpleFrame* frame) {
         this->m_topLevel = level + 1;
     }
 
-    CFrameStrataNode* node = this->m_levels[level];
+    CFrameStrataNode* node = this->levels[level];
 
     if (!frame->m_strataLink.IsLinked()) {
-        TSExplicitList<CSimpleFrame, offsetof(CSimpleFrame, m_strataLink)>* list = node->m_pendingFrame ? &node->m_pendingFrames : &node->m_frames;
+        TSExplicitList<CSimpleFrame, offsetof(CSimpleFrame, m_strataLink)>* list = node->m_pendingFrame ? &node->m_pendingFrames : &node->frames;
         list->LinkToTail(frame);
 
         if (!(frame->m_frameFlags & CSimpleFrame::FrameFlags::FRAME_BEING_SCROLLED)) {
@@ -1129,6 +1141,8 @@ void CFrameStrata::AddFrame(CSimpleFrame* frame) {
 // VERIFY: a790458c manual
 // OFFSET: 0x00495EB0
 CSimpleTop::CSimpleTop() {
+    STORM_ASSERT(!s_instance);
+
     this->m_mouseFocus = nullptr;
     this->m_mouseCapture = nullptr;
     this->m_checkFocus = 1;
@@ -1191,9 +1205,9 @@ void CSimpleTop::ShowFrame(CSimpleFrame* frame, BOOL reregister) {
 // VERIFY: 9bb3362f manual
 // OFFSET: 0x00496100
 CFrameStrata::~CFrameStrata() {
-    for (uint32_t level = 0; level < this->m_levels.Count(); level++) {
-        delete this->m_levels[level];
-        this->m_levels[level] = nullptr;
+    for (uint32_t level = 0; level < this->levels.Count(); level++) {
+        delete this->levels[level];
+        this->levels[level] = nullptr;
     }
 }
 

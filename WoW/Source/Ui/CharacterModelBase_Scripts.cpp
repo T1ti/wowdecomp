@@ -38,7 +38,7 @@ static int32_t Script_SetCreature(lua_State* L) {
         model->m_unitGuid = WOWGUID();
         model->m_creatureStats = stats;
 
-        if (model->m_isVisible) {
+        if (model->IsVisible()) {
             model->SetUpModel(stats);
         }
     }

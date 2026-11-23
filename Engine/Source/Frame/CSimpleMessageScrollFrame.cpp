@@ -457,7 +457,7 @@ void CSimpleMessageScrollFrame::ScrollMessages(int32_t scroll) {
     this->m_currentScroll = scroll;
     this->m_numDisplayed = 0;
 
-    if (this->m_isVisible && !this->IsResizePending()) {
+    if (this->IsVisible() && !this->IsResizePending()) {
         int32_t reset = 0;
 
         if (this->m_currentScroll == this->m_currentLine) {

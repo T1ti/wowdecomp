@@ -36,7 +36,7 @@ static int32_t Script_JumpOrAscendStart(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_ASCEND_PLAYER_KEY, 1, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_ASCEND_PLAYER_KEY, 1, CSimpleTop::GetEventTime(), 0);
 
     if (mover->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) {
         return 0;
@@ -48,7 +48,7 @@ static int32_t Script_JumpOrAscendStart(lua_State* L) {
         return 0;
     }
 
-    uint32_t time = CSimpleTop::s_eventTime;
+    uint32_t time = CSimpleTop::GetEventTime();
 
     if ((mover->GetClientStandState() != UNIT_STANDING)) {
         mover->ChangeStandState(UNIT_STANDING);
@@ -76,7 +76,7 @@ static int32_t Script_AscendStop(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_ASCEND_PLAYER_KEY, 0, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_ASCEND_PLAYER_KEY, 0, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -89,7 +89,7 @@ static int32_t Script_DescendStop(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_DESCEND_PLAYER_KEY, 0, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_DESCEND_PLAYER_KEY, 0, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -106,7 +106,7 @@ static int32_t Script_ToggleRun(lua_State* L) {
         return 0;
     }
 
-    uint32_t time = CSimpleTop::s_eventTime;
+    uint32_t time = CSimpleTop::GetEventTime();
 
     if (mover->m_unit->m_unitFieldHealth > 0 && !mover->m_movement->IsSplineMover() && !mover->IsAlteredFormTransitionPreventingMovement() && mover->CanMove()) {
         mover->ToggleRunModeLocal(time);
@@ -125,7 +125,7 @@ static int32_t Script_ToggleAutoRun(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_MOVE_PLAYER_AUTORUN, enable, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_MOVE_PLAYER_AUTORUN, enable, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -138,7 +138,7 @@ static int32_t Script_MoveForwardStart(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_MOVE_PLAYER_FORWARD_KEY, 1, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_MOVE_PLAYER_FORWARD_KEY, 1, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -151,7 +151,7 @@ static int32_t Script_MoveForwardStop(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_MOVE_PLAYER_FORWARD_KEY, 0, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_MOVE_PLAYER_FORWARD_KEY, 0, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -164,7 +164,7 @@ static int32_t Script_MoveBackwardStart(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_MOVE_PLAYER_BACKWARD_KEY, 1, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_MOVE_PLAYER_BACKWARD_KEY, 1, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -177,7 +177,7 @@ static int32_t Script_MoveBackwardStop(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_MOVE_PLAYER_BACKWARD_KEY, 0, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_MOVE_PLAYER_BACKWARD_KEY, 0, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -190,7 +190,7 @@ static int32_t Script_TurnLeftStart(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_TURN_PLAYER_LEFT_KEY, 1, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_TURN_PLAYER_LEFT_KEY, 1, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -203,7 +203,7 @@ static int32_t Script_TurnLeftStop(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_TURN_PLAYER_LEFT_KEY, 0, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_TURN_PLAYER_LEFT_KEY, 0, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -216,7 +216,7 @@ static int32_t Script_TurnRightStart(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_TURN_PLAYER_RIGHT_KEY, 1, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_TURN_PLAYER_RIGHT_KEY, 1, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -229,7 +229,7 @@ static int32_t Script_TurnRightStop(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_TURN_PLAYER_RIGHT_KEY, 0, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_TURN_PLAYER_RIGHT_KEY, 0, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -242,7 +242,7 @@ static int32_t Script_StrafeLeftStart(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_STRAFE_PLAYER_LEFT_KEY, 1, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_STRAFE_PLAYER_LEFT_KEY, 1, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -255,7 +255,7 @@ static int32_t Script_StrafeLeftStop(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_STRAFE_PLAYER_LEFT_KEY, 0, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_STRAFE_PLAYER_LEFT_KEY, 0, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -268,7 +268,7 @@ static int32_t Script_StrafeRightStart(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_STRAFE_PLAYER_RIGHT_KEY, 1, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_STRAFE_PLAYER_RIGHT_KEY, 1, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -281,7 +281,7 @@ static int32_t Script_StrafeRightStop(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_STRAFE_PLAYER_RIGHT_KEY, 0, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_STRAFE_PLAYER_RIGHT_KEY, 0, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -294,7 +294,7 @@ static int32_t Script_VehicleAimUpStop(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_PITCH_PLAYER_UP_KEY, 0, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_PITCH_PLAYER_UP_KEY, 0, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -307,7 +307,7 @@ static int32_t Script_VehicleAimDownStop(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_PITCH_PLAYER_DOWN_KEY, 0, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_PITCH_PLAYER_DOWN_KEY, 0, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -320,7 +320,7 @@ static int32_t Script_VehicleAimUpStart(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_PITCH_PLAYER_UP_KEY, 1, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_PITCH_PLAYER_UP_KEY, 1, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -333,7 +333,7 @@ static int32_t Script_VehicleAimDownStart(lua_State* L) {
         return 0;
     }
 
-    input->ToggleControlBit(INPUT_PITCH_PLAYER_DOWN_KEY, 1, CSimpleTop::s_eventTime, 0);
+    input->ToggleControlBit(INPUT_PITCH_PLAYER_DOWN_KEY, 1, CSimpleTop::GetEventTime(), 0);
     return 0;
 }
 
@@ -343,7 +343,7 @@ static int32_t Script_TurnOrActionStart(lua_State* L) {
     CGInputControl* input = CGInputControl::s_inputControl;
 
     if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_MOVEMENT)) {
-        uint32_t time = CSimpleTop::s_eventTime;
+        uint32_t time = CSimpleTop::GetEventTime();
 
         if (!(input->m_flags & INPUT_MOUSE_LOOK_MASK)) {
             input->m_pendingDefaultAction = INPUT_RELEASE_ACTION;
@@ -368,7 +368,7 @@ static int32_t Script_TurnOrActionStop(lua_State* L) {
     CGInputControl* input = CGInputControl::s_inputControl;
 
     if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_MOVEMENT)) {
-        uint32_t time = CSimpleTop::s_eventTime;
+        uint32_t time = CSimpleTop::GetEventTime();
 
         if (input->UnsetControlBit(INPUT_TURN_PLAYER, time, 0)) {
             input->UpdatePlayer(time, 1);
@@ -384,7 +384,7 @@ static int32_t Script_CameraOrSelectOrMoveStart(lua_State* L) {
     CGInputControl* input = CGInputControl::s_inputControl;
 
     if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_MOVEMENT)) {
-        uint32_t time = CSimpleTop::s_eventTime;
+        uint32_t time = CSimpleTop::GetEventTime();
 
         if (!(input->m_flags & INPUT_MOUSE_LOOK_MASK)) {
             input->m_pendingDefaultAction = INPUT_RELEASE_SELECT;
@@ -409,7 +409,7 @@ static int32_t Script_CameraOrSelectOrMoveStop(lua_State* L) {
     CGInputControl* input = CGInputControl::s_inputControl;
 
     if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_MOVEMENT)) {
-        uint32_t time = CSimpleTop::s_eventTime;
+        uint32_t time = CSimpleTop::GetEventTime();
 
         if (input->UnsetControlBit(INPUT_TURN_CAMERA, time, StringToBOOL(L, 1, 0))) {
             input->UpdatePlayer(time, 1);
@@ -423,7 +423,7 @@ static int32_t Script_CameraOrSelectOrMoveStop(lua_State* L) {
 // OFFSET: 0x005FC890
 static int32_t Script_MouselookStop(lua_State* L) {
     CGInputControl* input = CGInputControl::s_inputControl;
-    uint32_t time = CSimpleTop::s_eventTime;
+    uint32_t time = CSimpleTop::GetEventTime();
     input->m_pendingDefaultAction = INPUT_RELEASE_NONE;
 
     if (input->UnsetControlBit(INPUT_TURN_PLAYER, time, 0)) {
@@ -438,7 +438,7 @@ static int32_t Script_MouselookStop(lua_State* L) {
 // OFFSET: 0x005FCC10
 static int32_t Script_MouselookStart(lua_State* L) {
     CGInputControl* input = CGInputControl::s_inputControl;
-    uint32_t time = CSimpleTop::s_eventTime;
+    uint32_t time = CSimpleTop::GetEventTime();
     input->m_pendingDefaultAction = INPUT_RELEASE_NONE;
 
     if (input->SetControlBit(INPUT_TURN_PLAYER, time)) {
@@ -547,7 +547,7 @@ static int32_t Script_MoveAndSteerStop(lua_State* L) {
     CGInputControl* inputControl = CGInputControl::s_inputControl;
 
     if (CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_MOVEMENT)) {
-        uint32_t time = CSimpleTop::s_eventTime;
+        uint32_t time = CSimpleTop::GetEventTime();
 
         if (inputControl->UnsetControlBit(INPUT_TURN_CAMERA, time, 0)) {
             inputControl->UpdatePlayer(time, 1);
@@ -640,7 +640,7 @@ static int32_t Script_VehicleAimGetNormAngle(lua_State* L) {
 // OFFSET: 0x005FB820
 static int32_t Script_VehicleAimRequestAngle(lua_State* L) {
     CGInputControl* inputControl = CGInputControl::s_inputControl;
-    uint32_t time = CSimpleTop::s_eventTime;
+    uint32_t time = CSimpleTop::GetEventTime();
     CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
     if (unit) {
@@ -658,7 +658,7 @@ static int32_t Script_VehicleAimRequestAngle(lua_State* L) {
 // OFFSET: 0x005FB8C0
 static int32_t Script_VehicleAimRequestNormAngle(lua_State* L) {
     CGInputControl* inputControl = CGInputControl::s_inputControl;
-    uint32_t time = CSimpleTop::s_eventTime;
+    uint32_t time = CSimpleTop::GetEventTime();
     CGUnit_C* unit = GetVehicleUnitPtr();
 
     if (!unit) {
@@ -742,7 +742,7 @@ static int32_t Script_VehicleNextSeat(lua_State* L) {
 // VERIFY: f9b60516 auto
 // OFFSET: 0x005FB770
 static int32_t Script_VehicleAimIncrement(lua_State* L) {
-    uint32_t time = CSimpleTop::s_eventTime;
+    uint32_t time = CSimpleTop::GetEventTime();
     CGInputControl* input = CGInputControl::s_inputControl;
 
     if (lua_isnumber(L, 1)) {
@@ -757,7 +757,7 @@ static int32_t Script_VehicleAimIncrement(lua_State* L) {
 // VERIFY: 40c0ff35 auto
 // OFFSET: 0x005FB7D0
 static int32_t Script_VehicleAimDecrement(lua_State* L) {
-    uint32_t time = CSimpleTop::s_eventTime;
+    uint32_t time = CSimpleTop::GetEventTime();
     CGInputControl* input = CGInputControl::s_inputControl;
     double delta = lua_isnumber(L, 1) ? lua_tonumber(L, 1) : 0.1;
     input->VehicleAimChange(time, static_cast<float>(-delta));
@@ -773,7 +773,7 @@ static int32_t Script_MoveAndSteerStart(lua_State* L) {
         return 0;
     }
 
-    uint32_t time = CSimpleTop::s_eventTime;
+    uint32_t time = CSimpleTop::GetEventTime();
 
     if (!(input->m_flags & INPUT_MOUSE_LOOK_MASK)) {
         input->m_pendingDefaultAction = INPUT_RELEASE_SELECT;

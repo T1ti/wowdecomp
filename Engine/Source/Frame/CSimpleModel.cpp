@@ -558,7 +558,7 @@ void CSimpleModel::OnFrameRender(CRenderBatch* batch, uint32_t layer) {
 void CSimpleModel::OnLayerUpdate(float elapsedSec) {
     this->CSimpleFrame::OnLayerUpdate(elapsedSec);
 
-    if (this->m_model && this->m_isVisible && this->m_pendingCameraIndex == 0xFFFFFFFF) {
+    if (this->m_model && this->IsVisible() && this->m_pendingCameraIndex == 0xFFFFFFFF) {
         this->m_model->SetAnimating(1);
 
         CM2Model* model = this->m_model;

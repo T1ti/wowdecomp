@@ -110,7 +110,7 @@ void CSimpleEditBox::operator delete(void* ptr) {
 // VERIFY: 64369d87 manual
 // OFFSET: 0x00965120
 void CSimpleEditBox::SetKeyboardFocus(CSimpleEditBox* editBox) {
-    if (!editBox->m_isVisible || editBox == CSimpleEditBox::s_currentFocus) {
+    if (!editBox->IsVisible() || editBox == CSimpleEditBox::s_currentFocus) {
         return;
     }
 
@@ -2026,7 +2026,7 @@ void CSimpleEditBox::CreateCandidatesFrame() {
 // VERIFY: ad41eed4 manual
 // OFFSET: 0x009658D0
 int32_t CSimpleEditBox::OnLayerKeyDownRepeat(const CKeyEvent& evt) {
-    if (!this->m_isVisible) {
+    if (!this->IsVisible()) {
         return 0;
     }
 
@@ -2042,7 +2042,7 @@ int32_t CSimpleEditBox::OnLayerKeyDownRepeat(const CKeyEvent& evt) {
 // VERIFY: ce97a3ef auto
 // OFFSET: 0x00965920
 int32_t CSimpleEditBox::OnLayerKeyUp(const CKeyEvent& evt) {
-    if (!this->m_isVisible) {
+    if (!this->IsVisible()) {
         return 0;
     }
 
@@ -2322,7 +2322,7 @@ void CSimpleEditBox::SetMultiLine(BOOL enable) {
 // VERIFY: fe353c96 auto
 // OFFSET: 0x009660E0
 int32_t CSimpleEditBox::OnLayerChar(const CCharEvent& evt) {
-    if (!this->m_isVisible) {
+    if (!this->IsVisible()) {
         return 0;
     }
 
@@ -2394,7 +2394,7 @@ int32_t CSimpleEditBox::PopulateCandidates(uint32_t listMask) {
 // VERIFY: e7688b1b manual
 // OFFSET: 0x009663C0
 int32_t CSimpleEditBox::OnLayerIme(const CImeEvent& evt) {
-    if (!this->m_isVisible) {
+    if (!this->IsVisible()) {
         return 0;
     }
 
@@ -2876,7 +2876,7 @@ void CSimpleEditBox::OnLayerUpdate(float elapsedSec) {
 // VERIFY: 7fac4541 manual
 // OFFSET: 0x00967760
 int32_t CSimpleEditBox::OnLayerKeyDown(const CKeyEvent& evt) {
-    if (!this->m_isVisible) {
+    if (!this->IsVisible()) {
         return 0;
     }
 

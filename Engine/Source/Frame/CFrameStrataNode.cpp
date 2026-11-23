@@ -1,6 +1,7 @@
 #include <cstddef>
 #include <cstdint>
 #include "Engine/Source/Frame/CFrameStrataNode.h"
+#include "Engine/Source/Storm/H/storm.h"
 
 // VERIFY: 7f1b23bd manual
 // OFFSET: 0x00495BD0
@@ -32,12 +33,12 @@ int32_t CFrameStrataNode::RemoveFrame(CSimpleFrame* frame) {
 // VERIFY: b23367ca manual
 // OFFSET: 0x00494A10
 void CFrameStrataNode::OnLayerUpdate(float elapsedSec) {
-    for (CSimpleFrame* frame = this->m_frames.Head(); frame; frame = this->m_pendingFrame) {
+    for (CSimpleFrame* frame = this->frames.Head(); frame; frame = this->m_pendingFrame) {
         this->m_pendingFrame = frame->m_strataLink.Next();
         frame->OnLayerUpdate(elapsedSec);
     }
 
-    this->m_frames.Combine(&this->m_pendingFrames, 2, nullptr);
+    this->frames.Combine(&this->m_pendingFrames, 2, nullptr);
 }
 
 // VERIFY: 2564cd95 auto
@@ -53,16 +54,17 @@ int32_t CFrameStrataNode::BuildBatches() {
     for (uint32_t layer = 0; layer < NUM_SIMPLEFRAME_DRAWLAYERS; layer++) {
         CRenderBatch* batch = &this->m_batches[layer];
 
-        if (this->m_renderList.IsLinked(batch)) {
-            this->m_renderList.UnlinkNode(batch);
+        if (this->renderList.IsLinked(batch)) {
+            this->renderList.UnlinkNode(batch);
         }
 
         if (batchDirty & (1 << layer)) {
             batch->Clear();
 
-            for (CSimpleFrame* frame = this->m_frames.Head(); frame; frame = this->m_frames.Next(frame)) {
+            for (CSimpleFrame* frame = this->frames.Head(); frame; frame = this->frames.Next(frame)) {
                 if (!(frame->m_frameFlags & CSimpleFrame::FrameFlags::FRAME_BEING_SCROLLED)) {
                     frame->OnFrameRender(batch, layer);
+                    STORM_ASSERT(frames.IsLinked(frame));
                 }
             }
 
@@ -70,7 +72,7 @@ int32_t CFrameStrataNode::BuildBatches() {
         }
 
         if (batch->m_count) {
-            this->m_renderList.LinkToTail(batch);
+            this->renderList.LinkToTail(batch);
         }
     }
 
@@ -84,6 +86,6 @@ int32_t CFrameStrataNode::BuildBatches() {
 // VERIFY: e04671c7 manual
 // OFFSET: 0x00495C50
 CFrameStrataNode::~CFrameStrataNode() {
-    this->m_frames.UnlinkAll();
-    this->m_renderList.UnlinkAll();
+    this->frames.UnlinkAll();
+    this->renderList.UnlinkAll();
 }

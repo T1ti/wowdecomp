@@ -168,7 +168,7 @@ void CGCharacterModelBase::SetCreature(const CreatureStats_C* stats) {
     this->m_unitGuid = WOWGUID();
     this->m_creatureStats = stats;
 
-    if (this->m_isVisible && stats) {
+    if (this->IsVisible() && stats) {
         this->SetUpModel(stats);
     }
 }
@@ -176,7 +176,7 @@ void CGCharacterModelBase::SetCreature(const CreatureStats_C* stats) {
 // VERIFY: c0c76e1e manual
 // OFFSET: 0x00597870
 int32_t CGCharacterModelBase::ShowThis() {
-    if (!this->m_isVisible) {
+    if (!this->IsVisible()) {
         if (this->m_unitGuid != WOWGUID()) {
             CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_unitGuid, TYPE_UNIT, __FILE__, __LINE__));
 
@@ -236,7 +236,7 @@ void CGCharacterModelBase::RefreshUnit(WOWGUID guid) {
     this->m_unitGuid = guid;
     this->m_creatureStats = nullptr;
 
-    if (this->m_isVisible) {
+    if (this->IsVisible()) {
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(guid, TYPE_UNIT, __FILE__, __LINE__));
 
         if (unit) {

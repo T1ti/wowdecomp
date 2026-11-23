@@ -26,7 +26,7 @@ class CFrameStrata {
     /* 0000 */ int32_t m_batchDirty;
     /* 0004 */ int32_t m_levelsDirty;
     /* 0008 */ uint32_t m_topLevel;
-    /* 000C */ TSFixedArray<CFrameStrataNode*> m_levels;
+    /* 000C */ TSFixedArray<CFrameStrataNode*> levels;
 
     CFrameStrata();
     ~CFrameStrata();
@@ -60,9 +60,9 @@ class CSimpleSortedArray {
 class CSimpleTop : public CLayoutFrame {
     public:
     static CSimpleTop* s_instance;
-    static uint32_t s_eventTime;
 
     static CSimpleTop* GetInstance();
+    static uint32_t GetEventTime() { return s_eventTime; } // (inferred)
     static int32_t OnChar(const void* data, void* param);
     static int32_t OnDisplaySizeChanged(const void* data, void* param);
     static int32_t OnFocusChanged(const void* data, void* param);
@@ -139,6 +139,9 @@ class CSimpleTop : public CLayoutFrame {
     void UnregisterForEvent(CSimpleFrame* frame, CSimpleEventType event, BOOL reregister);
     void UnregisterFrame(CSimpleFrame* frame);
     void ValidateDeletedFrame(CSimpleFrame* frame);
+
+    private:
+    static uint32_t s_eventTime;
 };
 
 // INLINED

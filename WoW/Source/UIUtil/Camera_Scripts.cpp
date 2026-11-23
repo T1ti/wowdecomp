@@ -15,7 +15,7 @@
 // OFFSET: 0x006017E0
 static int32_t Script_CameraZoomIn(lua_State* L) {
     STORM_ASSERT(CGInputControl::GetActive());
-    uint32_t time = CSimpleTop::s_eventTime;
+    uint32_t time = CSimpleTop::GetEventTime();
     double distance = lua_isnumber(L, 1) ? lua_tonumber(L, 1) : 1.0;
 
     if (CGBarberShop::m_barberShopEnabled) {
@@ -30,7 +30,7 @@ static int32_t Script_CameraZoomIn(lua_State* L) {
 // OFFSET: 0x00601840
 static int32_t Script_CameraZoomOut(lua_State* L) {
     STORM_ASSERT(CGInputControl::GetActive());
-    uint32_t time = CSimpleTop::s_eventTime;
+    uint32_t time = CSimpleTop::GetEventTime();
     double distance = lua_isnumber(L, 1) ? lua_tonumber(L, 1) : 1.0;
 
     if (CGBarberShop::m_barberShopEnabled) {
@@ -45,7 +45,7 @@ static int32_t Script_CameraZoomOut(lua_State* L) {
 // OFFSET: 0x005FF000
 static int32_t MoveViewStart(lua_State* L, CGCameraMotion motion) {
     STORM_ASSERT(CGInputControl::GetActive());
-    uint32_t time = CSimpleTop::s_eventTime;
+    uint32_t time = CSimpleTop::GetEventTime();
     float speed = 1.0f;
 
     if (lua_isnumber(L, 1)) {
@@ -64,7 +64,7 @@ static int32_t Script_MoveViewInStart(lua_State* L) {
 
 static inline int32_t MoveViewStop(CGCameraMotion move) { // (inferred)
     STORM_ASSERT(CGInputControl::GetActive());
-    const uint32_t time = CSimpleTop::s_eventTime;
+    const uint32_t time = CSimpleTop::GetEventTime();
     CGWorldFrame::GetActiveCamera()->StopMotion(move, time);
     return 0;
 }
