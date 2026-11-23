@@ -14232,7 +14232,7 @@ int32_t OnUpdatePlayerRuneRegen(WOWGUID guid, uint32_t offset, uint32_t count, c
 
     float rate = *static_cast<const float*>(value);
     uint32_t type = (offset - 0x1214) >> 2;
-    uint32_t predicted = CGRuneInfo::m_predictedRunes;
+    uint32_t predicted = CGRuneInfo::GetPredictedRunes();
     float current = player->m_player->m_playerRuneRegen1[type];
 
     if (rate < 0.01f || current < 0.01f) {

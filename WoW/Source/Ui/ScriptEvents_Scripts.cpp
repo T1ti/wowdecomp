@@ -2531,7 +2531,7 @@ static int32_t Script_GetRuneCount(lua_State* L) {
         return 0;
     }
 
-    lua_pushnumber(L, (CGRuneInfo::m_predictedRunes & (1 << slot)) != 0);
+    lua_pushnumber(L, (CGRuneInfo::GetPredictedRunes() & (1 << slot)) != 0);
     return 1;
 }
 

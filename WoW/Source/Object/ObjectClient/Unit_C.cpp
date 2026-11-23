@@ -18025,14 +18025,14 @@ void CGUnit_C::DoPowerRegen(uint32_t elapsed) {
     }
 
     if (this->IsActivePlayer() && powerType == POWER_TYPE_RUNIC_POWER) {
-        uint32_t runes = CGRuneInfo::m_predictedRunes;
-        uint32_t previous = CGRuneInfo::m_predictedRunes;
+        uint32_t runes = CGRuneInfo::GetPredictedRunes();
+        uint32_t previous = CGRuneInfo::GetPredictedRunes();
         uint32_t now = FrameTime::s_curTimeMs;
 
         for (int32_t i = 0; i < 8; i++) {
             uint32_t bit = 1 << i;
 
-            if (!(bit & CGRuneInfo::m_predictedRunes) && static_cast<int32_t>(now - CGRuneInfo::GetRuneRechargeTime(i)) >= 0) {
+            if (!(bit & CGRuneInfo::GetPredictedRunes()) && static_cast<int32_t>(now - CGRuneInfo::GetRuneRechargeTime(i)) >= 0) {
                 runes |= bit;
             }
         }
