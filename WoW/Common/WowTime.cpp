@@ -355,8 +355,17 @@ bool WowTime::operator==(const WowTime& time) const {
 
 // VERIFY: 464da28b auto
 // OFFSET: 0x0076C910
-void WowTime::WowEncodeTime(uint32_t& value, int32_t minute, int32_t hour, int32_t weekDay, int32_t monthDay, int32_t month, int32_t year, int32_t flags) {
-    value = (minute & PACKED_MINUTE_MASK) | ((hour & PACKED_HOUR_MASK) << PACKED_HOUR_SHIFT) | ((weekDay & PACKED_WEEKDAY_MASK) << PACKED_WEEKDAY_SHIFT) | ((monthDay & PACKED_MONTHDAY_MASK) << PACKED_MONTHDAY_SHIFT) | ((month & PACKED_MONTH_MASK) << PACKED_MONTH_SHIFT) | ((year & PACKED_YEAR_MASK) << PACKED_YEAR_SHIFT) | ((flags & PACKED_FLAGS_MASK) << PACKED_FLAGS_SHIFT);
+void WowTime::WowEncodeTime(uint32_t& value, int32_t minute, int32_t hour, int32_t weekday, int32_t monthday, int32_t month, int32_t year, int32_t flags) {
+    STORM_ASSERT(minute == -1 || (minute >= 0 && minute < 60));
+    STORM_ASSERT(hour == -1 || (hour >= 0 && hour < 24));
+    STORM_ASSERT(weekday == -1 || (weekday >= 0 && weekday < 7));
+    STORM_ASSERT(monthday == -1 || (monthday >= 0 && monthday < 32));
+    STORM_ASSERT(month == -1 || (month >= 0 && month < 12));
+    // 12213: "year == -1 || year >= 0 && year <= ((1<<5)-1)"
+    STORM_ASSERT(year == -1 || (year >= 0 && year <= PACKED_YEAR_MASK));
+    STORM_ASSERT(flags >= 0 && flags <= ((1 << 2) - 1));
+
+    value = (minute & PACKED_MINUTE_MASK) | ((hour & PACKED_HOUR_MASK) << PACKED_HOUR_SHIFT) | ((weekday & PACKED_WEEKDAY_MASK) << PACKED_WEEKDAY_SHIFT) | ((monthday & PACKED_MONTHDAY_MASK) << PACKED_MONTHDAY_SHIFT) | ((month & PACKED_MONTH_MASK) << PACKED_MONTH_SHIFT) | ((year & PACKED_YEAR_MASK) << PACKED_YEAR_SHIFT) | ((flags & PACKED_FLAGS_MASK) << PACKED_FLAGS_SHIFT);
 }
 
 // VERIFY: d693ecf3 auto
@@ -507,7 +516,7 @@ bool WowTime::operator>=(const WowTime& time) const {
 
 // VERIFY: a61e8a57 auto
 // OFFSET: 0x0076CD40
-char* WowTime::WowGetTimeString(WowTime* time, char* buffer, int32_t size) {
+char* WowTime::WowGetTimeString(const WowTime* time, char* buffer, int32_t size) {
     uint32_t value;
     WowTime::WowEncodeTime(value, time);
 
