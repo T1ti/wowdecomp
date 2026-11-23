@@ -33,6 +33,7 @@ struct WowEditAppMenus {
 static void InitializeWorld() {
     const WowEditSettings& settings = WowEditGetSettings();
     WowEditWorldInitialize();
+    WowEditWorldSetAzerty(settings.m_azerty);
     WowEditViewTogglesInitialize();
 
     C3Vector start(settings.m_start[0], settings.m_start[1], settings.m_start[2]);

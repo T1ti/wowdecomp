@@ -60,6 +60,7 @@ enum WOWEDITCMD : int32_t {
     WOWEDITCMD_TIME_NOON,
     WOWEDITCMD_TIME_DUSK,
     WOWEDITCMD_TIME_MIDNIGHT,
+    WOWEDITCMD_VIEW_AZERTY, // the camera's movement keys (WowEditWorldView.h)
     // Tools (CWowEditTerrainModule)
     WOWEDITCMD_TOOL_BRUSH,
     // Window

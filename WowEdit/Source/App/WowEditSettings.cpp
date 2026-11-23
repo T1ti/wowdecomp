@@ -72,7 +72,9 @@ static void WriteDefaults(const char* iniPath) {
           "; The camera position at start; empty for a default (Northshire on map 0, the middle of the terrain on others).\n"
           "StartX=\n"
           "StartY=\n"
-          "StartZ=\n",
+          "StartZ=\n"
+          "; The movement keys: QWERTY (W A S D) or AZERTY (Z Q S D). Empty: from the keyboard layout.\n"
+          "Keyboard=\n",
         file);
     fclose(file);
 }
@@ -111,6 +113,11 @@ static void WriteDefaultConfig(const char* basePath) {
     }
 }
 
+// The keyboard layout at start puts the A key where QWERTY has Q (scan code 0x10): an AZERTY keyboard.
+static bool LayoutIsAzerty() {
+    return MapVirtualKeyA('A', MAPVK_VK_TO_VSC) == 0x10;
+}
+
 void WowEditLoadSettings() {
     char exePath[260];
     GetModuleFileNameA(nullptr, exePath, sizeof(exePath));
@@ -147,6 +154,9 @@ void WowEditLoadSettings() {
 
         s_settings.m_start[i] = static_cast<float>(atof(value));
     }
+
+    GetPrivateProfileStringA(SECTION, "Keyboard", "", value, sizeof(value), s_settings.m_iniPath);
+    s_settings.m_azerty = value[0] ? _stricmp(value, "AZERTY") == 0 : LayoutIsAzerty();
 }
 
 const WowEditSettings& WowEditGetSettings() {
@@ -167,6 +177,14 @@ void WowEditSaveStart(int32_t mapId, const float* position) {
     for (int32_t i = 0; i < 3; i++) {
         snprintf(value, sizeof(value), "%.2f", position[i]);
         WritePrivateProfileStringA(SECTION, keys[i], value, s_settings.m_iniPath);
+    }
+}
+
+void WowEditSaveKeyboard(bool azerty) {
+    s_settings.m_azerty = azerty;
+
+    if (s_settings.m_iniPath[0]) {
+        WritePrivateProfileStringA(SECTION, "Keyboard", azerty ? "AZERTY" : "QWERTY", s_settings.m_iniPath);
     }
 }
 

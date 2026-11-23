@@ -14,7 +14,7 @@
 
 // CWorld::enables as the game left it after start-up (cvars applied).
 static uint32_t s_gameEnables;
-static bool s_fog = true;
+static bool s_fog;
 
 // ---- CWorld::enables switches
 
@@ -38,9 +38,17 @@ static bool GetFog() {
     return s_fog;
 }
 
+// The low detail terrain (the map's WDL, drawn past the far clip as the horizon) goes with the fog: it is drawn flat
+// and white and the fog is what gives it its color, so without fog it would be a white band where the terrain ends.
 static void SetFog(bool on) {
     s_fog = on;
     g_theGxDevicePtr->MasterEnableSet(GxMasterEnable_Fog, on ? Gx_Enable : Gx_Disable);
+
+    if (on) {
+        CWorld::enables |= s_gameEnables & Enables::Enable_LowDetail;
+    } else {
+        CWorld::enables &= ~Enables::Enable_LowDetail;
+    }
 }
 
 static bool GetSky() {
@@ -51,17 +59,39 @@ static void SetSky(bool on) {
     DayNight::g_dnInfo.m_showSky = on;
 }
 
+// The 8.1 woweditgrid permutations as two switches: bit 1 the cell wireframe (permutation 1: every cell with its
+// diagonals, the terrain triangles), bit 2 the chunk and map tile lines (permutation 2); both are permutation 3.
+static const int32_t GRID_WIREFRAME = 1;
+static const int32_t GRID_CHUNKS = 2;
+
+static int32_t GetGridBits() {
+    int32_t grid = WowEditTerrainGetGrid();
+    return grid > 0 ? grid : 0;
+}
+
+static void SetGridBit(int32_t bit, bool on) {
+    int32_t grid = on ? GetGridBits() | bit : GetGridBits() & ~bit;
+    WowEditTerrainSetGrid(grid ? grid : WOWEDITGRID_OFF);
+
+    if (grid) {
+        WowEditPrepareTerrainOverlays();
+    }
+}
+
 static bool GetGrid() {
-    return WowEditTerrainGetGrid() != WOWEDITGRID_OFF;
+    return (GetGridBits() & GRID_CHUNKS) != 0;
 }
 
 static void SetGrid(bool on) {
-    // As "wowEditGrid" with no argument: permutation 3, chunk, tile and cell lines.
-    WowEditTerrainSetGrid(on ? 3 : WOWEDITGRID_OFF);
+    SetGridBit(GRID_CHUNKS, on);
+}
 
-    if (on) {
-        WowEditPrepareTerrainOverlays();
-    }
+static bool GetWireframe() {
+    return (GetGridBits() & GRID_WIREFRAME) != 0;
+}
+
+static void SetWireframe(bool on) {
+    SetGridBit(GRID_WIREFRAME, on);
 }
 
 static bool GetSlopes() {
@@ -97,7 +127,7 @@ static void SetMarkers(bool on) {
 }
 
 static const WowEditViewToggle s_toggles[] = {
-    { WOWEDITCMD_VIEW_GRID, "Grid", "Turn Grids on/off", GetGrid, SetGrid },
+    { WOWEDITCMD_VIEW_GRID, "Grid", "Chunk and map tile lines (woweditgrid 2)", GetGrid, SetGrid },
     { WOWEDITCMD_VIEW_AREAS, "Area IDs", "Each terrain chunk in a color of its area ID", GetAreas, SetAreas },
     { WOWEDITCMD_VIEW_SLOPES, "Impassable", "View impathable polygons based on angle", GetSlopes, SetSlopes },
     { WOWEDITCMD_VIEW_TERRAIN, "Terrain", "Turn on/off terrain", GetEnable<Enables::Enable_Chunks>, SetEnable<Enables::Enable_Chunks> },
@@ -109,7 +139,7 @@ static const WowEditViewToggle s_toggles[] = {
     { WOWEDITCMD_VIEW_WATER, "Water", "Turn on/off display of Water", GetEnable<Enables::Enable_Water>, SetEnable<Enables::Enable_Water> },
     { WOWEDITCMD_VIEW_SKY, "Sky", "View Sky", GetSky, SetSky },
     { WOWEDITCMD_VIEW_PARTICULATES, "Particulates", "Underwater particulates", GetEnable<Enables::Enable_Particulates>, SetEnable<Enables::Enable_Particulates> },
-    { WOWEDITCMD_VIEW_WIREFRAME, "Wireframe", "Toggle Wireframe Mode", GetEnable<Enables::Enable_Wireframe>, SetEnable<Enables::Enable_Wireframe> },
+    { WOWEDITCMD_VIEW_WIREFRAME, "Wireframe", "Terrain cells and their diagonals over the textured ground (woweditgrid 1)", GetWireframe, SetWireframe },
     { WOWEDITCMD_VIEW_NORMALS, "Normals", "View Terrain Normals (3.3.5 draws WMO normals)", GetEnable<Enables::Enable_ShowNormals>, SetEnable<Enables::Enable_ShowNormals> },
 #ifdef WOWDECOMP_DEBUG_FEATURES
     { WOWEDITCMD_VIEW_COLLISION, "Collision", "Show / Hide WMO Invisible Collision (the showCollision display)", GetEnable<Enables::Enable_Collision>, SetEnable<Enables::Enable_Collision> },
@@ -134,8 +164,9 @@ const WowEditViewToggle* WowEditFindViewToggle(int32_t command) {
 
 void WowEditViewTogglesInitialize() {
     s_gameEnables = static_cast<uint32_t>(CWorld::enables);
-    // The game turns fog on as it enters the world (ClientInitializeGame).
-    SetFog(true);
+    // The editor starts without the distance fog (and so without the WDL horizon), to see the terrain as it is;
+    // Fog or Game View brings both back as the game draws them.
+    SetFog(false);
 }
 
 void WowEditMatchGameView() {
@@ -143,6 +174,7 @@ void WowEditMatchGameView() {
     SetFog(true);
     SetSky(true);
     SetGrid(false);
+    SetWireframe(false);
     SetSlopes(false);
     SetAreas(false);
     SetMarkers(false);

@@ -1494,6 +1494,13 @@ intptr_t OsWindowProc(void* window, uint32_t message, uintptr_t wparam, intptr_t
         }
 
         case WM_NCLBUTTONDOWN:
+#ifdef WOWDECOMP_TOOL_FEATURES
+            // Tool features: the game window has no menu bar, so it keeps every non-client click for its own drag. A
+            // tool's menu bar (OsSetWindowProc, WowEdit) opens in DefWindowProcA, at the end of the chain.
+            if (s_chainWindowProc && wparam == HTMENU) {
+                break;
+            }
+#endif
             BeginDrag(static_cast<int32_t>(wparam), hwnd, static_cast<int32_t>(lparam));
             return 0;
 

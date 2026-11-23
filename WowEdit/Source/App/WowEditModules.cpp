@@ -7,6 +7,7 @@
 #include "WowEdit/Source/App/WowEditApp.h"
 #include "WowEdit/Source/App/WowEditCommands.h"
 #include "WowEdit/Source/App/WowEditMapDialog.h"
+#include "WowEdit/Source/App/WowEditSettings.h"
 #include "WowEdit/Source/App/WowEditToolPalette.h"
 #include "WowEdit/Source/App/WowEditViewPalette.h"
 #include "WowEdit/Source/App/WowEditViewToggles.h"
@@ -115,6 +116,12 @@ class CWowEditViewModule : public CWowEditModule {
             return true;
         }
 
+        if (command == WOWEDITCMD_VIEW_AZERTY) {
+            WowEditWorldSetAzerty(!WowEditWorldGetAzerty());
+            WowEditSaveKeyboard(WowEditWorldGetAzerty());
+            return true;
+        }
+
         if (command == WOWEDITCMD_VIEW_GAME) {
             WowEditMatchGameView();
             this->OnRefresh();
@@ -149,6 +156,11 @@ class CWowEditViewModule : public CWowEditModule {
         }
 
         if (command == WOWEDITCMD_VIEW_GAME) {
+            return true;
+        }
+
+        if (command == WOWEDITCMD_VIEW_AZERTY) {
+            *checked = WowEditWorldGetAzerty();
             return true;
         }
 

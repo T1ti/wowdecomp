@@ -38,6 +38,10 @@ void WowEditWorldGetCameraPosition(float* position);
 void WowEditWorldSetTimeOfDay(int32_t minutes);
 int32_t WowEditWorldGetTimeOfDay();
 
+// Movement keys: QWERTY (W A S D, E up, Q down) or AZERTY (Z Q S D, E up, A down); the arrow keys work in both.
+void WowEditWorldSetAzerty(bool azerty);
+bool WowEditWorldGetAzerty();
+
 #endif
 
 #endif
