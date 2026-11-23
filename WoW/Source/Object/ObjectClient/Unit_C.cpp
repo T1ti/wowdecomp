@@ -13849,7 +13849,7 @@ void CGUnit_C::InitActiveMover(const WOWGUID& guid) {
         CGGameObject_C* transport = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(transportGuid, TYPE_GAMEOBJECT, __FILE__, __LINE__));
 
         if (transport) {
-            MovementSetTransportUpdateTime(transport->m_baseObj->GetTransportUpdateTime());
+            MovementSetTransportUpdateTime(transport->GetBaseObject()->GetTransportUpdateTime());
         }
     }
 

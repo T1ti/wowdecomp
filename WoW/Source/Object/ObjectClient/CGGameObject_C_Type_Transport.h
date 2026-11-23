@@ -11,23 +11,26 @@ class TransportRotationRec;
 struct TransportFrame {
     /* 0000 */ uint32_t m_id;
     /* 0004 */ uint32_t m_transportID;
-    /* 0008 */ uint32_t m_time;
+    /* 0008 */ uint32_t m_TimeIndex;
     /* 000C */ C3Vector m_pos;
     /* 0018 */ uint32_t m_sequenceId;
 };
 
 class CGGameObject_C_Type_Transport : public CGGameObject_C_Type_TransportBase {
-    public:
-    /* 0040 */ const TransportFrame* m_frames;
-    /* 0044 */ uint32_t m_frameCount;
+    private:
+    bool Is2State() const;
+
+    /* 0040 */ const TransportFrame* m_posKeys;
+    /* 0044 */ uint32_t m_numPosKeys;
     /* 0048 */ uint32_t m_currentFrame;
-    /* 004C */ const TransportRotationRec* m_rotations;
+    /* 004C */ const TransportRotationRec* m_rotKeys;
     /* 0050 */ uint32_t m_rotationCount;
     /* 0054 */ uint32_t m_currentRotation;
     /* 0058 */ uint32_t m_lastSequence;
     /* 005C */ uint32_t m_stateChangeTime;
     /* 0060 */ uint32_t m_stateChangeSequenceTime;
 
+    public:
     virtual void UpdateState(int32_t oldState, int32_t newState);
     virtual void PostInitWithStats();
     virtual void Reenable();

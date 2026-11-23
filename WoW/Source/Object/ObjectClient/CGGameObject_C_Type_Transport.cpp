@@ -80,12 +80,13 @@ static int32_t FindTransportRotationIndex(int32_t transportId) {
 
 // VERIFY: e9e508da manual
 // OFFSET: 0x00713820
-CGGameObject_C_Type_Transport::CGGameObject_C_Type_Transport(CGGameObject_C* owner) : CGGameObject_C_Type_TransportBase(owner), m_frames(nullptr), m_frameCount(0), m_currentFrame(0), m_rotations(nullptr), m_rotationCount(0), m_currentRotation(0), m_lastSequence(ANIM_COUNT), m_stateChangeSequenceTime(0) {
+CGGameObject_C_Type_Transport::CGGameObject_C_Type_Transport(CGGameObject_C* owner) : CGGameObject_C_Type_TransportBase(owner), m_posKeys(nullptr), m_numPosKeys(0), m_currentFrame(0), m_rotKeys(nullptr), m_rotationCount(0), m_currentRotation(0), m_lastSequence(ANIM_COUNT), m_stateChangeSequenceTime(0) {
     int32_t index = FindTransportAnimationIndex(owner->m_obj->m_entryID);
 
     if (index != -1) {
-        this->m_frames = reinterpret_cast<TransportFrame*>((index < 0 || index >= g_transportAnimationDB.m_nNumRecords) ? nullptr : &g_transportAnimationDB.m_records[index]);
-        this->m_frameCount = 1;
+        this->m_posKeys = reinterpret_cast<TransportFrame*>((index < 0 || index >= g_transportAnimationDB.m_nNumRecords) ? nullptr : &g_transportAnimationDB.m_records[index]);
+        STORM_ASSERT(m_posKeys->m_TimeIndex == 0);
+        this->m_numPosKeys = 1;
 
         for (int32_t i = index + 1; i < g_transportAnimationDB.m_nNumRecords; i++) {
             const TransportAnimationRec* rec = (i < 0 || i >= g_transportAnimationDB.m_nNumRecords) ? nullptr : &g_transportAnimationDB.m_records[i];
@@ -94,14 +95,15 @@ CGGameObject_C_Type_Transport::CGGameObject_C_Type_Transport(CGGameObject_C* own
                 break;
             }
 
-            this->m_frameCount++;
+            this->m_numPosKeys++;
         }
     }
 
     index = FindTransportRotationIndex(owner->m_obj->m_entryID);
 
     if (index != -1) {
-        this->m_rotations = (index < 0 || index >= g_transportRotationDB.m_nNumRecords) ? nullptr : &g_transportRotationDB.m_records[index];
+        this->m_rotKeys = (index < 0 || index >= g_transportRotationDB.m_nNumRecords) ? nullptr : &g_transportRotationDB.m_records[index];
+        STORM_ASSERT(m_rotKeys->m_TimeIndex == 0);
         this->m_rotationCount = 1;
 
         for (int32_t i = index + 1; i < g_transportRotationDB.m_nNumRecords; i++) {
@@ -121,7 +123,7 @@ CGGameObject_C_Type_Transport::CGGameObject_C_Type_Transport(CGGameObject_C* own
 // VERIFY: 9cb18f7c auto
 // OFFSET: 0x00710640
 uint32_t CGGameObject_C_Type_Transport::GetSequenceTimeFromRealTime(int32_t state, uint32_t time) const {
-    uint32_t count = this->m_frameCount;
+    uint32_t count = this->m_numPosKeys;
 
     if (!count) {
         return time;
@@ -130,7 +132,7 @@ uint32_t CGGameObject_C_Type_Transport::GetSequenceTimeFromRealTime(int32_t stat
     uint32_t period = this->m_owner->m_gameObject->m_level;
 
     if (!period) {
-        return time % this->m_frames[count - 1].m_time;
+        return time % this->m_posKeys[count - 1].m_TimeIndex;
     }
 
     uint32_t elapsed = time - this->m_stateChangeTime;
@@ -148,7 +150,7 @@ uint32_t CGGameObject_C_Type_Transport::GetSequenceTimeFromRealTime(int32_t stat
     if (currentState) {
         result += period;
 
-        if (result >= this->m_frames[count - 1].m_time) {
+        if (result >= this->m_posKeys[count - 1].m_TimeIndex) {
             return 0;
         }
     } else if (result > period) {
@@ -176,9 +178,9 @@ void CGGameObject_C_Type_Transport::Reenable() {
 void CGGameObject_C_Type_Transport::PostInitWithStats() {
     this->CGGameObject_C_Type_TransportBase::PostInitWithStats();
 
-    if (this->m_worldObject) {
-        World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_WorldObj::SequenceFinishedHandler, 0, 0);
-        World::ObjectUpdate(this->m_worldObject, this->m_owner->GetMatrix());
+    if (this->m_objectId) {
+        World::ObjectSetSequenceFinishedCallback(this->m_objectId, &CGGameObject_C_Type_WorldObj::SequenceFinishedHandler, 0, 0);
+        World::ObjectUpdate(this->m_objectId, this->m_owner->GetMatrix());
     }
 }
 
@@ -188,8 +190,8 @@ void CGGameObject_C_Type_Transport::PostReenable() {
     this->m_lastSequence = ANIM_COUNT;
     this->CGGameObject_C_Type_TransportBase::PostReenable();
 
-    if (this->m_worldObject) {
-        World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_WorldObj::SequenceFinishedHandler, 0, 0);
+    if (this->m_objectId) {
+        World::ObjectSetSequenceFinishedCallback(this->m_objectId, &CGGameObject_C_Type_WorldObj::SequenceFinishedHandler, 0, 0);
     }
 }
 
@@ -225,7 +227,7 @@ void CGGameObject_C_Type_Transport::InitializeMovement() {
 // VERIFY: 89bf86e6 auto
 // OFFSET: 0x00710570
 uint32_t CGGameObject_C_Type_Transport::GetStateDuration(int32_t state) {
-    uint32_t count = this->m_frameCount;
+    uint32_t count = this->m_numPosKeys;
 
     if (!count) {
         return 0;
@@ -234,11 +236,11 @@ uint32_t CGGameObject_C_Type_Transport::GetStateDuration(int32_t state) {
     uint32_t period = this->m_owner->m_gameObject->m_level;
 
     if (!period) {
-        return this->m_frames[count - 1].m_time;
+        return this->m_posKeys[count - 1].m_TimeIndex;
     }
 
     if (state) {
-        return this->m_frames[count - 1].m_time - period;
+        return this->m_posKeys[count - 1].m_TimeIndex - period;
     }
 
     return period;
@@ -249,15 +251,22 @@ uint32_t CGGameObject_C_Type_Transport::GetStateDuration(int32_t state) {
 void CGGameObject_C_Type_Transport::InitializeStateChangeTime(uint32_t time) {
     CGGameObjectData* gameObject = this->m_owner->m_gameObject;
 
-    if (gameObject->m_level && this->m_frameCount) {
+    if (gameObject->m_level && this->m_numPosKeys) {
         float elapsed = this->GetStateDuration(gameObject->m_state) * (gameObject->m_pathProgress * 0.000015259022f);
         this->m_stateChangeTime = time - static_cast<uint32_t>(elapsed);
     }
 }
 
+// INLINED
+inline bool CGGameObject_C_Type_Transport::Is2State() const {
+    return this->m_owner->m_gameObject->m_level != 0;
+}
+
 // VERIFY: 823a6baf manual
 // OFFSET: 0x0070DA40
 uint32_t CGGameObject_C_Type_Transport::ResetStateChange(uint32_t time) {
+    STORM_ASSERT(Is2State() && m_numPosKeys);
+
     CGGameObjectData* gameObject = this->m_owner->m_gameObject;
     int32_t state = gameObject->m_state;
     this->m_currentState = state;
@@ -265,7 +274,7 @@ uint32_t CGGameObject_C_Type_Transport::ResetStateChange(uint32_t time) {
     uint32_t period = gameObject->m_level;
 
     if (state) {
-        this->m_stateChangeTime = time + period - this->m_frames[this->m_frameCount - 1].m_time;
+        this->m_stateChangeTime = time + period - this->m_posKeys[this->m_numPosKeys - 1].m_TimeIndex;
         return 0;
     }
 
@@ -276,35 +285,35 @@ uint32_t CGGameObject_C_Type_Transport::ResetStateChange(uint32_t time) {
 // VERIFY: 0fdff1cd manual
 // OFFSET: 0x0070DAA0
 C3Vector CGGameObject_C_Type_Transport::GetMovement(uint32_t time) {
-    if (this->m_frameCount <= 1) {
+    if (this->m_numPosKeys <= 1) {
         return C3Vector(0.0f, 0.0f, 0.0f);
     }
 
-    uint32_t next = this->m_frameCount != this->m_currentFrame + 1 ? this->m_currentFrame + 1 : 0;
+    uint32_t next = this->m_numPosKeys != this->m_currentFrame + 1 ? this->m_currentFrame + 1 : 0;
     const TransportFrame* current;
     const TransportFrame* following;
 
     while (true) {
-        following = &this->m_frames[next];
-        current = &this->m_frames[this->m_currentFrame];
+        following = &this->m_posKeys[next];
+        current = &this->m_posKeys[this->m_currentFrame];
 
-        if (time >= current->m_time && time < following->m_time) {
+        if (time >= current->m_TimeIndex && time < following->m_TimeIndex) {
             break;
         }
 
         this->m_currentFrame = next;
-        next = this->m_frameCount != next + 1 ? next + 1 : 0;
+        next = this->m_numPosKeys != next + 1 ? next + 1 : 0;
     }
 
-    float t = static_cast<float>(time - current->m_time) / static_cast<float>(following->m_time - current->m_time);
+    float t = static_cast<float>(time - current->m_TimeIndex) / static_cast<float>(following->m_TimeIndex - current->m_TimeIndex);
 
-    if (this->m_worldObject) {
+    if (this->m_objectId) {
         uint32_t sequence = current->m_sequenceId;
 
         if (sequence != this->m_lastSequence) {
             CGGameObject_C* owner = this->m_owner;
             this->m_lastSequence = sequence;
-            World::ObjectSetSequence(this->m_worldObject, sequence, 0, 0);
+            World::ObjectSetSequence(this->m_objectId, sequence, 0, 0);
             owner->UpdateObjectEffectAnimationStates(sequence);
         }
     }
@@ -331,27 +340,27 @@ C4Quaternion CGGameObject_C_Type_Transport::GetRotation(uint32_t time) {
     }
 
     uint32_t next = this->m_currentRotation + 1 != count ? this->m_currentRotation + 1 : 0;
-    const TransportRotationRec* current = &this->m_rotations[this->m_currentRotation];
-    const TransportRotationRec* following = &this->m_rotations[next];
-    uint32_t endTime = following->m_timeIndex;
+    const TransportRotationRec* current = &this->m_rotKeys[this->m_currentRotation];
+    const TransportRotationRec* following = &this->m_rotKeys[next];
+    uint32_t endTime = following->m_TimeIndex;
 
-    if (!endTime && this->m_frames) {
-        endTime = this->m_frames[this->m_frameCount - 1].m_time;
+    if (!endTime && this->m_posKeys) {
+        endTime = this->m_posKeys[this->m_numPosKeys - 1].m_TimeIndex;
     }
 
-    while (!(time >= static_cast<uint32_t>(current->m_timeIndex) && time < endTime)) {
+    while (!(time >= static_cast<uint32_t>(current->m_TimeIndex) && time < endTime)) {
         this->m_currentRotation = next;
         next = this->m_rotationCount != next + 1 ? next + 1 : 0;
-        current = &this->m_rotations[this->m_currentRotation];
-        following = &this->m_rotations[next];
-        endTime = following->m_timeIndex;
+        current = &this->m_rotKeys[this->m_currentRotation];
+        following = &this->m_rotKeys[next];
+        endTime = following->m_TimeIndex;
 
-        if (!endTime && this->m_frames) {
-            endTime = this->m_frames[this->m_frameCount - 1].m_time;
+        if (!endTime && this->m_posKeys) {
+            endTime = this->m_posKeys[this->m_numPosKeys - 1].m_TimeIndex;
         }
     }
 
-    float t = static_cast<float>(time - current->m_timeIndex) / static_cast<float>(following->m_timeIndex - current->m_timeIndex);
+    float t = static_cast<float>(time - current->m_TimeIndex) / static_cast<float>(following->m_TimeIndex - current->m_TimeIndex);
     C4Quaternion rotation = C4Quaternion::Slerp(t, reinterpret_cast<const C4Quaternion&>(current->m_rot), reinterpret_cast<const C4Quaternion&>(following->m_rot));
     return rotation * this->m_owner->m_gameObject->m_parentRotation;
 }
@@ -395,11 +404,11 @@ C44Matrix& CGGameObject_C_Type_Transport::UpdateOwnerMatrix() {
 // VERIFY: 181b2f3a manual
 // OFFSET: 0x007139E0
 void CGGameObject_C_Type_Transport::UpdateMovement(uint32_t time, uint32_t elapsed) {
-    if (!this->m_worldObjectReady && this->m_worldObject && World::ObjectIsLoaded(this->m_worldObject)) {
+    if (!this->m_worldObjectReady && this->m_objectId && World::ObjectIsLoaded(this->m_objectId)) {
         this->m_worldObjectReady = 1;
 
-        if (!this->m_frameCount && !this->m_rotationCount) {
-            World::ObjectUpdate(this->m_worldObject, this->m_owner->GetMatrix());
+        if (!this->m_numPosKeys && !this->m_rotationCount) {
+            World::ObjectUpdate(this->m_objectId, this->m_owner->GetMatrix());
             return;
         }
     }
@@ -448,7 +457,7 @@ void CGGameObject_C_Type_Transport::UpdateMovement(uint32_t time, uint32_t elaps
 
     if (this->m_passengers.Head()) {
         if (fabs(speed) >= 0.00000095367432f) {
-            if (this->m_worldObject && !World::ObjectIsWMO(this->m_worldObject)) {
+            if (this->m_objectId && !World::ObjectIsWMO(this->m_objectId)) {
                 C44Matrix& matrix = this->UpdateOwnerMatrix();
 
                 for (CPassenger* passenger = this->m_passengers.Head(); passenger; passenger = this->m_passengers.Next(passenger)) {
@@ -482,8 +491,8 @@ void CGGameObject_C_Type_Transport::UpdateMovement(uint32_t time, uint32_t elaps
         matrix.d1 = this->m_position.y;
         matrix.d2 = this->m_position.z;
 
-        if (this->m_worldObject) {
-            World::ObjectUpdate(this->m_worldObject, matrix);
+        if (this->m_objectId) {
+            World::ObjectUpdate(this->m_objectId, matrix);
         }
     }
 }
@@ -497,7 +506,7 @@ float CGGameObject_C_Type_Transport::GetStateProgress(uint32_t time, int32_t sta
 
     if (current) {
         if (!sequenceTime) {
-            sequenceTime = this->m_frames[this->m_frameCount - 1].m_time;
+            sequenceTime = this->m_posKeys[this->m_numPosKeys - 1].m_TimeIndex;
         }
 
         sequenceTime -= this->m_owner->m_gameObject->m_level;
@@ -512,7 +521,7 @@ float CGGameObject_C_Type_Transport::GetStateProgress(uint32_t time, int32_t sta
 void CGGameObject_C_Type_Transport::UpdateState(int32_t oldState, int32_t newState) {
     CGGameObject_C* owner = this->m_owner;
 
-    if (!owner->m_gameObject->m_level || !this->m_frameCount || this->m_currentState == newState) {
+    if (!owner->m_gameObject->m_level || !this->m_numPosKeys || this->m_currentState == newState) {
         return;
     }
 

@@ -56,7 +56,7 @@ void CGGameObject_C_Type_QuestGiver::StartInteraction() {
         return;
     }
 
-    uint32_t anim = CGGameObject_C_TypeAnimated::s_animSequenceIds[2];
+    uint32_t anim = CGGameObject_C_TypeAnimated::s_stateAnimSequence[2];
 
     if (!model->HasSequence(anim)) {
         M2SequenceInfo info;

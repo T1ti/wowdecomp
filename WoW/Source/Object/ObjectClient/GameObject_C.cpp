@@ -97,20 +97,21 @@ static const uint32_t s_oneShotAnims[NUM_ONE_SHOT_ANIMS] = { 0xFFFFFFFF, ANIMSTA
 static uint32_t s_buildingDamageColor = 0xFFFF8400;
 
 // STATIC: 0x00ADA938
-uint32_t CGGameObject_C_TypeAnimated::s_animSequenceIds[NUM_GAMEOBJ_ANIMSTATES] = { ANIM_GAMEOBJ_SPAWN, ANIM_GAMEOBJ_CLOSED, ANIM_GAMEOBJ_OPEN, ANIM_GAMEOBJ_OPENED, ANIM_GAMEOBJ_CLOSE, ANIM_GAMEOBJ_DESTROY, ANIM_GAMEOBJ_DESTROYED, ANIM_GAMEOBJ_REBUILD, ANIM_GAMEOBJ_CUSTOM0, ANIM_GAMEOBJ_CUSTOM1, ANIM_GAMEOBJ_CUSTOM2, ANIM_GAMEOBJ_CUSTOM3, ANIM_GAMEOBJ_DESPAWN };
+const uint32_t CGGameObject_C_TypeAnimated::s_stateAnimSequence[NUM_GAMEOBJ_ANIMSTATES] = { ANIM_GAMEOBJ_SPAWN, ANIM_GAMEOBJ_CLOSED, ANIM_GAMEOBJ_OPEN, ANIM_GAMEOBJ_OPENED, ANIM_GAMEOBJ_CLOSE, ANIM_GAMEOBJ_DESTROY, ANIM_GAMEOBJ_DESTROYED, ANIM_GAMEOBJ_REBUILD, ANIM_GAMEOBJ_CUSTOM0, ANIM_GAMEOBJ_CUSTOM1, ANIM_GAMEOBJ_CUSTOM2, ANIM_GAMEOBJ_CUSTOM3, ANIM_GAMEOBJ_DESPAWN };
 
 // STATIC: 0x00ADA978
-const char* CGGameObject_C_TypeAnimated::s_statusString[NUM_GAMEOBJ_ANIMSTATES] = { "Spawn", "Closed", "Opening", "Open", "Closing", "Destroying", "Destroyed", "Rebuilding", "Custom0", "Custom1", "Custom2", "Custom3", "Despawn" };
+const char* const CGGameObject_C_TypeAnimated::s_statusString[NUM_GAMEOBJ_ANIMSTATES] = { "Spawn", "Closed", "Opening", "Open", "Closing", "Destroying", "Destroyed", "Rebuilding", "Custom0", "Custom1", "Custom2", "Custom3", "Despawn" };
 
 // VERIFY: 82a5bb1b manual
 // OFFSET: 0x00712AE0
 static void GameObjectStatsCallback(int32_t id, const WOWGUID& guid, void* param, bool success) {
-    CGGameObject_C* object = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__));
+    CGGameObject_C* gameObj = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__));
+    STORM_ASSERT(gameObj);
     WOWGUID requester = WOWGUID();
     GameObjectStats_C* stats = g_gameObjectDBCache.GetRecord(id, requester, nullptr, nullptr, false);
 
     if (stats) {
-        object->LoadBaseObject(stats);
+        gameObj->LoadBaseObject(stats);
     }
 }
 
@@ -120,17 +121,19 @@ void CGGameObject_C::AnimEventCallback(CM2Model* model, uint32_t boneId, uint32_
     CGGameObject_C* object = (CGGameObject_C*)ClntObjMgrObjectPtr(WOWGUID{ param }, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
     if (object) {
-        object->m_baseObj->HandleAnimEvent(eventId, data, *position, time);
+        STORM_ASSERT(object->GetBaseObject()); // 12213: "m_baseObj"
+        object->GetBaseObject()->HandleAnimEvent(eventId, data, *position, time);
     }
 }
 
 // VERIFY: bca2a2a9 manual
 // OFFSET: 0x0070CB60
 int32_t CGGameObject_C::OnAnimProgressChanged(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGGameObject_C* object = (CGGameObject_C*)ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
+    CGGameObject_C* gameObj = (CGGameObject_C*)ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
+    STORM_ASSERT(gameObj);
 
-    if (object->m_baseObj) {
-        object->m_baseObj->OnUpdateAnimProgress();
+    if (gameObj->m_baseObj) {
+        gameObj->m_baseObj->OnUpdateAnimProgress();
     }
 
     return 1;
@@ -139,10 +142,11 @@ int32_t CGGameObject_C::OnAnimProgressChanged(WOWGUID guid, uint32_t fieldOffset
 // VERIFY: 52bb7f99 manual
 // OFFSET: 0x0070ED00
 int32_t CGGameObject_C::OnFlagsChanged(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGGameObject_C* object = (CGGameObject_C*)ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
+    CGGameObject_C* gameObj = (CGGameObject_C*)ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
+    STORM_ASSERT(gameObj);
 
-    if (object->m_baseObj) {
-        object->m_baseObj->OnUpdateFlags(*static_cast<const uint32_t*>(oldValue) ^ object->m_gameObject->m_flags);
+    if (gameObj->m_baseObj) {
+        gameObj->m_baseObj->OnUpdateFlags(*static_cast<const uint32_t*>(oldValue) ^ gameObj->m_gameObject->m_flags);
     }
 
     return 1;
@@ -212,11 +216,11 @@ void CGGameObject_C_Type_DestructibleBuilding::PostInitWithStats() {
         entry.m_loading = 1;
     }
 
-    this->m_worldObject = this->m_states[((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_MASK) >> CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_SHIFT].m_object;
+    this->m_objectId = this->m_states[((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_MASK) >> CGGameObjectData::DESTRUCTIBLE_STATE_IN_DATA_SHIFT].m_object;
 
-    if (this->m_worldObject) {
-        World::ObjectSetRenderEnabled(this->m_worldObject, 1);
-        World::ObjectEnableCollision(this->m_worldObject, 1);
+    if (this->m_objectId) {
+        World::ObjectSetRenderEnabled(this->m_objectId, 1);
+        World::ObjectEnableCollision(this->m_objectId, 1);
     }
 
     this->m_loadPending = 1;
@@ -268,15 +272,16 @@ void CGGameObject_C_Type_DestructibleBuilding::PostInitWithStats() {
 // VERIFY: e11279e9 manual
 // OFFSET: 0x00711050
 int32_t CGGameObject_C::OnStateChanged(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGGameObject_C* object = (CGGameObject_C*)ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
-    int32_t state = object->m_gameObject->m_state;
-    int32_t oldState = object->m_displayState;
+    CGGameObject_C* gameObj = (CGGameObject_C*)ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__);
+    STORM_ASSERT(gameObj);
+    int32_t state = gameObj->m_gameObject->m_state;
+    int32_t oldState = gameObj->m_displayState;
 
-    if (state != oldState || object->m_gameObject->m_typeID == TYPE_MO_TRANSPORT) {
-        object->m_displayState = state;
+    if (state != oldState || gameObj->m_gameObject->m_typeID == TYPE_MO_TRANSPORT) {
+        gameObj->m_displayState = state;
 
-        if (object->m_baseObj) {
-            object->m_baseObj->UpdateState(oldState, state);
+        if (gameObj->m_baseObj) {
+            gameObj->m_baseObj->UpdateState(oldState, state);
         }
     }
 
@@ -323,10 +328,11 @@ void CGGameObject_C::CheckForPassiveHighlight() {
 // VERIFY: 84ec4568 manual
 // OFFSET: 0x00712B40
 static int32_t OnUpdateDynamicFlags(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGGameObject_C* object = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__));
+    CGGameObject_C* gameObj = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__));
+    STORM_ASSERT(gameObj);
 
-    if ((static_cast<uint8_t>(object->m_gameObject->m_dynamicFlags) ^ *static_cast<const uint8_t*>(oldValue)) & CGGameObjectData::DYNFLAG_PASSIVE_HIGHLIGHT) {
-        object->CheckForPassiveHighlight();
+    if ((static_cast<uint8_t>(gameObj->m_gameObject->m_dynamicFlags) ^ *static_cast<const uint8_t*>(oldValue)) & CGGameObjectData::DYNFLAG_PASSIVE_HIGHLIGHT) {
+        gameObj->CheckForPassiveHighlight();
     }
 
     return 1;
@@ -372,10 +378,11 @@ void ApplyGameObjectArtKit(CM2Model* model, int32_t artKit) {
 // VERIFY: 6bcc74fd manual
 // OFFSET: 0x00713ED0
 static int32_t OnUpdateArtKit(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGGameObject_C* object = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__));
+    CGGameObject_C* gameObj = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(guid, TYPE_GAMEOBJECT, __FILE__, __LINE__));
+    STORM_ASSERT(gameObj);
 
-    if (object->IsObjectModelLoaded()) {
-        ApplyGameObjectArtKit(object->m_worldModel, object->m_gameObject->m_artKit);
+    if (gameObj->IsObjectModelLoaded()) {
+        ApplyGameObjectArtKit(gameObj->m_worldModel, gameObj->m_gameObject->m_artKit);
     }
 
     return 1;
@@ -427,8 +434,10 @@ void CGGameObject_C::SequenceCallback(CM2Model* model, uint32_t boneId, uint32_t
     }
 
     if (interrupted) {
+        STORM_ASSERT(object->m_baseObj); // 12213: "m_baseObj"
         object->m_baseObj->HandleAnimInterrupted();
     } else {
+        STORM_ASSERT(object->m_baseObj); // 12213: "m_baseObj"
         object->m_baseObj->HandleAnimFinished();
     }
 }
@@ -463,6 +472,7 @@ bool CGGameObject_C::CanUse() const {
 // VERIFY: 6c3c1365 auto
 // OFFSET: 0x0070BA10
 BOOL CGGameObject_C::CanUseNow() const {
+    STORM_ASSERT(m_baseObj && m_baseObj->CanUse());
     return this->m_baseObj->CanUseNow(nullptr, nullptr, nullptr);
 }
 
@@ -526,10 +536,16 @@ C44Matrix CGGameObject_C::GetMatrix() const {
     return this->m_matrix;
 }
 
+// INLINED
+inline uint32_t CGGameObject_C::GetDisplayID() const {
+    return this->m_gameObject->m_displayID;
+}
+
 // VERIFY: 728f32b7 manual
 // OFFSET: 0x0070EE30
 const char* CGGameObject_C::GetModelFileNameInternal() const {
-    int32_t displayID = this->m_gameObject->m_displayID;
+    STORM_ASSERT(GetDisplayID());
+    int32_t displayID = this->GetDisplayID();
     GameObjectDisplayInfoRec* rec = g_gameObjectDisplayInfoDB.GetRecord(displayID);
 
     if (rec) {
@@ -854,7 +870,7 @@ CGGameObject_C_TypeAnimated::~CGGameObject_C_TypeAnimated() {
 // VERIFY: 50f95140 auto
 // OFFSET: 0x0070C480
 void CGGameObject_C_TypeAnimated::ActivateOneShotAnim(uint32_t anim) {
-    if (!this->m_owner->m_worldModel->HasSequence(s_animSequenceIds[anim])) {
+    if (!this->m_owner->m_worldModel->HasSequence(s_stateAnimSequence[anim])) {
         return;
     }
 
@@ -939,7 +955,7 @@ void CGGameObject_C_TypeAnimated::PostInit(bool reenable) {
     CGGameObject_C* owner = this->m_owner;
 
     if (owner->IsObjectModelLoaded()) {
-        owner->m_baseObj->ActivateOneShotAnim(ANIMSTATE_SPAWN);
+        owner->GetBaseObject()->ActivateOneShotAnim(ANIMSTATE_SPAWN);
         owner->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     } else {
         owner->m_pendingOneShotAnim = ONE_SHOT_ANIM_SPAWN;
@@ -1115,15 +1131,15 @@ ShipPath* CGGameObject_C_Type_MapObjTransport::GetShipPath() const {
 
 // INLINED
 CGGameObject_C_Type_WorldObj::CGGameObject_C_Type_WorldObj(CGGameObject_C* owner) : CGGameObject_C_TypeBase(owner) {
-    this->m_worldObject = nullptr;
+    this->m_objectId = nullptr;
 }
 
 // VERIFY: 1c0f2dcf auto
 // OFFSET: 0x0070B290
 void CGGameObject_C_Type_WorldObj::DestroyWorldObj() {
-    if (this->m_worldObject) {
-        CWorld::ObjectDestroy(this->m_worldObject);
-        this->m_worldObject = nullptr;
+    if (this->m_objectId) {
+        CWorld::ObjectDestroy(this->m_objectId);
+        this->m_objectId = nullptr;
     }
 }
 
@@ -1196,19 +1212,20 @@ void CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback(CM2Model* model
     CGGameObject_C* object = (CGGameObject_C*)ClntObjMgrObjectPtr(WOWGUID{ param }, TYPE_GAMEOBJECT, __FILE__, __LINE__);
 
     if (object) {
-        object->m_baseObj->HandleAnimEvent(eventId, data, *position, time);
+        STORM_ASSERT(object->GetBaseObject()); // 12213: "m_baseObj"
+        object->GetBaseObject()->HandleAnimEvent(eventId, data, *position, time);
     }
 }
 
 // VERIFY: 2e2a861c auto
 // OFFSET: 0x0070B6A0
 void CGGameObject_C_Type_DestructibleBuilding::PostReenable() {
-    if (!this->m_worldObject) {
+    if (!this->m_objectId) {
         return;
     }
 
-    World::ObjectSetRenderEnabled(this->m_worldObject, 1);
-    World::ObjectEnableCollision(this->m_worldObject, 1);
+    World::ObjectSetRenderEnabled(this->m_objectId, 1);
+    World::ObjectEnableCollision(this->m_objectId, 1);
 
     if (this->m_proxy.m_uniqueId) {
         World::FreeDestructibleProxy(&this->m_proxy);
@@ -1218,12 +1235,12 @@ void CGGameObject_C_Type_DestructibleBuilding::PostReenable() {
 // VERIFY: d518c5b7 auto
 // OFFSET: 0x0070B6E0
 void CGGameObject_C_Type_DestructibleBuilding::Disable() {
-    if (!this->m_worldObject) {
+    if (!this->m_objectId) {
         return;
     }
 
-    World::ObjectSetRenderEnabled(this->m_worldObject, 0);
-    World::ObjectEnableCollision(this->m_worldObject, 0);
+    World::ObjectSetRenderEnabled(this->m_objectId, 0);
+    World::ObjectEnableCollision(this->m_objectId, 0);
 
     if (this->m_proxy.m_uniqueId) {
         World::FindOrCreateDestructibleProxy(&this->m_proxy);
@@ -1384,7 +1401,7 @@ int32_t Packet_SMSG_GAMEOBJECT_DESPAWN_ANIM(void* param, NETMESSAGE msgId, uint3
             return 1;
         }
 
-        object->m_baseObj->ActivateOneShotAnim(ANIMSTATE_DESPAWN);
+        object->GetBaseObject()->ActivateOneShotAnim(ANIMSTATE_DESPAWN);
         object->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     }
 
@@ -1535,7 +1552,7 @@ CGGameObject_C_Type_DestructibleBuilding::~CGGameObject_C_Type_DestructibleBuild
         this->m_rebuildEffect = nullptr;
     }
 
-    this->m_worldObject = nullptr;
+    this->m_objectId = nullptr;
 
     if (this->m_baseCollision) {
         CWorld::ObjectDestroy(this->m_baseCollision);
@@ -1606,7 +1623,7 @@ CGGameObject_C_Type_TransportBase::CGGameObject_C_Type_TransportBase(CGGameObjec
 void CGGameObject_C_Type_TransportBase::PostInitWithStats() {
     this->CreateWorldObj();
 
-    if (this->m_worldObject) {
+    if (this->m_objectId) {
         MovementAddTransport(this->m_owner);
     }
 }
@@ -2004,6 +2021,7 @@ CGGameObject_C::CGGameObject_C(uint32_t time, const CClientObjCreate& create) : 
             break;
     }
 
+    STORM_ASSERT(m_baseObj);
     this->m_effectAnimState = OBJECT_EFFECT_STATE_INVALID;
 }
 
@@ -2079,7 +2097,7 @@ bool CGGameObject_C_Type_WorldObj::CanUse() const {
 // VERIFY: 3f8abdcd auto
 // OFFSET: 0x0095CB40
 CMapBaseObj* CGGameObject_C_Type_WorldObj::GetMapObjectTransportID() const {
-    return this->m_worldObject;
+    return this->m_objectId;
 }
 
 // VERIFY: f4c8758a manual
@@ -2103,7 +2121,7 @@ void CGGameObject_C_Type_WorldObj::PostReenable() {
 // VERIFY: 209f54dd manual
 // OFFSET: 0x00712610
 CGGameObject_C_Type_TransportBase::~CGGameObject_C_Type_TransportBase() {
-    if (this->m_worldObject) {
+    if (this->m_objectId) {
         MovementRemoveTransport(this->m_owner);
     }
 }
@@ -2117,11 +2135,11 @@ C3Vector CGGameObject_C_Type_TransportBase::GetPosition() const {
 // VERIFY: d5e93300 auto
 // OFFSET: 0x0070B360
 BOOL CGGameObject_C_Type_TransportBase::IsPointInside(const C3Vector& point) const {
-    if (!this->m_worldObject) {
+    if (!this->m_objectId) {
         return 1;
     }
 
-    return World::ObjectTestConvexVolume(this->m_worldObject, point);
+    return World::ObjectTestConvexVolume(this->m_objectId, point);
 }
 
 // VERIFY: ff1b15c0 auto
@@ -2129,7 +2147,7 @@ BOOL CGGameObject_C_Type_TransportBase::IsPointInside(const C3Vector& point) con
 void CGGameObject_C_Type_TransportBase::PostReenable() {
     this->CreateWorldObj();
 
-    if (this->m_worldObject) {
+    if (this->m_objectId) {
         MovementAddTransport(this->m_owner);
     }
 }
@@ -2221,7 +2239,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
     int32_t current = DESTRUCTIBLE_STATE_INTACT;
 
     do {
-        if (this->m_states[current].m_object == this->m_worldObject) {
+        if (this->m_states[current].m_object == this->m_objectId) {
             break;
         }
 
@@ -2245,19 +2263,19 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
         World::ObjectEnableCollision(object, 1);
     }
 
-    if (this->m_worldObject) {
-        World::ObjectSetRenderEnabled(this->m_worldObject, 0);
-        World::ObjectEnableCollision(this->m_worldObject, 0);
+    if (this->m_objectId) {
+        World::ObjectSetRenderEnabled(this->m_objectId, 0);
+        World::ObjectEnableCollision(this->m_objectId, 0);
     }
 
-    if (this->m_worldObject && newDblState > current && newDblState != DESTRUCTIBLE_STATE_REBUILDING && newDblState != DESTRUCTIBLE_STATE_INTACT) {
+    if (this->m_objectId && newDblState > current && newDblState != DESTRUCTIBLE_STATE_REBUILDING && newDblState != DESTRUCTIBLE_STATE_INTACT) {
         CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
 
         if (mover && !mover->HasVehicleTransport() && !(mover->m_movement->m_flags & MOVEMENTFLAG_FLYING)) {
             CAaBox extents;
             extents.b = C3Vector(0.0f, 0.0f, 0.0f);
             extents.t = C3Vector(0.0f, 0.0f, 0.0f);
-            World::ObjectGetExtents(this->m_worldObject, &extents);
+            World::ObjectGetExtents(this->m_objectId, &extents);
             C44Matrix inverse = this->m_owner->GetMatrix().AffineInverse();
 
             if (extents.ContainsPointExclusive(mover->GetPosition() * inverse)) {
@@ -2276,11 +2294,11 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
             continue;
         }
 
-        World::ObjectSetSequence(this->m_worldObject, ANIM_GAMEOBJ_CUSTOM2, 0, set);
-        World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::MovedDoodadSequenceHandler, static_cast<uint64_t>(static_cast<int32_t>(set + offset)) | (static_cast<uint64_t>(reinterpret_cast<uintptr_t>(this)) << 32), set);
-        World::ObjectSetEventCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, set);
+        World::ObjectSetSequence(this->m_objectId, ANIM_GAMEOBJ_CUSTOM2, 0, set);
+        World::ObjectSetSequenceFinishedCallback(this->m_objectId, &CGGameObject_C_Type_DestructibleBuilding::MovedDoodadSequenceHandler, static_cast<uint64_t>(static_cast<int32_t>(set + offset)) | (static_cast<uint64_t>(reinterpret_cast<uintptr_t>(this)) << 32), set);
+        World::ObjectSetEventCallback(this->m_objectId, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, set);
         uint16_t target = set + offset;
-        World::ObjectMoveDoodads(this->m_worldObject, set, object, target);
+        World::ObjectMoveDoodads(this->m_objectId, set, object, target);
         World::ObjectSetDoodadsEnabled(object, 1, target);
     }
 
@@ -2294,19 +2312,19 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
                 continue;
             }
 
-            World::ObjectMoveDoodads(this->m_worldObject, 100 * (this->m_previousState + 1) + set, this->m_states[this->m_previousState].m_object, set);
+            World::ObjectMoveDoodads(this->m_objectId, 100 * (this->m_previousState + 1) + set, this->m_states[this->m_previousState].m_object, set);
             World::ObjectSetSequenceFinishedCallback(this->m_states[this->m_previousState].m_object, nullptr, 0, set);
             World::ObjectSetDoodadsEnabled(this->m_states[this->m_previousState].m_object, 0, set);
             World::ObjectSetSequence(this->m_states[this->m_previousState].m_object, ANIM_GAMEOBJ_STAND, 0, set);
-            World::ObjectSetEventCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, set);
+            World::ObjectSetEventCallback(this->m_objectId, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, set);
         }
     }
 
-    this->m_worldObject = object;
+    this->m_objectId = object;
     this->m_previousState = current;
     entry.m_animate = newDblState == DESTRUCTIBLE_STATE_INTACT || newDblState == DESTRUCTIBLE_STATE_REBUILDING;
 
-    if (!this->m_worldObject || entry.m_loading) {
+    if (!this->m_objectId || entry.m_loading) {
         return;
     }
 
@@ -2325,12 +2343,12 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
                 CAaBox extents;
                 extents.b = C3Vector(0.0f, 0.0f, 0.0f);
                 extents.t = C3Vector(0.0f, 0.0f, 0.0f);
-                World::ObjectGetExtents(this->m_worldObject, &extents);
+                World::ObjectGetExtents(this->m_objectId, &extents);
                 this->m_sinkDepth = extents.t.z - extents.b.z;
                 float z = this->m_owner->GetPosition().z;
                 C3Vector position(z, z, z);
                 this->m_baseZ = z;
-                World::ObjectUpdate(this->m_worldObject, &position, this->m_owner->GetFacing(), 0.0f, 0.0f, 0);
+                World::ObjectUpdate(this->m_objectId, &position, this->m_owner->GetFacing(), 0.0f, 0.0f, 0);
                 this->m_animating = 1;
                 this->m_baseZ = position.z;
                 this->m_animStartTime = FrameTime::s_curTimeMs;
@@ -2370,10 +2388,10 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
         }
 
         if (set) {
-            World::ObjectSetDoodadsEnabled(this->m_worldObject, 1, set);
-            World::ObjectSetSequence(this->m_worldObject, ANIM_GAMEOBJ_CUSTOM0, 0, set);
-            World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::DestructSequenceFinishedHandler, set, set);
-            World::ObjectSetEventCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, set);
+            World::ObjectSetDoodadsEnabled(this->m_objectId, 1, set);
+            World::ObjectSetSequence(this->m_objectId, ANIM_GAMEOBJ_CUSTOM0, 0, set);
+            World::ObjectSetSequenceFinishedCallback(this->m_objectId, &CGGameObject_C_Type_DestructibleBuilding::DestructSequenceFinishedHandler, set, set);
+            World::ObjectSetEventCallback(this->m_objectId, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, set);
         }
     }
 
@@ -2405,10 +2423,10 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDestructibleState() {
     }
 
     if (ambient) {
-        World::ObjectSetDoodadsEnabled(this->m_worldObject, 1, ambient);
-        World::ObjectSetSequence(this->m_worldObject, ANIM_GAMEOBJ_CUSTOM0, 0, ambient);
-        World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AmbientSequenceFinishedHandler, ambient, ambient);
-        World::ObjectSetEventCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, ambient);
+        World::ObjectSetDoodadsEnabled(this->m_objectId, 1, ambient);
+        World::ObjectSetSequence(this->m_objectId, ANIM_GAMEOBJ_CUSTOM0, 0, ambient);
+        World::ObjectSetSequenceFinishedCallback(this->m_objectId, &CGGameObject_C_Type_DestructibleBuilding::AmbientSequenceFinishedHandler, ambient, ambient);
+        World::ObjectSetEventCallback(this->m_objectId, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, ambient);
     }
 }
 
@@ -2423,10 +2441,10 @@ void CGGameObject_C_Type_DestructibleBuilding::OnUpdateFlags(uint32_t changed) {
         uint16_t set = this->GetImpactEffectDoodadSet((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_DATA_VALUE_MASK);
 
         if (set) {
-            World::ObjectSetDoodadsEnabled(this->m_worldObject, 1, set);
-            World::ObjectSetSequence(this->m_worldObject, ANIM_GAMEOBJ_CUSTOM0, 0, set);
-            World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::ImpactEffectSequenceFinishedHandler, set, set);
-            World::ObjectSetEventCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, set);
+            World::ObjectSetDoodadsEnabled(this->m_objectId, 1, set);
+            World::ObjectSetSequence(this->m_objectId, ANIM_GAMEOBJ_CUSTOM0, 0, set);
+            World::ObjectSetSequenceFinishedCallback(this->m_objectId, &CGGameObject_C_Type_DestructibleBuilding::ImpactEffectSequenceFinishedHandler, set, set);
+            World::ObjectSetEventCallback(this->m_objectId, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, set);
         }
     }
 
@@ -2465,17 +2483,17 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDisplay(uint32_t time) {
                 }
             }
 
-            if (entry->m_object != this->m_worldObject) {
+            if (entry->m_object != this->m_objectId) {
                 continue;
             }
 
             uint16_t ambient = this->GetAmbientDoodadSet((this->m_owner->m_gameObject->m_flags >> CGGameObjectData::DESTRUCTIBLE_DATA_SHIFT) & CGGameObjectData::DESTRUCTIBLE_DATA_VALUE_MASK);
 
             if (ambient) {
-                World::ObjectSetDoodadsEnabled(this->m_worldObject, 1, ambient);
-                World::ObjectSetSequence(this->m_worldObject, ANIM_GAMEOBJ_CUSTOM0, 0, ambient);
-                World::ObjectSetSequenceFinishedCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AmbientSequenceFinishedHandler, ambient, ambient);
-                World::ObjectSetEventCallback(this->m_worldObject, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, ambient);
+                World::ObjectSetDoodadsEnabled(this->m_objectId, 1, ambient);
+                World::ObjectSetSequence(this->m_objectId, ANIM_GAMEOBJ_CUSTOM0, 0, ambient);
+                World::ObjectSetSequenceFinishedCallback(this->m_objectId, &CGGameObject_C_Type_DestructibleBuilding::AmbientSequenceFinishedHandler, ambient, ambient);
+                World::ObjectSetEventCallback(this->m_objectId, &CGGameObject_C_Type_DestructibleBuilding::AnimEventCallback, this->m_owner->m_obj->m_guid.m_guid, ambient);
             }
         }
 
@@ -2506,7 +2524,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDisplay(uint32_t time) {
 
                 C3Vector target = position;
                 target.z = this->m_baseZ - (1.0f - sink) * this->m_sinkDepth;
-                World::ObjectUpdate(this->m_worldObject, &target, this->m_owner->GetFacing(), 0.0f, 0.0f, 0);
+                World::ObjectUpdate(this->m_objectId, &target, this->m_owner->GetFacing(), 0.0f, 0.0f, 0);
 
                 if (this->m_previousState != -1) {
                     float scale = progress >= 0.5f ? 1.0f : progress * (progress * progress) * 8.0f;
@@ -2523,7 +2541,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDisplay(uint32_t time) {
             C3Vector target = position;
             float remaining = 1.0f - progress;
             target.z = this->m_baseZ - (1.0f - (1.0f - remaining * (remaining * remaining))) * this->m_sinkDepth;
-            World::ObjectUpdate(this->m_worldObject, &target, this->m_owner->GetFacing(), 0.0f, 0.0f, 0);
+            World::ObjectUpdate(this->m_objectId, &target, this->m_owner->GetFacing(), 0.0f, 0.0f, 0);
 
             if (this->m_previousState != -1 && effect == 2) {
                 C3Vector previous = this->m_owner->GetPosition();
@@ -2551,7 +2569,7 @@ void CGGameObject_C_Type_DestructibleBuilding::UpdateDisplay(uint32_t time) {
 
     C3Vector position = this->m_owner->GetPosition();
     position.z = this->m_baseZ;
-    World::ObjectUpdate(this->m_worldObject, &position, this->m_owner->GetFacing(), 0.0f, 0.0f, 0);
+    World::ObjectUpdate(this->m_objectId, &position, this->m_owner->GetFacing(), 0.0f, 0.0f, 0);
     this->m_animating = 0;
 
     if (this->m_previousState != -1) {
@@ -2600,7 +2618,7 @@ void CGGameObject_C_Type_GuildBank::StartInteraction() {
     CGGameObject_C* owner = this->m_owner;
 
     if (owner->IsObjectModelLoaded()) {
-        owner->m_baseObj->ActivateOneShotAnim(ANIMSTATE_CUSTOM0);
+        owner->GetBaseObject()->ActivateOneShotAnim(ANIMSTATE_CUSTOM0);
         owner->m_pendingOneShotAnim = ONE_SHOT_ANIM_NONE;
     } else {
         owner->m_pendingOneShotAnim = ONE_SHOT_ANIM_CUSTOM0;
@@ -2842,7 +2860,7 @@ void CGGameObject_C_Type_TransportBase::AddPassenger(CPassenger* passenger, int3
     passenger->m_link.Unlink();
     this->m_passengers.LinkToTail(passenger);
 
-    if (reason && (passenger->m_passengerFlags & CPassenger::PASSENGER_MOVEMENT) && (!this->m_worldObject || !World::ObjectIsLoaded(this->m_worldObject))) {
+    if (reason && (passenger->m_passengerFlags & CPassenger::PASSENGER_MOVEMENT) && (!this->m_objectId || !World::ObjectIsLoaded(this->m_objectId))) {
         static_cast<CMovementShared*>(passenger)->SetSplineEnabled();
     }
 
@@ -2945,8 +2963,10 @@ void CGGameObject_C::LoadBaseObject(GameObjectStats_C* stats) {
 
 // VERIFY: ac5cb052 manual
 // OFFSET: 0x0070D510
-void CGGameObject_C_TypeAnimated::UpdateAnimState(uint32_t state) {
-    if (static_cast<int32_t>(state) == this->m_animState) {
+void CGGameObject_C_TypeAnimated::UpdateAnimState(uint32_t newState) {
+    STORM_ASSERT(newState < ARRSIZE(s_stateAnimSequence));
+
+    if (static_cast<int32_t>(newState) == this->m_animState) {
         return;
     }
 
@@ -2958,7 +2978,7 @@ void CGGameObject_C_TypeAnimated::UpdateAnimState(uint32_t state) {
         if (model && this->m_owner->m_gameObject->m_pathProgress == 0xFFFF) {
             int32_t current = this->m_animState;
 
-            if ((current == ANIMSTATE_OPENING && state == ANIMSTATE_CLOSING) || (current == ANIMSTATE_CLOSING && state == ANIMSTATE_OPENING) || (current == ANIMSTATE_DESTROYING && state == ANIMSTATE_REBUILDING) || (current == ANIMSTATE_REBUILDING && state == ANIMSTATE_DESTROYING)) {
+            if ((current == ANIMSTATE_OPENING && newState == ANIMSTATE_CLOSING) || (current == ANIMSTATE_CLOSING && newState == ANIMSTATE_OPENING) || (current == ANIMSTATE_DESTROYING && newState == ANIMSTATE_REBUILDING) || (current == ANIMSTATE_REBUILDING && newState == ANIMSTATE_DESTROYING)) {
                 M2BoneSequenceInfo info;
                 model->GetBoneSequenceInfo(M2_KEY_BONE_NONE, info);
 
@@ -2974,7 +2994,7 @@ void CGGameObject_C_TypeAnimated::UpdateAnimState(uint32_t state) {
         }
     }
 
-    this->m_animState = state;
+    this->m_animState = newState;
 
     if (model) {
         this->SetSequence(model);
@@ -3007,8 +3027,8 @@ void CGGameObject_C_Type_MapObjTransport::PostInitWithStats() {
     this->m_shipPath.SetTotalPathTime(this->m_owner->m_gameObject->m_level);
     this->InitializeMovement();
 
-    if (this->m_worldObject) {
-        World::ObjectUpdate(this->m_worldObject, this->m_owner->GetMatrix());
+    if (this->m_objectId) {
+        World::ObjectUpdate(this->m_objectId, this->m_owner->GetMatrix());
     }
 }
 
@@ -3016,7 +3036,7 @@ void CGGameObject_C_Type_MapObjTransport::PostInitWithStats() {
 // OFFSET: 0x0070D1E0
 void CGGameObject_C_TypeAnimated::SetSequence(CM2Model* model) {
     float speed = 1.0f;
-    uint32_t sequence = CGGameObject_C_TypeAnimated::s_animSequenceIds[this->m_animState];
+    uint32_t sequence = CGGameObject_C_TypeAnimated::s_stateAnimSequence[this->m_animState];
 
     if (model->IsLoaded(0, 0) && !model->HasSequence(sequence)) {
         switch (sequence) {
@@ -3215,14 +3235,16 @@ CMapEntity* CGGameObject_C::CreateWorldObject(uint64_t guid, BOOL waitLoad, uint
 // VERIFY: b54abd63 auto
 // OFFSET: 0x00711A10
 void CGGameObject_C_Type_WorldObj::CreateWorldObj() {
+    STORM_ASSERT(!m_objectId);
+
     switch (this->m_owner->m_gameObject->m_typeID) {
         case TYPE_TRANSPORT:
         case TYPE_MO_TRANSPORT:
         case TYPE_TRAPDOOR:
-            this->m_worldObject = this->m_owner->CreateWorldObject(this->m_owner->m_obj->m_guid.m_guid, 0, 0, nullptr);
+            this->m_objectId = this->m_owner->CreateWorldObject(this->m_owner->m_obj->m_guid.m_guid, 0, 0, nullptr);
 
-            if (this->m_worldObject && this->m_owner->m_gameObject->m_typeID == TYPE_TRANSPORT) {
-                World::ObjectSetMoveable(this->m_worldObject, 1);
+            if (this->m_objectId && this->m_owner->m_gameObject->m_typeID == TYPE_TRANSPORT) {
+                World::ObjectSetMoveable(this->m_objectId, 1);
             }
 
             break;
@@ -3231,7 +3253,7 @@ void CGGameObject_C_Type_WorldObj::CreateWorldObj() {
             return;
 
         default:
-            this->m_worldObject = this->m_owner->CreateWorldObject(0, 0, 0, nullptr);
+            this->m_objectId = this->m_owner->CreateWorldObject(0, 0, 0, nullptr);
             break;
     }
 }
@@ -3267,7 +3289,7 @@ void CGGameObject_C_Type_TransportBase::Disable() {
         passenger = next;
     }
 
-    if (this->m_worldObject) {
+    if (this->m_objectId) {
         MovementRemoveTransport(this->m_owner);
     }
 
@@ -3500,16 +3522,16 @@ void CGGameObject_C_Type_MapObjTransport::UpdateMovement(uint32_t time, uint32_t
     reinterpret_cast<C4QuaternionCompressed&>(owner->m_passenger.m_facing) = rotation;
     owner->m_passenger.m_passengerFlags |= CPassenger::PASSENGER_QUATERNION_FACING;
 
-    if (this->m_worldObject) {
-        World::ObjectUpdate(this->m_worldObject, matrix);
+    if (this->m_objectId) {
+        World::ObjectUpdate(this->m_objectId, matrix);
 
-        if (!this->m_worldObjectReady && World::ObjectIsLoaded(this->m_worldObject)) {
-            World::ObjectSetSequenceFinishedCallback(this->m_worldObject, CGGameObject_C_Type_WorldObj::SequenceFinishedHandler, 0, 0);
+        if (!this->m_worldObjectReady && World::ObjectIsLoaded(this->m_objectId)) {
+            World::ObjectSetSequenceFinishedCallback(this->m_objectId, CGGameObject_C_Type_WorldObj::SequenceFinishedHandler, 0, 0);
             this->m_worldObjectReady = 1;
         }
 
         if (this->m_worldObjectReady && this->m_currentState != static_cast<int32_t>(sequence)) {
-            World::ObjectSetSequence(this->m_worldObject, sequence, 0, 0);
+            World::ObjectSetSequence(this->m_objectId, sequence, 0, 0);
             this->m_currentState = sequence;
             this->UpdateObjectEffectState(sequence);
         }
@@ -3548,14 +3570,15 @@ uint32_t CGGameObject_C_Type_MapObjTransport::GetSequenceTimeFromRealTime(uint32
 
 // VERIFY: 83b573d2 manual
 // OFFSET: 0x007132E0
-void CGGameObject_C_Type_TransportBase::MovePassengers(int32_t* moved) {
-    *moved = 0;
+void CGGameObject_C_Type_TransportBase::MovePassengers(int32_t* foundCameraTarget) {
+    STORM_ASSERT(foundCameraTarget);
+    *foundCameraTarget = 0;
     C44Matrix& matrix = this->m_owner->m_matrix;
     BOOL isWMO = 0;
 
-    if (this->m_worldObject) {
-        World::ObjectUpdate(this->m_worldObject, matrix);
-        isWMO = World::ObjectIsWMO(this->m_worldObject);
+    if (this->m_objectId) {
+        World::ObjectUpdate(this->m_objectId, matrix);
+        isWMO = World::ObjectIsWMO(this->m_objectId);
     }
 
     WOWGUID cameraTarget = CGWorldFrame::GetActiveCamera()->m_targetGUID;
@@ -3569,7 +3592,7 @@ void CGGameObject_C_Type_TransportBase::MovePassengers(int32_t* moved) {
         }
 
         if (*passenger->m_ownerGuid == cameraTarget) {
-            *moved = 1;
+            *foundCameraTarget = 1;
         }
 
         CGObject_C* object = static_cast<CGObject_C*>(ClntObjMgrObjectPtr(*passenger->m_ownerGuid, TYPE_OBJECT, __FILE__, __LINE__));
@@ -3646,9 +3669,11 @@ bool CGGameObject_C::IsLocked(int32_t* spellId, int32_t* skillValue, int32_t* re
                 continue;
             }
 
-            for (uint32_t j = 0; j < s_openLockSpells.m_count; j++) {
+            auto& spells = s_openLockSpells;
+            for (uint32_t j = 0; j < spells.Count(); j++) {
+                STORM_ASSERT(g_spellDB.RecordExists(spells[j]));
                 SpellRec spell;
-                g_spellDB.GetRecord(s_openLockSpells.m_data[j], &spell);
+                g_spellDB.GetRecord(spells[j], &spell);
 
                 for (uint32_t effect = 0; effect < NUM_SPELL_EFFECTS; effect++) {
                     if (spell.m_effect[effect] != SPELL_EFFECT_OPEN_LOCK || spell.m_effectMiscValue[effect] != lock->m_index[i]) {
@@ -3661,7 +3686,7 @@ bool CGGameObject_C::IsLocked(int32_t* spellId, int32_t* skillValue, int32_t* re
                     Spell_C_GetMinMaxPoints(&spell, effect, &minPoints, &maxPoints, 0, 0, 0, 0);
 
                     if (spellId) {
-                        *spellId = s_openLockSpells.m_data[j];
+                        *spellId = spells[j];
                     }
 
                     if (skillValue) {
@@ -3682,9 +3707,10 @@ bool CGGameObject_C::IsLocked(int32_t* spellId, int32_t* skillValue, int32_t* re
                 }
 
                 if (Spell_C_IsTargeting()) {
-                    int32_t targetingSpell = Spell_C_GetTargetingSpell();
+                    int32_t castingSpellID = Spell_C_GetTargetingSpell();
+                    STORM_ASSERT(g_spellDB.RecordExists(castingSpellID));
                     SpellRec targeting;
-                    g_spellDB.GetRecord(targetingSpell, &targeting);
+                    g_spellDB.GetRecord(castingSpellID, &targeting);
 
                     for (uint32_t effect = 0; effect < NUM_SPELL_EFFECTS; effect++) {
                         if (targeting.m_effect[effect] != SPELL_EFFECT_OPEN_LOCK || targeting.m_effectMiscValue[effect] != lock->m_index[i]) {
@@ -3697,7 +3723,7 @@ bool CGGameObject_C::IsLocked(int32_t* spellId, int32_t* skillValue, int32_t* re
                         Spell_C_GetMinMaxPoints(&targeting, effect, &minPoints, &maxPoints, 0, 0, 0, 0);
 
                         if (spellId) {
-                            *spellId = targetingSpell;
+                            *spellId = castingSpellID;
                         }
 
                         if (skillValue) {
@@ -4141,6 +4167,8 @@ bool CGGameObject_C_TypeBase::CanUseNow(GAME_ERROR_TYPE* error, float* distance,
 // VERIFY: b1cd0162 manual
 // OFFSET: 0x007116C0
 bool CGGameObject_C_TypeBase::Use() {
+    STORM_ASSERT(CanUseNow());
+
     int32_t spellId = 0;
     CGItem_C* key = nullptr;
     uint32_t entry;

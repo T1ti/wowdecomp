@@ -14,7 +14,7 @@ class TransportAnimationRec {
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ int32_t m_transportID;
-    /* 0008 */ int32_t m_timeIndex;
+    /* 0008 */ int32_t m_TimeIndex;
     /* 000C */ float m_pos [3];
     /* 0018 */ int32_t m_sequenceID;
 

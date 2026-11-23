@@ -14,7 +14,7 @@ class TransportRotationRec {
 
     /* 0000 */ int32_t m_id;
     /* 0004 */ int32_t m_gameObjectsID;
-    /* 0008 */ int32_t m_timeIndex;
+    /* 0008 */ int32_t m_TimeIndex;
     /* 000C */ float m_rot [4];
 
     TransportRotationRec();

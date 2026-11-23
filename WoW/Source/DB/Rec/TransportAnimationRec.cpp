@@ -16,7 +16,7 @@ const char* TransportAnimationRec::GetFilename() {
 bool TransportAnimationRec::Read(SFileImpl* file, const char* stringBuffer) {
     int32_t idRead = SFileReadFile(file, &this->m_id, sizeof(this->m_id), nullptr, nullptr, 0);
     int32_t transportIDRead = SFileReadFile(file, &this->m_transportID, sizeof(this->m_transportID), nullptr, nullptr, 0);
-    int32_t timeIndexRead = SFileReadFile(file, &this->m_timeIndex, sizeof(this->m_timeIndex), nullptr, nullptr, 0);
+    int32_t timeIndexRead = SFileReadFile(file, &this->m_TimeIndex, sizeof(this->m_TimeIndex), nullptr, nullptr, 0);
     int32_t posRead0 = SFileReadFile(file, &this->m_pos[0], sizeof(this->m_pos[0]), nullptr, nullptr, 0);
     int32_t posRead1 = SFileReadFile(file, &this->m_pos[1], sizeof(this->m_pos[1]), nullptr, nullptr, 0);
     int32_t posRead2 = SFileReadFile(file, &this->m_pos[2], sizeof(this->m_pos[2]), nullptr, nullptr, 0);

@@ -54,7 +54,7 @@ class CGGameObject_C_TypeBase {
     virtual BOOL IsHighlightSuppressed() const;
     virtual int32_t CanChangeCursor() const;
     virtual bool CanUse() const;
-    virtual bool CanUseNow(GAME_ERROR_TYPE* error, float* distance, const char** errorText) const;
+    virtual bool CanUseNow(GAME_ERROR_TYPE* error = nullptr, float* distance = nullptr, const char** errorText = nullptr) const;
     virtual int32_t CheckRange() const;
     virtual bool Use();
     virtual void OnUpdateFlags(uint32_t changed);
@@ -135,14 +135,18 @@ enum : int32_t {
 
 class CGGameObject_C_TypeAnimated : public CGGameObject_C_TypeBase {
     public:
-    static uint32_t s_animSequenceIds[NUM_GAMEOBJ_ANIMSTATES];
-    static const char* s_statusString[NUM_GAMEOBJ_ANIMSTATES];
+    private:
+    static const char* const s_statusString[NUM_GAMEOBJ_ANIMSTATES];
+
+    protected:
+    static const uint32_t s_stateAnimSequence[NUM_GAMEOBJ_ANIMSTATES];
 
     /* 0010 */ int32_t m_animState;
     /* 0014 */ int32_t m_pendingAnimState;
     /* 0018 */ int32_t m_nextAnimTime;
     /* 001C */ SE2SoundKitObject m_sound;
 
+    public:
     virtual ~CGGameObject_C_TypeAnimated();
     virtual bool ShouldFadeIn() const;
     virtual void OnUpdateFlags(uint32_t changed);
@@ -159,7 +163,7 @@ class CGGameObject_C_TypeAnimated : public CGGameObject_C_TypeBase {
     virtual void PostReenable();
     virtual void UpdateDisplay(uint32_t time);
     virtual void UpdateDisabled();
-    virtual void UpdateAnimState(uint32_t state);
+    virtual void UpdateAnimState(uint32_t newState);
 
     CGGameObject_C_TypeAnimated(CGGameObject_C* owner);
     void SetSequence(CM2Model* model);
@@ -179,7 +183,10 @@ class CGGameObject_C_Type_WorldObj : public CGGameObject_C_TypeBase {
     public:
     static void SequenceFinishedHandler(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param);
 
-    /* 0010 */ CMapEntity* m_worldObject;
+    protected:
+    /* 0010 */ CMapEntity* m_objectId;
+
+    public:
 
     virtual ~CGGameObject_C_Type_WorldObj();
     virtual bool CanBeSolid() const;
@@ -218,7 +225,8 @@ class CGGameObject_C_Type_TransportBase : public CGGameObject_C_Type_WorldObj {
     virtual uint32_t GetTransportUpdateTime() const;
 
     CGGameObject_C_Type_TransportBase(CGGameObject_C* owner);
-    void MovePassengers(int32_t* moved);
+    protected:
+    void MovePassengers(int32_t* foundCameraTarget);
     float UpdateCurrentVelocity(uint32_t elapsed, const C3Vector& position, C3Vector* direction);
 };
 
@@ -330,16 +338,19 @@ class CGGameObject_C : public CGObject_C, public CGGameObject {
     static void Initialize();
     static void Shutdown();
     bool IsTracked() const;
+
+    /* 00D8 */ CPassenger m_passenger;
+    /* 0108 */ TSList<void> m_gameObjectMirrorLists [CGGameObjectData::NUM_FIELDS];
+    /* 0198 */ TSLink<CGGameObject_C> m_transportLink;
+    private:
     static void AnimEventCallback(CM2Model* model, uint32_t boneId, uint32_t eventId, uint32_t data, const C3Vector* position, uint32_t time, uint64_t param);
     static int32_t OnAnimProgressChanged(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param);
     static int32_t OnFlagsChanged(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param);
     static int32_t OnStateChanged(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param);
     static void SequenceCallback(CM2Model* model, uint32_t boneId, uint32_t sequenceId, int32_t interrupted, uint32_t time, uint64_t param);
-
-    /* 00D8 */ CPassenger m_passenger;
-    /* 0108 */ TSList<void> m_gameObjectMirrorLists [CGGameObjectData::NUM_FIELDS];
-    /* 0198 */ TSLink<CGGameObject_C> m_transportLink;
     /* 01A0 */ CGGameObject_C_TypeBase* m_baseObj;
+
+    public:
     /* 01A4 */ const GameObjectStats* m_stats;
     /* 01A8 */ C44Matrix m_matrix;
     /* 01E8 */ CAaBox m_worldBounds;
@@ -393,6 +404,13 @@ class CGGameObject_C : public CGObject_C, public CGGameObject {
     bool IsCreatorOnlyUse() const;
     void CheckForPassiveHighlight();
     BOOL CanUseNow() const;
+
+    // INLINED
+    CGGameObject_C_TypeBase* GetBaseObject() const { // (inferred)
+        return this->m_baseObj;
+    }
+
+    uint32_t GetDisplayID() const;
     int32_t CheckRange() const;
     void CloseInteraction();
     void UseObject();
