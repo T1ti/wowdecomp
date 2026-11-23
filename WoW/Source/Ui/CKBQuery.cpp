@@ -11,7 +11,7 @@
 CKBQuery g_KnowledgeBaseQuery;
 
 // STATIC: 0x00ACD474
-static char s_hexDigits[] = "0123456789ABCDEF";
+static const char s_hexDigits[] = "0123456789ABCDEF";
 
 // INLINED
 CKBQuery::CKBQuery() {
@@ -23,12 +23,12 @@ CKBQuery::CKBQuery() {
 // VERIFY: 6e2f7385 manual
 // OFFSET: 0x00551250
 XMLNode* CKBQuery::GetArticleHeader(int32_t index) {
-    if (this->m_state != CKBPage::PAGE_STATE::READY || !this->m_tree) {
+    if (!this->CanReadXMLTree()) {
         return nullptr;
     }
 
     if (!this->m_articleHeaders.m_node) {
-        XMLNode* root = XMLTree_GetRoot(this->m_tree);
+        XMLNode* root = XMLTree_GetRoot(this->m_pXMLTree);
 
         if (root) {
             XMLNode* headers = root->GetChildByName("ArticleHeaders");
@@ -47,7 +47,7 @@ XMLNode* CKBQuery::GetArticleHeader(int32_t index) {
 // VERIFY: 01823e52 auto
 // OFFSET: 0x00551350
 void CKBQuery::_ComputeCachedData() {
-    XMLNode* node = XMLTree_GetRoot(this->m_tree);
+    XMLNode* node = XMLTree_GetRoot(this->m_pXMLTree);
 
     if (node) {
         node = node->GetChildByName("ArticleHeaders");
@@ -81,7 +81,7 @@ void CKBQuery::_AppendMangledSearchQuery(CDynamicString& url, const char* query)
 // VERIFY: e70fa306 auto
 // OFFSET: 0x00552140
 int32_t CKBQuery::BeginLoading(const char* query, int32_t categoryId, int32_t numArticles, int32_t pageNumber) {
-    if (this->m_state == CKBPage::PAGE_STATE::LOADING || this->m_inQueue) {
+    if (this->m_eState == CKBPage::KBState_LoadInProgress || this->m_inQueue) {
         return 0;
     }
 
@@ -94,6 +94,7 @@ int32_t CKBQuery::BeginLoading(const char* query, int32_t categoryId, int32_t nu
     url += KnowledgeBaseGetURLForLocale();
     url += "sendKBQuery.xml";
     url += '?';
+    STORM_ASSERT(m_eState != KBState_LoadInProgress);
 
     if (query) {
         url += "searchQuery=";
@@ -121,18 +122,17 @@ int32_t CKBQuery::BeginLoading(const char* query, int32_t categoryId, int32_t nu
     url += "&locale=";
     url += s_localeCode;
 
-    if (!OsURLDownload(url.m_buffer, &CKBPage::LoadingCallback, this)) {
-        this->m_state = CKBPage::PAGE_STATE::DOWNLOAD_START_FAILED;
+    STORM_ASSERT(m_eState != KBState_LoadInProgress);
+
+    if (!OsURLDownload(url.m_buffer, &CKBPage::_LoadingCallback, this)) {
+        this->m_eState = CKBPage::PAGE_STATE::DOWNLOAD_START_FAILED;
         this->_SendFailureEvent();
         return 0;
     }
 
     this->m_articleHeaders.m_node = nullptr;
-    this->m_state = CKBPage::PAGE_STATE::LOADING;
-    this->m_loadingNext = CKBPage::s_pLoadingQueue_Head;
-    CKBPage::s_pLoadingQueue_Head = this;
-    this->m_inQueue = 1;
-    return 1;
+    STORM_ASSERT(m_eState != KBState_LoadInProgress);
+    return this->_BeginLoading();
 }
 
 // VERIFY: 956da126 auto

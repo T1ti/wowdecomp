@@ -2,6 +2,9 @@
 #define WOW_SOURCE_UI_CKBSYSTEM_H
 
 #include "Engine/Source/Base/DynamicString.h"
+#include "WoW/Source/Net/Types.h"
+
+class CDataStore;
 
 extern CDynamicString s_motd;
 extern CDynamicString s_serverStatus;
@@ -13,6 +16,9 @@ class CKBSystem {
     static void Initialize();
     static void Shutdown();
     static void CacheServerMessage(const char* text, int32_t id);
+
+    private:
+    static int32_t _OnEvent(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* pMsg);
 };
 
 #endif

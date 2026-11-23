@@ -16,17 +16,19 @@ CDynamicString s_serverNotice;
 
 // VERIFY: 7fbf928c auto
 // OFFSET: 0x00551660
-static int32_t Packet_SMSG_MOTD(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+int32_t CKBSystem::_OnEvent(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* pMsg) {
     if (msgId != SMSG_MOTD) {
         return 0;
     }
 
-    if (!msg) {
+    STORM_ASSERT(pMsg);
+
+    if (!pMsg) {
         return 0;
     }
 
     uint32_t lineCount;
-    msg->Get(lineCount);
+    pMsg->Get(lineCount);
 
     s_motd.Free();
 
@@ -36,7 +38,7 @@ static int32_t Packet_SMSG_MOTD(void* param, NETMESSAGE msgId, uint32_t time, CD
         }
 
         char line[100];
-        msg->GetString(line, sizeof(line));
+        pMsg->GetString(line, sizeof(line));
         CGChat::AddChatMessage(line, CHAT_MSG_SYSTEM, 0, 0, 0, 0, "MOTD", WOWGUID(), 0, WOWGUID(), 0, 0, 0);
         s_motd += line;
     }
@@ -49,7 +51,7 @@ static int32_t Packet_SMSG_MOTD(void* param, NETMESSAGE msgId, uint32_t time, CD
 // VERIFY: ac7db77e auto
 // OFFSET: 0x00552380
 void CKBSystem::Initialize() {
-    ClientServices::SetMessageHandler(SMSG_MOTD, Packet_SMSG_MOTD, nullptr);
+    ClientServices::SetMessageHandler(SMSG_MOTD, CKBSystem::_OnEvent, nullptr);
 }
 
 // VERIFY: 8a77d173 auto

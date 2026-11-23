@@ -5,6 +5,7 @@
 #include <cstdint>
 #include "Engine/Source/Os/OsURLDownload.h"
 #include "Engine/Source/Storm/Source/SLock.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "WoW/Source/Ui/CKBIterator.h"
 
 class CDynamicString;
@@ -26,18 +27,14 @@ class CGKnowledgeBase {
 
 class CKBPage {
     public:
-    static CKBPage* s_pLoadingQueue_Head;
-
     static void Initialize();
     static void Shutdown();
     static void UpdateLoadingQueue();
 
-    static bool LoadingCallback(void* param, const char* data, uint32_t size, bool done, HTTPError::ErrorCode error);
-
     enum PAGE_STATE : uint32_t {
         IDLE = 0,
-        LOADING = 1,
-        READY = 2,
+        KBState_LoadInProgress = 1,
+        KBState_LoadSuccessful = 2,
         DOWNLOAD_START_FAILED = 3,
         CALLBACK_FAILED = 4,
         TIMEOUT = 5,
@@ -46,19 +43,43 @@ class CKBPage {
         XML_LOAD_FAILED = 8,
     };
 
-    /* 0004 */ PAGE_STATE m_state;
+    private:
+    static CKBPage* s_pLoadingQueue_Head;
+
+    protected:
+    static bool _LoadingCallback(void* param, const char* data, uint32_t size, bool done, HTTPError::ErrorCode error);
+
+    /* 0004 */ PAGE_STATE m_eState;
+    private:
     /* 0008 */ SCritSect m_lock;
     /* 0030 */ CDynamicString* m_data;
-    /* 0034 */ XMLTree* m_tree;
-    /* 0038 */ CKBPage* m_loadingNext;
+    protected:
+    /* 0034 */ XMLTree* m_pXMLTree;
+    private:
+    /* 0038 */ CKBPage* m_pLoadingQueue_Next;
+    protected:
     /* 003C */ uint32_t m_inQueue;
+
+    int32_t _BeginLoading();
+
+    public:
+    bool IsLoaded() const { return this->m_eState == KBState_LoadSuccessful; } // (inferred)
+    bool CanReadXMLTree() const { // (inferred)
+        STORM_ASSERT(m_eState == KBState_LoadSuccessful);
+
+        if (!this->IsLoaded()) {
+            return false;
+        }
+
+        STORM_ASSERT(m_pXMLTree);
+        return this->m_pXMLTree != nullptr;
+    }
 
     CKBPage();
     virtual ~CKBPage();
     virtual void _ComputeCachedData();
     virtual void _SendSuccessEvent();
     virtual void _SendFailureEvent();
-    int32_t _BeginLoading();
     XMLNode* _GetRoot(CKBIterator& iterator);
     int32_t _GetInt(XMLNode* node, const char* attribute) const;
     int32_t _GetInt(const char* element, const char* attribute) const;
