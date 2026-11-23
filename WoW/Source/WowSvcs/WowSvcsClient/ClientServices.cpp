@@ -1175,7 +1175,7 @@ void ClientServices::ConnectToSelectedServer() {
         return;
     }
 
-    if (ClientServices::Connection()->m_netState != NS_INITIALIZED) {
+    if (ClientServices::Connection()->GetNetState() != NS_INITIALIZED) {
         ClientServices::Connection()->Complete(0, REALM_LIST_REALM_NOT_FOUND);
         return;
     }

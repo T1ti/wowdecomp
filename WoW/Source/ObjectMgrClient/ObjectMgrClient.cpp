@@ -1198,7 +1198,7 @@ ObjectMgr::ObjectMgr(uint32_t type) {
 // OFFSET: 0x004D6290
 ObjectMgr::~ObjectMgr() {
     if (this->m_realmConnection) {
-        this->m_realmConnection->m_objMgr = nullptr;
+        this->m_realmConnection->SetObjectManager(nullptr);
     }
 
     if (this == s_savMgr) {
@@ -1787,7 +1787,7 @@ void ClntObjMgrInitializeStd(uint32_t mapId) {
     STORM_ASSERT(s_curMgr == NULL);
 
     ObjectMgr* mgr = new (__FILE__, __LINE__) ObjectMgr(PLAYER_NORMAL);
-    g_clientConnection->m_objMgr = reinterpret_cast<ClntObjMgr*>(mgr);
+    g_clientConnection->SetObjectManager(reinterpret_cast<ClntObjMgr*>(mgr));
     s_curMgr = mgr;
     STORM_ASSERT(s_curMgr);
     mgr->m_realmConnection = g_clientConnection;

@@ -215,9 +215,11 @@ int32_t NetClient::Initialize() {
     NetClient::s_clientCount++;
 
     this->m_netEventQueue = new (SMemAlloc(sizeof(NETEVENTQUEUE), __FILE__, __LINE__, 0)) NETEVENTQUEUE(this);
+    STORM_ASSERT(m_netEventQueue);
     memset(this->m_handlers, 0, sizeof(this->m_handlers));
     memset(this->m_handlerParams, 0, sizeof(this->m_handlerParams));
     this->m_serverConnection = new (SMemAlloc(sizeof(WowConnection), __FILE__, __LINE__, 0)) WowConnection(this, nullptr);
+    STORM_ASSERT(m_serverConnection);
     this->m_netState = NS_INITIALIZED;
     s_initializeTime = OsGetAsyncTimeMs();
 
@@ -234,11 +236,11 @@ int32_t NetClient::ConnectInternal(const char* host, uint16_t port) {
     this->m_netState = NS_CONNECTING;
     this->m_serverConnection->Connect(host, port, -1);
 
-    if (this->m_redirectConnection) {
-        this->m_redirectConnection->SetResponse(nullptr, false);
-        this->m_redirectConnection->Disconnect();
-        this->m_redirectConnection->Release();
-        this->m_redirectConnection = nullptr;
+    if (this->m_newConnection) {
+        this->m_newConnection->SetResponse(nullptr, false);
+        this->m_newConnection->Disconnect();
+        this->m_newConnection->Release();
+        this->m_newConnection = nullptr;
     }
 
     return 1;
@@ -259,6 +261,9 @@ uint8_t* NetClient::GetSessionKey() {
 // VERIFY: f1080d7c auto
 // OFFSET: 0x00631FA0
 void NetClient::SetMessageHandler(NETMESSAGE msgId, MESSAGE_HANDLER handler, void* param) {
+    STORM_ASSERT(static_cast<uint32_t>(msgId) < NUM_MSG_TYPES); // 12213: "msgId < NUM_MSG_TYPES"
+    STORM_ASSERT(handler);
+    STORM_ASSERT(m_handlers[msgId] == nullptr); // 12213: "m_handlers[msgId] == __null"
     this->m_handlers[msgId] = handler;
     this->m_handlerParams[msgId] = param;
 }
@@ -266,6 +271,7 @@ void NetClient::SetMessageHandler(NETMESSAGE msgId, MESSAGE_HANDLER handler, voi
 // VERIFY: acb4d340 auto
 // OFFSET: 0x00631FC0
 void NetClient::ResetHandler(NETMESSAGE msgId) {
+    STORM_ASSERT(static_cast<uint32_t>(msgId) < NUM_MSG_TYPES); // 12213: "msgId < NUM_MSG_TYPES"
     this->m_handlers[msgId] = nullptr;
     this->m_handlerParams[msgId] = nullptr;
 }
@@ -413,6 +419,7 @@ int32_t NetClient::HandleDisconnect() {
         NetClient::PushObjMgr(this->m_objMgr);
     }
 
+    STORM_ASSERT(m_netState == NS_CONNECTED || m_netState == NS_DISCONNECTING);
     this->m_netState = NS_INITIALIZED;
     ConsolePrintf("NetClient::HandleDisconnect()");
     CGlueMgr::NetDisconnectHandler(this);
@@ -428,6 +435,7 @@ int32_t NetClient::HandleCantConnect() {
         NetClient::PushObjMgr(this->m_objMgr);
     }
 
+    STORM_ASSERT(m_netState == NS_CONNECTING);
     this->m_netState = NS_INITIALIZED;
     NetClient::PopObjMgr();
 
@@ -521,7 +529,7 @@ void NetClient::HandleAuthChallenge(WowConnection* connection, CDataStore* msg) 
         connection->Disconnect();
     } else if (connection == this->m_serverConnection) {
         this->m_netEventQueue->AddEvent(EVENT_ID_NET_AUTH_CHALLENGE, connection, this, challenge, sizeof(AuthenticationChallenge));
-    } else if (connection == this->m_redirectConnection) {
+    } else if (connection == this->m_newConnection) {
         CDataStore reply;
         reply.Put(static_cast<uint32_t>(CMSG_AUTH_CONTINUED_SESSION));
         reply.PutString(this->m_loginData.m_account);
@@ -537,9 +545,9 @@ void NetClient::HandleAuthChallenge(WowConnection* connection, CDataStore* msg) 
         reply.PutData(digest, sizeof(digest));
         reply.Finalize();
 
-        this->m_redirectConnection->SendPacket(&reply, 0);
+        this->m_newConnection->SendPacket(&reply, 0);
 
-        WowConnection* redirect = this->m_redirectConnection;
+        WowConnection* redirect = this->m_newConnection;
         redirect->SetEncryptionKey(this->m_loginData.m_sessionKey, sizeof(this->m_loginData.m_sessionKey), 1, reinterpret_cast<const uint8_t*>(seeds), sizeof(seeds));
         redirect->SetEncryptedOpcodeSizes(4, 2);
         redirect->SetEncryption(true);
@@ -558,7 +566,7 @@ NetClient::NetClient() {
     this->m_netState = NS_UNINITIALIZED;
     this->m_netEventQueue = nullptr;
     this->m_serverConnection = nullptr;
-    this->m_redirectConnection = nullptr;
+    this->m_newConnection = nullptr;
     this->m_suspended = false;
     this->m_refCount.m_value = 0;
     this->m_deleteMe = false;
@@ -610,14 +618,14 @@ void NetClient::Send(CDataStore* msg) {
 // VERIFY: 30fc936b manual
 // OFFSET: 0x00632C10
 void NetClient::WCCantConnect(WowConnection* connection, uint32_t timeStamp, const NETCONNADDR* addr) {
-    if (connection == this->m_redirectConnection) {
+    if (connection == this->m_newConnection) {
         CDataStore msg;
         msg.Put(static_cast<uint32_t>(CMSG_CONNECT_TO_FAILED));
         msg.Put(this->m_redirectKey);
         msg.Finalize();
         this->Send(&msg);
-        this->m_redirectConnection->Release();
-        this->m_redirectConnection = nullptr;
+        this->m_newConnection->Release();
+        this->m_newConnection = nullptr;
     } else if (connection == this->m_serverConnection) {
         this->m_netEventQueue->AddEvent(EVENT_ID_NET_CANTCONNECT, connection, this, nullptr, 0);
     }
@@ -666,15 +674,15 @@ void NetClient::HandleIdle() {
 // VERIFY: 4b27bdaa manual
 // OFFSET: 0x00631EA0
 void NetClient::Disconnect() {
-    if (this->m_redirectConnection) {
-        this->m_redirectConnection->SetResponse(nullptr, false);
-        this->m_redirectConnection->Disconnect();
-        this->m_redirectConnection->Release();
-        this->m_redirectConnection = nullptr;
+    if (this->m_newConnection) {
+        this->m_newConnection->SetResponse(nullptr, false);
+        this->m_newConnection->Disconnect();
+        this->m_newConnection->Release();
+        this->m_newConnection = nullptr;
     }
 
     if (this->m_netState == NS_CONNECTED) {
-        this->m_netState = NS_UNK_6;
+        this->m_netState = NS_DISCONNECTING;
         this->m_serverConnection->Disconnect();
         return;
     }
@@ -769,7 +777,7 @@ NETEVENTQUEUE::~NETEVENTQUEUE() {
 // VERIFY: 75864678 auto
 // OFFSET: 0x00633020
 void NetClient::HandleSuspendComms(WowConnection* connection, CDataStore* msg) {
-    if (connection != this->m_serverConnection || this->m_suspended || !this->m_redirectConnection) {
+    if (connection != this->m_serverConnection || this->m_suspended || !this->m_newConnection) {
         connection->Disconnect();
         return;
     }
@@ -793,18 +801,18 @@ void NetClient::HandleSuspendComms(WowConnection* connection, CDataStore* msg) {
 // VERIFY: 5dad1904 manual
 // OFFSET: 0x00633250
 void NetClient::HandleResumeComms(WowConnection* connection, CDataStore* msg) {
-    if (connection == this->m_redirectConnection) {
+    if (connection == this->m_newConnection) {
         WowConnection* old = this->m_serverConnection;
-        this->m_serverConnection = this->m_redirectConnection;
-        this->m_redirectConnection = nullptr;
+        this->m_serverConnection = this->m_newConnection;
+        this->m_newConnection = nullptr;
         old->SetResponse(nullptr, false);
         old->Disconnect();
         old->Release();
     } else {
-        this->m_redirectConnection->SetResponse(nullptr, false);
-        this->m_redirectConnection->Disconnect();
-        this->m_redirectConnection->Release();
-        this->m_redirectConnection = nullptr;
+        this->m_newConnection->SetResponse(nullptr, false);
+        this->m_newConnection->Disconnect();
+        this->m_newConnection->Release();
+        this->m_newConnection = nullptr;
     }
 
     this->m_suspended = 0;
@@ -841,7 +849,7 @@ void NetClient::HandleRedirectClient(WowConnection* connection, CDataStore* msg)
     msg->Get(port);
     msg->Get(this->m_redirectKey);
 
-    if (this->m_redirectConnection || this->m_suspended) {
+    if (this->m_newConnection || this->m_suspended) {
         CDataStore response;
         response.Put(static_cast<uint32_t>(CMSG_CONNECT_TO_FAILED));
         response.Put(this->m_redirectKey);
@@ -850,7 +858,8 @@ void NetClient::HandleRedirectClient(WowConnection* connection, CDataStore* msg)
         return;
     }
 
-    this->m_redirectConnection = new (SMemAlloc(sizeof(WowConnection), __FILE__, __LINE__, 0)) WowConnection(this, nullptr);
+    this->m_newConnection = new (SMemAlloc(sizeof(WowConnection), __FILE__, __LINE__, 0)) WowConnection(this, nullptr);
+    STORM_ASSERT(m_newConnection);
 
     HMAC<SHA1> hmac;
     SHA1::Digest digest;
@@ -865,6 +874,6 @@ void NetClient::HandleRedirectClient(WowConnection* connection, CDataStore* msg)
     if (memcmp(&digest, proof, sizeof(proof)) || !msg->IsRead() || msg->m_read > msg->m_size) {
         connection->Disconnect();
     } else {
-        this->m_redirectConnection->Connect(address, port, -1);
+        this->m_newConnection->Connect(address, port, -1);
     }
 }
