@@ -226,7 +226,6 @@ class CMap {
     static CMapAreaMed* areaMedArray[MAP_AREA_COUNT]; // (inferred)
 
     public:
-    static CMapArea* m_areaTable[MAP_AREA_COUNT];
     static SMAreaInfo m_areaInfo[MAP_AREA_COUNT];
     static TSGrowableArray<uint32_t> scCollideList;
     // Capacity set by CMap::Initialize; the DX/DY walks stop 4 entries early because one step appends up to two cells.
@@ -241,8 +240,6 @@ class CMap {
     static BOOL s_useSSE;
     static int32_t freeCounts[11];
     static float s_liquidAlphaScale;
-    static float s_depthCoordTable0[256];
-    static float s_depthCoordTable1[256];
     static int32_t counts[11];
     static uint32_t* lightHeap;
     static uint32_t* cacheLightHeap;
@@ -286,7 +283,6 @@ class CMap {
     static HASHKEY_NONE s_mapObjDefHashKey;
     static int32_t enableChunkBatching;
     static TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > s_mapChunkLiquidUpdateList;
-    static DepthCoordTable* s_depthCoordTables[2];
 
     static void ClearAllRenderChunks();
     static void ClearChunkDetailDoodads();
@@ -346,7 +342,6 @@ class CMap {
     static void FreeMapObjDefGroup(CMapObjDefGroup* mapObjDefGroup);
     static void FreeDoodadDef(CMapDoodadDef* doodadDef);
     static void FreeMapObjDef(CMapObjDef* mapObjDef);
-    static void PurgeArea(CMapArea* area);
     static void PurgeMapObjDef(CMapObjDef* mapObjDef);
     static void PurgeMapObjDefGroup(CMapObjDefGroup* mapObjDefGroup);
     static void DestroyLight(CMapLight* light);
@@ -388,7 +383,7 @@ class CMap {
     static void PrepareMapObjDef(CMapObjDef* mapObjDef, CMapObj* mapObj);
     static void CreateMapObjDefGroups(CMapObj* mapObj, CMapObjDef* mapObjDef);
     static bool QueryShadow(C3Vector* pos);
-    static DepthCoordTable* GetDepthCoordTable(uint32_t liquidType);
+    static const DepthCoordTable* GetDepthCoordTable(uint32_t liquidType);
     static CChunkLiquid* AllocChunkLiquid();
     static void CreateWaterRipple(const C3Vector& pos, float facing, float size, float duration, float width, float growth, int32_t type, int32_t player);
     static void QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<World::LiquidQueryResult>& results);
@@ -465,6 +460,16 @@ class CMap {
 
     /* 0000 */ uint8_t unused_0000[180];
     /* 00B4 */ uint32_t unused_00B4;
+
+    private:
+    static constexpr uint32_t DEPTH_TABLE_CNT = 2;
+    static CMapArea* m_areaTable[MAP_AREA_COUNT];
+    static float s_depthCoordTable0[256];
+    static float s_depthCoordTable1[256];
+    static const DepthCoordTable* const s_depthCoordTables[DEPTH_TABLE_CNT];
+
+    static void PurgeArea(CMapArea* area);
+    static void RemoveAreaFromTable(const CMapArea* area); // (inferred)
 };
 
 extern int32_t s_mapId;

@@ -207,7 +207,7 @@ void CChunkLiquid::BuildIndices(uint16_t* indices, uint16_t baseVertex, CGxBatch
 // VERIFY: a801c800 manual
 // OFFSET: 0x007CE390
 void CChunkLiquid::BuildVertices(const C44Matrix* transform, uint32_t stride, C3Vector** position, C3Vector** normal, uint32_t** color, C2Vector** texCoord1, C2Vector** texCoord0) const {
-    DepthCoordTable* depthCoords = CMap::GetDepthCoordTable(this->m_type);
+    const DepthCoordTable* depthCoords = CMap::GetDepthCoordTable(this->m_type);
     bool customTexCoords = this->m_vertexFormat == LIQUID_VERTEX_HEIGHT_TEXCOORD;
     uint32_t index = 0;
     int32_t rows = this->m_tileEnd.x - this->m_tileBegin.x + 1;

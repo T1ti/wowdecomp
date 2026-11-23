@@ -518,6 +518,8 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
     float relY = -(pos->y - this->m_topLeft2.y);
     int32_t chunkX = CMath::fint_(-(pos->x - this->m_topLeft2.x) * OO_COORD_TO_CHUNK - 0.5f);
     int32_t chunkY = CMath::fint_(relY * OO_COORD_TO_CHUNK - 0.5f);
+    // 12213: "radius / (150.0f/36.0f) < 256.0f"
+    STORM_ASSERT(radius / SMOLTILE_SIZE < 256.0f);
     int32_t chunkRadius = CMath::fint_(static_cast<float>(ceil(radius * OO_COORD_TO_CHUNK_RADIUS)) - 0.5f);
     int32_t rowStart = chunkX - chunkRadius <= 0 ? 0 : chunkX - chunkRadius;
     int32_t colStart = chunkY - chunkRadius <= 0 ? 0 : chunkY - chunkRadius;

@@ -316,7 +316,7 @@ TSHashTable<CMapObjDef, HASHKEY_NONE> CMap::mapObjDefHash;
 int32_t CMap::enableChunkBatching;
 
 // STATIC: 0x00ADFBB4
-DepthCoordTable* CMap::s_depthCoordTables[2] = { &CMap::s_depthCoordTable0, &CMap::s_depthCoordTable1 };
+const DepthCoordTable* const CMap::s_depthCoordTables[DEPTH_TABLE_CNT] = { &CMap::s_depthCoordTable0, &CMap::s_depthCoordTable1 };
 
 // STATIC: 0x00AEEDB0
 TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > CMap::chunkLiquidList = TSExplicitList<CChunkLiquid, offsetof(CChunkLiquid, m_link)>();
@@ -420,24 +420,25 @@ CMapArea* CMap::GetLoadedArea(int32_t areaX, int32_t areaY) {
 
 // VERIFY: ef54a4a5 auto
 // OFFSET: 0x0079B870
-DepthCoordTable* CMap::GetDepthCoordTable(uint32_t liquidType) {
+const DepthCoordTable* CMap::GetDepthCoordTable(uint32_t liquidType) {
     if (!liquidType) {
         return nullptr;
     }
 
-    LiquidTypeRec* typeRec = g_liquidTypeDB.GetRecord(liquidType);
+    LiquidTypeRec* liquidTypeRec = g_liquidTypeDB.GetRecord(liquidType);
 
-    if (!typeRec) {
+    if (!liquidTypeRec) {
         return nullptr;
     }
 
-    LiquidMaterialRec* materialRec = g_liquidMaterialDB.GetRecord(typeRec->m_materialID);
+    LiquidMaterialRec* materialRec = g_liquidMaterialDB.GetRecord(liquidTypeRec->m_materialID);
 
     if (!materialRec || (materialRec->m_lvf != LIQUID_VERTEX_HEIGHT_DEPTH && materialRec->m_lvf != LIQUID_VERTEX_DEPTH_ONLY)) {
         return nullptr;
     }
 
-    return CMap::s_depthCoordTables[typeRec->m_int[0]];
+    STORM_ASSERT(liquidTypeRec->m_int[0]<DEPTH_TABLE_CNT);
+    return CMap::s_depthCoordTables[liquidTypeRec->m_int[0]];
 }
 
 // VERIFY: e651a57d manual
@@ -1689,22 +1690,28 @@ static int32_t CompareAreaEntries(const void* a, const void* b) {
 // VERIFY: 9faa97d5 manual
 // OFFSET: 0x007B4960
 CMapArea* CMap::GetAreaAtPosition(const C2Vector* pos) {
-    float x = -(pos->x - HALF_WORLD_SIZE);
-    float y = -(pos->y - HALF_WORLD_SIZE) * 0.001875f;
-    x = x * 0.001875f;
+    float tx = -(pos->y - HALF_WORLD_SIZE);
+    float ty = -(pos->x - HALF_WORLD_SIZE);
+    // 12213: "tx > 0.0f && tx < ((64*16)*((150.0f/36.0f)*8))"
+    STORM_ASSERT(tx > 0.0f && tx < 2.0f * HALF_WORLD_SIZE);
+    // 12213: "ty > 0.0f && ty < ((64*16)*((150.0f/36.0f)*8))"
+    STORM_ASSERT(ty > 0.0f && ty < 2.0f * HALF_WORLD_SIZE);
 
-    return CMap::GetArea(CMath::fint_(y - 0.5f), CMath::fint_(x - 0.5f));
+    return CMap::GetArea(CMath::fint_(tx * 0.001875f - 0.5f), CMath::fint_(ty * 0.001875f - 0.5f));
 }
 
 // VERIFY: 8231832c manual
 // OFFSET: 0x007B49C0
 CMapChunk* CMap::GetChunkAtPosition(const C2Vector* pos) {
-    float x = -(pos->x - HALF_WORLD_SIZE);
-    float y = -(pos->y - HALF_WORLD_SIZE) * OO_COORD_TO_CHUNK;
-    x = x * OO_COORD_TO_CHUNK;
+    float tx = -(pos->y - HALF_WORLD_SIZE);
+    float ty = -(pos->x - HALF_WORLD_SIZE);
+    // 12213: "tx > 0.0f && tx < ((64*16)*((150.0f/36.0f)*8))"
+    STORM_ASSERT(tx > 0.0f && tx < 2.0f * HALF_WORLD_SIZE);
+    // 12213: "ty > 0.0f && ty < ((64*16)*((150.0f/36.0f)*8))"
+    STORM_ASSERT(ty > 0.0f && ty < 2.0f * HALF_WORLD_SIZE);
 
-    int32_t chunkY = CMath::fint_(x - 0.5f);
-    int32_t chunkX = CMath::fint_(y - 0.5f);
+    int32_t chunkY = CMath::fint_(ty * OO_COORD_TO_CHUNK - 0.5f);
+    int32_t chunkX = CMath::fint_(tx * OO_COORD_TO_CHUNK - 0.5f);
     CMapArea* area = CMap::GetAreaForChunk(chunkX, chunkY);
 
     if (!area) {
@@ -4098,10 +4105,17 @@ void CMap::PurgeMapObjDef(CMapObjDef* mapObjDef) {
     }
 }
 
+// INLINED
+void CMap::RemoveAreaFromTable(const CMapArea* area) {
+    int32_t index = CMap::GetAreaIndex(area->m_index.x, area->m_index.y);
+    STORM_ASSERT(CMap::m_areaTable[index] == area);
+    CMap::m_areaTable[index] = nullptr;
+}
+
 // VERIFY: ad81d8da auto
 // OFFSET: 0x007C3700
 void CMap::PurgeArea(CMapArea* area) {
-    CMap::m_areaTable[CMap::GetAreaIndex(area->m_index.x, area->m_index.y)] = nullptr;
+    CMap::RemoveAreaFromTable(area);
     area->Purge();
     CMap::FreeArea(area);
 }
@@ -4115,7 +4129,7 @@ void CMap::PurgeMaps() {
         CMapBaseObjLink* next = CMap::areaLinkList.Next(link);
         CMapArea* area = static_cast<CMapArea*>(link->owner);
         CMap::FreeBaseObjLink(link);
-        CMap::m_areaTable[CMap::GetAreaIndex(area->m_index.x, area->m_index.y)] = nullptr;
+        CMap::RemoveAreaFromTable(area);
         area->Purge();
         CMap::FreeArea(area);
         link = next;
@@ -4279,7 +4293,10 @@ CMapArea* CMap::PrepareArea(int32_t areaIndexX, int32_t areaIndexY) {
     area->m_bounds.b.x = area->m_topLeft2.x - MD_AREA_POLY_SIZE;
     area->m_bounds.b.y = area->m_topLeft2.y - MD_AREA_POLY_SIZE;
 
-    CMap::m_areaTable[CMap::GetAreaIndex(areaIndexX, areaIndexY)] = area;
+    int32_t index = CMap::GetAreaIndex(areaIndexX, areaIndexY);
+    // 12213: "CMap::m_areaTable[index] == __null"
+    STORM_ASSERT(CMap::m_areaTable[index] == nullptr);
+    CMap::m_areaTable[index] = area;
 
     return area;
 }
@@ -5365,11 +5382,14 @@ bool CMap::QueryGroundTypeTerrain(C3Vector* pos, uint32_t* groundType) {
 // VERIFY: ddd4e04d manual
 // OFFSET: 0x0079D2B0
 void CMap::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<World::LiquidQueryResult>& results) {
-    float x = -(pos->x - HALF_WORLD_SIZE);
-    float cellYf = -(pos->y - HALF_WORLD_SIZE) * OO_COORD_TO_SUBCHUNK;
-    int32_t cellY = CMath::fint_(cellYf - 0.5f);
-    x = x * OO_COORD_TO_SUBCHUNK;
-    int32_t cellX = CMath::fint_(x - 0.5f);
+    float mx = -(pos->y - HALF_WORLD_SIZE);
+    float my = -(pos->x - HALF_WORLD_SIZE);
+    STORM_ASSERT(mx >= 0.0f && my >= 0.0f);
+    // 12213: "mx < ((64*16)*((150.0f/36.0f)*8)) && my < ((64*16)*((150.0f/36.0f)*8))"
+    STORM_ASSERT(mx < 2.0f * HALF_WORLD_SIZE && my < 2.0f * HALF_WORLD_SIZE);
+
+    int32_t cellY = CMath::fint_(mx * OO_COORD_TO_SUBCHUNK - 0.5f);
+    int32_t cellX = CMath::fint_(my * OO_COORD_TO_SUBCHUNK - 0.5f);
 
     CAaSphere sphere;
     sphere.c.x = pos->x;
