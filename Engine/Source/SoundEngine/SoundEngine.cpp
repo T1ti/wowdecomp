@@ -143,7 +143,7 @@ static SCritSect s_createCritSect;
 static TSHashTable<SOUND_INTERNAL_LOOKUP, HASHKEY_NONE> s_soundLookup;
 
 // STATIC: 0x00D438F4
-static TSGrowableArray<SEChannelGroup> s_channelGroups;
+static TSGrowableArray<SEChannelGroup> s_aChannelGroups;
 
 // STATIC: 0x00D43904
 static SCritSect s_heartBeatCritSect;
@@ -459,8 +459,7 @@ static FMOD_RESULT F_CALLBACK SoundEndedCallback(FMOD_CHANNEL* channel, FMOD_CHA
         SESound handle;
 
         if (!sound->m_handle) {
-            sound->m_handle = &handle;
-            handle.m_pMySESound = sound;
+            sound->AttachHandle(handle);
         }
 
         if (sound->m_finishedCallback) {
@@ -975,9 +974,10 @@ FMOD_RESULT SE2::ConnectDspToChannelGroup(FMOD::DSP* dsp, FMOD::ChannelGroup* ch
 
 // VERIFY: abe7e5f3 auto
 // OFFSET: 0x00878DF0
-int32_t SE2::GetChannelGroupNumChannels(FMOD::ChannelGroup* channelGroup) {
+int32_t SE2::GetChannelGroupNumChannels(FMOD::ChannelGroup* pChannelGroup) {
+    STORM_ASSERT(pChannelGroup);
     int32_t numChannels = 0;
-    channelGroup->getNumChannels(&numChannels);
+    pChannelGroup->getNumChannels(&numChannels);
     return numChannels;
 }
 
@@ -1027,8 +1027,8 @@ bool SE2::GetListenerPosition(C3Vector* position) {
 // OFFSET: 0x00879460
 void SE2::SetMasterVolume(float volume) {
     if (s_initialized && volume >= 0.0f && volume <= 1.0f) {
-        s_channelGroups[0].m_volume = volume;
-        s_channelGroups[0].m_dirty = 1;
+        s_aChannelGroups[0].m_volume = volume;
+        s_aChannelGroups[0].m_dirty = 1;
     }
 }
 
@@ -1036,8 +1036,8 @@ void SE2::SetMasterVolume(float volume) {
 // OFFSET: 0x008794A0
 void SE2::MuteAllSound(bool mute) {
     if (s_initialized) {
-        s_channelGroups[0].m_muteVolume = mute ? 0.0f : 1.0f;
-        s_channelGroups[0].m_dirty = 1;
+        s_aChannelGroups[0].m_muteVolume = mute ? 0.0f : 1.0f;
+        s_aChannelGroups[0].m_dirty = 1;
     }
 }
 
@@ -1060,9 +1060,9 @@ static SEChannelGroup* FindOrCreateChannelGroup(const char* name, bool create, b
 
     uint32_t hash = SStrHashHT(name);
 
-    for (uint32_t i = 1; i < s_channelGroups.Count(); i++) {
-        if (hash == s_channelGroups[i].m_hash) {
-            return &s_channelGroups[i];
+    for (uint32_t i = 1; i < s_aChannelGroups.Count(); i++) {
+        if (hash == s_aChannelGroups[i].m_hash) {
+            return &s_aChannelGroups[i];
         }
     }
 
@@ -1070,7 +1070,7 @@ static SEChannelGroup* FindOrCreateChannelGroup(const char* name, bool create, b
         return nullptr;
     }
 
-    SEChannelGroup* group = s_channelGroups.New();
+    SEChannelGroup* group = s_aChannelGroups.New();
     group->m_volume = 1.0f;
     group->m_hash = hash;
     group->m_muteVolume = 1.0f;
@@ -1084,9 +1084,10 @@ static SEChannelGroup* FindOrCreateChannelGroup(const char* name, bool create, b
 // OFFSET: 0x0087A850
 void SE2::SetChannelGroupVolume(const char* name, float volume) {
     if (s_initialized && volume >= 0.0f && volume <= 1.0f && name) {
-        SEChannelGroup* group = FindOrCreateChannelGroup(name, true, true);
-        group->m_volume = volume;
-        group->m_dirty = 1;
+        SEChannelGroup* pSEGroup = FindOrCreateChannelGroup(name, true, true);
+        STORM_ASSERT(pSEGroup != nullptr); // 12213: "pSEGroup != __null"
+        pSEGroup->m_volume = volume;
+        pSEGroup->m_dirty = 1;
     }
 }
 
@@ -1134,7 +1135,7 @@ void SE2::StopAllSounds(const char* channelGroup, float fadeOutTime) {
         return;
     }
 
-    int32_t index = group - s_channelGroups.Ptr();
+    int32_t index = group - s_aChannelGroups.Ptr();
 
     s_soundListCritSect.Enter();
 
@@ -1533,9 +1534,9 @@ float SESoundInternal::GetScaledVolume() {
         volume *= this->m_fadeVolume;
     }
 
-    if (s_channelGroups.Count()) {
-        for (int32_t group = this->m_channelGroup; group != -1; group = s_channelGroups[group].m_parent) {
-            volume = volume * s_channelGroups[group].m_volume * s_channelGroups[group].m_muteVolume;
+    if (s_aChannelGroups.Count()) {
+        for (int32_t group = this->m_channelGroup; group != -1; group = s_aChannelGroups[group].m_parent) {
+            volume = volume * s_aChannelGroups[group].m_volume * s_aChannelGroups[group].m_muteVolume;
         }
     } else {
         volume = 0.0f;
@@ -2192,7 +2193,9 @@ void SESound::AttachToObject(uint64_t guid) {
 // OFFSET: 0x0087A7E0
 void SESound::SetChannelGroup(const char* name, bool childOfMaster) {
     if (s_initialized && this->m_pMySESound && name) {
-        this->m_pMySESound->m_channelGroup = FindOrCreateChannelGroup(name, true, childOfMaster) - s_channelGroups.Ptr();
+        SEChannelGroup* pSEGroup = FindOrCreateChannelGroup(name, true, childOfMaster);
+        STORM_ASSERT(pSEGroup != nullptr); // 12213: "pSEGroup != __null"
+        this->m_pMySESound->m_channelGroup = pSEGroup - s_aChannelGroups.Ptr();
         this->m_pMySESound->UpdateVolume();
     }
 }
@@ -2246,7 +2249,7 @@ void SESound::PlaySoundFromMemory(const char* data, uint32_t length, int32_t cha
 // VERIFY: 32afecb8 auto
 // OFFSET: 0x0087F8D0
 void SESound::CreateChatSound(SEStreamCallbacks* callbacks, int32_t chatSystem) {
-    if (SE2::sm_bCaptureInitialized) {
+    if (SE2::IsChatSoundInitialized()) {
         SE2::CreateChatSound(chatSystem ? s_pChatSystem : s_pGameSystem, callbacks, FMOD_LOOP_OFF | FMOD_2D | FMOD_SOFTWARE, this);
     }
 }
@@ -2509,13 +2512,14 @@ static void ProcessFadeList() {
         return;
     }
 
-    uint32_t groupCount = s_channelGroups.Count();
+    STORM_ASSERT(s_aChannelGroups.Count() < 8192);
+    uint32_t groupCount = s_aChannelGroups.Count();
     uint8_t* dirty = static_cast<uint8_t*>(alloca(groupCount));
     memset(dirty, 0, groupCount);
 
-    for (uint32_t i = 0; i < s_channelGroups.Count(); i++) {
-        if (s_channelGroups[i].m_dirty) {
-            s_channelGroups[i].m_dirty = 0;
+    for (uint32_t i = 0; i < s_aChannelGroups.Count(); i++) {
+        if (s_aChannelGroups[i].m_dirty) {
+            s_aChannelGroups[i].m_dirty = 0;
             dirty[i] = 1;
         }
     }
@@ -2525,8 +2529,8 @@ static void ProcessFadeList() {
     do {
         changed = false;
 
-        for (uint32_t i = 0; i < s_channelGroups.Count(); i++) {
-            if (!dirty[i] && dirty[s_channelGroups[i].m_parent]) {
+        for (uint32_t i = 0; i < s_aChannelGroups.Count(); i++) {
+            if (!dirty[i] && dirty[s_aChannelGroups[i].m_parent]) {
                 dirty[i] = 1;
                 changed = true;
             }
@@ -2551,8 +2555,7 @@ static void ProcessFadeList() {
                 SESound handle;
 
                 if (!sound->m_handle) {
-                    sound->m_handle = &handle;
-                    handle.m_pMySESound = sound;
+                    sound->AttachHandle(handle);
                 }
 
                 sound->m_bFadingOut = 0;
@@ -3638,10 +3641,10 @@ int32_t SE2::Init(int32_t maxChannels, bool (*positionCallback)(uint64_t, C3Vect
             goto nosound;
         }
 
-        if (!s_channelGroups.Count()) {
-            s_channelGroups.Clear();
+        if (!s_aChannelGroups.Count()) {
+            s_aChannelGroups.Clear();
 
-            SEChannelGroup* master = s_channelGroups.New();
+            SEChannelGroup* master = s_aChannelGroups.New();
             uint32_t hash = SStrHashHT("<master>");
             master->m_volume = 1.0f;
             master->m_hash = hash;
@@ -3688,7 +3691,7 @@ void SE2::ShutDown(int32_t restart) {
     SE2::Log_Write(__LINE__, __FILE__, FMOD_OK, "=> Shutting Down Game Sound");
 
     if (!restart) {
-        s_channelGroups.Clear();
+        s_aChannelGroups.Clear();
     }
 
     if (s_pGameSystem) {
@@ -3719,7 +3722,7 @@ void SE2::InitCapture(int32_t* outputDriverIndex, const char* outputDriverName, 
     SE2::Log_Write(__LINE__, __FILE__, FMOD_OK, " ");
     SE2::Log_Write(__LINE__, __FILE__, FMOD_OK, "=> Setting up Voice Chat:");
 
-    STORM_ASSERT(!SE2::IsChatSoundInitialized());
+    STORM_ASSERT(!SE2::IsChatSoundInitialized()); // 12213: "!SESound::IsChatSoundInitialized()"
     STORM_ASSERT(s_pChatSystem == NULL);
     STORM_ASSERT(s_pCaptureSound == NULL);
 

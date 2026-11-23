@@ -455,7 +455,7 @@ C3Vector CObjectEffect::GetWorldPosition() {
 // OFFSET: 0x006F2AC0
 CObjectEffect::~CObjectEffect() {
     if (this->m_def->m_effectRecType == OBJECT_EFFECT_REC_TYPE_SOUND_KIT) {
-        if (this->m_soundKitObject.m_sound.m_pMySESound) {
+        if (this->m_soundKitObject.m_sound.HasSound()) {
             SI2::StopSound(&this->m_soundKitObject, 0, -1.0f, 1);
         } else if (this->m_soundKitObject.m_advancedId) {
             SI2::StopAdvancedSound(this->m_soundKitObject.m_advancedId);

@@ -133,6 +133,8 @@ class SEWaveDataNode : public TSLinkedNode<SEWaveDataNode> {
 
 class SESoundInternal : public TSLinkedNode<SESoundInternal> {
     public:
+    void AttachHandle(SESound& handle); // (inferred)
+
     /* 0010 */ FMOD::System* m_system;
     /* 0014 */ FMOD::Channel* m_pFMODChannel;
     /* 0018 */ SESound* m_handle;
@@ -235,9 +237,14 @@ struct SOUND_INTERNAL_LOOKUP : public TSHashObject<SOUND_INTERNAL_LOOKUP, HASHKE
 };
 
 class SESound {
-    public:
+    private:
+    friend class SE2;
+    friend class SESoundInternal;
+
     /* 0000 */ SESoundInternal* m_pMySESound;
 
+    public:
+    bool HasSound() const { return this->m_pMySESound != nullptr; } // (inferred)
     SESound();
     ~SESound();
     void AttachToObject(uint64_t guid);
@@ -272,10 +279,16 @@ class SESound {
     void Stop(BOOL immediate, float fadeOutTime);
 };
 
+inline void SESoundInternal::AttachHandle(SESound& handle) {
+    this->m_handle = &handle;
+    handle.m_pMySESound = this;
+}
+
 class SE2 {
-    public:
+    private:
     static int32_t sm_bCaptureInitialized;
 
+    public:
     static void ActivateAlternateCaptureCallback();
     static void ActivatePrimaryCaptureCallback();
     static FMOD_RESULT AddChannelToChannelGroup(FMOD::Channel* channel, FMOD::ChannelGroup* channelGroup);
@@ -294,7 +307,7 @@ class SE2 {
     static FMOD_RESULT EnableDSP(FMOD::DSP* dsp, bool active);
     static void EnableReverb(BOOL enable);
     static void ErrCheck(uint32_t line, const char* file, FMOD_RESULT result);
-    static int32_t GetChannelGroupNumChannels(FMOD::ChannelGroup* channelGroup);
+    static int32_t GetChannelGroupNumChannels(FMOD::ChannelGroup* pChannelGroup);
     static float GetChannelGroupVolume(const char* name);
     static int32_t GetChannelInfo(bool fadingOnly, SEChannelInfo* info, int32_t maxCount, int32_t playing, BOOL isVirtual, int32_t loading, int32_t other, uint32_t* hardwareCount, uint32_t* softwareCount, uint32_t* virtualCount, uint32_t* loadingCount, uint32_t* otherCount);
     static int32_t GetChannelInfo(SEChannelInfo* info, int32_t maxCount, int32_t playing, BOOL isVirtual, int32_t loading, int32_t other, uint32_t* hardwareCount, uint32_t* softwareCount, uint32_t* virtualCount, uint32_t* loadingCount, uint32_t* otherCount);
