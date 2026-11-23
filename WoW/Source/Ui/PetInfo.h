@@ -90,15 +90,9 @@ class CGPetInfo {
         PET_MODE_FLAG_UNKNOWN_27 = 0x8000000,
     };
 
-    static uint8_t m_comboPoints;
     static int32_t m_possessSpell;
-    static WOWGUID m_comboTarget;
     static int32_t m_attackingTarget;
-    static PetAction m_actions[NUM_PET_ACTION_SLOTS];
     static uint32_t m_petMode;
-    static uint32_t m_expirationTime;
-    static WOWGUID m_pet;
-    static uint32_t m_petBarState;
 
     static void InitializeGame();
     static void ShutdownGame();
@@ -136,10 +130,21 @@ class CGPetInfo {
     static void SetPossessedSpell(int32_t spellId);
     static int32_t SetAction(uint32_t index, const PetAction& action, int32_t sendToServer);
     static void SetSpellAutocast(int32_t spellId, BOOL enable);
+    static const char* GetModeToken(uint32_t id);
+    static const char* GetOrdersToken(uint32_t id);
+    static uint32_t GetExpirationTime() { return m_expirationTime; } // (inferred)
+
+    private:
+    friend PetAction* GetPetAction(uint32_t index); // Access inferred from the slot lookup.
+    friend int32_t Packet_SMSG_PET_SPELLS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg); // Access inferred from the action table reset.
+    static PetAction m_actions[NUM_PET_ACTION_SLOTS];
+    static uint8_t m_comboPoints;
+    static WOWGUID m_comboTarget;
+    static WOWGUID m_pet;
+    static uint32_t m_petBarState;
+    static uint32_t m_expirationTime;
     static void SetPetMode(uint32_t mode);
     static void SetPetOrders(uint32_t orders);
-    static const char* GetModeToken(uint32_t mode);
-    static const char* GetOrdersToken(uint32_t order);
 };
 
 void PetInfoRegisterScriptFunctions();

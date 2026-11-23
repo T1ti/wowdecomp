@@ -1640,7 +1640,7 @@ static int32_t Script_SetPetAction(lua_State* L) {
     }
 
     uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 2)) - 1;
-    PetAction* action = CGPetInfo::GetPet(0) && slot < 10 ? &CGPetInfo::m_actions[slot] : nullptr;
+    const PetAction* action = GetPetAction(slot);
 
     if (!action || !action->m_data) {
         lua_pushnil(L);

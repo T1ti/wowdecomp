@@ -51,7 +51,7 @@ uint32_t CGPetInfo::m_petMode;
 static const char s_petModeTokens[NUM_PET_MODES][32] = { "PASSIVE", "DEFENSIVE", "AGGRESSIVE" };
 
 // STATIC: 0x00A1A8C0
-static const char s_petOrderTokens[NUM_PET_ORDERS][32] = { "WAIT", "FOLLOW", "ATTACK", "DISMISS" };
+static const char s_petOrdersTokens[NUM_PET_ORDERS][32] = { "WAIT", "FOLLOW", "ATTACK", "DISMISS" };
 
 // STATIC: 0x00C234CC
 uint32_t CGPetInfo::m_expirationTime;
@@ -151,14 +151,16 @@ void SendRequestPetInfo() {
 
 // VERIFY: cf365005 auto
 // OFFSET: 0x005D3050
-const char* CGPetInfo::GetModeToken(uint32_t mode) {
-    return s_petModeTokens[mode];
+const char* CGPetInfo::GetModeToken(uint32_t id) {
+    STORM_ASSERT(id < ARRSIZE(s_petModeTokens));
+    return s_petModeTokens[id];
 }
 
 // VERIFY: 5d255e3f auto
 // OFFSET: 0x005D3060
-const char* CGPetInfo::GetOrdersToken(uint32_t order) {
-    return s_petOrderTokens[order];
+const char* CGPetInfo::GetOrdersToken(uint32_t id) {
+    STORM_ASSERT(id < ARRSIZE(s_petOrdersTokens));
+    return s_petOrdersTokens[id];
 }
 
 // VERIFY: 804722ba auto
@@ -250,7 +252,7 @@ int32_t CGPetInfo::PetActionSlotUsable(const PetAction* action) {
 // VERIFY: 9ae639f9 auto
 // OFFSET: 0x005D41B0
 BOOL CGPetInfo::IsAttackAction(uint32_t index) {
-    PetAction* action = CGPetInfo::GetPet(0) && index < sizeof(CGPetInfo::m_actions) / sizeof(CGPetInfo::m_actions[0]) ? &CGPetInfo::m_actions[index] : nullptr;
+    const PetAction* action = GetPetAction(index);
 
     if (action && action->m_data && (action->m_data & PetAction::PackingMasks::KIND_MASK) == PetAction::PackedKind::PACKED_ORDER && (action->m_data & PetAction::PackingMasks::ID_MASK) == PET_ORDER_ATTACK) {
         return 1;
@@ -449,6 +451,8 @@ int32_t Packet_SMSG_PET_ACTION_FEEDBACK(void* param, NETMESSAGE msgId, uint32_t 
 // VERIFY: b1d9078d manual
 // OFFSET: 0x005D5AD0
 int32_t CGPetInfo::SetAction(uint32_t index, const PetAction& action, int32_t sendToServer) {
+    STORM_ASSERT(index < ARRSIZE(m_actions));
+
     if (!CGGameUI::CanPerformAction(UI_ACTION::UI_ACTION_ACTION_MANIPULATION) || (sendToServer && !CGPetInfo::PetActionsUsable(false))) {
         return 0;
     }
@@ -554,6 +558,7 @@ void CGPetInfo::SetSpellAutocast(int32_t spellId, BOOL enable) {
     }
 
     PetAction* action = CGPetInfo::GetPetSpellAction(spellId);
+    STORM_ASSERT(action);
 
     if (!action || !(action->m_data & PetAction::AutocastFlags::AUTOCAST_ALLOWED)) {
         return;
@@ -589,6 +594,7 @@ void CGPetInfo::SetSpellAutocast(int32_t spellId, BOOL enable) {
 // VERIFY: c40a54ec auto
 // OFFSET: 0x005D2FF0
 void CGPetInfo::SetPetMode(uint32_t mode) {
+    STORM_ASSERT(mode < 256);
     CGPetInfo::m_petMode = mode | (CGPetInfo::m_petMode & ~PET_MODE_MASK);
     FrameScript_SignalEvent(SCRIPT_EVENT_PET_BAR_UPDATE, nullptr);
 }
@@ -596,6 +602,7 @@ void CGPetInfo::SetPetMode(uint32_t mode) {
 // VERIFY: a72652ae auto
 // OFFSET: 0x005D3020
 void CGPetInfo::SetPetOrders(uint32_t orders) {
+    STORM_ASSERT(orders < 256);
     CGPetInfo::m_petMode = (orders << PET_ORDERS_SHIFT) | (CGPetInfo::m_petMode & (PET_MODE_FLAG_UNKNOWN_27 | PET_MODE_MASK));
     FrameScript_SignalEvent(SCRIPT_EVENT_PET_BAR_UPDATE, nullptr);
 }

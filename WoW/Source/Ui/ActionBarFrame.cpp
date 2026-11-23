@@ -448,11 +448,13 @@ int32_t CGActionBar::GetPetActionSpell(uint32_t slot) {
     uint32_t action = CGActionBar::m_slotActions[slot];
     uint32_t index = action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_PET_ACTION ? action & ACTION_MASK::ACTION_MASK_PET_ACTION_INDEX : 0;
 
-    if (!CGPetInfo::GetPet(0) || index >= sizeof(CGPetInfo::m_actions) / sizeof(CGPetInfo::m_actions[0])) {
+    const PetAction* pet = GetPetAction(index);
+
+    if (!pet) {
         return 0;
     }
 
-    uint32_t petAction = CGPetInfo::m_actions[index].m_data;
+    uint32_t petAction = pet->m_data;
 
     if (!petAction) {
         return 0;

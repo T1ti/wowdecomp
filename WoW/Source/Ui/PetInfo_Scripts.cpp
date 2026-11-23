@@ -38,7 +38,7 @@ static int32_t Script_GetPetActionInfo(lua_State* L) {
     }
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
-    PetAction* action = CGPetInfo::GetPet(0) && index < sizeof(CGPetInfo::m_actions) / sizeof(CGPetInfo::m_actions[0]) ? &CGPetInfo::m_actions[index] : nullptr;
+    const PetAction* action = GetPetAction(index);
 
     if (!action || !action->m_data) {
         for (uint32_t i = 0; i < 7; i++) {
@@ -132,6 +132,7 @@ static int32_t Script_GetPetActionInfo(lua_State* L) {
             break;
         }
         default:
+            STORM_ASSERT(!"Unknown pet action type");
             lua_pushnil(L);
             break;
     }
@@ -162,7 +163,7 @@ static int32_t Script_IsPetAttackActive(lua_State* L) {
 // VERIFY: c4e057ce manual
 // OFFSET: 0x005D3180
 static int32_t Script_GetPetTimeRemaining(lua_State* L) {
-    uint32_t expiration = CGPetInfo::m_expirationTime;
+    uint32_t expiration = CGPetInfo::GetExpirationTime();
 
     if (!expiration) {
         lua_pushnil(L);
@@ -291,7 +292,7 @@ static int32_t Script_GetPetActionCooldown(lua_State* L) {
     }
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
-    PetAction* action = CGPetInfo::GetPet(0) && index < sizeof(CGPetInfo::m_actions) / sizeof(CGPetInfo::m_actions[0]) ? &CGPetInfo::m_actions[index] : nullptr;
+    const PetAction* action = GetPetAction(index);
     uint32_t start = 0;
     uint32_t duration = 0;
     uint32_t enable = 0;
