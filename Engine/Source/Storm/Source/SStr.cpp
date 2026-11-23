@@ -415,22 +415,24 @@ size_t STORMAPI SStrCopy(char* dest, const char* source, size_t destsize) {
         return 0;
     }
 
-    char* curr = dest;
+    char* d = dest;
 
     if (destsize == STORM_MAX_STR) {
         while (*source) {
-            *curr++ = *source++;
+            *d++ = *source++;
         }
     } else {
         char* end = dest + destsize - 1;
 
-        while (*source && curr < end) {
-            *curr++ = *source++;
+        while (*source && d < end) {
+            *d++ = *source++;
         }
     }
 
-    *curr = 0;
-    return curr - dest;
+    *d = 0;
+    STORM_ASSERT(d >= dest); // 12213: "(d) >= (dest)"
+    STORM_ASSERT(d - dest <= 0x7FFFFFF); // 12213: "((ptrdiff_t)((d)-(dest))) <= 0x7FFFFFF"
+    return d - dest;
 }
 
 // VERIFY: 4cf8cd50 manual
@@ -442,28 +444,30 @@ size_t STORMAPI SStrCopyUTF8(char* dest, const char* source, size_t destsize, si
     }
 
     char* end = dest + destsize - 1;
-    char* curr = dest;
+    char* d = dest;
     char* last = dest;
 
-    while (*source && curr < end && maxchars) {
-        *curr = *source;
+    while (*source && d < end && maxchars) {
+        *d = *source;
 
         if ((*source & 0xC0) != 0x80) {
             maxchars--;
-            last = curr + 1;
+            last = d + 1;
         }
 
-        curr++;
+        d++;
         source++;
     }
 
-    if (curr < end) {
-        *curr = 0;
+    if (d < end) {
+        *d = 0;
     } else {
         *last = 0;
     }
 
-    return curr - dest;
+    STORM_ASSERT(d >= dest); // 12213: "(d) >= (dest)"
+    STORM_ASSERT(d - dest <= 0x7FFFFFF); // 12213: "((ptrdiff_t)((d)-(dest))) <= 0x7FFFFFF"
+    return d - dest;
 }
 
 // VERIFY: c8b00c92 auto
@@ -474,13 +478,15 @@ size_t STORMAPI SStrLen(const char* string) {
         return 0;
     }
 
-    const char* curr = string;
+    const char* c = string;
 
-    while (*curr) {
-        curr++;
+    while (*c) {
+        c++;
     }
 
-    return curr - string;
+    STORM_ASSERT(c >= string); // 12213: "(c) >= (string)"
+    STORM_ASSERT(c - string <= 0x7FFFFFF); // 12213: "((ptrdiff_t)((c)-(string))) <= 0x7FFFFFF"
+    return c - string;
 }
 
 // VERIFY: 32365d2c auto
@@ -567,26 +573,28 @@ size_t STORMAPI SStrPack(char* dest, const char* source, size_t destsize) {
         return 0;
     }
 
-    char* curr = dest;
+    char* d = dest;
 
-    while (*curr) {
-        curr++;
+    while (*d) {
+        d++;
     }
 
     if (destsize == STORM_MAX_STR) {
         while (*source) {
-            *curr++ = *source++;
+            *d++ = *source++;
         }
     } else {
         char* end = dest + destsize - 1;
 
-        while (*source && curr < end) {
-            *curr++ = *source++;
+        while (*source && d < end) {
+            *d++ = *source++;
         }
     }
 
-    *curr = 0;
-    return curr - dest;
+    *d = 0;
+    STORM_ASSERT(d >= dest); // 12213: "(d) >= (dest)"
+    STORM_ASSERT(d - dest <= 0x7FFFFFF); // 12213: "((ptrdiff_t)((d)-(dest))) <= 0x7FFFFFF"
+    return d - dest;
 }
 
 // VERIFY: 98987d37 manual
@@ -630,7 +638,9 @@ size_t SStrPrintf(char* dest, size_t maxchars, const char* format, ...) {
 
     va_list arglist;
     va_start(arglist, format);
-    return ISStrVPrintf(dest, maxchars, format, arglist);
+    const size_t result = ISStrVPrintf(dest, maxchars, format, arglist);
+    STORM_ASSERT((result) <= 0x7FFFFFF);
+    return result;
 }
 
 // VERIFY: 190c39be manual
@@ -641,7 +651,9 @@ size_t SStrVPrintf(char* dest, size_t maxchars, const char* format, va_list argl
         return 0;
     }
 
-    return ISStrVPrintf(dest, maxchars, format, arglist);
+    const size_t result = ISStrVPrintf(dest, maxchars, format, arglist);
+    STORM_ASSERT((result) <= 0x7FFFFFF);
+    return result;
 }
 
 // VERIFY: 79f69ad9 manual
