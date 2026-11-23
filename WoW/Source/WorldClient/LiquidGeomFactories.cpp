@@ -1,4 +1,5 @@
 #include "LiquidGeomFactories.h"
+#include "Engine/Source/Base/CDataAllocator.h"
 #include "Engine/Source/Gx/CGxBuf.h"
 #include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
 #include "Engine/Source/Gx/Gx.h"
@@ -9,11 +10,13 @@
 #include "WoW/Source/WorldClient/MapObj.h"
 #include "WoW/Source/WorldClient/MapObjGroup.h"
 
+namespace Liquid {
 // STATIC: 0x00D31960
-CDataAllocator Liquid::s_meshGeomFactoryAllocator(sizeof(Liquid::CMeshGeomFactory), 4);
+static CDataAllocator s_meshGeomFactoryAllocator(sizeof(Liquid::CMeshGeomFactory), 4);
 
 // STATIC: 0x00D31974
-CDataAllocator Liquid::s_chunkGeomFactoryAllocator(sizeof(Liquid::CChunkGeomFactory), 0x10);
+static CDataAllocator s_chunkGeomFactoryAllocator(sizeof(Liquid::CChunkGeomFactory), 0x10);
+}
 
 // VERIFY: 90914174 auto
 // OFFSET: 0x007D4360
@@ -60,7 +63,9 @@ void Liquid::CChunkGeomFactory::Purge() {
 // VERIFY: a71b0035 manual
 // OFFSET: 0x007D43B0
 void Liquid::CMeshGeomFactory::Release() {
-    if (this->m_refCount-- == 1) {
+    STORM_ASSERT(m_refs);
+
+    if (this->m_refs-- == 1) {
         this->~CMeshGeomFactory();
         Liquid::s_meshGeomFactoryAllocator.PutData(this, nullptr, 0);
     }
@@ -69,7 +74,9 @@ void Liquid::CMeshGeomFactory::Release() {
 // VERIFY: 670828bb manual
 // OFFSET: 0x007D4760
 void Liquid::CChunkGeomFactory::Release() {
-    if (this->m_refCount-- == 1) {
+    STORM_ASSERT(m_refs);
+
+    if (this->m_refs-- == 1) {
         this->~CChunkGeomFactory();
         Liquid::s_chunkGeomFactoryAllocator.PutData(this, nullptr, 0);
     }
@@ -90,7 +97,7 @@ bool Liquid::CChunkGeomFactory::SetTransform(C44Matrix* transform) {
 
 // VERIFY: 05f0b938 manual
 // OFFSET: 0x007D43F0
-void Liquid::CMeshGeomFactory::GetBuffers(EGxVertexBufferFormat format, CGxBuf** vertexBuf, CGxBuf** indexBuf, CGxBatch* batch) {
+void Liquid::CMeshGeomFactory::GetBuffers(EGxVertexBufferFormat vtxFormat, CGxBuf** vtxBuffer, CGxBuf** idxBuffer, CGxBatch* batch) {
     if (static_cast<uint16_t>(this->m_mapObjGroup->m_liquidMaterialId) >= static_cast<uint32_t>(this->m_mapObj->m_materialsCount)) {
         SErrDisplayAppFatal("Water in chunk \"%s\" of object \"%s\" has no materialId.", this->m_mapObjGroup->m_groupName, this->m_mapObj->m_wmoName);
     }
@@ -98,26 +105,31 @@ void Liquid::CMeshGeomFactory::GetBuffers(EGxVertexBufferFormat format, CGxBuf**
     uint32_t sharedCols = this->m_sharedVerts[0].m_count;
     uint32_t sharedRows = this->m_sharedVerts[1].m_count;
     uint32_t sharedTiles = this->m_mapObjGroup->GetNumSharedTiles();
-    uint32_t vertexCount = (sharedRows + this->m_mapObjGroup->m_liquidVerts.y) * (sharedCols + this->m_mapObjGroup->m_liquidVerts.x) + 6 * sharedTiles;
-    this->m_mapObjGroup->AllocLiquidVB(format, vertexCount, 3 * vertexCount, &this->m_batch);
+    uint32_t vtxBufferSize = (sharedRows + this->m_mapObjGroup->m_liquidVerts.y) * (sharedCols + this->m_mapObjGroup->m_liquidVerts.x) + 6 * sharedTiles;
+    STORM_ASSERT(vtxBufferSize < 65536);
+    STORM_ASSERT(vtxBufferSize * 3 < 131072);
+    this->m_mapObjGroup->AllocLiquidVB(vtxFormat, vtxBufferSize, 3 * vtxBufferSize, &this->m_batch);
 
-    *vertexBuf = this->m_mapObjGroup->m_liquidVertsBlock->buf;
-    *indexBuf = this->m_mapObjGroup->m_liquidIndicesBlock->buf;
+    *vtxBuffer = this->m_mapObjGroup->m_liquidVertsBlock->buf;
+    *idxBuffer = this->m_mapObjGroup->m_liquidIndicesBlock->buf;
+    STORM_ASSERT(*vtxBuffer && *idxBuffer); // 12213: "vtxBuffer && idxBuffer"
 
-    if (!(*vertexBuf)->m_hasData || !(*vertexBuf)->m_valid || !(*indexBuf)->m_hasData || !(*indexBuf)->m_valid) {
-        char* vertices = g_theGxDevicePtr->BufLock(*vertexBuf);
-        uint16_t* indices = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(*indexBuf));
-        uint16_t* indexStart = indices;
+    if (!(*vtxBuffer)->m_hasData || !(*vtxBuffer)->m_valid || !(*idxBuffer)->m_hasData || !(*idxBuffer)->m_valid) {
+        char* vtxStream = g_theGxDevicePtr->BufLock(*vtxBuffer);
+        STORM_ASSERT(vtxStream);
+        uint16_t* idxStream = reinterpret_cast<uint16_t*>(g_theGxDevicePtr->BufLock(*idxBuffer));
+        STORM_ASSERT(idxStream);
+        uint16_t* indexStart = idxStream;
 
-        if (!vertices || !indices) {
-            if (vertices) {
-                CGxBuf* buf = *vertexBuf;
+        if (!vtxStream || !idxStream) {
+            if (vtxStream) {
+                CGxBuf* buf = *vtxBuffer;
                 g_theGxDevicePtr->BufUnlock(buf, 0);
                 buf->m_hasData = 1;
             }
 
-            if (indices) {
-                CGxBuf* buf = *indexBuf;
+            if (idxStream) {
+                CGxBuf* buf = *idxBuffer;
                 g_theGxDevicePtr->BufUnlock(buf, 0);
                 buf->m_hasData = 1;
             }
@@ -125,40 +137,41 @@ void Liquid::CMeshGeomFactory::GetBuffers(EGxVertexBufferFormat format, CGxBuf**
             return;
         }
 
-        uint32_t stride = GxVertexSize(format);
-        C3Vector* position = reinterpret_cast<C3Vector*>(vertices + GxVertexAttribOffset(format, GxVA_Position));
+        uint32_t stride = GxVertexSize(vtxFormat);
+        C3Vector* position = reinterpret_cast<C3Vector*>(vtxStream + GxVertexAttribOffset(vtxFormat, GxVA_Position));
         C3Vector* normal = nullptr;
         CImVector* color = nullptr;
         C2Vector* texCoord0 = nullptr;
         C2Vector* texCoord1 = nullptr;
 
-        if (GxVertexHasAttrib(format, GxVA_Normal)) {
-            normal = reinterpret_cast<C3Vector*>(vertices + GxVertexAttribOffset(format, GxVA_Normal));
+        if (GxVertexHasAttrib(vtxFormat, GxVA_Normal)) {
+            normal = reinterpret_cast<C3Vector*>(vtxStream + GxVertexAttribOffset(vtxFormat, GxVA_Normal));
         }
 
-        if (GxVertexHasAttrib(format, GxVA_Color0)) {
-            color = reinterpret_cast<CImVector*>(vertices + GxVertexAttribOffset(format, GxVA_Color0));
+        if (GxVertexHasAttrib(vtxFormat, GxVA_Color0)) {
+            color = reinterpret_cast<CImVector*>(vtxStream + GxVertexAttribOffset(vtxFormat, GxVA_Color0));
         }
 
-        if (GxVertexHasAttrib(format, GxVA_TexCoord0)) {
-            texCoord0 = reinterpret_cast<C2Vector*>(vertices + GxVertexAttribOffset(format, GxVA_TexCoord0));
+        if (GxVertexHasAttrib(vtxFormat, GxVA_TexCoord0)) {
+            texCoord0 = reinterpret_cast<C2Vector*>(vtxStream + GxVertexAttribOffset(vtxFormat, GxVA_TexCoord0));
         }
 
-        if (GxVertexHasAttrib(format, GxVA_TexCoord1)) {
-            texCoord1 = reinterpret_cast<C2Vector*>(vertices + GxVertexAttribOffset(format, GxVA_TexCoord1));
+        if (GxVertexHasAttrib(vtxFormat, GxVA_TexCoord1)) {
+            texCoord1 = reinterpret_cast<C2Vector*>(vtxStream + GxVertexAttribOffset(vtxFormat, GxVA_TexCoord1));
         }
 
         const CImVector* liquidColor = &this->m_diffuseColor;
-        uint16_t count = this->m_mapObj->BuildLiquidVerts(this->m_mapObjGroup, C44Matrix(), liquidColor, this->m_magma, this->m_texCoord1ValueX, this->m_sharedVerts, stride, &position, &normal, &color, &texCoord0, &texCoord1);
-        this->m_mapObj->BuildLiquidIndices(this->m_mapObjGroup, this->m_sharedVerts, &indices, 0);
-        count += this->m_mapObj->ClipGroupGeometry(this->m_mapObjGroup, C44Matrix(), liquidColor, this->m_magma, this->m_texCoord1ValueX, stride, &position, &normal, &color, &texCoord0, &texCoord1, &indices, count);
+        uint16_t vtxCnt = this->m_mapObj->BuildLiquidVerts(this->m_mapObjGroup, C44Matrix(), liquidColor, this->m_magma, this->m_texCoord1ValueX, this->m_sharedVerts, stride, &position, &normal, &color, &texCoord0, &texCoord1);
+        this->m_mapObj->BuildLiquidIndices(this->m_mapObjGroup, this->m_sharedVerts, &idxStream, 0);
+        vtxCnt += this->m_mapObj->ClipGroupGeometry(this->m_mapObjGroup, C44Matrix(), liquidColor, this->m_magma, this->m_texCoord1ValueX, stride, &position, &normal, &color, &texCoord0, &texCoord1, &idxStream, vtxCnt);
+        STORM_ASSERT(vtxCnt <= vtxBufferSize);
 
-        CGxBuf* buf = *vertexBuf;
+        CGxBuf* buf = *vtxBuffer;
         g_theGxDevicePtr->BufUnlock(buf, 0);
         buf->m_hasData = 1;
 
-        if (indices) {
-            buf = *indexBuf;
+        if (idxStream) {
+            buf = *idxBuffer;
             g_theGxDevicePtr->BufUnlock(buf, 0);
             buf->m_hasData = 1;
         }
@@ -166,9 +179,9 @@ void Liquid::CMeshGeomFactory::GetBuffers(EGxVertexBufferFormat format, CGxBuf**
         CGxBatch* meshBatch = this->m_batch;
         meshBatch->m_primType = GxPrim_TriangleStrip;
         meshBatch->m_start = 0;
-        meshBatch->m_count = indices - indexStart;
+        meshBatch->m_count = idxStream - indexStart;
         meshBatch->m_minIndex = 0;
-        meshBatch->m_maxIndex = count - 1;
+        meshBatch->m_maxIndex = vtxCnt - 1;
     }
 
     *batch = *this->m_batch;
@@ -183,7 +196,7 @@ Liquid::CMeshGeomFactory::~CMeshGeomFactory() {
 // VERIFY: 2528fd80 manual
 // OFFSET: 0x007D4850
 Liquid::CChunkGeomFactory::CChunkGeomFactory() {
-    this->m_refCount = 1;
+    this->m_refs = 1;
     this->m_dirty = 1;
     this->m_buf = nullptr;
     this->m_batch.m_primType = GxPrims_Last;
@@ -201,7 +214,7 @@ Liquid::CChunkGeomFactory::~CChunkGeomFactory() {
 
 // INLINED
 Liquid::CMeshGeomFactory::CMeshGeomFactory() {
-    this->m_refCount = 1;
+    this->m_refs = 1;
     this->m_mapObj = nullptr;
     this->m_mapObjGroup = nullptr;
     this->m_batch = nullptr;
@@ -236,8 +249,9 @@ Liquid::CChunkGeomFactory* Liquid::CChunkGeomFactory::Create(const TSGrowableArr
 
 // VERIFY: bb721706 manual
 // OFFSET: 0x007D4AB0
-void Liquid::CChunkGeomFactory::GetBuffers(EGxVertexBufferFormat format, CGxBuf** vertexBuf, CGxBuf** indexBuf, CGxBatch* batch) {
+void Liquid::CChunkGeomFactory::GetBuffers(EGxVertexBufferFormat vtxFormat, CGxBuf** vertexBuf, CGxBuf** indexBuf, CGxBatch* batch) {
     if (this->m_buf && this->m_buf->Valid() && !this->m_dirty) {
+        STORM_ASSERT(m_vtxFormat == vtxFormat);
         *vertexBuf = this->m_buf->m_vertexBuf;
         *indexBuf = this->m_buf->m_indexBuf;
         *batch = this->m_batch;
@@ -262,7 +276,7 @@ void Liquid::CChunkGeomFactory::GetBuffers(EGxVertexBufferFormat format, CGxBuf*
     }
 
     if (!this->m_buf) {
-        this->m_buf = CMapChunkLiquidBuf::Alloc(vertexCount, indexCount, CMapChunkLiquidBuf::FLAGS::NONE, format);
+        this->m_buf = CMapChunkLiquidBuf::Alloc(vertexCount, indexCount, CMapChunkLiquidBuf::FLAGS::NONE, vtxFormat);
     }
 
     *vertexBuf = this->m_buf->m_vertexBuf;
@@ -279,27 +293,27 @@ void Liquid::CChunkGeomFactory::GetBuffers(EGxVertexBufferFormat format, CGxBuf*
         char* data = g_theGxDevicePtr->BufLock(vb);
 
         if (data) {
-            uint32_t stride = GxVertexSize(format);
-            C3Vector* position = reinterpret_cast<C3Vector*>(data + GxVertexAttribOffset(format, GxVA_Position));
+            uint32_t stride = GxVertexSize(vtxFormat);
+            C3Vector* position = reinterpret_cast<C3Vector*>(data + GxVertexAttribOffset(vtxFormat, GxVA_Position));
             C3Vector* normal = nullptr;
             uint32_t* color = nullptr;
             C2Vector* texCoord0 = nullptr;
             C2Vector* texCoord1 = nullptr;
 
-            if (GxVertexHasAttrib(format, GxVA_Normal)) {
-                normal = reinterpret_cast<C3Vector*>(data + GxVertexAttribOffset(format, GxVA_Normal));
+            if (GxVertexHasAttrib(vtxFormat, GxVA_Normal)) {
+                normal = reinterpret_cast<C3Vector*>(data + GxVertexAttribOffset(vtxFormat, GxVA_Normal));
             }
 
-            if (GxVertexHasAttrib(format, GxVA_Color0)) {
-                color = reinterpret_cast<uint32_t*>(data + GxVertexAttribOffset(format, GxVA_Color0));
+            if (GxVertexHasAttrib(vtxFormat, GxVA_Color0)) {
+                color = reinterpret_cast<uint32_t*>(data + GxVertexAttribOffset(vtxFormat, GxVA_Color0));
             }
 
-            if (GxVertexHasAttrib(format, GxVA_TexCoord0)) {
-                texCoord0 = reinterpret_cast<C2Vector*>(data + GxVertexAttribOffset(format, GxVA_TexCoord0));
+            if (GxVertexHasAttrib(vtxFormat, GxVA_TexCoord0)) {
+                texCoord0 = reinterpret_cast<C2Vector*>(data + GxVertexAttribOffset(vtxFormat, GxVA_TexCoord0));
             }
 
-            if (GxVertexHasAttrib(format, GxVA_TexCoord1)) {
-                texCoord1 = reinterpret_cast<C2Vector*>(data + GxVertexAttribOffset(format, GxVA_TexCoord1));
+            if (GxVertexHasAttrib(vtxFormat, GxVA_TexCoord1)) {
+                texCoord1 = reinterpret_cast<C2Vector*>(data + GxVertexAttribOffset(vtxFormat, GxVA_TexCoord1));
             }
 
             CChunkLiquid* first = this->m_chunks.m_data[0];
@@ -339,7 +353,7 @@ void Liquid::CChunkGeomFactory::GetBuffers(EGxVertexBufferFormat format, CGxBuf*
         this->m_batch = *batch;
     }
 
-    this->m_format = format;
+    this->m_vtxFormat = vtxFormat;
     this->m_dirty = 0;
 }
 
