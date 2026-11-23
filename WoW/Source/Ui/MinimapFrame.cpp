@@ -232,7 +232,9 @@ const TrackingTypeInfo CGMinimapFrame::s_trackingTypes[15] = {
 };
 
 // STATIC: 0x00A41E04
-static const uint32_t s_outdoorZoomTiles[6] = { 14, 12, 10, 8, 6, 4 };
+static constexpr uint32_t NUM_ZOOMS = 6;
+
+static const uint32_t s_chunksPerSizeAtZoom[NUM_ZOOMS] = { 14, 12, 10, 8, 6, 4 };
 
 // STATIC: 0x00A41E1C
 static const float s_indoorZoomRadius[6] = { 150.0f, 120.0f, 90.0f, 60.0f, 40.0f, 25.0f };
@@ -241,7 +243,7 @@ static const float s_indoorZoomRadius[6] = { 150.0f, 120.0f, 90.0f, 60.0f, 40.0f
 static int32_t s_mapId = -1;
 
 // STATIC: 0x00AF4E4C
-static int32_t s_outdoorZoom = 3;
+static int32_t s_currentZoom = 3;
 
 // STATIC: 0x00AF4E50
 static int32_t s_indoorZoom = 3;
@@ -268,7 +270,7 @@ static uint8_t s_isIndoors;
 static uint32_t s_numPOIs;
 
 // STATIC: 0x00D39448
-static uint32_t s_numClosestPOIs;
+static uint32_t s_numDistantPOI;
 
 // STATIC: 0x00D3944C
 static int32_t s_closestPOIsChanged;
@@ -805,7 +807,8 @@ float MinimapGetViewRadius() {
         return s_indoorZoomRadius[s_indoorZoom];
     }
 
-    return s_outdoorZoomTiles[s_outdoorZoom] * 0.5f * 33.333332f;
+    STORM_ASSERT(static_cast<uint32_t>(s_currentZoom) < NUM_ZOOMS); // 12213: "s_currentZoom < NUM_ZOOMS"
+    return s_chunksPerSizeAtZoom[s_currentZoom] * 0.5f * 33.333332f;
 }
 
 // VERIFY: 10a7b5c4 manual
@@ -816,7 +819,8 @@ void UpdatePointsOfInterest() {
     }
 
     s_visiblePOIs.SetCount(0);
-    float viewRadius = MinimapGetViewRadius();
+    float minimapVisRadius = MinimapGetViewRadius();
+    STORM_ASSERT(minimapVisRadius > 0.0f);
 
     for (uint32_t i = 0; i < s_numPOIs; i++) {
         AreaPOIRec* poi = s_pois.m_data[i];
@@ -835,7 +839,7 @@ void UpdatePointsOfInterest() {
         float dy = s_playerPosition.y - poi->m_pos[1];
         float dx = s_playerPosition.x - poi->m_pos[0];
 
-        if (sqrt(dx * dx + dy * dy) / viewRadius > 0.8f) {
+        if (sqrt(dx * dx + dy * dy) / minimapVisRadius > 0.8f) {
             if (!s_poiVisible.m_data[i] && s_poiOnEdge.m_data[i]) {
                 continue;
             }
@@ -910,8 +914,8 @@ void UpdatePointsOfInterest() {
         }
     }
 
-    if (s_numClosestPOIs != count) {
-        s_numClosestPOIs = count;
+    if (s_numDistantPOI != count) {
+        s_numDistantPOI = count;
         s_closestPOIsChanged = 1;
     } else {
         for (uint32_t j = 0; j < count; j++) {
@@ -1105,7 +1109,7 @@ void MinimapInitialize(int32_t mapId) {
     s_closestPOIs[0] = -1;
     s_closestPOIs[1] = -1;
     s_closestPOIs[2] = -1;
-    s_outdoorZoom = g_minimapZoomCVar->m_intValue;
+    s_currentZoom = g_minimapZoomCVar->m_intValue;
     s_indoorZoom = g_minimapInsideZoomCVar->m_intValue;
     FrameScript_SignalEvent(SCRIPT_EVENT_MINIMAP_UPDATE_ZOOM, nullptr);
     LoadMD5Names();
@@ -1380,27 +1384,28 @@ static void SetupTextureHandles(const int32_t* tile, int32_t reset, MINIMAPTILE*
 
 // VERIFY: db65bbd1 manual
 // OFFSET: 0x007F5930
-static int32_t MinimapUpdatePosition(int32_t mapId, const C3Vector* position, C2Vector* centerPoint, float* radius, MINIMAPTILE* tiles) {
+static int32_t MinimapUpdatePosition(int32_t mapId, const C3Vector* pos, C2Vector* centerPoint, float* radius, MINIMAPTILE* tiles) {
     STORM_ASSERT(radius);
     STORM_ASSERT(centerPoint);
 
     int32_t mapChanged = mapId != s_mapId;
-    s_playerPosition = *position;
+    s_playerPosition = *pos;
     s_mapId = mapId;
     UpdatePointsOfInterest();
 
-    C3Vector maxPosition(position->x + s_halfTile.x, position->y + s_halfTile.y, 0.0f);
-    int32_t baseTile[2];
-    MinimapWorldToTileCoords(&maxPosition, baseTile);
-    C3Vector minPosition(position->x - s_halfTile.x, position->y - s_halfTile.y, 0.0f);
+    C3Vector maxPosition(pos->x + s_halfTile.x, pos->y + s_halfTile.y, 0.0f);
+    int32_t upperLeftArea[2];
+    MinimapWorldToTileCoords(&maxPosition, upperLeftArea);
+    C3Vector minPosition(pos->x - s_halfTile.x, pos->y - s_halfTile.y, 0.0f);
     int32_t endTile[2];
     MinimapWorldToTileCoords(&minPosition, endTile);
 
     int32_t endX = endTile[0];
 
-    if (baseTile[0] == endX) {
+    if (upperLeftArea[0] == endX) {
         if (endX + 1 >= 64) {
-            baseTile[0]--;
+            STORM_ASSERT(upperLeftArea[0]); // 12213: "upperLeftArea.x"
+            upperLeftArea[0]--;
         } else {
             endX = endX + 1;
         }
@@ -1408,29 +1413,38 @@ static int32_t MinimapUpdatePosition(int32_t mapId, const C3Vector* position, C2
 
     int32_t endY = endTile[1];
 
-    if (baseTile[1] == endY) {
+    if (upperLeftArea[1] == endY) {
         if (endY + 1 >= 64) {
-            baseTile[1]--;
+            STORM_ASSERT(upperLeftArea[1]); // 12213: "upperLeftArea.y"
+            upperLeftArea[1]--;
         } else {
             endY = endY + 1;
         }
     }
 
-    if ((s_updateFlags & MINIMAP_UPDATE_RELOAD) || s_tileMinX != baseTile[0] || s_tileMinY != baseTile[1] || s_tileMaxX != endX || s_tileMaxY != endY) {
-        SetupTextureHandles(baseTile, mapChanged, tiles);
-        s_tileMinX = baseTile[0];
-        s_tileMinY = baseTile[1];
+    if ((s_updateFlags & MINIMAP_UPDATE_RELOAD) || s_tileMinX != upperLeftArea[0] || s_tileMinY != upperLeftArea[1] || s_tileMaxX != endX || s_tileMaxY != endY) {
+        SetupTextureHandles(upperLeftArea, mapChanged, tiles);
+        s_tileMinX = upperLeftArea[0];
+        s_tileMinY = upperLeftArea[1];
         s_tileMaxX = endX;
         s_tileMaxY = endY;
     }
 
     s_updateFlags &= ~MINIMAP_UPDATE_RELOAD;
-    C3Vector origin(HALF_WORLD_SIZE - baseTile[1] * MD_AREA_POLY_SIZE, s_mapOrigin - MD_AREA_POLY_SIZE * baseTile[0], 0.0f);
+    C3Vector origin(HALF_WORLD_SIZE - upperLeftArea[1] * MD_AREA_POLY_SIZE, s_mapOrigin - MD_AREA_POLY_SIZE * upperLeftArea[0], 0.0f);
+#if defined(WOWDECOMP_ASSERTIONS)
+    constexpr float CLOSEENOUGH = 0.013888889f;
+    STORM_ASSERT((pos->x - CLOSEENOUGH) < origin.x); // 12213: "( pos.x - CLOSEENOUGH ) < boxBoundary.t"
+    STORM_ASSERT((pos->x + CLOSEENOUGH) > origin.x - s_tileSize.x); // 12213: "( pos.x + CLOSEENOUGH ) > boxBoundary.b"
+    STORM_ASSERT((pos->y - CLOSEENOUGH) < origin.y); // 12213: "( pos.y - CLOSEENOUGH ) < boxBoundary.l"
+    STORM_ASSERT((pos->y + CLOSEENOUGH) > origin.y - s_tileSize.y); // 12213: "( pos.y + CLOSEENOUGH ) > boxBoundary.r"
+#endif
     C2Vector origin2(origin);
     float inv = 1.0f / s_tileSize.y;
-    uint32_t halfTiles = s_outdoorZoomTiles[s_outdoorZoom] >> 1;
-    float centerX = (origin2.y - position->y) * inv;
-    float centerY = (origin2.x - position->x) / s_tileSize.x;
+    STORM_ASSERT(static_cast<uint32_t>(s_currentZoom) < ARRSIZE(s_chunksPerSizeAtZoom)); // 12213: "s_currentZoom < ARRSIZE(s_chunksPerSizeAtZoom)"
+    uint32_t halfTiles = s_chunksPerSizeAtZoom[s_currentZoom] >> 1;
+    float centerX = (origin2.y - pos->y) * inv;
+    float centerY = (origin2.x - pos->x) / s_tileSize.x;
     *radius = inv * (halfTiles * 33.333332f);
     centerPoint->x = centerX;
     centerPoint->y = centerY;
@@ -1472,12 +1486,14 @@ static void SetupMapObjMatrices(CMapEntity* entity) {
 // VERIFY: 8100c6e5 auto
 // OFFSET: 0x007F3A70
 static void MinimapSetMapObjName(CMapEntity* entity) {
-    const char* fileName = nullptr;
-    World::QueryMapObjFileName(entity, &fileName);
+    const char* wmoName = nullptr;
+    World::QueryMapObjFileName(entity, &wmoName);
 
-    if (fileName) {
-        fileName += SStrLen("World\\");
-        SStrCopy(s_mapObjName, fileName, sizeof(s_mapObjName));
+    if (wmoName) {
+        static const char kWorld[] = "World\\";
+        STORM_ASSERT(SStrCmpI(wmoName, kWorld, STORM_MAX_STR)); // 12213: "SStrCmpI(wmoName, kWorld)"
+        wmoName += SStrLen(kWorld);
+        SStrCopy(s_mapObjName, wmoName, sizeof(s_mapObjName));
     } else {
         SStrCopy(s_mapObjName, "Dont Crash!", sizeof(s_mapObjName));
     }
@@ -2548,9 +2564,11 @@ static void SetMemberData(WOWGUID guid, MEMBERINFO* member, CGPlayer_C* player, 
         }
     }
 
-    float range = s_isIndoors ? s_indoorZoomRadius[s_indoorZoom] : static_cast<float>(s_outdoorZoomTiles[s_outdoorZoom]) * 0.5f * 33.333332f;
+    float minimapVisRadius = s_isIndoors ? s_indoorZoomRadius[s_indoorZoom] : static_cast<float>(s_chunksPerSizeAtZoom[s_currentZoom]) * 0.5f * 33.333332f;
 
-    if (std::sqrt(dy * dy + dx * dx) / range <= 0.8f) {
+    STORM_ASSERT(minimapVisRadius > 0.0f);
+
+    if (std::sqrt(dy * dy + dx * dx) / minimapVisRadius <= 0.8f) {
         member->m_offMap = 0;
         member->m_position.x = position.x;
         member->m_onMap = 1;
@@ -2608,20 +2626,21 @@ static void MinimapGetRaidMembers(MEMBERINFO* members) {
 
 // VERIFY: f617bf0f manual
 // OFFSET: 0x007F4B60
-static int32_t MinimapBuildPOIDirectionData(TSGrowableArray<POIDIRECTIONDATA>* directions) {
+static int32_t MinimapBuildPOIDirectionData(TSGrowableArray<POIDIRECTIONDATA>* directionData) {
     if (!s_closestPOIsChanged) {
-        for (uint32_t i = 0; i < s_numClosestPOIs; i++) {
-            directions->m_data[i].m_facing = s_closestPOIFacing[i];
+        STORM_ASSERT(s_numDistantPOI == directionData->Count()); // 12213: "s_numDistantPOI == directionData.Count()"
+        for (uint32_t i = 0; i < s_numDistantPOI; i++) {
+            directionData->m_data[i].m_facing = s_closestPOIFacing[i];
         }
 
         return 0;
     }
 
-    directions->SetCount(s_numClosestPOIs);
+    directionData->SetCount(s_numDistantPOI);
     s_closestPOIsChanged = 0;
 
-    for (uint32_t i = 0; i < s_numClosestPOIs; i++) {
-        POIDIRECTIONDATA* direction = &directions->m_data[i];
+    for (uint32_t i = 0; i < s_numDistantPOI; i++) {
+        POIDIRECTIONDATA* direction = &directionData->m_data[i];
         AreaPOIRec* poi = s_pois.m_data[s_closestPOIs[i]];
         SStrCopy(direction->m_name, poi->m_name, sizeof(direction->m_name));
         direction->m_facing = s_closestPOIFacing[i];
@@ -3636,7 +3655,7 @@ int32_t CGMinimapFrame::OnLayerTrackUpdate(const CMouseEvent& evt) {
 // OFFSET: 0x007F3AE0
 void MinimapSetZoom(uint32_t zoom) {
     uint8_t indoors = s_isIndoors;
-    int32_t* current = indoors ? &s_indoorZoom : &s_outdoorZoom;
+    int32_t* current = indoors ? &s_indoorZoom : &s_currentZoom;
     int32_t previous = *current;
     *current = zoom >= 5 ? 5 : zoom;
 
@@ -3649,7 +3668,7 @@ void MinimapSetZoom(uint32_t zoom) {
 // VERIFY: a04b4793 auto
 // OFFSET: 0x007F3B40
 int32_t MinimapGetZoom() {
-    return s_isIndoors ? s_indoorZoom : s_outdoorZoom;
+    return s_isIndoors ? s_indoorZoom : s_currentZoom;
 }
 
 // VERIFY: 07a4c72b auto
