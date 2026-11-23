@@ -72,23 +72,32 @@ class CGItem_C : public CGObject_C, public CGItem {
     /* 00DC */ TSList<void> m_itemMirrorLists [CGItemData::NUM_FIELDS];
     /* 0394 */ uint32_t m_itemFlags;
     /* 0398 */ CGUnitVirtualItem m_virtualItem;
+    private:
+    static constexpr int32_t NUM_ITEM_ENCHANTMENTS = CGItemData::NUM_ENCHANTMENTS;
+
     /* 03A0 */ uint32_t m_expirationTime;
-    /* 03A4 */ uint32_t m_enchantmentExpiration [CGItemData::NUM_ENCHANTMENTS];
+    /* 03A4 */ uint32_t m_enchantmentExpiration [NUM_ITEM_ENCHANTMENTS];
+
+    public:
     /* 03D4 */ ItemPurchaseData* m_itemPurchaseData;
+    private:
     /* 03D8 */ const ItemGroupSoundsRec* m_groupSounds;
+
+    public:
     /* 03DC */ uint8_t unknown_03DC [4];
 
     ~CGItem_C() override;
     void PostReenable() override;
-    int32_t GetSelectionHighlightColor(CImVector* color) const override;
+    int32_t GetSelectionHighlightColor(CImVector* outPtr) const override;
     void OnRightClick() override;
     const char* GetObjectName() const override;
     int32_t GetPageTextID(void (*callback)(int32_t, const WOWGUID&, void*, bool)) const override;
-    uint32_t GetItemStaticFlags(int32_t index) override;
+    uint32_t GetItemStaticFlags(int32_t index) const override;
     void Disable() override;
 
     CGItem_C(uint32_t time, const CClientObjCreate& create);
     uint32_t GetBagFamily() const;
+    const ItemGroupSoundsRec* GetItemGroupSounds() const { return m_groupSounds; } // (inferred)
     static BOOL CanGoInSlot(int32_t itemId, uint32_t slot, int32_t bypass);
     BOOL CanGoInSlot(uint32_t slot, int32_t bypass);
     uint32_t GetClassID() const;
@@ -96,8 +105,6 @@ class CGItem_C : public CGObject_C, public CGItem {
     uint32_t GetDisplayID() const;
     uint32_t GetEnchantmentTimeLeft(int32_t slot) const;
     int32_t UseItem(WOWGUID* target, int32_t confirmed);
-    static WOWGUID s_bindOnUseTarget;
-    static WOWGUID s_bindOnUseItem;
     static void ConfirmBindOnUse();
     BOOL CanBeUsed();
     uint32_t GetExpirationTimeLeft() const;
@@ -146,6 +153,10 @@ class CGItem_C : public CGObject_C, public CGItem {
     void UpdateEnchantmentTime(int32_t slot, int32_t seconds);
     void UpdateExpirationTime(int32_t seconds);
     void UpdateSockets(uint32_t gem1, uint32_t gem2, uint32_t gem3, uint32_t socketBonus);
+
+    private:
+    static WOWGUID s_bindOnUseTarget;
+    static WOWGUID s_bindOnUseItem;
 };
 
 #endif

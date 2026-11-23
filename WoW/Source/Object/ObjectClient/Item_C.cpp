@@ -103,6 +103,8 @@ INVENTORYART::~INVENTORYART() {
 static int32_t OnUpdateStackCount(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
 
+    STORM_ASSERT(item);
+
     if (item->m_item->m_itemFieldOwner == ClntObjMgrGetActivePlayer()) {
         WOWGUID requester = WOWGUID();
         ItemStats_C* stats = g_itemDBCache.GetRecord(item->m_obj->m_entryID, requester, nullptr, nullptr, false);
@@ -142,6 +144,8 @@ static int32_t OnUpdateStackCount(WOWGUID guid, uint32_t fieldOffset, uint32_t f
 // OFFSET: 0x00707880
 static int32_t OnUpdateSpellCharges(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
     CGItem_C* item = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(guid, TYPE_ITEM, __FILE__, __LINE__));
+
+    STORM_ASSERT(item);
 
     if (item->m_item->m_itemFieldOwner == ClntObjMgrGetActivePlayer()) {
         CGActionBar::UpdateItem(item->m_obj->m_entryID);
@@ -348,6 +352,9 @@ CGItem_C::CGItem_C(uint32_t time, const CClientObjCreate& create) : CGObject_C(t
     rec = g_itemDB.GetRecord(this->m_obj->m_entryID);
     this->m_virtualItem.m_soundOverrideSubclassID = rec ? rec->m_soundOverrideSubclassID : -1;
 
+    // 12213: "g_itemDBCache.GetRecord(GetEntryID())"
+    STORM_ASSERT(g_itemDBCache.GetRecord(GetEntryID(), WOWGUID(), nullptr, nullptr, false));
+
     memset(this->m_enchantmentExpiration, 0, sizeof(this->m_enchantmentExpiration));
     this->m_itemPurchaseData = nullptr;
 }
@@ -477,6 +484,8 @@ uint32_t CGItem_C::GetExpirationTimeLeft() const {
 // VERIFY: dc762275 auto
 // OFFSET: 0x007070E0
 void CGItem_C::UpdateEnchantmentTime(int32_t slot, int32_t seconds) {
+    STORM_ASSERT((slot >= 0) && (slot < NUM_ITEM_ENCHANTMENTS));
+
     if (seconds > 0) {
         this->m_enchantmentExpiration[slot] = FrameTime::s_curTimeMs + 1000 * seconds;
     } else {
@@ -487,6 +496,8 @@ void CGItem_C::UpdateEnchantmentTime(int32_t slot, int32_t seconds) {
 // VERIFY: 3cedd503 auto
 // OFFSET: 0x00707120
 uint32_t CGItem_C::GetEnchantmentTimeLeft(int32_t slot) const {
+    STORM_ASSERT((slot >= 0) && (slot < NUM_ITEM_ENCHANTMENTS));
+
     uint32_t expiration = this->m_enchantmentExpiration[slot];
 
     if (expiration && static_cast<int32_t>(FrameTime::s_curTimeMs - expiration) < 0) {
@@ -498,13 +509,15 @@ uint32_t CGItem_C::GetEnchantmentTimeLeft(int32_t slot) const {
 
 // VERIFY: 947c950c manual
 // OFFSET: 0x00707150
-int32_t CGItem_C::GetSelectionHighlightColor(CImVector* color) const {
+int32_t CGItem_C::GetSelectionHighlightColor(CImVector* outPtr) const {
+    STORM_ASSERT(outPtr);
+
     CImVector white;
     white.b = 0xFF;
     white.g = 0xFF;
     white.r = 0xFF;
     white.a = 0xFF;
-    *color = white;
+    *outPtr = white;
 
     return 1;
 }
@@ -865,9 +878,11 @@ ItemStats_C* CGItem_C::GetStats() const {
 
 // VERIFY: 8b84f216 auto
 // OFFSET: 0x00707390
-uint32_t CGItem_C::GetItemStaticFlags(int32_t index) {
+uint32_t CGItem_C::GetItemStaticFlags(int32_t index) const {
+    STORM_ASSERT(index >= 0 && index < NUM_ITEM_FLAG_FIELDS);
+
     WOWGUID guid = WOWGUID();
-    ItemStats_C* stats = g_itemDBCache.GetRecord(this->m_obj->m_entryID, guid, nullptr, nullptr, false);
+    ItemStats_C* stats = g_itemDBCache.GetRecord(GetEntryID(), guid, nullptr, nullptr, false);
 
     return stats ? stats->m_flags[index] : 0;
 }

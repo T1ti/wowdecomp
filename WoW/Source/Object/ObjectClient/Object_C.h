@@ -245,6 +245,7 @@ class CGObject_C : public CGObject, public TSHashObject<CGObject_C, CHashKeyGUID
     virtual float GetFacing() const;
     virtual float GetRawFacing() const;
     virtual float GetScale() const;
+    int32_t GetEntryID() const { return m_obj->m_entryID; }
     virtual uint64_t GetTransportGUID() const;
     virtual C4Quaternion GetRotation() const;
     virtual void SetFrameOfReference(const C44Matrix* matrix);

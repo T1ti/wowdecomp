@@ -102,7 +102,7 @@ SI2_RESULT SndInterfacePlayItemSound(ITEMSOUNDTYPE type, CGItem_C* item) {
         return SI2::PlaySoundKit("(DONOTRENAME)WrappedItemPickup", nullptr, nullptr, nullptr);
     }
 
-    const ItemGroupSoundsRec* sounds = item->m_groupSounds;
+    const ItemGroupSoundsRec* sounds = item->GetItemGroupSounds();
 
     if (sounds) {
         return SI2::PlaySoundKit(sounds->m_sound[type], nullptr, nullptr, nullptr, 0, nullptr, 1, 0);

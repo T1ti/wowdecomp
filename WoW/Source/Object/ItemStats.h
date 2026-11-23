@@ -8,6 +8,8 @@
 
 class CDataStore;
 
+constexpr int32_t NUM_ITEM_FLAG_FIELDS = 2;
+
 class ItemStats_C {
     public:
     static const uint32_t s_cacheVersion = 5;
@@ -19,7 +21,7 @@ class ItemStats_C {
     /* 000C */ uint32_t m_soundOverrideSubclass;
     /* 0010 */ uint32_t m_displayId;
     /* 0014 */ uint32_t m_quality;
-    /* 0018 */ uint32_t m_flags [2];
+    /* 0018 */ uint32_t m_flags [NUM_ITEM_FLAG_FIELDS];
     /* 0020 */ int32_t m_buyPrice;
     /* 0024 */ uint32_t m_sellPrice;
     /* 0028 */ uint32_t m_inventoryType;
