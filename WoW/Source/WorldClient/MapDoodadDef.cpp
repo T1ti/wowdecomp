@@ -26,10 +26,10 @@
 // VERIFY: 4012bf37 manual
 // OFFSET: 0x007B4FA0
 void CMapDoodadDef::ExtendBounds(CMapDoodadDef* doodadDef, CMapBaseObj* parent) {
-    if (parent->m_type & CMapBaseObj::Type_Chunk) {
+    if (parent->GetType() & CMapBaseObj::Type_Chunk) {
         CMapChunk* chunk = static_cast<CMapChunk*>(parent);
         chunk->m_bbox.t.z = doodadDef->m_bbox.t.z < chunk->m_bbox.t.z ? chunk->m_bbox.t.z : doodadDef->m_bbox.t.z;
-    } else if (parent->m_type & CMapBaseObj::Type_MapObjDefGroup) {
+    } else if (parent->GetType() & CMapBaseObj::Type_MapObjDefGroup) {
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(parent);
         group->aaBox |= doodadDef->m_bbox;
 
@@ -143,7 +143,7 @@ void CMapDoodadDef::SelectLights(CM2Lighting* lighting) {
 // VERIFY: fc0f43f4 manual
 // OFFSET: 0x007C21E0
 CMapDoodadDef::CMapDoodadDef() {
-    this->m_type |= CMapBaseObj::Type_DoodadDef;
+    this->AddType(CMapBaseObj::Type_DoodadDef);
     this->model = nullptr;
     this->m_collisionGuid = WOWGUID();
     this->m_doodadSet = 0;
@@ -158,7 +158,7 @@ void CMapDoodadDef::SelectUnderwater(CM2Lighting* lighting) {
         for (CMapBaseObjLink* link = this->m_parentLinkList.Head(); link; link = this->m_parentLinkList.Next(link)) {
             CMapBaseObj* parent = link->ref;
 
-            if (!(parent->m_type & CMapBaseObj::Type_MapObjDefGroup)) {
+            if (!(parent->GetType() & CMapBaseObj::Type_MapObjDefGroup)) {
                 this->m_staticFlags |= MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LIQUID_QUERY_CACHED;
                 C3Vector pos(this->m_position.x, this->m_position.y, this->m_bbox.b.z);
                 int32_t liquidType;

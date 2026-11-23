@@ -3608,14 +3608,14 @@ void CMap::LinkObjectToMapObjDefGroup(CMapStaticEntity* object, CMapObjDefGroup*
     CMapBaseObjLink* link = CMap::AllocBaseObjLink(object);
     link->ref = mapObjDefGroup;
 
-    if (object->m_type & CMapBaseObj::Type_Entity) {
+    if (object->GetType() & CMapBaseObj::Type_Entity) {
         if (object->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE) {
             mapObjDefGroup->entityLinkList.LinkToHead(link);
             return;
         }
 
         mapObjDefGroup->entityLinkList.LinkToTail(link);
-    } else if (object->m_type & CMapBaseObj::Type_DoodadDef) {
+    } else if (object->GetType() & CMapBaseObj::Type_DoodadDef) {
         mapObjDefGroup->doodadDefLinkList.LinkToTail(link);
     }
 }
@@ -3655,13 +3655,13 @@ bool CMap::LinkObjectToMapExterior(CMapStaticEntity* object) {
             CMapBaseObjLink* link = CMap::AllocBaseObjLink(object);
             link->ref = chunk;
 
-            if (object->m_type & CMapBaseObj::Type_Entity) {
+            if (object->GetType() & CMapBaseObj::Type_Entity) {
                 if (object->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_COLLIDABLE) {
                     chunk->entityLinkList.LinkToHead(link);
                 } else {
                     chunk->entityLinkList.LinkToTail(link);
                 }
-            } else if (object->m_type & CMapBaseObj::Type_DoodadDef) {
+            } else if (object->GetType() & CMapBaseObj::Type_DoodadDef) {
                 chunk->doodadDefLinkList.LinkToTail(link);
             }
 
@@ -3847,7 +3847,7 @@ void CMap::LinkStaticEntitySingle2(CMapStaticEntity* entity) {
 
     CMap::LinkStaticEntity(entity, top, bottom, top, interior, hit, interiorHit, groundHit);
 
-    uint32_t isEntity = entity->m_type & CMapBaseObj::Type_Entity;
+    uint32_t isEntity = entity->GetType() & CMapBaseObj::Type_Entity;
     uint32_t groundType = 0xFFFFFFFF;
 
     if (!hit) {
@@ -3993,7 +3993,7 @@ void CMap::LinkStaticEntity(CMapStaticEntity* entity) {
         link = next;
     }
 
-    if (entity->m_type & CMapBaseObj::Type_Entity) {
+    if (entity->GetType() & CMapBaseObj::Type_Entity) {
         static_cast<CMapEntity*>(entity)->m_groundType = -1;
     }
 
@@ -4722,7 +4722,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
 
     CM2Model* model = nullptr;
 
-    if (hitObject->m_type & CMapBaseObj::Type_DoodadDef) {
+    if (hitObject->GetType() & CMapBaseObj::Type_DoodadDef) {
         CMapStaticEntity* entity = static_cast<CMapStaticEntity*>(hitObject);
         hitInfo->m_type = World::HitTestDebug::TYPE_DOODAD;
         hitInfo->m_bbox = entity->m_bbox;
@@ -4730,7 +4730,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
         hitInfo->m_labelPos = entity->m_vec2;
         hitInfo->m_labelPos.z += 0.1f;
         model = entity->model;
-    } else if (hitObject->m_type & CMapBaseObj::Type_Entity) {
+    } else if (hitObject->GetType() & CMapBaseObj::Type_Entity) {
         CMapStaticEntity* entity = static_cast<CMapStaticEntity*>(hitObject);
         hitInfo->m_type = World::HitTestDebug::TYPE_ENTITY;
         hitInfo->m_bbox = entity->m_bbox;
@@ -4744,7 +4744,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
         }
 
         model = entity->model;
-    } else if (hitObject->m_type & CMapBaseObj::Type_MapObjDefGroup) {
+    } else if (hitObject->GetType() & CMapBaseObj::Type_MapObjDefGroup) {
         CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(hitObject);
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(defGroup->m_parentLinkList.Head()->ref);
         CMapObj* mapObj = mapObjDef->mapObj;
@@ -4774,7 +4774,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
 
     CMapBaseObj* object = hitObject;
 
-    if (object->m_type & CMapBaseObj::Type_MapObjDefGroup) {
+    if (object->GetType() & CMapBaseObj::Type_MapObjDefGroup) {
         object = object->m_parentLinkList.Head()->ref;
     }
 
@@ -4785,14 +4785,14 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
             continue;
         }
 
-        if (parent->m_type & CMapBaseObj::Type_Chunk) {
+        if (parent->GetType() & CMapBaseObj::Type_Chunk) {
             if (hitInfo->m_numParents < 8) {
                 World::HitTestDebug::Parent* entry = &hitInfo->m_parents[hitInfo->m_numParents++];
                 entry->m_name = "Terrain";
                 entry->m_groupName = nullptr;
                 entry->m_chunkOffset = static_cast<CMapChunk*>(parent)->m_cOffset;
             }
-        } else if (parent->m_type & CMapBaseObj::Type_MapObjDefGroup) {
+        } else if (parent->GetType() & CMapBaseObj::Type_MapObjDefGroup) {
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(parent);
             CMapObj* mapObj = static_cast<CMapObjDef*>(defGroup->m_parentLinkList.Head()->ref)->mapObj;
             CMapObjGroup* group = mapObj->GetGroup(defGroup->groupNum, 0);
@@ -4924,7 +4924,7 @@ bool CMap::VectorIntersect(C3Vector* start, C3Vector* end, uint32_t flags, uint3
         CMapBaseObj* owner = static_cast<CMapBaseObj*>(World::s_m2Scene->EndHitTest(localStart, localEnd, t, 0));
 
         if (t < *distance) {
-            if ((owner->m_type & CMapBaseObj::Type_DoodadDef) && static_cast<CMapDoodadDef*>(owner)->m_collisionGuid.m_guid) {
+            if ((owner->GetType() & CMapBaseObj::Type_DoodadDef) && static_cast<CMapDoodadDef*>(owner)->m_collisionGuid.m_guid) {
                 s_lastCollisionGUID = static_cast<CMapDoodadDef*>(owner)->m_collisionGuid;
             }
 
@@ -5052,7 +5052,7 @@ bool CMap::QueryAreaId(CMapEntity* entity, uint32_t& areaId) {
     CMapBaseObjLink* parentLink = entity->m_parentLinkList.Head();
 
     if (parentLink) {
-        if (parentLink->ref->m_type & CMapBaseObj::Type_Chunk) {
+        if (parentLink->ref->GetType() & CMapBaseObj::Type_Chunk) {
             areaId = static_cast<CMapChunk*>(parentLink->ref)->m_areaId;
             return true;
         }
@@ -5822,7 +5822,7 @@ void CMap::Unload() {
         CMapBaseObj* owner = link->owner;
         CMap::FreeBaseObjLink(link);
 
-        if (!(owner->m_type & CMapBaseObj::Type_UserCreated)) {
+        if (!(owner->GetType() & CMapBaseObj::Type_UserCreated)) {
             CMapDoodadDef::Purge(static_cast<CMapDoodadDef*>(owner));
         }
 
@@ -5883,7 +5883,7 @@ void CMap::SnapBaseObjToSubChunk(CMapBaseObj* baseObj, const C3Vector* position,
     C44Matrix rotation = C44Matrix::RotationAroundZ(facing);
     CAaBox bounds(C3Vector(0.0f, 0.0f, 0.0f), C3Vector(0.0f, 0.0f, 0.0f));
 
-    if (baseObj->m_type & CMapBaseObj::Type_MapObjDef) {
+    if (baseObj->GetType() & CMapBaseObj::Type_MapObjDef) {
         static_cast<CMapObjDef*>(baseObj)->mapObj->GetBounds(&bounds);
     } else {
         bounds = static_cast<CMapStaticEntity*>(baseObj)->model->GetBoundingBox();

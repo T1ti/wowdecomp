@@ -16,7 +16,7 @@
 // OFFSET: 0x007D9B10
 CMapLight::CMapLight() {
     this->m_sphere.r = 0.0f;
-    this->m_type |= CMapBaseObj::Type_Light;
+    this->AddType(CMapBaseObj::Type_Light);
     this->m_attenDenom = 0.0f;
     this->m_attenEnd = 0.0f;
     this->m_dynamic = 0;
@@ -86,9 +86,9 @@ void CMap::DestroyLight(CMapLight* light) {
         CMapBaseObjLink* next = light->m_parentLinkList.Next(link);
 
         if (ref) {
-            if (ref->m_type & CMapBaseObj::Type_Chunk) {
+            if (ref->GetType() & CMapBaseObj::Type_Chunk) {
                 static_cast<CMapChunk*>(ref)->UpdateLights();
-            } else if (ref->m_type & CMapBaseObj::Type_MapObjDefGroup) {
+            } else if (ref->GetType() & CMapBaseObj::Type_MapObjDefGroup) {
                 static_cast<CMapObjDefGroup*>(ref)->UpdateLights();
             }
         }

@@ -178,7 +178,7 @@ class CMapStaticEntity : public CMapBaseObj {
 
     void AdjustLightmap(const CImVector* color, CImVector* diffuse, CImVector limit, CImVector* ambient, uint8_t maxBrightness);
 
-    bool GetMapObjAndGroup(CMapObjDef** mapObjDef, CMapObj** mapObj, CMapObjDefGroup** mapObjDefGroup, CMapObjGroup** mapObjGroup, int32_t skipHidden);
+    bool GetMapObjAndGroup(CMapObjDef*& mapObjDef, CMapObj*& mapObj, CMapObjDefGroup*& mapObjDefGroup, CMapObjGroup*& mapObjGroup, int32_t skipHidden);
 };
 
 #endif

@@ -29,7 +29,7 @@ CMapObjDefGroup::CMapObjDefGroup() {
     this->entityLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
     this->lightLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
     this->m_unkLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
-    this->m_type |= CMapBaseObj::Type_MapObjDefGroup;
+    this->AddType(CMapBaseObj::Type_MapObjDefGroup);
     this->m_flags = static_cast<MapObjFlag>(this->m_flags | MAPOBJ_FLAG_UNPLACED);
     this->groupNum = -1;
     this->m_unkFlags = -1;
@@ -76,7 +76,7 @@ CMapObjDef::CMapObjDef() {
     this->m_nameId = 0;
     this->mapObj = nullptr;
     this->unused_00F8 = 0;
-    this->m_type |= CMapBaseObj::Type_MapObjDef;
+    this->AddType(CMapBaseObj::Type_MapObjDef);
     this->m_doodadSet = 0;
     this->m_nameSet = 0;
     this->unused_0108 = 0;
@@ -461,7 +461,7 @@ void CMapObjDef::SetDoodadsEnabled(CMapObjDef* mapObjDef, BOOL enable, uint16_t 
                 parentNext = doodadDef->m_parentLinkList.Next(parentLink);
                 CMapBaseObj* parent = parentLink->ref;
 
-                if (!(parent->m_type & CMapBaseObj::Type_MapObjDefGroup) || parent->m_parentLinkList.Head()->ref != mapObjDef) {
+                if (!(parent->GetType() & CMapBaseObj::Type_MapObjDefGroup) || parent->m_parentLinkList.Head()->ref != mapObjDef) {
                     CMap::FreeBaseObjLink(parentLink);
                 }
             }

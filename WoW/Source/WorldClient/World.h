@@ -411,7 +411,6 @@ extern int32_t s_curGroupIsInterior;
 extern int32_t s_cullStateValid;
 extern int32_t s_interiorPass;
 extern uint32_t s_maxPortalDepth;
-extern int32_t s_entityCanLink;
 extern WOWGUID s_highlightedObjectGuid;
 
 class WMOAreaTableRec;

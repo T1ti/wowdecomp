@@ -27,7 +27,11 @@ class CMapBaseObj {
     // Caller-created entities survive map unload; StaticEntityEx is a combined factory tag.
     // Historical Type_Area = 0x2 is not set by the current area factory.
     /* 0004 */ int32_t m_objectIndex;
+    private:
+    friend class CMap;
     /* 0008 */ uint16_t m_type;
+
+    public:
     /* 000A */ uint16_t m_refCount;
     /* 000C */ MapObjFlag m_flags;
     /* 0010 */ TSLink<CMapBaseObj> m_lameAssLink;
@@ -43,6 +47,9 @@ class CMapBaseObj {
     virtual void SelectUnderwater(CM2Lighting* lighting);
 
     CMapBaseObj();
+
+    protected:
+    void AddType(uint16_t type) { this->m_type |= type; } // (inferred)
 };
 
 #endif

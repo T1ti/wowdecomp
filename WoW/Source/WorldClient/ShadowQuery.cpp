@@ -470,7 +470,7 @@ void CShadowQuery::GatherShadowCasters(CShadowCacheQueryData& data, int32_t firs
 
         BOOL isUnit = 1;
 
-        if (!(entity->m_type & CMapBaseObj::Type_Entity) || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS)) {
+        if (!(entity->GetType() & CMapBaseObj::Type_Entity) || (entity->m_staticFlags & MAP_STATIC_FLAGS::MAP_STATIC_FLAG_LINK_MULTIPLE_WMO_GROUPS)) {
             isUnit = 0;
         }
 
