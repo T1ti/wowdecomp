@@ -42,7 +42,7 @@ const char* GxuFontGetFontName(CGxFont* face);
 uint32_t GxuFontGetMaxCharsWithinWidth(CGxFont* face, const char* text, float fontHeight, float maxWidth, uint32_t numBytes, float* extent, float shadowWidth, float scale, float unused, uint32_t flags);
 uint32_t GxuFontGetMaxCharsWithinWidthAndHeight(CGxFont* face, const char* text, float fontHeight, float blockWidth, float blockHeight, uint32_t numBytes, float shadowWidth, float scale, float spacing, uint32_t flags);
 uint32_t GxuFontGetMaxCharsWithinWidthFromEnd(CGxFont* face, const char* text, float fontHeight, float maxWidth, uint32_t numBytes, float* extent, float shadowWidth, float scale, float unused, uint32_t flags);
-float GxuFontGetOneToOneHeight(CGxFont* face);
+float GxuFontGetOneToOneHeight(CGxFont* font);
 C3Vector GxuFontGetStringPosition(CGxString* string);
 void GxuFontGetTextExtent(CGxFont* face, const char* text, uint32_t numBytes, float fontHeight, float* extent, float shadowWidth, float scale, float unused, uint32_t flags);
 float GxuFontGetWrappedTextHeight(CGxFont* face, const char* text, float fontHeight, float blockWidth, const C2Vector& shadowOffset, float scale, float spacing, uint32_t flags);
@@ -58,6 +58,6 @@ int32_t GxuFontStringSetGradient(CGxString* string, int32_t start, int32_t lengt
 const char* GxuFontStripEscapeCodes(const char* text, uint32_t textLength, uint32_t flags, char* buffer, uint32_t bufferSize);
 void GxuFontUpdate();
 void GxuFontWindowSizeChanged();
-uint32_t GxuFontWrapText(CGxFont* face, const char* text, uint32_t textLength, float fontHeight, float blockWidth, uint32_t* lineStarts, uint32_t maxLines, float shadowWidth, float scale, float unused, uint32_t flags);
+uint32_t GxuFontWrapText(CGxFont* font, const char* text, uint32_t textLength, float fontHeight, float blockWidth, uint32_t* outputListElements, uint32_t maxLines, float shadowWidth, float scale, float unused, uint32_t flags);
 
 #endif

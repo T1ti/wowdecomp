@@ -37,6 +37,12 @@ struct CGxFont : public TSLinkedNode<CGxFont> {
         FONT_THICK_OUTLINE = 8,
     };
 
+    private:
+    friend struct TEXTURECACHE;
+    friend struct BATCHEDRENDERFONTDESC;
+    friend struct CGxString;
+    friend float GxuFontGetOneToOneHeight(CGxFont* font);
+
     /* 0008 */ TSExplicitList<CGxString, offsetof(CGxString, m_fontStringLink)> m_strings;
     /* 0014 */ TSHashTable<CHARCODEDESC, HASHKEY_NONE> m_activeCharacters;
     /* 003C */ TSHashTable<KERNNODE, KERNINGHASHKEY> m_kernInfo;
@@ -49,25 +55,28 @@ struct CGxFont : public TSLinkedNode<CGxFont> {
     /* 0184 */ float m_fontHeight;
     /* 0188 */ float m_pixelsPerUnit;
     /* 018C */ TEXTURECACHE m_textureCache[8];
-    /* 024C */ uint32_t m_pixelSize;
+    /* 024C */ uint32_t m_pixSize;
 
+    static float FindNearestFixedSize(FT_Face face, float height);
+    bool GetGlyphData(GLYPHBITMAPDATA* data, uint32_t code) const;
+    void RegisterEvictNotice(uint32_t pageNumber);
+    int32_t UpdateDimensions();
+
+    public:
+    uint32_t GetFontFlags() const { return this->m_fontFlags; } // (inferred)
     CGxFont();
     ~CGxFont();
     int32_t CheckStringGlyphs(const char* string);
     void ClearGlyphs();
     float ComputeStep(uint32_t code, uint32_t nextCode);
     float ComputeStepFixedWidth(uint32_t code, uint32_t nextCode);
-    float FindNearestFixedSize(FT_Face face, float height);
     float GetGlyphAdvance(uint32_t code);
-    float GetGlyphBearing(const CHARCODEDESC* desc, bool scaled, float height);
-    bool GetGlyphData(GLYPHBITMAPDATA* data, uint32_t code);
-    const char* GetName();
-    uint32_t GetPixelSize();
+    float GetGlyphBearing(const CHARCODEDESC* desc, bool scaled, float height) const;
+    const char* GetName() const;
+    uint32_t GetPixelSize() const;
     void HandleScreenSizeChange();
     int32_t Initialize(const char* name, uint32_t fontFlags, float fontHeight);
     CHARCODEDESC* NewCodeDesc(uint32_t code);
-    void RegisterEvictNotice(uint32_t texturePage);
-    int32_t UpdateDimensions();
 };
 
 #endif

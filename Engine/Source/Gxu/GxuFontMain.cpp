@@ -143,7 +143,7 @@ uint32_t GxuFontGetFontFlags(CGxFont* face) {
         return CGxFont::FONT_FLAGS::FONT_NONE;
     }
 
-    return face->m_fontFlags;
+    return face->GetFontFlags();
 }
 
 // VERIFY: 44a249e9 auto
@@ -221,13 +221,15 @@ uint32_t GxuFontGetMaxCharsWithinWidthFromEnd(CGxFont* font, const char* text, f
 
 // VERIFY: f1a25b15 auto
 // OFFSET: 0x006BD020
-float GxuFontGetOneToOneHeight(CGxFont* face) {
-    if (!face) {
+float GxuFontGetOneToOneHeight(CGxFont* font) {
+    if (!font) {
         SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
         return 0.0f;
     }
 
-    return static_cast<float>(face->GetPixelSize()) / static_cast<float>(g_heightPixels);
+    STORM_ASSERT(font->m_cellHeight);
+    STORM_ASSERT(font->m_cellHeight <= (32 + (4 * 1)));
+    return static_cast<float>(font->GetPixelSize()) / static_cast<float>(g_heightPixels);
 }
 
 // VERIFY: 1ebc6f2b auto
@@ -446,6 +448,9 @@ C3Vector GxuFontGetStringPosition(CGxString* string) {
 // VERIFY: 4c66c41f manual
 // OFFSET: 0x006BD5A0
 QUOTEDCODE GxuDetermineQuotedCode(const char* text, int32_t& advance, CImVector* color, uint32_t flags, uint32_t& wide) {
+    STORM_ASSERT(text);
+    STORM_ASSERT(*text);
+
     uint32_t ignoreColor = flags & EGxStringFlags::EGxStringFlags_IgnoreColorCodes;
     uint32_t ignoreNewLine = flags & EGxStringFlags::EGxStringFlags_IgnoreNewlineCodes;
     uint32_t ignoreHyperlink = flags & EGxStringFlags::EGxStringFlags_IgnoreHyperlinkCodes;
@@ -729,13 +734,16 @@ float GxuFontGetWrappedTextHeight(CGxFont* face, const char* text, float fontHei
 
 // VERIFY: c0427aaf auto
 // OFFSET: 0x006BDB10
-uint32_t GxuFontWrapText(CGxFont* face, const char* text, uint32_t textLength, float fontHeight, float blockWidth, uint32_t* lineStarts, uint32_t maxLines, float shadowWidth, float scale, float unused, uint32_t flags) {
+uint32_t GxuFontWrapText(CGxFont* font, const char* text, uint32_t textLength, float fontHeight, float blockWidth, uint32_t* outputListElements, uint32_t maxLines, float shadowWidth, float scale, float unused, uint32_t flags) {
+    STORM_ASSERT(font);
+    STORM_ASSERT(outputListElements);
+
     if (!text || !*text || !textLength || fontHeight == 0.0f || blockWidth == 0.0f) {
         return 0;
     }
 
     if (flags & EGxStringFlags::EGxStringFlags_FixedSize) {
-        fontHeight = GxuFontGetOneToOneHeight(face);
+        fontHeight = GxuFontGetOneToOneHeight(font);
     }
 
     const char* currentText = text;
@@ -753,7 +761,7 @@ uint32_t GxuFontWrapText(CGxFont* face, const char* text, uint32_t textLength, f
         }
 
         if (numLines < maxLines) {
-            lineStarts[numLines] = currentText - text;
+            outputListElements[numLines] = currentText - text;
         }
 
         numLines++;
@@ -767,7 +775,7 @@ uint32_t GxuFontWrapText(CGxFont* face, const char* text, uint32_t textLength, f
             uint32_t lineBytes;
             float lineWidth;
             const char* nextText;
-            CalcWrapPoint(face, currentText, fontHeight, blockWidth, &lineBytes, &lineWidth, &nextText, shadowWidth, flags, &wordBreak, nullptr, scale);
+            CalcWrapPoint(font, currentText, fontHeight, blockWidth, &lineBytes, &lineWidth, &nextText, shadowWidth, flags, &wordBreak, nullptr, scale);
 
             if (currentText == nextText) {
                 break;
@@ -779,7 +787,7 @@ uint32_t GxuFontWrapText(CGxFont* face, const char* text, uint32_t textLength, f
 
     if (end[-1] == '\n') {
         if (numLines < maxLines) {
-            lineStarts[numLines] = textLength;
+            outputListElements[numLines] = textLength;
         }
 
         numLines++;
@@ -881,7 +889,9 @@ int32_t GxuFontCreateFont(const char* name, float fontHeight, CGxFont*& face, ui
         return 0;
     }
 
+    STORM_ASSERT(g_FTLibrary);
     CGxFont* newFace = g_fonts.NewNode(TSLIST_LINK_BEFORE, 0, 0);
+    STORM_ASSERT(newFace);
 
     if (flags & CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE) {
         flags |= CGxFont::FONT_FLAGS::FONT_OUTLINE;
@@ -956,8 +966,10 @@ void GxuFontInitialize() {
 
     BATCHEDRENDERFONTDESC::Initialize();
 
-    FT_New_Library(&s_GxuMemoryRecord, &g_FTLibrary);
+    [[maybe_unused]] const FT_Error error = FT_New_Library(&s_GxuMemoryRecord, &g_FTLibrary);
     FT_Add_Default_Modules(g_FTLibrary);
+    STORM_ASSERT(!error);
+    STORM_ASSERT(g_FTLibrary);
 
     GxuFontWindowSizeChanged();
     InitializeFrameGraph();
