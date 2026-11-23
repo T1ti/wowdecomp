@@ -236,17 +236,26 @@ class CGCamera : public CSimpleCamera {
     /* 0134 */ float m_groundTilt;
     /* 0138 */ float m_targetFov;
     /* 013C */ float m_flyingMountHeight;
+    private:
     /* 0140 */ C3Vector m_bobOffset;
+
+    bool IsBobbing() const { return (this->m_state & STATE_FLAGS::STATE_BOBBING) != 0; }
+    void BeginBobbingSmooth();
+
+    public:
     /* 014C */ float m_targetHeightNear;
     /* 0150 */ float m_targetHeightFar;
     /* 0154 */ float m_targetHeightSwim;
     /* 0158 */ float m_mountHeight;
     /* 015C */ uint32_t m_heightChangedTimeMs;
+    private:
     /* 0160 */ uint32_t m_motionFlags;
     /* 0164 */ uint32_t m_motionStartTime [NUM_CAMERA_MOTIONS];
     /* 017C */ uint32_t m_motionStopTime [NUM_CAMERA_MOTIONS];
     /* 0194 */ uint32_t m_motionEndTime [NUM_CAMERA_MOTIONS];
     /* 01AC */ float m_motionSpeed [NUM_CAMERA_MOTIONS];
+
+    public:
     /* 01C4 */ C3Vector m_targetPosition;
     /* 01D0 */ float unused_01D0;
     /* 01D4 */ float m_targetFacing;
@@ -259,9 +268,12 @@ class CGCamera : public CSimpleCamera {
     /* 0240 */ CAMERA_SMOOTH m_smoothTargetOffset;
     /* 0258 */ CAMERA_SMOOTH m_smoothYaw;
     /* 0270 */ CAMERA_SMOOTH m_smoothFoV;
+    private:
     /* 0288 */ uint32_t m_bobTime;
     /* 028C */ float m_bobDuration;
     /* 0290 */ C3Vector m_bobStart;
+
+    public:
     /* 029C */ uint32_t unused_029C;
     /* 02A0 */ int32_t m_underwater;
     /* 02A4 */ uint32_t m_wasFlying;
@@ -297,7 +309,6 @@ class CGCamera : public CSimpleCamera {
     ~CGCamera();
     void AddShake(const C3Vector& position, CGCameraShakeType type, CGCameraDir dir, float amplitude, float frequency, float duration, float timeOffset, float damping);
     void AddShakeById(int32_t shakeId, const C3Vector* position);
-    void BeginBobbingSmooth();
     void CalcTerrainTilt(CGObject_C* target, uint32_t time);
     void CameraTeleported(float facing);
     uint32_t CanSmoothTargetFacing(CGObject_C* target);
@@ -361,6 +372,15 @@ class CGCamera : public CSimpleCamera {
     int32_t SmoothSetHeight(float height, float delay, float scale, uint32_t time);
     float SmoothTargetFacing(float facing, int32_t moved);
     void StartMotion(CGCameraMotion move, uint32_t time, uint32_t duration, float speed);
+    void StopMotion(CGCameraMotion move, uint32_t time) { // (inferred)
+        STORM_ASSERT(move < NUM_CAMERA_MOTIONS);
+        const uint32_t active = 1u << (2 * move);
+
+        if (this->m_motionFlags & active) {
+            this->m_motionStopTime[move] = time;
+            this->m_motionFlags |= active << 1;
+        }
+    }
     int32_t StartSmoothDistance(float distance, float rate, uint32_t startTime);
     int32_t StartSmoothFlyingMountHeight(float height, float rate, uint32_t startTime);
     int32_t StartSmoothFoV(float offset, float rate, uint32_t startTime);
@@ -388,7 +408,7 @@ class CGCamera : public CSimpleCamera {
 extern float MAX_PITCH_ANGLE;
 extern float MIN_PITCH_ANGLE;
 extern int32_t s_cameraViewAngular[3];
-extern CAMERA_DEFAULTS s_cameraViewDefaults[CGCamera::MAX_CAMERA_VIEWS];
+extern const CAMERA_DEFAULTS s_cameraViewDefaults[CGCamera::MAX_CAMERA_VIEWS];
 extern const float s_terrainTiltTable[10][2];
 extern float s_targetHeightOffset;
 extern float s_cameraBobFrequency;

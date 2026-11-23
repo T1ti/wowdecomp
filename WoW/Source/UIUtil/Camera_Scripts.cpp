@@ -7,12 +7,14 @@
 #include "Engine/Source/lua-5.1/src/lauxlib.h"
 #include "Engine/Source/lua-5.1/src/lua.h"
 #include "WoW/Source/Ui/BarberShop.h"
+#include "WoW/Source/UIUtil/InputControl.h"
 #include "WoW/Source/Ui/WorldFrame.h"
 #include "Engine/Source/Tempest/CMath.h"
 
 // VERIFY: 60071b01 auto
 // OFFSET: 0x006017E0
 static int32_t Script_CameraZoomIn(lua_State* L) {
+    STORM_ASSERT(CGInputControl::GetActive());
     uint32_t time = CSimpleTop::s_eventTime;
     double distance = lua_isnumber(L, 1) ? lua_tonumber(L, 1) : 1.0;
 
@@ -27,6 +29,7 @@ static int32_t Script_CameraZoomIn(lua_State* L) {
 // VERIFY: 2a60fd0e auto
 // OFFSET: 0x00601840
 static int32_t Script_CameraZoomOut(lua_State* L) {
+    STORM_ASSERT(CGInputControl::GetActive());
     uint32_t time = CSimpleTop::s_eventTime;
     double distance = lua_isnumber(L, 1) ? lua_tonumber(L, 1) : 1.0;
 
@@ -41,6 +44,7 @@ static int32_t Script_CameraZoomOut(lua_State* L) {
 // VERIFY: 1a486e5c manual
 // OFFSET: 0x005FF000
 static int32_t MoveViewStart(lua_State* L, CGCameraMotion motion) {
+    STORM_ASSERT(CGInputControl::GetActive());
     uint32_t time = CSimpleTop::s_eventTime;
     float speed = 1.0f;
 
@@ -58,18 +62,17 @@ static int32_t Script_MoveViewInStart(lua_State* L) {
     return MoveViewStart(L, CAMERA_MOVE_IN);
 }
 
+static inline int32_t MoveViewStop(CGCameraMotion move) { // (inferred)
+    STORM_ASSERT(CGInputControl::GetActive());
+    const uint32_t time = CSimpleTop::s_eventTime;
+    CGWorldFrame::GetActiveCamera()->StopMotion(move, time);
+    return 0;
+}
+
 // VERIFY: 5d39c109 manual
 // OFFSET: 0x005FF0A0
 static int32_t Script_MoveViewInStop(lua_State* L) {
-    uint32_t time = CSimpleTop::s_eventTime;
-    CGCamera* camera = CGWorldFrame::GetActiveCamera();
-
-    if (camera->m_motionFlags & CGCamera::MOTION_FLAGS::FLAG_MOVE_IN_ACTIVE) {
-        camera->m_motionStopTime[CAMERA_MOVE_IN] = time;
-        camera->m_motionFlags |= CGCamera::MOTION_FLAGS::FLAG_MOVE_IN_STOP_REQUESTED;
-    }
-
-    return 0;
+    return MoveViewStop(CAMERA_MOVE_IN);
 }
 
 // VERIFY: 6a295394 auto
@@ -81,15 +84,7 @@ static int32_t Script_MoveViewOutStart(lua_State* L) {
 // VERIFY: b4961425 manual
 // OFFSET: 0x005FF0F0
 static int32_t Script_MoveViewOutStop(lua_State* L) {
-    uint32_t time = CSimpleTop::s_eventTime;
-    CGCamera* camera = CGWorldFrame::GetActiveCamera();
-
-    if (camera->m_motionFlags & CGCamera::MOTION_FLAGS::FLAG_MOVE_OUT_ACTIVE) {
-        camera->m_motionStopTime[CAMERA_MOVE_OUT] = time;
-        camera->m_motionFlags |= CGCamera::MOTION_FLAGS::FLAG_MOVE_OUT_STOP_REQUESTED;
-    }
-
-    return 0;
+    return MoveViewStop(CAMERA_MOVE_OUT);
 }
 
 // VERIFY: 12f10ad4 auto
@@ -101,15 +96,7 @@ static int32_t Script_MoveViewLeftStart(lua_State* L) {
 // VERIFY: 2c3e8bcb manual
 // OFFSET: 0x005FF190
 static int32_t Script_MoveViewLeftStop(lua_State* L) {
-    uint32_t time = CSimpleTop::s_eventTime;
-    CGCamera* camera = CGWorldFrame::GetActiveCamera();
-
-    if (camera->m_motionFlags & CGCamera::MOTION_FLAGS::FLAG_MOVE_LEFT_ACTIVE) {
-        camera->m_motionStopTime[CAMERA_MOVE_LEFT] = time;
-        camera->m_motionFlags |= CGCamera::MOTION_FLAGS::FLAG_MOVE_LEFT_STOP_REQUESTED;
-    }
-
-    return 0;
+    return MoveViewStop(CAMERA_MOVE_LEFT);
 }
 
 // VERIFY: 7e563174 auto
@@ -121,15 +108,7 @@ static int32_t Script_MoveViewRightStart(lua_State* L) {
 // VERIFY: 3f6208a0 manual
 // OFFSET: 0x005FF140
 static int32_t Script_MoveViewRightStop(lua_State* L) {
-    uint32_t time = CSimpleTop::s_eventTime;
-    CGCamera* camera = CGWorldFrame::GetActiveCamera();
-
-    if (camera->m_motionFlags & CGCamera::MOTION_FLAGS::FLAG_MOVE_RIGHT_ACTIVE) {
-        camera->m_motionStopTime[CAMERA_MOVE_RIGHT] = time;
-        camera->m_motionFlags |= CGCamera::MOTION_FLAGS::FLAG_MOVE_RIGHT_STOP_REQUESTED;
-    }
-
-    return 0;
+    return MoveViewStop(CAMERA_MOVE_RIGHT);
 }
 
 // VERIFY: 57783860 auto
@@ -141,15 +120,7 @@ static int32_t Script_MoveViewUpStart(lua_State* L) {
 // VERIFY: a013e6fb manual
 // OFFSET: 0x005FF1E0
 static int32_t Script_MoveViewUpStop(lua_State* L) {
-    uint32_t time = CSimpleTop::s_eventTime;
-    CGCamera* camera = CGWorldFrame::GetActiveCamera();
-
-    if (camera->m_motionFlags & CGCamera::MOTION_FLAGS::FLAG_MOVE_UP_ACTIVE) {
-        camera->m_motionStopTime[CAMERA_MOVE_UP] = time;
-        camera->m_motionFlags |= CGCamera::MOTION_FLAGS::FLAG_MOVE_UP_STOP_REQUESTED;
-    }
-
-    return 0;
+    return MoveViewStop(CAMERA_MOVE_UP);
 }
 
 // VERIFY: f815dfb9 auto
@@ -161,15 +132,7 @@ static int32_t Script_MoveViewDownStart(lua_State* L) {
 // VERIFY: 8438c7a5 manual
 // OFFSET: 0x005FF230
 static int32_t Script_MoveViewDownStop(lua_State* L) {
-    uint32_t time = CSimpleTop::s_eventTime;
-    CGCamera* camera = CGWorldFrame::GetActiveCamera();
-
-    if (camera->m_motionFlags & CGCamera::MOTION_FLAGS::FLAG_MOVE_DOWN_ACTIVE) {
-        camera->m_motionStopTime[CAMERA_MOVE_DOWN] = time;
-        camera->m_motionFlags |= CGCamera::MOTION_FLAGS::FLAG_MOVE_DOWN_STOP_REQUESTED;
-    }
-
-    return 0;
+    return MoveViewStop(CAMERA_MOVE_DOWN);
 }
 
 // VERIFY: 4cdf1c55 auto
