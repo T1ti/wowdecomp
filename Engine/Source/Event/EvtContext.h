@@ -97,9 +97,12 @@ class EvtContext : public TSingletonInstanceId<EvtContext, 8> {
         DEBUG_START_WATCHDOG = 2,
     };
 
-    /* 0010 */ SCritSect m_critsect;
+    /* 0010 */ mutable SCritSect m_critsect;
     /* 0038 */ uint32_t m_currTime;
+    private:
     /* 003C */ SCHEDSTATE m_schedState;
+
+    public:
     /* 0040 */ TSTimerPriority<uint32_t> m_schedNextWakeTime;
     private:
     /* 0050 */ uint32_t m_schedLastIdle;
@@ -132,6 +135,37 @@ class EvtContext : public TSingletonInstanceId<EvtContext, 8> {
         return !this->m_id || this->m_id == reinterpret_cast<uintptr_t>(EventGetCurrentContext());
     }
 
+    bool SchedGetClosed() const {
+        return this->SchedGetState() == SCHEDSTATE_CLOSED;
+    }
+
+    bool SchedGetDestroyed() const { // (inferred)
+        return this->SchedGetState() == SCHEDSTATE_DESTROYED;
+    }
+
+    void SchedClose() { // (inferred)
+        this->m_critsect.Enter();
+        if (this->m_schedState == SCHEDSTATE_ACTIVE) {
+            this->m_schedState = SCHEDSTATE_CLOSED;
+        }
+        this->m_critsect.Leave();
+    }
+
+    void SchedSetDestroyed() { // (inferred)
+        this->m_critsect.Enter();
+        this->m_schedState = SCHEDSTATE_DESTROYED;
+        this->m_critsect.Leave();
+    }
+
+    private:
+    SCHEDSTATE SchedGetState() const { // (inferred)
+        this->m_critsect.Enter();
+        const SCHEDSTATE state = this->m_schedState;
+        this->m_critsect.Leave();
+        return state;
+    }
+
+    public:
     // INLINED
     uint32_t SchedGetLastIdle() const { // (inferred)
         STORM_ASSERT(IsCurrentContext());

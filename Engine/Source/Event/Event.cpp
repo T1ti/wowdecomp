@@ -136,9 +136,7 @@ int32_t EventQueuePost(HEVENTCONTEXT contextHandle, EVENTID id, const void* data
         return 0;
     }
 
-    context->m_critsect.Enter();
-    int32_t destroyed = context->m_schedState == SCHEDSTATE_DESTROYED;
-    context->m_critsect.Leave();
+    bool destroyed = context->SchedGetDestroyed();
 
     int32_t result;
 

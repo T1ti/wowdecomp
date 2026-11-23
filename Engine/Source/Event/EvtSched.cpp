@@ -16,58 +16,52 @@
 
 namespace Event {
     // STATIC: 0x00AC0DC0
-    volatile long s_threadListContention = -1;
+    static volatile long s_threadListContention = -1;
 
     // STATIC: 0x00AC0DC4
-    TSList<EvtThread, TSGetLink<EvtThread> > s_threadList;
+    static TSList<EvtThread, TSGetLink<EvtThread> > s_threadList;
 
     // STATIC: 0x00B417C4
-    EvtContext* s_currentEvtContext;
+    static EvtContext* s_currentEvtContext;
 
     // STATIC: 0x00B417C8
-    uint32_t s_mainThread;
+    static uint32_t s_mainThread;
 
     // STATIC: 0x00B417CC
-    int32_t s_originalThreadPriority;
+    static int32_t s_originalThreadPriority;
 
     // STATIC: 0x00B417D0
-    volatile long s_interactiveCount;
+    static volatile long s_interactiveCount;
 
     // STATIC: 0x00B417D4
-    uint32_t s_threadSlotCount;
+    static uint32_t s_threadSlotCount;
 
     // STATIC: 0x00B417D8
-    EvtThread** s_threadSlots;
+    static EvtThread** s_threadSlots;
 
     // STATIC: 0x00B417DC
-    SCritSect* s_threadSlotCritsects;
+    static SCritSect* s_threadSlotCritsects;
 
     // STATIC: 0x00B417E0
-    int32_t s_netServer;
+    static int32_t s_netServer;
 
     // STATIC: 0x00B417E8
-    SCritSect s_threadListCritsect;
+    static SCritSect s_threadListCritsect;
 
     // STATIC: 0x00B41810
-    TSGrowableArray<SThread*> s_schedulerThreads;
+    static TSGrowableArray<SThread*> s_schedulerThreads;
 
     // STATIC: 0x00B41820
-    SEvent s_startEvent(1, 0);
+    static SEvent s_startEvent(1, 0);
 
     // STATIC: 0x00B41824
-    SEvent s_shutdownEvent(1, 0);
+    static SEvent s_shutdownEvent(1, 0);
 }
 
 // VERIFY: 77804885 auto
 // OFFSET: 0x0047D0A0
 void CloseContext(EvtContext* context) {
-    context->m_critsect.Enter();
-
-    if (context->m_schedState == SCHEDSTATE_ACTIVE) {
-        context->m_schedState = SCHEDSTATE_CLOSED;
-    }
-
-    context->m_critsect.Leave();
+    context->SchedClose();
 }
 
 // VERIFY: db640a01 auto
@@ -121,9 +115,7 @@ int32_t SynthesizeInitialize(EvtContext* context) {
 // VERIFY: b9c7171f manual
 // OFFSET: 0x0047DB70
 void IEvtDispatchUpdate(EvtContext* context, uint32_t currTime, float elapsedSec) {
-    context->m_critsect.Enter();
-    int32_t closed = context->m_schedState == SCHEDSTATE_CLOSED;
-    context->m_critsect.Leave();
+    bool closed = context->SchedGetClosed();
 
     if (!closed) {
         EVENT_DATA_UPDATE data;
@@ -137,9 +129,7 @@ void IEvtDispatchUpdate(EvtContext* context, uint32_t currTime, float elapsedSec
 // VERIFY: 8e0d29f6 manual
 // OFFSET: 0x0047DBC0
 void SynthesizeIdle(EvtContext* context, uint32_t currTime, float elapsedSec) {
-    context->m_critsect.Enter();
-    int32_t closed = context->m_schedState == SCHEDSTATE_CLOSED;
-    context->m_critsect.Leave();
+    bool closed = context->SchedGetClosed();
 
     if (!closed) {
         if (context->SchedGetFlags() & EvtContext::SCHED_INTERACTIVE) {
@@ -157,9 +147,7 @@ void SynthesizeIdle(EvtContext* context, uint32_t currTime, float elapsedSec) {
 // VERIFY: 9966efd0 manual
 // OFFSET: 0x0047DC20
 void SynthesizePoll(EvtContext* context) {
-    context->m_critsect.Enter();
-    int32_t closed = context->m_schedState == SCHEDSTATE_CLOSED;
-    context->m_critsect.Leave();
+    bool closed = context->SchedGetClosed();
 
     if (!closed) {
         IEvtQueueDispatch(context, EVENT_ID_POLL, nullptr);
@@ -169,9 +157,7 @@ void SynthesizePoll(EvtContext* context) {
 // VERIFY: 9ce6122c manual
 // OFFSET: 0x0047DC50
 void SynthesizePaint(EvtContext* context) {
-    context->m_critsect.Enter();
-    int32_t closed = context->m_schedState == SCHEDSTATE_CLOSED;
-    context->m_critsect.Leave();
+    bool closed = context->SchedGetClosed();
 
     if (!closed && (context->SchedGetFlags() & EvtContext::SCHED_PAINT_PENDING)) {
         context->SchedRemoveFlags(EvtContext::SCHED_PAINT_PENDING);
@@ -261,6 +247,8 @@ void IEvtSchedulerDestroy() {
         delete Event::s_schedulerThreads[i - 1];
     }
 
+    STORM_ASSERT(!Event::s_threadList.Head()); // 12213: "!s_threadList.Head()"
+    STORM_ASSERT(Event::s_interactiveCount == 0); // 12213: "s_interactiveCount == 0"
     Event::s_schedulerThreads.Clear();
 
     delete[] Event::s_threadSlots;
@@ -276,6 +264,7 @@ void IEvtSchedulerDestroy() {
 // OFFSET: 0x0047E2F0
 void SynthesizeDestroy(EvtContext* context) {
     SynthesizeInitialize(context);
+    STORM_ASSERT(context->SchedGetClosed());
 
     if ((context->SchedGetFlags() & EvtContext::SCHED_INTERACTIVE) && !InterlockedDecrement(&Event::s_interactiveCount)) {
         IEvtSchedulerShutdown();
@@ -283,9 +272,7 @@ void SynthesizeDestroy(EvtContext* context) {
 
     IEvtQueueDispatch(context, EVENT_ID_3, nullptr);
 
-    context->m_critsect.Enter();
-    context->m_schedState = SCHEDSTATE_DESTROYED;
-    context->m_critsect.Leave();
+    context->SchedSetDestroyed();
 
     IEvtQueueDispatchAll(context);
     IEvtQueueDispatch(context, EVENT_ID_DESTROY, nullptr);
@@ -308,7 +295,9 @@ void SynthesizeDestroy(EvtContext* context) {
 // OFFSET: 0x0047E5A0
 EvtContext* GetNextContext(uint32_t hThread) {
     Event::s_threadSlotCritsects[hThread].Enter();
-    EvtContext* context = Event::s_threadSlots[hThread]->m_contextQueue.Dequeue();
+    EvtThread* thread = Event::s_threadSlots[hThread];
+    STORM_ASSERT(thread);
+    EvtContext* context = thread->m_contextQueue.Dequeue();
     Event::s_threadSlotCritsects[hThread].Leave();
 
     if (hThread == Event::s_mainThread) {
@@ -490,6 +479,7 @@ void PutContext(uint32_t nextWakeTime, uint32_t newSmoothWeight, EvtContext* con
         Event::s_threadListCritsect.Enter();
 
         EvtThread* thread = Event::s_threadSlots[hThread];
+        STORM_ASSERT(thread);
 
         if (thread->m_rebalance || context->m_schedRebalance) {
             if (context->m_schedRebalance) {
@@ -520,6 +510,7 @@ void PutContext(uint32_t nextWakeTime, uint32_t newSmoothWeight, EvtContext* con
             } else {
                 thread->m_weightTotal -= context->m_schedWeight;
                 thread->m_contextCount--;
+                STORM_ASSERT(thread->m_contextCount);
                 thread->m_weightAvg = thread->m_weightTotal / thread->m_contextCount;
 
                 found->m_contextCount++;
@@ -549,7 +540,9 @@ void PutContext(uint32_t nextWakeTime, uint32_t newSmoothWeight, EvtContext* con
 
     if (slot < Event::s_threadSlotCount) {
         Event::s_threadSlotCritsects[slot].Enter();
-        Event::s_threadSlots[slot]->m_contextQueue.Enqueue(context);
+        EvtThread* thread = Event::s_threadSlots[slot];
+        STORM_ASSERT(thread);
+        thread->m_contextQueue.Enqueue(context);
         Event::s_threadSlotCritsects[slot].Leave();
     }
 }
@@ -586,7 +579,9 @@ int32_t SchedulerThreadProcProcess(uint32_t hThread, int32_t* watchdogStarted) {
         OsNetPump(timeout);
         result = 258;
     } else {
-        result = Event::s_threadSlots[hThread]->m_wakeEvent.Wait(timeout);
+        EvtThread* thread = Event::s_threadSlots[hThread];
+        STORM_ASSERT(thread);
+        result = thread->m_wakeEvent.Wait(timeout);
     }
 
     if (!context) {
@@ -630,9 +625,7 @@ int32_t SchedulerThreadProcProcess(uint32_t hThread, int32_t* watchdogStarted) {
         Event::s_currentEvtContext = nullptr;
     }
 
-    context->m_critsect.Enter();
-    int32_t closed = context->m_schedState == SCHEDSTATE_CLOSED;
-    context->m_critsect.Leave();
+    bool closed = context->SchedGetClosed();
 
     if (closed) {
         DetachContextFromThread(hThread, context);
@@ -718,18 +711,19 @@ void IEvtSchedulerInitialize(uint32_t threadCount, int32_t netServer) {
     Event::s_netServer = netServer;
     Event::s_originalThreadPriority = SGetCurrentThreadPriority();
 
-    uint32_t slotCount = 1;
+    uint32_t threadSlotCount = 1;
 
-    while (slotCount < threadCount) {
-        slotCount *= 2;
+    while (threadSlotCount < threadCount) {
+        threadSlotCount *= 2;
 
-        if (!slotCount) {
+        if (!threadSlotCount) {
             break;
         }
     }
 
-    Event::s_threadSlotCount = slotCount;
-    Event::s_threadSlotCritsects = new (__FILE__, __LINE__) SCritSect[slotCount];
+    STORM_ASSERT(threadSlotCount);
+    Event::s_threadSlotCount = threadSlotCount;
+    Event::s_threadSlotCritsects = new (__FILE__, __LINE__) SCritSect[threadSlotCount];
     Event::s_threadSlots = new (__FILE__, __LINE__) EvtThread*[Event::s_threadSlotCount];
     memset(Event::s_threadSlots, 0, Event::s_threadSlotCount * sizeof(EvtThread*));
 

@@ -11,23 +11,6 @@
 
 class EvtContext;
 
-namespace Event {
-    extern volatile long s_threadListContention;
-    extern TSList<EvtThread, TSGetLink<EvtThread> > s_threadList;
-    extern EvtContext* s_currentEvtContext;
-    extern uint32_t s_mainThread;
-    extern int32_t s_originalThreadPriority;
-    extern volatile long s_interactiveCount;
-    extern uint32_t s_threadSlotCount;
-    extern EvtThread** s_threadSlots;
-    extern SCritSect* s_threadSlotCritsects;
-    extern int32_t s_netServer;
-    extern SCritSect s_threadListCritsect;
-    extern TSGrowableArray<SThread*> s_schedulerThreads;
-    extern SEvent s_startEvent;
-    extern SEvent s_shutdownEvent;
-}
-
 HEVENTCONTEXT AttachContextToThread(EvtContext* context);
 void CloseContext(EvtContext* context);
 void DestroySchedulerThread(uint32_t hThread);
