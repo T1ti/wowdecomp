@@ -160,9 +160,9 @@ class CGWorldFrame : public CSimpleFrame {
     static FFX::Effect* ffxEffectNetherWorld;
     static FFX::Effect* ffxEffectGlow;
     static FFX::Effect* ffxEffectDeath;
-    static CGWorldFrame* s_currentWorldFrame;
 
     static CSimpleFrame* Create(CSimpleFrame* parent);
+    static CGWorldFrame* GetActive() { return s_currentWorldFrame; }
     static CGCamera* GetActiveCamera();
     static void GetCameraFacing(C3Vector* facing);
     static void GetCameraPosition(C3Vector* position);
@@ -245,7 +245,7 @@ class CGWorldFrame : public CSimpleFrame {
     static void __stdcall CursorTrackCorpse(CGCorpse_C* corpse);
     BOOL IsUnitLegalSelection(CGUnit_C* unit, uint32_t flags);
     BOOL IsLegalSelection(CGObject_C* object, uint32_t flags);
-    uint32_t GetHitTestFilterFlags(int32_t unknown1);
+    uint32_t GetHitTestFilterFlags(int32_t unknown1) const;
     uint64_t FindClosestModel(const C3Vector& start, const C3Vector& end, uint32_t flags, float* distance);
     int32_t HitTest(const C3Vector& start, const C3Vector& end, uint32_t flags, HITTESTRESULT* result);
     void OnLayerTrackObject(const HITTESTRESULT& result);
@@ -259,6 +259,8 @@ class CGWorldFrame : public CSimpleFrame {
     // Debug feature (WorldFrame_Debug.cpp), stripped from the 3.3.5 release build.
     int32_t TogglePlayerRender();
 #endif
+    private:
+    static CGWorldFrame* s_currentWorldFrame;
 };
 
 class CWorldClickEvent {

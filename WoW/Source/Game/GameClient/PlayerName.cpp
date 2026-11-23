@@ -311,7 +311,7 @@ static const float ICON_FADE_ALPHA_PER_YARD = 55.25f; // (ICON_ALPHA_MAX - ICON_
 // VERIFY: 90af9757 manual
 // OFFSET: 0x007E52A0
 static uint8_t PlayerNameIconAlpha(const C3Vector& position) {
-    CGCamera* camera = CGWorldFrame::s_currentWorldFrame->m_camera;
+    CGCamera* camera = CGWorldFrame::GetActive()->m_camera;
 
     if (!camera) {
         return ICON_ALPHA_MAX;
@@ -536,7 +536,7 @@ void PLAYERNAMEDESC::UpdateWorldText(uint32_t time) {
             continue;
         }
 
-        CGCamera* camera = CGWorldFrame::s_currentWorldFrame->m_camera;
+        CGCamera* camera = CGWorldFrame::GetActive()->m_camera;
 
         if ((this->m_guid == camera->m_targetGUID && camera->IsFirstPersonView()) || !WorldTextUpdate(this->m_worldText[i], time)) {
             WorldTextDelete(this->m_worldText[i]);
@@ -667,7 +667,7 @@ void PlayerNameCreateText(PLAYERNAMEDESC* desc, uint32_t type, const char* text,
         return;
     }
 
-    CGCamera* camera = CGWorldFrame::s_currentWorldFrame->m_camera;
+    CGCamera* camera = CGWorldFrame::GetActive()->m_camera;
 
     if ((desc->m_guid != camera->m_targetGUID || !camera->IsFirstPersonView()) && !ClntObjMgrGetPlayerType()) {
         desc->CreateWorldText(type, text, color, pvpRank);

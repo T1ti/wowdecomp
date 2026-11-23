@@ -2170,7 +2170,7 @@ void CMissile::FireMissiles(const C3Vector* position) {
 void CMissile::UpdateStaticLists() {
     for (CMissile* missile = CMissile::s_inFlightMissileList; missile; ) {
         CMissile* next = missile->m_next;
-        missile->CalcPosition(CGWorldFrame::s_currentWorldFrame->m_elapsedSec > 0.0f);
+        missile->CalcPosition(CGWorldFrame::GetActive()->m_elapsedSec > 0.0f);
 
         if (missile->m_flags & MISSILE_FLAGS::MISSILE_FLAG_MISS_FLY_BY) {
             missile->CalcMissFade();

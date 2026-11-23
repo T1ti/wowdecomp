@@ -77,8 +77,11 @@ class CGxDevice {
         /* 0008 */ void* m_apiSpecific;
     };
 
+    private:
     /* 0004 */ TSGrowableArray<CGxPushedRenderState> m_pushedStates;
     /* 0014 */ TSGrowableArray<uint32_t> m_stackOffsets;
+
+    public:
     /* 0024 */ TSGrowableArray<EGxRenderState> m_dirtyStates;
     /* 0034 */ EGxPrim m_primType;
     /* 0038 */ BOOL m_indexLocked;
@@ -306,6 +309,7 @@ class CGxDevice {
     void RsPop();
     void RsInit();
     void RsPush();
+    uint32_t RsStackOffset() const { return this->m_stackOffsets.Count(); } // (inferred)
     void RsSet(EGxRenderState which, void* value);
     void RsSet(EGxRenderState which, int32_t value);
     void RsSet(EGxRenderState which, float value);

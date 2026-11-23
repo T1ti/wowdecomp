@@ -171,7 +171,7 @@ static void UpdateBrushPoint() {
     C3Vector start;
     C3Vector end;
     s_brushPointValid = false;
-    CGWorldFrame* frame = CGWorldFrame::s_currentWorldFrame;
+    CGWorldFrame* frame = CGWorldFrame::GetActive();
 
     if (!WorldEditGetCursorSegment(&start, &end) || !frame || !frame->m_simpleTop) {
         return;

@@ -1103,7 +1103,7 @@ int32_t CGCamera::SetModelCamera(const char* fileName, const C3Vector* position,
 // OFFSET: 0x006066E0
 void CGCamera::SetTarget(CGObject_C* target, int32_t freeLook) {
     if (this->m_state & STATE_FLAGS::STATE_INITIALIZED) {
-        CGWorldFrame::s_currentWorldFrame->SetPlayerFadeCameraValue(0xFF);
+        CGWorldFrame::GetActive()->SetPlayerFadeCameraValue(0xFF);
     }
 
     WOWGUID previous = this->m_targetGUID;
@@ -2631,7 +2631,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
         break;
     }
 
-    CGWorldFrame::s_currentWorldFrame->SetPlayerFadeCameraValue(fade);
+    CGWorldFrame::GetActive()->SetPlayerFadeCameraValue(fade);
 
     state = this->m_state;
 
@@ -2657,7 +2657,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
                 fade = value;
             }
 
-            CGWorldFrame::s_currentWorldFrame->SetPlayerFadeCameraValue(fade);
+            CGWorldFrame::GetActive()->SetPlayerFadeCameraValue(fade);
         }
     }
 

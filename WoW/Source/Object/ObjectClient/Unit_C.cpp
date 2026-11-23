@@ -1564,7 +1564,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
         this->SmoothFacingAngle(CMath::normalizeAnglePi(CMath::normalizeAnglePi(offset + (this->m_smoothTarget.m_value - this->m_renderFacing)) + this->m_renderFacing));
     } else if (moveFlags & (MOVEMENTFLAG_MOVE_MASK | MOVEMENTFLAG_FALLING)) {
         if (0.0f < this->m_facingBlend) {
-            this->m_facingBlend = this->m_facingBlend - CGWorldFrame::s_currentWorldFrame->m_elapsedSec * 2.5f;
+            this->m_facingBlend = this->m_facingBlend - CGWorldFrame::GetActive()->m_elapsedSec * 2.5f;
 
             if (1.0f < this->m_facingBlend) {
                 this->m_facingBlend = 1.0f;
@@ -1576,7 +1576,7 @@ void CGUnit_C::PreAnimate(CGWorldFrame* frame) {
             this->m_facingVelocity = 0.0f;
         }
     } else if (this->m_facingBlend < 1.0f) {
-        this->m_facingBlend = CGWorldFrame::s_currentWorldFrame->m_elapsedSec * 2.5f + this->m_facingBlend;
+        this->m_facingBlend = CGWorldFrame::GetActive()->m_elapsedSec * 2.5f + this->m_facingBlend;
     }
 
     float delta = CMath::normalizeAnglePi(this->m_smoothTarget.m_value - this->m_renderFacing);
@@ -1931,7 +1931,7 @@ void CGUnit_C::SmoothFacingAngle(float facing) {
         facing = facing - TWO_PI;
     }
 
-    float elapsed = CGWorldFrame::s_currentWorldFrame->m_elapsedSec;
+    float elapsed = CGWorldFrame::GetActive()->m_elapsedSec;
     float k = elapsed * 20.0f;
     float damping = 1.0f / (k + (k * k * k * 0.235f + k * k * 0.48f) + 1.0f);
     float offset = this->m_renderFacing - facing;
@@ -3567,7 +3567,7 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
             facing = facing - TWO_PI;
         }
 
-        this->m_smoothTarget.Chase(&facing, movementInfo->m_smoothFacingChaseRate, CGWorldFrame::s_currentWorldFrame->m_elapsedSec);
+        this->m_smoothTarget.Chase(&facing, movementInfo->m_smoothFacingChaseRate, CGWorldFrame::GetActive()->m_elapsedSec);
         this->m_smoothTarget.m_value = CMath::normalizeangle0to2pi_(this->m_smoothTarget.m_value);
     } else if ((this->m_unit->m_unitFieldFlags & UNIT_FLAGS::UNIT_FLAG_PLAYER_CONTROLLED) && !(this->m_obj->m_type & TYPE_PLAYER)) {
         if (facing + PI < this->m_smoothTarget.m_value) {
@@ -3576,7 +3576,7 @@ void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
             facing = facing - TWO_PI;
         }
 
-        this->m_smoothTarget.Chase(&facing, this->IsInCombat() ? 30.0f : 20.0f, CGWorldFrame::s_currentWorldFrame->m_elapsedSec);
+        this->m_smoothTarget.Chase(&facing, this->IsInCombat() ? 30.0f : 20.0f, CGWorldFrame::GetActive()->m_elapsedSec);
         this->m_smoothTarget.m_value = CMath::normalizeangle0to2pi_(this->m_smoothTarget.m_value);
     } else {
         float diff = facing - this->m_smoothTarget.m_value;
@@ -19630,7 +19630,7 @@ void CGUnit_C::ChatBubbleShow(int32_t type, const char* text) {
             if (delta.y * delta.y + delta.z * delta.z + delta.x * delta.x <= 625.0f) {
                 CImVector color = CGChat::GetChatColor(type);
                 this->ChatBubbleRemove();
-                this->m_chatBubble = CGChatBubbleFrame::GetNewChatBubble(CGWorldFrame::s_currentWorldFrame);
+                this->m_chatBubble = CGChatBubbleFrame::GetNewChatBubble(CGWorldFrame::GetActive());
                 WOWGUID guid = this->m_obj->m_guid;
                 this->m_chatBubble->Initialize(guid, text, color);
             }

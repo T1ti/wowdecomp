@@ -362,7 +362,7 @@ bool WORLDTEXTSTRING::Update(uint32_t time) {
 
     position.z = this->CalculateAscendOffset(elapsed) + position.z;
 
-    CGWorldFrame* worldFrame = CGWorldFrame::s_currentWorldFrame;
+    CGWorldFrame* worldFrame = CGWorldFrame::GetActive();
     CRect frameRect;
     frameRect.minY = 0.0f;
     frameRect.minX = 0.0f;

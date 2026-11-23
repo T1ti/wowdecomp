@@ -162,6 +162,7 @@ void GxQueryDestroy(CGxQuery*& query);
 bool GxQueryEnd(CGxQuery* query);
 bool GxQueryGetData(CGxQuery* query, uint32_t* data);
 bool GxQueryGetParam(CGxQuery* query, EGxQueryParam param, uint32_t* data);
+inline uint32_t GxRsStackOffset() { return g_theGxDevicePtr->RsStackOffset(); }
 void GxRsSet(EGxRenderState which, void* value);
 void GxRsSet(EGxRenderState which, int32_t value);
 void GxRsSet(EGxRenderState which, float value);

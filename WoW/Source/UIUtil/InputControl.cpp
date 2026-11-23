@@ -571,7 +571,7 @@ BOOL __stdcall CGInputControl::CanMove(CGUnit_C* unit) {
 // VERIFY: d0f5f494 auto
 // OFFSET: 0x00568560
 void __stdcall ScaleMouseDeltaByFov(float* dx, float* dy) {
-    if (!CGWorldFrame::s_currentWorldFrame) {
+    if (!CGWorldFrame::GetActive()) {
         return;
     }
 
@@ -965,9 +965,9 @@ int32_t CGInputControl::UnsetControlBit(uint32_t bit, uint32_t time, BOOL keepSm
     if (wasMouseDown && !(this->m_flags & INPUT_MOUSE_LOOK_MASK)) {
         if (!this->IsMouseDrag(time)) {
             if (this->m_pendingDefaultAction == INPUT_RELEASE_SELECT) {
-                CGWorldFrame::s_currentWorldFrame->PerformDefaultAction(MOUSE_BUTTON_LEFT);
+                CGWorldFrame::GetActive()->PerformDefaultAction(MOUSE_BUTTON_LEFT);
             } else if (this->m_pendingDefaultAction == INPUT_RELEASE_ACTION) {
-                CGWorldFrame::s_currentWorldFrame->PerformDefaultAction(MOUSE_BUTTON_RIGHT);
+                CGWorldFrame::GetActive()->PerformDefaultAction(MOUSE_BUTTON_RIGHT);
             }
         }
 

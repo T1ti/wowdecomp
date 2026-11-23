@@ -14567,11 +14567,11 @@ bool CGPlayer_C::ToggleFarSight(CGObject_C* object) {
 
         if ((target->m_obj->m_type & TYPE_UNIT) && static_cast<CGUnit_C*>(target)->IsLocalClientControlled()) {
             CGUnit_C::SetActiveMover(target->m_obj->m_guid.m_guid);
-            CGWorldFrame::s_currentWorldFrame->SetCameraTarget(target, 0);
+            CGWorldFrame::GetActive()->SetCameraTarget(target, 0);
         } else {
             CGUnit_C::SetActiveMover(this->IsLocalClientControlled() ? this->m_obj->m_guid.m_guid : 0);
             CGInputControl::GetActive()->UpdatePlayer(OsGetAsyncTimeMs(), 1);
-            CGWorldFrame::s_currentWorldFrame->SetCameraTarget(target, 0);
+            CGWorldFrame::GetActive()->SetCameraTarget(target, 0);
         }
 
         CGInputControl::GetActive()->UpdatePlayer(FrameTime::s_curTimeMs, 1);

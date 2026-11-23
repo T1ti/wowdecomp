@@ -1105,7 +1105,7 @@ int32_t CGUIBindings::ExecKey(uint32_t modifiers, const char* key, BOOL isDown, 
         if (name && separator) {
             CSimpleFrame* frame = GetClickFrame(FrameScript_GetContext(), name, separator - name);
 
-            if (frame && frame != CGWorldFrame::s_currentWorldFrame) {
+            if (frame && frame != CGWorldFrame::GetActive()) {
                 const char* button = separator + 1;
                 const char* macroRunning = CGUIMacros::m_macroRunning;
 

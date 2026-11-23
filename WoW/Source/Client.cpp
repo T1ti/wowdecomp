@@ -903,8 +903,8 @@ static int32_t LoadNewWorld(const void* data, void* param) {
     CEffect::Destroy();
     CGWorldFrame::SetScreenEffect(SCREEN_EFFECT_ID_NONE);
 
-    if (CGWorldFrame::s_currentWorldFrame) {
-        CGWorldFrame::s_currentWorldFrame->UnitClear();
+    if (CGWorldFrame::GetActive()) {
+        CGWorldFrame::GetActive()->UnitClear();
     }
 
     CGUnit_C::StopMissileTrajectoryTargeting();
@@ -1594,8 +1594,8 @@ void ClientDestroyGame(int32_t charSelect, int32_t resumeGlue, int32_t worldLogi
     CEffect::Destroy();
     CGWorldFrame::SetScreenEffect(SCREEN_EFFECT_ID_NONE);
 
-    if (CGWorldFrame::s_currentWorldFrame) {
-        CGWorldFrame::s_currentWorldFrame->UnitClear();
+    if (CGWorldFrame::GetActive()) {
+        CGWorldFrame::GetActive()->UnitClear();
     }
 
     World::UnloadMap();

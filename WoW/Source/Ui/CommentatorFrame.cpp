@@ -146,7 +146,7 @@ void CGCommentator::InitializeGame() {
 // VERIFY: 4126a5f5 manual
 // OFFSET: 0x0056B510
 void CGCommentator::SnapCameraToPlayer() {
-    if (!CGWorldFrame::s_currentWorldFrame) {
+    if (!CGWorldFrame::GetActive()) {
         return;
     }
 
@@ -175,7 +175,7 @@ void CGCommentator::PostInit(CGPlayer_C* player) {
     if (player && player->IsCommentatorUberOrInArena()) {
         World::ObjectSetShadow(player->m_worldObject, MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW, MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW);
 
-        if (CGWorldFrame::s_currentWorldFrame) {
+        if (CGWorldFrame::GetActive()) {
             CGWorldFrame::GetActiveCamera()->SetView(CGCamera::VIEW_COMMENTATOR, CGCamera::VIEW_BLEND_INSTANT, CGCamera::VIEW_TRANSITION_NONE);
             CGCommentator::s_Commentator.SnapCameraToPlayer();
         }
@@ -227,7 +227,7 @@ int32_t CGCommentator::OnSkirmishPlayersModeState(void* param, NETMESSAGE msgId,
 // VERIFY: b41bcf95 auto
 // OFFSET: 0x005684B0
 void CGCommentator::SetPosYawPitch(const C3Vector& position, float facing, float pitch) {
-    if (!CGWorldFrame::s_currentWorldFrame) {
+    if (!CGWorldFrame::GetActive()) {
         return;
     }
 
@@ -575,14 +575,14 @@ int32_t CGCommentator::OnStateChanged(void* param, NETMESSAGE msgId, uint32_t ti
     if (enabled && player->IsCommentatorUberOrInArena()) {
         World::ObjectSetShadow(player->m_worldObject, MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW, MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW);
 
-        if (CGWorldFrame::s_currentWorldFrame) {
+        if (CGWorldFrame::GetActive()) {
             CGWorldFrame::GetActiveCamera()->SetView(CGCamera::VIEW_COMMENTATOR, CGCamera::VIEW_BLEND_INSTANT, CGCamera::VIEW_TRANSITION_NONE);
             CGCommentator::s_Commentator.SnapCameraToPlayer();
         }
     } else {
         World::ObjectSetShadow(player->m_worldObject, 0, MAP_OBJECT_CREATE_FLAG_NO_BLOB_SHADOW);
 
-        if (CGWorldFrame::s_currentWorldFrame) {
+        if (CGWorldFrame::GetActive()) {
             CGWorldFrame::GetActiveCamera()->SetView(CGCamera::VIEW_THIRD_PERSON_A, CGCamera::VIEW_BLEND_INSTANT, CGCamera::VIEW_TRANSITION_NONE);
         }
     }

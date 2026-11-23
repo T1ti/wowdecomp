@@ -51,7 +51,7 @@ int32_t CCommand_TimingInfo(const char* command, const char* arguments) {
 // VERIFY: 866f4a05 auto
 // OFFSET: 0x00406EC0
 int32_t CCommand_TogglePlayer(const char* command, const char* arguments) {
-    if (CGWorldFrame::s_currentWorldFrame) {
+    if (CGWorldFrame::GetActive()) {
         ConsoleWrite(Player_C_TogglePlayerRender() ? "player visible" : "player hidden", DEFAULT_COLOR);
     }
 

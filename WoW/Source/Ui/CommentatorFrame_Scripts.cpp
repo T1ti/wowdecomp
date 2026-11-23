@@ -552,7 +552,7 @@ static int32_t Script_CommentatorFollowPlayer(lua_State* L) {
         return 0;
     }
 
-    if (index < instance->m_numPlayers[faction] && CGWorldFrame::s_currentWorldFrame) {
+    if (index < instance->m_numPlayers[faction] && CGWorldFrame::GetActive()) {
         CGCommentator::s_Commentator.m_lookAtTarget = WOWGUID();
         CGCommentator::s_Commentator.m_followTarget = instance->m_players[faction][index].m_guid;
     }

@@ -112,7 +112,7 @@ enum SPELLSHADOWSTYLE : int32_t {
 };
 
 // STATIC: 0x00AC799C
-static const char* s_spellShadowTextureNames[NUM_SPELL_SHADOWS] = { "Interface\\SpellShadow\\Spell-Shadow-Acceptable.blp", "Interface\\SpellShadow\\Spell-Shadow-Unacceptable.blp" };
+static const char* const s_spellShadowTextureNames[NUM_SPELL_SHADOWS] = { "Interface\\SpellShadow\\Spell-Shadow-Acceptable.blp", "Interface\\SpellShadow\\Spell-Shadow-Unacceptable.blp" };
 
 // STATIC: 0x00AC79A4
 static SPELLSHADOWSTYLE s_spellShadowStyle = SPELL_NONE;
@@ -376,16 +376,17 @@ void CGWorldFrame::OnLayerTrackTerrain(const HITTESTRESULT& result) {
         return;
     }
 
-    CM2Model* model = Spell_C_GetCursorWorldObjectModel();
+    CM2Model* worldObjectModel = Spell_C_GetCursorWorldObjectModel();
+    STORM_ASSERT(worldObjectModel);
     CAaBox box;
     box.b = C3Vector(0.0f, 0.0f, 0.0f);
     box.t = C3Vector(0.0f, 0.0f, 0.0f);
     CAaSphere sphere;
     C3Vector center = { 0.0f, 0.0f, 0.0f };
 
-    if (model->IsLoaded(0, 0)) {
-        box = model->GetBoundingBox();
-        sphere = model->GetBoundingSphere();
+    if (worldObjectModel->IsLoaded(0, 0)) {
+        box = worldObjectModel->GetBoundingBox();
+        sphere = worldObjectModel->GetBoundingSphere();
         center = sphere.c;
     }
 
@@ -586,7 +587,7 @@ BOOL CGWorldFrame::IsLegalSelection(CGObject_C* object, uint32_t flags) {
 
 // VERIFY: 4da5a71a manual
 // OFFSET: 0x004F7650
-uint32_t CGWorldFrame::GetHitTestFilterFlags(int32_t unknown1) {
+uint32_t CGWorldFrame::GetHitTestFilterFlags(int32_t unknown1) const {
     if (Spell_C_IsTargeting()) {
         uint32_t flags = 0;
 
@@ -1266,6 +1267,7 @@ CGWorldFrame::CGWorldFrame(CSimpleFrame* parent) : CSimpleFrame(parent) {
     this->m_viewportNDC = { 0.0f, 0.0f, 0.0f, 0.0f };
     this->m_namePlateFlags = CGWorldFrame::NAME_PLATE_FLAGS::NAME_PLATE_NONE;
 
+    STORM_ASSERT(!s_currentWorldFrame || !"Error, why is there more than one world frame being created?");
     CGWorldFrame::s_currentWorldFrame = this;
 
     this->SetFrameStrata(FRAME_STRATA_WORLD);
@@ -1283,6 +1285,7 @@ CGWorldFrame::CGWorldFrame(CSimpleFrame* parent) : CSimpleFrame(parent) {
     CStatus status;
 
     for (uint32_t i = 0; i < sizeof(s_spellShadowTexture) / sizeof(s_spellShadowTexture[0]); i++) {
+        STORM_ASSERT(s_spellShadowTexture[i] == 0);
         s_spellShadowTexture[i] = TextureCreate(s_spellShadowTextureNames[i], CGxTexFlags(GxTex_Linear), &status, 1);
         SysMsgAdd(&status);
     }
@@ -1386,6 +1389,7 @@ void CGWorldFrame::SetScreenEffect(int32_t effect) {
             break;
 
         default:
+            STORM_ASSERT(!"Unhandled screen effect");
             break;
     }
 
@@ -1467,8 +1471,10 @@ void CGWorldFrame::OnFrameSizeChanged(const CRect& rect) {
 
 // VERIFY: 0cb92e2e manual
 // OFFSET: 0x004F6560
-static int32_t ObjectCollisionProc(WOWGUID* guid, uintptr_t param, World::ObjectCollisionData* data, uint32_t flags) {
-    CGObject_C* object = ClntObjMgrObjectPtr(*guid, TYPE_OBJECT, __FILE__, __LINE__);
+static int32_t ObjectCollisionProc(WOWGUID* param64, uintptr_t param, World::ObjectCollisionData* data, uint32_t flags) {
+    STORM_ASSERT(param64);
+    STORM_ASSERT(data);
+    CGObject_C* object = ClntObjMgrObjectPtr(*param64, TYPE_OBJECT, __FILE__, __LINE__);
 
     if (!object || !object->IsCollidable(flags) || !(object->m_obj->m_type & TYPE_GAMEOBJECT)) {
         return 0;
@@ -1482,7 +1488,7 @@ static int32_t ObjectCollisionProc(WOWGUID* guid, uintptr_t param, World::Object
     uint64_t transport = object->GetTransportGUID();
 
     if (transport) {
-        guid->m_guid = transport;
+        param64->m_guid = transport;
     }
 
     return 1;
@@ -1521,10 +1527,12 @@ static int32_t UnitUpdateProc(WOWGUID guid, void* param) {
 // VERIFY: bee9c240 manual
 // OFFSET: 0x004F6A40
 static int32_t UnitPostAnimateProc(WOWGUID guid, void* param) {
+    auto* pWorldFrame = static_cast<CGWorldFrame*>(param);
+    STORM_ASSERT(pWorldFrame);
     CGObject_C* object = ClntObjMgrObjectPtr(guid, TYPE_OBJECT, __FILE__, __LINE__);
 
     if (object && (object->m_obj->m_type & TYPE_UNIT)) {
-        static_cast<CGUnit_C*>(object)->PostAnimate(static_cast<CGWorldFrame*>(param));
+        static_cast<CGUnit_C*>(object)->PostAnimate(pWorldFrame);
     }
 
     return 1;
@@ -1707,6 +1715,9 @@ void CGWorldFrame::OnWorldRender() {
         return;
     }
 
+#if defined(WOWDECOMP_ASSERTIONS)
+    const uint32_t rsStackOffset = GxRsStackOffset();
+#endif
     g_theGxDevicePtr->RsPush();
     GxRsSet(GxRs_Multisample, 1);
     CGWorldFrame::UpdateScreenEffectParams();
@@ -1856,6 +1867,7 @@ void CGWorldFrame::OnWorldRender() {
     }
 
     g_theGxDevicePtr->RsPop();
+    STORM_ASSERT(rsStackOffset == GxRsStackOffset());
     SmartScreenRectClearGrid(SRECTGRID_WORLDTEXT);
     CGChatBubbleFrame::OnWorldRender(this);
     GxXformSetViewport(minX, maxX, minY, maxY, minZ, maxZ);
@@ -1866,7 +1878,8 @@ void CGWorldFrame::OnWorldRender() {
 // VERIFY: 79b17fb9 manual
 // OFFSET: 0x004F9F70
 int32_t CGWorldFrame::ObjectEnumProc(void* param, uint32_t flags, uint64_t guid, uintptr_t param32) {
-    CGWorldFrame* frame = CGWorldFrame::s_currentWorldFrame;
+    CGWorldFrame* pWorldFrame = CGWorldFrame::GetActive();
+    STORM_ASSERT(pWorldFrame);
     CGObject_C* object = ClntObjMgrObjectPtr(WOWGUID{ guid }, TYPE_OBJECT, __FILE__, __LINE__);
 
     if (!object) {
@@ -1880,7 +1893,7 @@ int32_t CGWorldFrame::ObjectEnumProc(void* param, uint32_t flags, uint64_t guid,
     }
 
     if (!(object->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED) && object->IsReadyToDraw()) {
-        frame->UpdateObject(object, flags);
+        pWorldFrame->UpdateObject(object, flags);
         return 1;
     }
 
@@ -2542,6 +2555,7 @@ int32_t CGWorldFrame::OnLayerMouseWheel(const CMouseEvent& evt) {
 // VERIFY: 548e1cb9 manual
 // OFFSET: 0x004F5910
 int32_t CGWorldFrame::MissileEnumProc(void* param, uint32_t flags, uint64_t guid, uintptr_t param32) {
+    STORM_ASSERT(CGWorldFrame::GetActive());
     CMissile* missile = reinterpret_cast<CMissile*>(param32);
     return !missile || missile->m_mapEntity != nullptr;
 }
@@ -2549,10 +2563,12 @@ int32_t CGWorldFrame::MissileEnumProc(void* param, uint32_t flags, uint64_t guid
 // VERIFY: c40ba1e3 auto
 // OFFSET: 0x004F5930
 int32_t CGWorldFrame::SpellEffectEnumProc(void* param, uint32_t flags, uint64_t guid, uintptr_t param32) {
+    CGWorldFrame* pWorldFrame = CGWorldFrame::GetActive();
+    STORM_ASSERT(pWorldFrame);
     CEffect* effect = reinterpret_cast<CEffect*>(param32);
 
     if (effect) {
-        effect->UpdateWorldObject(CGWorldFrame::s_currentWorldFrame->m_elapsedSec, flags);
+        effect->UpdateWorldObject(pWorldFrame->m_elapsedSec, flags);
     }
 
     return 1;

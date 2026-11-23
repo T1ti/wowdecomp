@@ -1277,7 +1277,7 @@ void CGGameUI::SetAspect() {
 // VERIFY: 6c643fe3 manual
 // OFFSET: 0x00512900
 void OnGxRestartClearWorld() {
-    if (CGWorldFrame::s_currentWorldFrame) {
+    if (CGWorldFrame::GetActive()) {
         CWorldScene::ClearObjectFadeoutList();
     }
 
@@ -1560,7 +1560,7 @@ void CGGameUI::TargetDirection(float facing, float angle, UNIT_TARGET_TYPE type)
         unit = player;
     }
 
-    CGWorldFrame* worldFrame = CGWorldFrame::s_currentWorldFrame;
+    CGWorldFrame* worldFrame = CGWorldFrame::GetActive();
 
     if (!worldFrame) {
         return;
@@ -2268,7 +2268,7 @@ void CGGameUI::HandleDisplaySizeChanged(const CSizeEvent& evt) {
 // VERIFY: 0347ae4f auto
 // OFFSET: 0x00512D60
 void CGGameUI::OnMouseModeRelative() {
-    CGWorldFrame* worldFrame = CGWorldFrame::s_currentWorldFrame;
+    CGWorldFrame* worldFrame = CGWorldFrame::GetActive();
 
     if (!worldFrame) {
         SErrDisplayAppFatalMessage("", "", 0);
@@ -2288,11 +2288,11 @@ void CGGameUI::OnMouseModeRelative() {
 // VERIFY: 2abcfd33 auto
 // OFFSET: 0x00512DC0
 void CGGameUI::OnMouseModeNormal() {
-    if (!CGWorldFrame::s_currentWorldFrame) {
+    if (!CGWorldFrame::GetActive()) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    CGWorldFrame::s_currentWorldFrame->OnMouseModeNormal();
+    CGWorldFrame::GetActive()->OnMouseModeNormal();
 
     if (!CSimpleTop::s_instance) {
         SErrDisplayAppFatalMessage("", "", 0);
@@ -2428,11 +2428,11 @@ void CGGameUI::ResetCamera(WOWGUID guid) {
 
     CGObject_C* object = ClntObjMgrObjectPtr(target, TYPE_OBJECT, __FILE__, __LINE__);
 
-    if (!object || !CGWorldFrame::s_currentWorldFrame) {
+    if (!object || !CGWorldFrame::GetActive()) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    CGWorldFrame::s_currentWorldFrame->SetCameraTarget(object, 0);
+    CGWorldFrame::GetActive()->SetCameraTarget(object, 0);
 }
 
 // VERIFY: 21eb442b manual
@@ -2594,7 +2594,7 @@ void CGGameUI::HandleObjectTrackChange(WOWGUID guid, WOWGUID prevGuid) {
     switch (static_cast<uint32_t>(object->m_obj->m_type)) {
         case HEIR_TYPE_UNIT:
         case HEIR_TYPE_PLAYER: {
-            if (CSimpleTop::GetInstance()->m_mouseFocus == CGWorldFrame::s_currentWorldFrame) {
+            if (CSimpleTop::GetInstance()->m_mouseFocus == CGWorldFrame::GetActive()) {
                 CGGameUI::m_gameTooltip->SetDefaultAnchor();
                 WOWGUID none = { 0 };
                 CGGameUI::m_gameTooltip->SetUnit(guid, 1, none, 0);
@@ -2615,7 +2615,7 @@ void CGGameUI::HandleObjectTrackChange(WOWGUID guid, WOWGUID prevGuid) {
         }
 
         case HEIR_TYPE_GAMEOBJECT:
-            if (CSimpleTop::GetInstance()->m_mouseFocus == CGWorldFrame::s_currentWorldFrame) {
+            if (CSimpleTop::GetInstance()->m_mouseFocus == CGWorldFrame::GetActive()) {
                 if (object->FloatingTooltip()) {
                     CGGameUI::m_gameTooltip->SetOwner(CGGameUI::m_UISimpleParent, ANCHOR_CURSOR, 0.0f, 0.0f);
                 } else {
@@ -2629,7 +2629,7 @@ void CGGameUI::HandleObjectTrackChange(WOWGUID guid, WOWGUID prevGuid) {
             break;
 
         case HEIR_TYPE_CORPSE:
-            if (CSimpleTop::GetInstance()->m_mouseFocus == CGWorldFrame::s_currentWorldFrame) {
+            if (CSimpleTop::GetInstance()->m_mouseFocus == CGWorldFrame::GetActive()) {
                 CGGameUI::m_gameTooltip->SetDefaultAnchor();
                 CGGameUI::m_gameTooltip->SetCorpse(guid);
             }
@@ -3851,9 +3851,9 @@ int32_t CGGameUI::FilterMouseDown(CMouseEvent* evt) {
     }
 
     if (evt->m_id == EVENT_MOUSE_DOWN) {
-        CGWorldFrame::s_currentWorldFrame->OnLayerMouseDown(*evt, nullptr);
+        CGWorldFrame::GetActive()->OnLayerMouseDown(*evt, nullptr);
     } else {
-        CGWorldFrame::s_currentWorldFrame->OnLayerMouseUp(*evt, nullptr);
+        CGWorldFrame::GetActive()->OnLayerMouseUp(*evt, nullptr);
     }
 
     return 1;
@@ -5312,8 +5312,8 @@ void CGGameUI::BreakTarget(WOWGUID guid) {
         CGGameUI::m_lastFriendTarget = WOWGUID();
     }
 
-    if (guid == CGGameUI::m_currentObjectTrack && CGWorldFrame::s_currentWorldFrame) {
-        CGWorldFrame::s_currentWorldFrame->HandleSpriteTrack(WOWGUID());
+    if (guid == CGGameUI::m_currentObjectTrack && CGWorldFrame::GetActive()) {
+        CGWorldFrame::GetActive()->HandleSpriteTrack(WOWGUID());
     }
 
     if (guid == CGGameUI::m_focusTarget) {
@@ -8193,11 +8193,11 @@ void CGGameUI::LeaveWorld() {
     CGGMSurveyInfo::ShutdownGame();
     CGInstanceEncounter_C::LeaveWorld();
 
-    if (!CGWorldFrame::s_currentWorldFrame) {
+    if (!CGWorldFrame::GetActive()) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    CGWorldFrame::s_currentWorldFrame->SetCameraTarget(nullptr, 0);
+    CGWorldFrame::GetActive()->SetCameraTarget(nullptr, 0);
     CGGameUI::CloseInteraction();
 
     if (CGGameUI::m_lockedTarget && !CGGameUI::IsRaidMemberOrPet(CGGameUI::m_lockedTarget)) {
