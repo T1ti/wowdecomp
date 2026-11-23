@@ -109,6 +109,7 @@ class CChunkLiquid;
 class CDetailDoodadInst;
 class CMapBaseObj;
 class CMapChunk;
+class CGCamera;
 class CMapDoodadDef;
 class CMapDoodadDefMapChunkLink;
 
@@ -416,6 +417,8 @@ extern WOWGUID s_highlightedObjectGuid;
 class WMOAreaTableRec;
 
 namespace World {
+    CGCamera* GetViewCamera();
+    void GetViewCameraPosition(C3Vector* position);
     class TriData;
     class HitTestDebug {
         public:

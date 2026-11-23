@@ -80,6 +80,7 @@
 #include "WoW/Source/WorldClient/Types.h"
 #include "WoW/Source/WorldClient/WaterRipple.h"
 #include "WoW/Source/WorldClient/World.h"
+#include "WoW/Source/WorldClient/WorldEditHooks.h"
 #include "WoW/Source/WorldClient/WorldView.h"
 #include "WoW/Source/DB/Rec/GroundEffectTextureRec.h"
 #include "WoW/Source/WorldClient/WorldParam.h"
@@ -1954,12 +1955,24 @@ void CMap::ProcessDetailDoodadUpdateList() {
 // OFFSET: 0x007B5500
 void CMap::ProcessRenderChunkUpdateList() {
     CMapRenderChunk* renderChunk = CMap::s_mapRenderChunkUpdateList.Head();
+#ifdef WOWDECOMP_TOOL_FEATURES
+    const WorldEditView* editorView = WorldEditGetView();
+#endif
 
     while (renderChunk) {
         renderChunk->m_lastUpdateTime = FrameTime::s_tickTimeSec + renderChunk->m_lastUpdateTime;
         CMapRenderChunk* next = CMap::s_mapRenderChunkUpdateList.Next(renderChunk);
 
-        if (renderChunk->m_lastUpdateTime > 2.0f) {
+        bool expired = renderChunk->m_lastUpdateTime > 2.0f;
+#ifdef WOWDECOMP_TOOL_FEATURES
+        if (!expired && editorView) {
+            const CMapChunk* first = renderChunk->m_chunks[0];
+            const CMapChunk* second = renderChunk->m_chunks[1];
+            expired = (!first || !editorView->IncludesTerrain(first->m_bbox2)) &&
+                      (!second || !editorView->IncludesTerrain(second->m_bbox2));
+        }
+#endif
+        if (expired) {
             renderChunk->FreeBuf();
         }
 

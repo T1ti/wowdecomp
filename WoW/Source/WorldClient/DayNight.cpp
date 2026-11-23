@@ -3075,7 +3075,8 @@ float DayNight::DNGlare::GetPointOcclusion() {
         return 0.0f;
     }
 
-    return !CGWorldFrame::GetActive()->HitTestModelList(start, end);
+    CGWorldFrame* frame = CGWorldFrame::GetActive();
+    return !frame || !frame->HitTestModelList(start, end);
 }
 
 // VERIFY: 5f4e0628 manual

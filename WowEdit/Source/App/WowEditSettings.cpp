@@ -76,7 +76,7 @@ static void WriteDefaults(const char* iniPath) {
           "; The movement keys: QWERTY (W A S D) or AZERTY (Z Q S D). Empty: from the keyboard layout.\n"
           "Keyboard=\n"
           "; Render distances (Window > Render Distance); empty for the editor's defaults.\n"
-          "; ViewDistance: the far clip and how far the world loads, 183 to 1583 yards (default 1583).\n"
+          "; ViewDistance: base view distance, 183 to 3200 yards (default 2400). Looking down adds camera altitude.\n"
           "; DoodadDistance: doodad and WMO fade distance scale, 0.5 to 1.5 (default 1.5).\n"
           "; GroundClutter: grass distance, 0 to 140 yards (default 70).\n"
           "; HorizonDistance: WDL horizon reach with the fog on, 3 to 6 times the view distance (default 4).\n"

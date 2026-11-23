@@ -4,14 +4,12 @@
 
 #include <cstdio>
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
-#include "WoW/Source/WorldClient/World.h"
 #include "WowEdit/Source/App/WowEditSettings.h"
 
 // See WowEditRenderDistance.h.
 
 static const WowEditDistanceInfo s_distances[NUM_WOWEDITDISTANCES] = {
-    // World::ValidateFarClip: 550 / 3 to 4750 / 3 yards.
-    { "ViewDistance", "farclip", "View distance: %.0f yards", 550.0f / 3.0f, 4750.0f / 3.0f, 4750.0f / 3.0f, 1.0f },
+    { "ViewDistance", "farclip", "View distance: %.0f yards", 550.0f / 3.0f, 3200.0f, 2400.0f, 1.0f },
     // CWorldParam::EnvironmentDetailCallback: 0.5 to 1.5.
     { "DoodadDistance", "environmentDetail", "Doodad and WMO distance: %.2fx", 0.5f, 1.5f, 1.5f, 100.0f },
     // CWorldParam::GroundEffectDistCallback: 0 to 140 yards.
@@ -44,22 +42,9 @@ void WowEditSetDistance(int32_t distance, float value) {
     char text[32];
     snprintf(text, sizeof(text), "%f", value);
     cvar->Set(text, true, false, false, true);
-
-    if (distance == WOWEDITDISTANCE_VIEW) {
-        // World::Update preloads the world behind the game's loading screen when the far clip grows by more than
-        // 10 yards; the editor has no loading screen and lets the new tiles stream in instead.
-        World::s_prevFarClip = World::farClip;
-    }
 }
 
 void WowEditRenderDistanceInitialize() {
-    // The full far clip on the old world maps too (World::ValidateFarClip).
-    CVar* overrideVar = CVar::Lookup("farClipOverride");
-
-    if (overrideVar) {
-        overrideVar->Set("1", true, false, false, true);
-    }
-
     for (int32_t i = 0; i < NUM_WOWEDITDISTANCES; i++) {
         WowEditSetDistance(i, WowEditSettingsGetFloat(s_distances[i].key, s_distances[i].defaultValue));
     }

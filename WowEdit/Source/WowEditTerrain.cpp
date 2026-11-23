@@ -1,4 +1,5 @@
 #include "WowEdit/Source/WowEditTerrain.h"
+#include "WowEdit/Source/App/WowEditWorldView.h"
 
 #include "Engine/Source/ConsoleBase/IConsole.h"
 #include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
@@ -167,14 +168,11 @@ static CGxTex* BrushTexture() {
 // again here, from the cursor's position in the world frame's viewport, the way CGWorldFrame::GetLineSegment does it,
 // but with the view and projection this frame is drawn with (CameraGetLineSegment reads the device's): camera-relative,
 // so the camera origin the scene is drawn around (CWorldScene::s_activeWorldView) is added.
-static void UpdateBrushPoint() {
-    C3Vector start;
-    C3Vector end;
-    s_brushPointValid = false;
+static bool GetGameBrushRay(C3Vector& start, C3Vector& end) {
     CGWorldFrame* frame = CGWorldFrame::GetActive();
 
     if (!WorldEditGetCursorSegment(&start, &end) || !frame || !frame->m_simpleTop) {
-        return;
+        return false;
     }
 
     float x;
@@ -183,23 +181,43 @@ static void UpdateBrushPoint() {
     const CRect& viewport = frame->m_viewportDDC;
 
     if (viewport.maxX <= viewport.minX || viewport.maxY <= viewport.minY) {
-        return;
+        return false;
     }
 
     x = (x - viewport.minX) / (viewport.maxX - viewport.minX);
     y = (y - viewport.minY) / (viewport.maxY - viewport.minY);
 
     if (x < 0.0f || y < 0.0f || x > 1.0f || y > 1.0f) {
-        return;
+        return false;
     }
 
     CameraGetLineSegment(x, y, &start, &end);
     start += CWorldScene::s_activeWorldView;
     end += CWorldScene::s_activeWorldView;
+    return true;
+}
+
+static void UpdateBrushPoint() {
+    C3Vector start;
+    C3Vector end;
+    s_brushPointValid = false;
+    const WorldEditView* editorView = WorldEditGetView();
+    if (!(editorView ? WowEditWorldGetBrushRay(start, end) : GetGameBrushRay(start, end))) {
+        return;
+    }
 
     C3Vector hit;
     float distance = 1.0f;
     s_brushPointValid = World::Intersect(start, end, &hit, &distance, WORLD_QUERY_TERRAIN, nullptr) != 0;
+    if (!s_brushPointValid) {
+        return;
+    }
+
+    if (editorView) {
+        const C2Vector xy(hit.x, hit.y);
+        const CMapChunk* chunk = CMap::GetChunkAtPosition(&xy);
+        s_brushPointValid = chunk && editorView->IncludesTerrain(chunk->m_bbox2);
+    }
 
     if (s_brushPointValid) {
         s_brushPoint = hit;

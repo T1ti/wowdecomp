@@ -12,7 +12,6 @@
 #include "WoW/Source/Object/ObjectClient/Unit_C.h"
 #include "WoW/Source/UIUtil/Camera.h"
 #include "WoW/Source/UIUtil/Cursor.h"
-#include "WoW/Source/Ui/WorldFrame.h"
 #include "WoW/Source/WorldClient/CPortalView.h"
 #include "WoW/Source/WorldClient/CWorldOcclusion.h"
 #include "WoW/Source/WorldClient/DayNight.h"
@@ -86,7 +85,7 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
     CWorldScene::s_occlusionFarDepth = World::farClip - 33.333332f;
     CWorldScene::s_hasPendingExteriorGroups = CWorldScene::sortTable.moveableMapObjDefGroupList.Head() != nullptr;
 
-    CGCamera* camera = CGWorldFrame::GetActiveCamera();
+    CGCamera* camera = World::GetViewCamera();
     CWorldScene::s_fogFovPadding = CWorld::farFog / cosf(camera->FOV() * 0.5f) - CWorld::farFog;
 
     World::UpdateObjectFadeouts();

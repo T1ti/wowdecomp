@@ -7,13 +7,13 @@
 #include "Engine/Source/ConsoleBase/ConsoleVar.h"
 #include "Engine/Source/ConsoleBase/IConsole.h"
 #include "Engine/Source/Event/Event.h"
-#include "Engine/Source/Frame/CSimpleTop.h"
 #include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
 #include "Engine/Source/Gx/Gx.h"
 #include "Engine/Source/Gxu/GxuDebugDraw.h"
 #include "Engine/Source/Model2/M2Scene.h"
 #include "Engine/Source/Os/Time.h"
 #include "Engine/Source/Scrn/Scrn.h"
+#include "Engine/Source/Services/Camera.h"
 #include "Engine/Source/ShaderEffect/ShaderEffect.h"
 #include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
@@ -23,21 +23,22 @@
 #include "WoW/Source/DB/Rec/MapRec.h"
 #include "WoW/Source/UIUtil/Camera.h"
 #include "WoW/Source/Ui/GameUI.h"
-#include "WoW/Source/Ui/WorldFrame.h"
 #include "WoW/Source/WorldClient/DayNight.h"
 #include "WoW/Source/WorldClient/DayNight__DNInfo.h"
 #include "WoW/Source/WorldClient/Map.h"
+#include "WoW/Source/WorldClient/MapChunk.h"
 #include "WoW/Source/WorldClient/MapWeather.h"
 #include "WoW/Source/WorldClient/Types.h"
 #include "WoW/Source/WorldClient/World.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include "WoW/Source/WorldClient/WorldEditHooks.h"
 #include "WowEdit/Source/App/WowEditApp.h"
+#include "WowEdit/Source/App/WowEditRenderDistance.h"
 
 // See WowEditWorldView.h.
 
-static CSimpleTop* s_top;
-static CGWorldFrame* s_worldFrame;
+static WorldEditView s_view;
+static bool s_hasFocus = true;
 static HLAYER s_layer;
 static int32_t s_mapId = -1;
 static int32_t s_timeOfDay = 12 * 60;
@@ -74,7 +75,7 @@ static const float MAX_PITCH = 1.55f;
 static const float DROP_HEIGHT = 40.0f; // yards above the ground after a drop
 
 static CGCamera* Camera() {
-    return s_worldFrame ? s_worldFrame->m_camera : nullptr;
+    return s_view.m_camera;
 }
 
 static C3Vector ForwardVector() {
@@ -166,7 +167,8 @@ static void StopLooking() {
 
 // Losing the focus (a palette, another program) loses the key-up events too.
 static int32_t OnFocus(const void* data, void* param) {
-    if (!static_cast<const EVENT_DATA_FOCUS*>(data)->m_focus) {
+    s_hasFocus = static_cast<const EVENT_DATA_FOCUS*>(data)->m_focus != 0;
+    if (!s_hasFocus) {
         for (bool& held : s_moveKeys) {
             held = false;
         }
@@ -197,16 +199,6 @@ static int32_t OnMouseUp(const void* data, void* param) {
     if (mouse->m_button == MOUSE_BUTTON_RIGHT) {
         StopLooking();
         return 0;
-    }
-
-    return 1;
-}
-
-static int32_t OnMouseMove(const void* data, void* param) {
-    // The brush cursor (WowEditTerrain) reads the mouse position the way it does in the game, from the world frame's
-    // CSimpleTop, whose own handlers are off here.
-    if (s_top) {
-        s_top->m_mousePosition = *static_cast<const EVENT_DATA_MOUSE*>(data);
     }
 
     return 1;
@@ -290,14 +282,14 @@ static void DropToGround() {
 
 // CGWorldFrame::UpdateDayNight without the game objects: the camera is the light reference, and the time of day is
 // the editor's (the game takes it from the server).
-static void UpdateDayNight(float elapsedSec) {
+static void UpdateDayNight(const C3Vector& forward, float elapsedSec) {
     CGCamera* camera = Camera();
     DayNight::DNInfo* info = DayNight::GetInfo();
     info->m_farClip = camera->m_clipRange.m_h;
     info->m_deltaSec = elapsedSec;
     info->m_timeSec = OsGetAsyncTimeMs() * 0.001f;
     info->m_cameraPos = camera->m_position;
-    info->m_cameraDir = ForwardVector();
+    info->m_cameraDir = forward;
     info->m_lightRefPos = camera->m_position;
     info->m_playerPos = camera->m_position;
     info->m_timeOfDay = s_timeOfDay;
@@ -318,30 +310,87 @@ static void UpdateDayNight(float elapsedSec) {
     info->m_weatherIntensity = World::s_weather ? World::s_weather->m_densityBlend * World::s_weather->m_fogIntensity : 0.0f;
 }
 
-// The cursor segment the editor overlays use (WorldEditHooks.h), which CGWorldFrame::OnLayerUpdate sets in the game:
-// any segment of non-zero length while the cursor is over the view and the camera is not being turned (the brush
-// builds its own ray from the mouse position).
-static void UpdateCursorSegment() {
-    if (s_looking || !s_top) {
-        WorldEditSetCursorSegment(nullptr, nullptr);
-        return;
+bool WowEditWorldGetBrushRay(C3Vector& start, C3Vector& end) {
+    if (!s_hasFocus || s_looking || s_mapId < 0) {
+        return false;
     }
 
-    const C3Vector& position = Camera()->m_position;
-    C3Vector end = position + ForwardVector();
-    WorldEditSetCursorSegment(&position, &end);
+    const float width = NDCToDDCWidth(1.0f);
+    const float height = NDCToDDCHeight(1.0f);
+    if (width <= 0.0f || height <= 0.0f) {
+        return false;
+    }
+
+    float x = -1.0f;
+    float y = -1.0f;
+    EventInputGetMousePosition(&x, &y);
+    x /= width;
+    y /= height;
+    if (!(x >= 0.0f && x <= 1.0f && y >= 0.0f && y <= 1.0f)) {
+        return false;
+    }
+
+    // Terrain passes use the same camera-relative projection as the world this frame.
+    CameraGetLineSegment(x, y, &start, &end);
+    start += CWorldScene::s_activeWorldView;
+    end += CWorldScene::s_activeWorldView;
+    return true;
+}
+
+static void UpdateViewInputs(const C3Vector& forward) {
+    const CGCamera& camera = *Camera();
+    const C3Vector& position = camera.m_position;
+    const float base = World::farClip;
+    const float farZ = camera.m_clipRange.m_h;
+    s_view.m_streamFarClip = base;
+    s_view.m_horizonFarClip = World::s_horizonFarClipScale * base + fmaxf(farZ - base, 0.0f);
+    s_view.m_objectMinZ = position.z - base;
+    s_view.m_terrainBounds.minX = position.x - base;
+    s_view.m_terrainBounds.minY = position.y - base;
+    s_view.m_terrainBounds.maxX = position.x + base;
+    s_view.m_terrainBounds.maxY = position.y + base;
+
+    if (farZ > base) {
+        // The free camera has no roll. Project the bottom of its far plane onto world Z for WMO queries.
+        float halfHeight = farZ * tanf(camera.FOV() * 0.3f);
+        float bottomZ = position.z + farZ * forward.z - halfHeight * fabsf(camera.Up().z);
+        s_view.m_objectMinZ = fminf(s_view.m_objectMinZ, bottomZ);
+    }
+
+    // Budget for the whole draw square and a paired chunk at each edge.
+    uint32_t radius = 1 + static_cast<uint32_t>(base * OO_COORD_TO_CHUNK);
+    uint32_t diameter = 2 * radius + 4;
+    s_view.m_terrainBufferCount = diameter * diameter;
+    // The horizontal occlusion buffer is inactive at steep pitches.
+    s_view.m_useTerrainOcclusion = fabsf(forward.z) <= 0.9f;
 }
 
 // CGWorldFrame::OnWorldUpdate, the world part.
 static void UpdateWorld(const CRect& window, float elapsedSec) {
     CGCamera* camera = Camera();
+    C3Vector position = camera->m_position;
+    C3Vector forward = ForwardVector();
     camera->m_clipRange.m_l = World::s_nearClip;
     camera->m_clipRange.m_h = World::farClip;
-    camera->SetupWorldProjection(window);
-    UpdateDayNight(elapsedSec);
 
-    C3Vector position = camera->m_position;
-    C3Vector target = position + ForwardVector();
+    if (forward.z < 0.0f) {
+        const C2Vector xy(position.x, position.y);
+        const CMapChunk* chunk = World::IsValidPosition(position, 0.0f) ? CMap::GetChunkAtPosition(&xy) : nullptr;
+        float ground = chunk ? chunk->m_bbox2.b.z : 0.0f;
+        // Clip distances are along the view axis. Keep the base range beyond the depth spent reaching the ground.
+        float groundDepth = fmaxf(position.z - ground, 0.0f) * -forward.z;
+        camera->m_clipRange.m_h += groundDepth;
+        // Recover depth precision for terrain and overlays when the camera is well above the ground.
+        camera->m_clipRange.m_l = fmaxf(World::s_nearClip, fminf(groundDepth * 0.002f, 4.0f));
+    }
+
+    camera->SetupWorldProjection(window);
+    UpdateViewInputs(forward);
+    UpdateDayNight(forward, elapsedSec);
+
+    C3Vector target = position + forward;
+    // Stream in tiles as the editor view grows, including changes made through the console.
+    World::s_prevFarClip = World::farClip;
     CWorld::Update(&position, &target, &position);
 }
 
@@ -435,20 +484,11 @@ static void PaintWorld(void* param, const RECTF* rect, const RECTF* visible, flo
         return;
     }
 
-    // The world frame covers the screen: the brush cursor maps the mouse through its viewport.
-    s_worldFrame->m_viewportDDC.minX = 0.0f;
-    s_worldFrame->m_viewportDDC.minY = 0.0f;
-    s_worldFrame->m_viewportDDC.maxX = NDCToDDCWidth(1.0f);
-    s_worldFrame->m_viewportDDC.maxY = NDCToDDCHeight(1.0f);
-    s_worldFrame->m_viewportNDC = { 0.0f, 0.0f, 1.0f, 1.0f };
-
     MoveCamera(elapsedSec);
 
     if (s_dropToGround) {
         DropToGround();
     }
-
-    UpdateCursorSegment();
 
     C44Matrix projection = g_theGxDevicePtr->m_projection;
     C44Matrix view;
@@ -465,7 +505,7 @@ static void PaintWorld(void* param, const RECTF* rect, const RECTF* visible, flo
 // ---- Set-up
 
 void WowEditWorldInitialize() {
-    // The world frame's camera reads the camera cvars (cameraView...), registered by the game interface in the game.
+    // CGCamera reads the camera cvars (cameraView...) normally registered by the game interface.
     CameraRegisterCVars();
 
     // The camera constructor also reads "autoInteract" (CGCamera::UpdateAutoInteractState), a game interface cvar.
@@ -473,13 +513,13 @@ void WowEditWorldInitialize() {
         g_cvAutoInteract = CVar::Register("autoInteract", "Toggles auto-move to interact target", CVAR_ARCHIVE_SCOPE::CVAR_SCOPE_ACCOUNT, "0", nullptr, CATEGORY_GAME, false, nullptr, false);
     }
 
-    // A CSimpleFrame registers with the current CSimpleTop. Neither is shown; the top's input handlers are off so the
-    // keys and the mouse come to the editor.
-    s_top = new (__FILE__, __LINE__) CSimpleTop();
-    s_top->DisableEvents();
-    s_worldFrame = static_cast<CGWorldFrame*>(CGWorldFrame::Create(nullptr));
+    s_view.m_camera = new (__FILE__, __LINE__) CGCamera();
+    const WowEditDistanceInfo& viewDistance = WowEditGetDistanceInfo(WOWEDITDISTANCE_VIEW);
+    s_view.m_minFarClip = viewDistance.min;
+    s_view.m_maxFarClip = viewDistance.max;
+    WorldEditSetView(&s_view);
 
-    // Above the (empty, hidden) CSimpleTop layer at 1, under the console (6, 7) and the system messages.
+    // Under the console (6, 7) and the system messages.
     ScrnLayerCreate(nullptr, 2.0f, SCRN_LAYER_FULLSCREEN_VIEWPORT, nullptr, PaintWorld, &s_layer);
 
     EventRegisterEx(EVENT_ID_KEYDOWN, OnKeyDown, nullptr, EVENT_PRIORITY_NORMAL);
@@ -487,7 +527,6 @@ void WowEditWorldInitialize() {
     EventRegisterEx(EVENT_ID_FOCUS, OnFocus, nullptr, EVENT_PRIORITY_NORMAL);
     EventRegisterEx(EVENT_ID_MOUSEDOWN, OnMouseDown, nullptr, EVENT_PRIORITY_NORMAL);
     EventRegisterEx(EVENT_ID_MOUSEUP, OnMouseUp, nullptr, EVENT_PRIORITY_NORMAL);
-    EventRegisterEx(EVENT_ID_MOUSEMOVE, OnMouseMove, nullptr, EVENT_PRIORITY_NORMAL);
     EventRegisterEx(EVENT_ID_MOUSEMOVE_RELATIVE, OnMouseMoveRelative, nullptr, EVENT_PRIORITY_NORMAL);
     EventRegisterEx(EVENT_ID_MOUSEWHEEL, OnMouseWheel, nullptr, EVENT_PRIORITY_NORMAL);
 }
@@ -499,6 +538,10 @@ void WowEditWorldShutdown() {
         World::UnloadMap();
         s_mapId = -1;
     }
+
+    WorldEditSetView(nullptr);
+    delete s_view.m_camera;
+    s_view.m_camera = nullptr;
 }
 
 bool WowEditWorldLoadMap(int32_t mapId, const C3Vector* position) {
@@ -527,6 +570,9 @@ bool WowEditWorldLoadMap(int32_t mapId, const C3Vector* position) {
     }
 
     ApplyFacing();
+    camera->m_clipRange.m_l = World::s_nearClip;
+    camera->m_clipRange.m_h = World::farClip;
+    UpdateViewInputs(ForwardVector());
     CWorld::LoadMap(map->m_directory, &start, mapId, 1);
     s_mapId = mapId;
     s_dropToGround = false;

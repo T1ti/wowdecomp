@@ -5,11 +5,9 @@
 //
 // The client's draw distances are graphics cvars; the editor sets them from WowEdit.ini (WowEditSettings.h) and the
 // Render Distance palette (WowEditDistancePalette.h), saving them back at exit:
-//   ViewDistance     farclip: the far clip plane, in yards, 183.3 to 1583.3. It is also how far the world loads:
-//                    World::PrepareAreaOfInterest loads the map tiles and chunks 1.25 to 2 times this far around the
-//                    camera (by the view frustum), and the terrain chunk buffers are sized for it. The client caps it
-//                    at 791.7 on the old world maps (below the first expansion's) unless farClipOverride is 1, which
-//                    the editor sets, so the full 1583.3 is open everywhere. Default: the maximum.
+//   ViewDistance     farclip: the base far clip and horizontal draw budget, 183.3 to 3200 yards. Default 2400.
+//                    Downward views can extend the projection to reach the ground at altitude. Streaming and
+//                    terrain buffer sizing use the base distance.
 //   DoodadDistance   environmentDetail: the scale of the doodad and WMO fade distances, 0.5 to 1.5. Default 1.5.
 //   GroundClutter    groundEffectDist: the detail doodads (grass), in yards, 0 to 140. Default 70, the game's.
 //   HorizonDistance  horizonFarclipScale: how far the low detail terrain (WDL) reaches, times the view distance,
@@ -42,7 +40,7 @@ float WowEditGetDistance(int32_t distance);
 // Clamps and applies the value to its cvar.
 void WowEditSetDistance(int32_t distance, float value);
 
-// Before the first map: farClipOverride, then every distance from WowEdit.ini.
+// Before the first map: set the editor view distance limit and apply the distances from WowEdit.ini.
 void WowEditRenderDistanceInitialize();
 // At exit: into WowEdit.ini.
 void WowEditRenderDistanceSave();

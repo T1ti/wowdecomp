@@ -11,13 +11,38 @@
 //     editor can draw the terrain mesh again with its own shaders (grid, slopes, ...): by CWorldScene::RenderChunks
 //     after the terrain passes, and by CGWorldFrame::OnWorldRender with the overlays, after the rest of the scene. This is an editor pass of its own, apart from the debug-feature zone pass
 //     (CWorldScene::RenderChunksZoneDebug, render list 20).
+//   - world view: overrides for the standalone editor's camera, streaming and terrain budget.
 
 #ifdef WOWDECOMP_TOOL_FEATURES
 
 #include <cstdint>
+#include "Engine/Source/Tempest/CAaBox.h"
+#include "Engine/Source/Tempest/CRect.h"
 
 class C3Vector;
+class CGCamera;
 class CMapRenderChunk;
+
+struct WorldEditView {
+    CGCamera* m_camera;
+    float m_minFarClip;
+    float m_maxFarClip;
+    float m_streamFarClip;
+    float m_horizonFarClip;
+    float m_objectMinZ;
+    CRect m_terrainBounds;
+    uint32_t m_terrainBufferCount;
+    bool m_useTerrainOcclusion;
+
+    bool IncludesTerrain(const CAaBox& chunk) const {
+        return chunk.t.x >= m_terrainBounds.minX && chunk.b.x <= m_terrainBounds.maxX &&
+               chunk.t.y >= m_terrainBounds.minY && chunk.b.y <= m_terrainBounds.maxY;
+    }
+};
+
+// The editor updates this data before loading or drawing a map and keeps it alive until shutdown.
+void WorldEditSetView(const WorldEditView* view);
+const WorldEditView* WorldEditGetView();
 
 // Overlay callbacks. Registering the same callback and parameter twice keeps one entry.
 typedef void (*WORLDEDITOVERLAY)(void* param);

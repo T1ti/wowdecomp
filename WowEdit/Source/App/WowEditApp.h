@@ -15,7 +15,7 @@
 //   WowEditWorldView                    the world drawn without the game, the free camera, map loading.
 //   CWowEditApp (this file)             attaches the editor to the Gx window: OsGui setup, the window procedure
 //                                       hook, the menu bar, the palettes. The Gx window is the main window, as
-//                                       OsGui expects (OSGUI_WINDOW_TYPE_GX); the 3D view is the game's world frame.
+//                                       OsGui expects (OSGUI_WINDOW_TYPE_GX); the 3D view belongs to the editor.
 //   CWowEditCommander (WowEditCommands.h)  the command table (menu, item text, hotkey) and dispatch to modules.
 //   CWowEditModule (WowEditModule.h)    one editor each (view, terrain, ...): runs its commands, reports their
 //                                       menu state, owns its palettes.

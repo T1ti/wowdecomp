@@ -9,11 +9,8 @@
 // state, CWorld::Render, the model passes, detail doodads, liquids, weather, glares, and the editor overlays and the
 // Gxu debug-draw queue on top.
 //
-// The world code still asks the game's world frame for its camera (CGWorldFrame::GetActiveCamera: the area of
-// interest, the fog padding, the horizon) and for a model hit test (the sun glare occlusion). So a CGWorldFrame is
-// created, with a CSimpleTop for it to register with, but neither is shown and the top's input handlers are turned
-// off: the frame only owns the camera, which the editor moves itself (CGCamera::UpdateCallback, which follows a
-// target, never runs).
+// The screen layer owns the camera and supplies the shared world routines with the view inputs for the map.
+// Brush picking uses the camera-relative projection during the terrain pass.
 //
 // Camera: right mouse button held to look around; W/S forward and back, A/D sideways, E/Q up and down (arrow keys
 // too); Shift four times faster; the mouse wheel changes the speed. The console key opens the console as usual.
@@ -24,7 +21,7 @@
 
 class C3Vector;
 
-// From the client tool start-up (ClientTool.h): the frames, the camera, the screen layer, the input handlers.
+// From the client tool start-up (ClientTool.h): the camera, screen layer and input handlers.
 void WowEditWorldInitialize();
 void WowEditWorldShutdown();
 
@@ -33,6 +30,8 @@ void WowEditWorldShutdown();
 bool WowEditWorldLoadMap(int32_t mapId, const C3Vector* position);
 int32_t WowEditWorldGetMapId(); // -1 before the first map
 void WowEditWorldGetCameraPosition(float* position);
+// From a terrain draw pass, while the world's view and projection are active.
+bool WowEditWorldGetBrushRay(C3Vector& start, C3Vector& end);
 
 // Time of day for the lighting, in minutes since midnight (the game takes it from the server).
 void WowEditWorldSetTimeOfDay(int32_t minutes);

@@ -13,6 +13,7 @@
 #include "WoW/Source/WorldClient/MapRenderChunk.h"
 #include "WoW/Source/WorldClient/Types.h"
 #include "WoW/Source/WorldClient/World.h"
+#include "WoW/Source/WorldClient/WorldEditHooks.h"
 #include <cmath>
 #include "Engine/Source/Tempest/CMath.h"
 #include "WoW/Source/WorldClient/CChunkLiquid.h"
@@ -247,6 +248,10 @@ CMapChunk* CMapArea::PrepareChunk(int32_t x, int32_t y) {
 // VERIFY: b5606f47 manual
 // OFFSET: 0x007D6BF0
 void CMapArea::Update(int32_t addToScene, CiRect* chunkRect) {
+#ifdef WOWDECOMP_TOOL_FEATURES
+    const WorldEditView* editorView = WorldEditGetView();
+#endif
+
     for (int32_t chunkY = chunkRect->minY; chunkY <= chunkRect->maxY; chunkY++) {
         int32_t localY = chunkY & MAP_CHUNK_INDEX_MASK;
 
@@ -263,6 +268,11 @@ void CMapArea::Update(int32_t addToScene, CiRect* chunkRect) {
                 }
 
                 if (addToScene && CWorldScene::InsideFrustumRect(chunkRect)) {
+#ifdef WOWDECOMP_TOOL_FEATURES
+                    if (editorView && !editorView->IncludesTerrain(chunk->m_bbox2)) {
+                        continue;
+                    }
+#endif
                     CWorldScene::AddMapChunk(chunk);
                     chunk->CullAndBucketChunk();
                 }

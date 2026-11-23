@@ -25,6 +25,7 @@
 #include "WoW/Source/WorldClient/MapLight.h"
 #include "WoW/Source/WorldClient/Types.h"
 #include "WoW/Source/WorldClient/World.h"
+#include "WoW/Source/WorldClient/WorldEditHooks.h"
 #if defined(_MSC_VER)
 #include <malloc.h>
 #else
@@ -625,6 +626,11 @@ void CMapRenderChunk::UpdatePools() {
 
     int32_t radius = 1 - static_cast<int32_t>(World::farClip * -OO_COORD_TO_CHUNK);
     uint32_t count = (2 * radius * radius + 1) & ~1u;
+#ifdef WOWDECOMP_TOOL_FEATURES
+    if (const WorldEditView* editorView = WorldEditGetView()) {
+        count = editorView->m_terrainBufferCount;
+    }
+#endif
 
     CMapRenderChunk::s_pnEstimateVertex = TERRAIN_CHUNK_VERTEX_COUNT * count;
     CMapRenderChunk::s_pnEstimateIndex = TERRAIN_INDEX_COUNT_PER_CHUNK * count;

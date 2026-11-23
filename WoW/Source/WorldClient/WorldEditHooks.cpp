@@ -7,6 +7,16 @@
 
 // See WorldEditHooks.h. Everything here is a port addition.
 
+static const WorldEditView* s_view;
+
+void WorldEditSetView(const WorldEditView* view) {
+    s_view = view;
+}
+
+const WorldEditView* WorldEditGetView() {
+    return s_view;
+}
+
 // ---- Overlays
 
 struct WorldEditOverlay {
@@ -71,9 +81,8 @@ void WorldEditCollectTerrainChunk(CMapRenderChunk* chunk) {
     }
 }
 
-// The chunks stay valid here: the terrain passes only move them to CMap::s_mapRenderChunkUpdateList, and
-// CMap::ProcessRenderChunkUpdateList frees a chunk's buffers only after it has gone 2 seconds without being drawn, so
-// they also last until the late call of the same frame.
+// The chunks stay valid until the late call of the same frame. The terrain passes move them to
+// CMap::s_mapRenderChunkUpdateList, which the next world update processes.
 void WorldEditRenderTerrainPass() {
     if (s_terrainPass && s_terrainChunks.m_count) {
         s_terrainPass(s_terrainChunks.m_data, s_terrainChunks.m_count, false);

@@ -1236,13 +1236,20 @@ void World::ObjectDestroy(CMapEntity* baseObj) {
 void World::PrepareAreaOfInterest(const C3Vector& position) {
     World::s_currentWorldPos = position;
 
-    CGCamera* camera = CGWorldFrame::GetActiveCamera();
+    CGCamera* camera = World::GetViewCamera();
     float farZ = camera->m_clipRange.m_h;
     float nearZ = camera->m_clipRange.m_l;
     float fov = camera->FOV();
 
     C44Matrix projection;
-    GxuXformCreateProjection_Exact(fov * 0.6f, camera->m_aspect, nearZ, farZ, projection);
+    float streamFarZ = farZ;
+#ifdef WOWDECOMP_TOOL_FEATURES
+    const WorldEditView* editorView = WorldEditGetView();
+    if (editorView) {
+        streamFarZ = editorView->m_streamFarClip;
+    }
+#endif
+    GxuXformCreateProjection_Exact(fov * 0.6f, camera->m_aspect, nearZ, streamFarZ, projection);
 
     C44Matrix view;
     GxXformView(view);
@@ -1266,6 +1273,11 @@ void World::PrepareAreaOfInterest(const C3Vector& position) {
     CWorld::s_groupAreaOfInterest.t = C3Vector(position.x + 150.0f, position.y + 150.0f, position.z + 150.0f);
     CWorld::s_objectAreaOfInterest.b = C3Vector(position.x - farClip, position.y - farClip, position.z - farClip);
     CWorld::s_objectAreaOfInterest.t = C3Vector(position.x + farClip, position.y + farClip, position.z + farClip);
+#ifdef WOWDECOMP_TOOL_FEATURES
+    if (editorView) {
+        CWorld::s_objectAreaOfInterest.b.z = fminf(CWorld::s_objectAreaOfInterest.b.z, editorView->m_objectMinZ);
+    }
+#endif
 
     int32_t radius = 1 - static_cast<int32_t>(streamDistance * -OO_COORD_TO_CHUNK);
     int32_t chunkX = static_cast<int32_t>(-(position.x - HALF_WORLD_SIZE) * OO_COORD_TO_CHUNK);
@@ -1332,6 +1344,25 @@ C3Vector* World::GetCamPos() {
     return &CWorldScene::s_activeWorldView;
 }
 
+CGCamera* World::GetViewCamera() {
+#ifdef WOWDECOMP_TOOL_FEATURES
+    if (const WorldEditView* editorView = WorldEditGetView()) {
+        return editorView->m_camera;
+    }
+#endif
+    return CGWorldFrame::GetActiveCamera();
+}
+
+void World::GetViewCameraPosition(C3Vector* position) {
+#ifdef WOWDECOMP_TOOL_FEATURES
+    if (const WorldEditView* editorView = WorldEditGetView()) {
+        *position = editorView->m_camera->m_position;
+        return;
+    }
+#endif
+    CGWorldFrame::GetCameraPosition(position);
+}
+
 // VERIFY: 21d7eb14 auto
 // OFFSET: 0x00780650
 C3Vector* CWorldScene::GetCamTarget() {
@@ -1378,6 +1409,11 @@ void World::SetDetailDoodadDist(float dist) {
 // VERIFY: 5f5281b3 auto
 // OFFSET: 0x00780770
 float World::ValidateFarClip(float farClip, int32_t mapID) {
+#ifdef WOWDECOMP_TOOL_FEATURES
+    if (const WorldEditView* editorView = WorldEditGetView()) {
+        return fminf(fmaxf(farClip, editorView->m_minFarClip), editorView->m_maxFarClip);
+    }
+#endif
     float maxFarClip = 4750.0f / 3.0f;
 
     if (mapID < MAP_EXPANSION01 || mapID == MAP_UTGARDE_PINNACLE || mapID == MAP_HELLFIRE_RAMPART) {
@@ -2104,10 +2140,16 @@ int32_t CWorldScene::FrustumCull(const C3Vector& center, float radius) {
 // VERIFY: e94a022f auto
 // OFFSET: 0x00791170
 void CWorldScene::BuildHorizonProjection(C44Matrix* projection) {
-    CGCamera* camera = CGWorldFrame::GetActiveCamera();
+    CGCamera* camera = World::GetViewCamera();
     float farZ = camera->m_clipRange.m_h;
     float fov = camera->FOV();
-    GxuXformCreateProjection_Exact(fov * 0.6f, camera->m_aspect, farZ - 50.0f, World::s_horizonFarClipScale * World::farClip, *projection);
+    float horizonFarZ = World::s_horizonFarClipScale * World::farClip;
+#ifdef WOWDECOMP_TOOL_FEATURES
+    if (const WorldEditView* editorView = WorldEditGetView()) {
+        horizonFarZ = editorView->m_horizonFarClip;
+    }
+#endif
+    GxuXformCreateProjection_Exact(fov * 0.6f, camera->m_aspect, farZ - 50.0f, horizonFarZ, *projection);
 }
 
 // VERIFY: 6cb64bd1 manual
@@ -4117,6 +4159,11 @@ void CWorldScene::CullChunks(CSortEntry* sortEntry, uint32_t index) {
 
     C3Vector corner(0.0f, 0.0f, 0.0f);
     int32_t occlude = (CWorld::enables & Enables::Enable_Culling) && index < 63;
+#ifdef WOWDECOMP_TOOL_FEATURES
+    if (const WorldEditView* editorView = WorldEditGetView()) {
+        occlude = occlude && editorView->m_useTerrainOcclusion;
+    }
+#endif
 
     CMapChunk* chunk = sortEntry->chunkList.Head();
 
