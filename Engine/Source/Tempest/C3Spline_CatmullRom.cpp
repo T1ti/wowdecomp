@@ -3,6 +3,7 @@
 #include <cstdint>
 #include "Engine/Source/Tempest/C3Spline_CatmullRom.h"
 #include "Engine/Source/Base/CDataStore.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/C34Matrix.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "Engine/Source/Tempest/CMath.h"
@@ -61,7 +62,7 @@ float C3Spline_CatmullRom::SegLength(uint32_t seg) {
 // VERIFY: 6f5dd97e manual
 // OFFSET: 0x004C4140
 void C3Spline_CatmullRom::ParametricSegT(float t, uint32_t& seg, float& segT) {
-    float segCount = static_cast<float>(this->m_pointCount - 3);
+    float segCount = static_cast<float>(this->pointCount - 3);
 
     seg = CMath::fint_(segCount * t - 0.5f);
     segT = (t - 1.0f / segCount * seg) * segCount;
@@ -70,13 +71,13 @@ void C3Spline_CatmullRom::ParametricSegT(float t, uint32_t& seg, float& segT) {
 // VERIFY: 90d58011 auto
 // OFFSET: 0x004C41B0
 float C3Spline_CatmullRom::ILength() {
-    return C3Spline::ILength(this->m_pointCount - 3);
+    return C3Spline::ILength(this->pointCount - 3);
 }
 
 // VERIFY: a9242506 manual
 // OFFSET: 0x004C41C0
 void C3Spline_CatmullRom::IValidateCache() {
-    uint32_t segCount = this->m_pointCount - 3;
+    uint32_t segCount = this->pointCount - 3;
 
     for (uint32_t i = 0; i < segCount; i++) {
         this->SetCachedSegLength(this->SegLength(i), i);
@@ -89,7 +90,7 @@ void C3Spline_CatmullRom::IPosArclength(float t, C3Vector& pos) {
     uint32_t seg;
     float segT;
 
-    this->ArclengthSegT(t, s_catmullRomBasis, this->m_pointCount - 3, seg, segT);
+    this->ArclengthSegT(t, s_catmullRomBasis, this->pointCount - 3, seg, segT);
     this->Evaluate(seg, segT, pos);
 }
 
@@ -119,7 +120,7 @@ void C3Spline_CatmullRom::IVelArclength(float t, C3Vector& vel) {
     uint32_t seg;
     float segT;
 
-    this->ArclengthSegT(clamped, s_catmullRomBasis, this->m_pointCount - 3, seg, segT);
+    this->ArclengthSegT(clamped, s_catmullRomBasis, this->pointCount - 3, seg, segT);
     C3Spline::EvaluateDer1(seg, segT, C44Matrix(s_catmullRomDer1), vel);
 }
 
@@ -149,7 +150,7 @@ void C3Spline_CatmullRom::IFrameArclength(float t, C44Matrix& frame) {
     uint32_t seg;
     float segT;
 
-    this->ArclengthSegT(t, s_catmullRomBasis, this->m_pointCount - 3, seg, segT);
+    this->ArclengthSegT(t, s_catmullRomBasis, this->pointCount - 3, seg, segT);
     this->Evaluate(seg, segT, *reinterpret_cast<C3Vector*>(&frame.d0));
 
     const C3Vector& a = this->Point(seg + 1);
@@ -213,7 +214,7 @@ void C3Spline_CatmullRom::IFrameArclength(float t, C44Matrix& frame) {
 // VERIFY: 936d407a manual
 // OFFSET: 0x004C4600
 uint32_t C3Spline_CatmullRom::IGetPoints(float t, C3Vector* points, uint32_t count) {
-    uint32_t pointCount = this->m_pointCount;
+    uint32_t pointCount = this->pointCount;
     uint32_t seg;
     float segT;
 
@@ -238,20 +239,26 @@ uint32_t C3Spline_CatmullRom::IGetPoints(float t, C3Vector* points, uint32_t cou
 
 // VERIFY: ad1247b6 auto
 // OFFSET: 0x004C4DA0
-void C3Spline_CatmullRom::ISetPoints(const C3Vector* points, uint32_t count) {
+void C3Spline_CatmullRom::ISetPoints(const C3Vector* pts, uint32_t count) {
     if (count) {
+        STORM_ASSERT(count > 3);
+#if defined(WOWDECOMP_ASSERTIONS)
+        for (uint32_t i = 1; i + 2 < count; i++) {
+            STORM_ASSERT(CMath::fnotequal_((pts[i+1] - pts[i]).SquaredMag(), 0.0f));
+        }
+#endif
         uint32_t segCount = count - 3;
-        this->m_segCount = segCount;
+        this->cachedSegLengthCount = segCount;
 
         if (segCount > 25) {
             this->m_extraSegLength.SetCount(segCount - 25);
         }
     } else {
-        this->m_segCount = 0;
+        this->cachedSegLengthCount = 0;
         this->m_extraSegLength.SetCount(0);
     }
 
-    C3Spline::ISetPoints(points, count);
+    C3Spline::ISetPoints(pts, count);
 }
 
 // VERIFY: 4e0fa75c manual

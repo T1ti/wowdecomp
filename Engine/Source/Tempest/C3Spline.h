@@ -26,26 +26,34 @@ class C3Spline {
     };
 
     /* 0004 */ float cachedLength;
+    private:
     /* 0008 */ C3Vector points [25];
     /* 0134 */ TSGrowableArray<C3Vector> m_extraPoints;
-    /* 0144 */ uint32_t m_pointCount;
-    /* 0148 */ float cachedSegLength [25];
-    /* 01AC */ TSGrowableArray<float> m_extraSegLength;
-    /* 01BC */ uint32_t m_segCount;
 
+    public:
+    /* 0144 */ uint32_t pointCount;
+
+    private:
+    /* 0148 */ mutable float cachedSegLength [25];
+
+    protected:
+    /* 01AC */ TSGrowableArray<float> m_extraSegLength;
+    /* 01BC */ uint32_t cachedSegLengthCount;
+
+    public:
     C3Spline();
-    void ArclengthSegT(float t, const C44Matrix& basis, uint32_t segCount, uint32_t& seg, float& segT);
+    void ArclengthSegT(float t, const C44Matrix& basis, uint32_t segCount, uint32_t& seg, float& segT) const;
     void Evaluate(uint32_t seg, float t, const C44Matrix& basis, C3Vector& pos);
     void EvaluateDer1(uint32_t seg, float t, const C44Matrix& basis, C3Vector& vel);
     void Frame(float t, C44Matrix& frame, EvalType type);
-    float GetCachedSegLength(uint32_t index);
+    float GetCachedSegLength(uint32_t index) const;
     void GetPoints(C3Vector* points, uint32_t count);
     float ILength(uint32_t segCount);
     float LengthBeforePoint(uint32_t index);
-    C3Vector& Point(uint32_t index);
+    const C3Vector& Point(uint32_t pointSub) const;
     void Pos(float t, C3Vector& pos, EvalType type);
     float SegLength(uint32_t seg, const C44Matrix& basis);
-    void SetCachedSegLength(float length, uint32_t index);
+    void SetCachedSegLength(float length, uint32_t index) const;
     void SetPoints(const C3Vector* points, uint32_t count);
     void Vel(float t, C3Vector& vel, EvalType type);
     C3Spline& operator=(const C3Spline& source);

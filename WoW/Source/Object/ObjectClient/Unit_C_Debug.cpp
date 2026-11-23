@@ -267,11 +267,11 @@ static void RememberDebugPath(const WOWGUID& guid, CMoveSpline* spline, const WO
         last = &s_debugPathLast[s_debugPathLastNext];
         s_debugPathLastNext = (s_debugPathLastNext + 1) % DEBUG_PATH_CURVES;
         last->m_guid = guid;
-    } else if (last->m_splineId == spline->m_id && last->m_pointCount == path.m_pointCount) {
+    } else if (last->m_splineId == spline->m_id && last->m_pointCount == path.pointCount) {
         return;
     }
 
-    uint32_t count = path.m_pointCount;
+    uint32_t count = path.pointCount;
     last->m_splineId = spline->m_id;
     last->m_pointCount = count;
     last->m_transportGuid = transportGuid;
@@ -426,11 +426,11 @@ static void RenderDebugShipPath(const WOWGUID& transportGuid) {
 
             C3Spline_CatmullRom& path = leg.m_spline;
 
-            for (uint32_t i = 0; i < path.m_pointCount; i++) {
+            for (uint32_t i = 0; i < path.pointCount; i++) {
                 *s_debugShipControl.New() = path.Point(i);
             }
 
-            if (path.m_pointCount > 3 && path.cachedLength > 0.0f) {
+            if (path.pointCount > 3 && path.cachedLength > 0.0f) {
                 float step = DEBUG_SHIP_PATH_STEP / path.cachedLength;
 
                 if (step < 1.0f / DEBUG_PATH_MAX_SAMPLES) {
@@ -467,7 +467,7 @@ static const TSGrowableArray<C3Vector>& SampleDebugPathCurve(const WOWGUID& guid
     for (uint32_t i = 0; i < DEBUG_PATH_CURVES; i++) {
         DebugPathCurve& curve = s_debugPathCurves[i];
 
-        if (curve.m_guid == guid && curve.m_splineId == spline->m_id && curve.m_pointCount == path.m_pointCount) {
+        if (curve.m_guid == guid && curve.m_splineId == spline->m_id && curve.m_pointCount == path.pointCount) {
             return curve.m_samples;
         }
     }
@@ -476,11 +476,11 @@ static const TSGrowableArray<C3Vector>& SampleDebugPathCurve(const WOWGUID& guid
     s_debugPathCurveNext = (s_debugPathCurveNext + 1) % DEBUG_PATH_CURVES;
     curve.m_guid = guid;
     curve.m_splineId = spline->m_id;
-    curve.m_pointCount = path.m_pointCount;
+    curve.m_pointCount = path.pointCount;
     curve.m_samples.SetCount(0);
 
     // C3Spline::SetPoints computes the length only for more than 3 points; with fewer the curve is not evaluated.
-    if (path.m_pointCount <= 3 || path.cachedLength <= 0.0f) {
+    if (path.pointCount <= 3 || path.cachedLength <= 0.0f) {
         return curve.m_samples;
     }
 
@@ -500,7 +500,7 @@ static const TSGrowableArray<C3Vector>& SampleDebugPathCurve(const WOWGUID& guid
 void CGUnit_C::RenderDebugPathing() {
     const WOWGUID& guid = this->m_obj->m_guid;
     CMoveSpline* spline = this->m_movementData.m_spline;
-    bool moving = spline && !(spline->flags & SPLINEFLAG_DONE) && spline->m_spline.m_pointCount;
+    bool moving = spline && !(spline->flags & SPLINEFLAG_DONE) && spline->m_spline.pointCount;
 
     if (moving) {
         RememberDebugPath(guid, spline, this->m_movementData.m_transportGuid);
@@ -549,7 +549,7 @@ void CGUnit_C::RenderDebugPathing() {
     }
 
     C3Spline_CatmullRom& path = spline->m_spline;
-    uint32_t count = path.m_pointCount;
+    uint32_t count = path.pointCount;
     C44Matrix transport;
     bool onTransport = this->m_movementData.m_transportGuid && MovementGetTransportMtxSafe(this->m_movementData.m_transportGuid, &transport);
 

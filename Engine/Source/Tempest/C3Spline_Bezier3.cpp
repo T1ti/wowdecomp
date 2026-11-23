@@ -1,6 +1,7 @@
 #include <cmath>
 #include <cstddef>
 #include <cstdint>
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/C3Spline_Bezier3.h"
 #include "Engine/Source/Tempest/C34Matrix.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
@@ -12,7 +13,7 @@ static const C44Matrix s_bezier3Basis(-1.0f, 3.0f, -3.0f, 1.0f, 3.0f, -6.0f, 3.0
 // VERIFY: dc9fe2ff manual
 // OFFSET: 0x004C3E00
 void C3Spline_Bezier3::ParametricSegT(float t, uint32_t& seg, float& segT) {
-    float segCount = static_cast<float>(this->m_pointCount / 3);
+    float segCount = static_cast<float>(this->pointCount / 3);
 
     seg = CMath::fint_(segCount * t - 0.5f);
     segT = (t - 1.0f / segCount * seg) * segCount;
@@ -30,13 +31,13 @@ void C3Spline_Bezier3::EvaluateDer1(uint32_t seg, float t, C3Vector& vel) {
 // VERIFY: ab3e3930 auto
 // OFFSET: 0x004C3F30
 float C3Spline_Bezier3::ILength() {
-    return C3Spline::ILength(this->m_pointCount / 3);
+    return C3Spline::ILength(this->pointCount / 3);
 }
 
 // VERIFY: acbe268f manual
 // OFFSET: 0x004C3F50
 void C3Spline_Bezier3::IValidateCache() {
-    uint32_t segCount = this->m_pointCount / 3;
+    uint32_t segCount = this->pointCount / 3;
 
     for (uint32_t i = 0; i < segCount; i++) {
         this->SetCachedSegLength(C3Spline::SegLength(3 * i, s_bezier3Basis), i);
@@ -59,7 +60,7 @@ void C3Spline_Bezier3::IPosArclength(float t, C3Vector& pos) {
     uint32_t seg;
     float segT;
 
-    this->ArclengthSegT(t, s_bezier3Basis, this->m_pointCount / 3, seg, segT);
+    this->ArclengthSegT(t, s_bezier3Basis, this->pointCount / 3, seg, segT);
     C3Spline::Evaluate(3 * seg, segT, s_bezier3Basis, pos);
 }
 
@@ -79,7 +80,7 @@ void C3Spline_Bezier3::IVelArclength(float t, C3Vector& vel) {
     uint32_t seg;
     float segT;
 
-    this->ArclengthSegT(t, s_bezier3Basis, this->m_pointCount / 3, seg, segT);
+    this->ArclengthSegT(t, s_bezier3Basis, this->pointCount / 3, seg, segT);
     this->EvaluateDer1(seg, segT, vel);
 }
 
@@ -89,7 +90,7 @@ void C3Spline_Bezier3::IFrameArclength(float t, C44Matrix& frame) {
     uint32_t seg;
     float segT;
 
-    this->ArclengthSegT(t, s_bezier3Basis, this->m_pointCount / 3, seg, segT);
+    this->ArclengthSegT(t, s_bezier3Basis, this->pointCount / 3, seg, segT);
     C3Spline::Evaluate(3 * seg, segT, s_bezier3Basis, *reinterpret_cast<C3Vector*>(&frame.d0));
 
     C3Vector vel(0.0f, 0.0f, 0.0f);
@@ -124,11 +125,13 @@ void C3Spline_Bezier3::IFrameArclength(float t, C44Matrix& frame) {
 // OFFSET: 0x004C4D50
 void C3Spline_Bezier3::ISetPoints(const C3Vector* points, uint32_t count) {
     uint32_t segCount = count / 3;
-    this->m_segCount = segCount;
+    this->cachedSegLengthCount = segCount;
 
     if (segCount > 25) {
         this->m_extraSegLength.SetCount(segCount - 25);
     }
 
-    C3Spline::ISetPoints(points, 3 * segCount - 3 + (segCount ? 4 : 0));
+    uint32_t nPoints = 3 * segCount - 3 + (segCount ? 4 : 0);
+    STORM_ASSERT(nPoints <= count);
+    C3Spline::ISetPoints(points, nPoints);
 }

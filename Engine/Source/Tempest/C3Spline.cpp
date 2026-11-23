@@ -9,23 +9,27 @@
 // VERIFY: f58fcef3 manual
 // OFFSET: 0x004096D0
 C3Spline::C3Spline() {
-    this->m_pointCount = 0;
-    this->m_segCount = 0;
+    this->pointCount = 0;
+    this->cachedSegLengthCount = 0;
 }
 
 // INLINED
-float C3Spline::GetCachedSegLength(uint32_t index) {
+float C3Spline::GetCachedSegLength(uint32_t index) const {
+    STORM_ASSERT(index < cachedSegLengthCount);
+
     if (index >= 25) {
-        return this->m_extraSegLength[index - 25];
+        return this->m_extraSegLength.m_data[index - 25];
     }
 
     return this->cachedSegLength[index];
 }
 
 // INLINED
-void C3Spline::SetCachedSegLength(float length, uint32_t index) {
+void C3Spline::SetCachedSegLength(float length, uint32_t index) const {
+    STORM_ASSERT(index < cachedSegLengthCount);
+
     if (index >= 25) {
-        this->m_extraSegLength[index - 25] = length;
+        this->m_extraSegLength.m_data[index - 25] = length;
     } else {
         this->cachedSegLength[index] = length;
     }
@@ -33,12 +37,14 @@ void C3Spline::SetCachedSegLength(float length, uint32_t index) {
 
 // VERIFY: a8388e46 manual
 // OFFSET: 0x004C36F0
-C3Vector& C3Spline::Point(uint32_t index) {
-    if (index >= 25) {
-        return this->m_extraPoints[index - 25];
+const C3Vector& C3Spline::Point(uint32_t pointSub) const {
+    STORM_ASSERT(pointSub < pointCount);
+
+    if (pointSub >= 25) {
+        return this->m_extraPoints.m_data[pointSub - 25];
     }
 
-    return this->points[index];
+    return this->points[pointSub];
 }
 
 // VERIFY: 6a282ff5 manual
@@ -60,7 +66,7 @@ float C3Spline::LengthBeforePoint(uint32_t index) {
 void C3Spline::SetPoints(const C3Vector* points, uint32_t count) {
     this->ISetPoints(points, count);
 
-    if (this->m_pointCount > 3) {
+    if (this->pointCount > 3) {
         this->IValidateCache();
         this->cachedLength = this->ILength();
     }
@@ -75,7 +81,7 @@ void C3Spline::Pos(float t, C3Vector& pos, EvalType type) {
     }
 
     if (t >= 1.0f) {
-        pos = this->Point(this->m_pointCount - 1);
+        pos = this->Point(this->pointCount - 1);
         return;
     }
 
@@ -193,7 +199,7 @@ float C3Spline::SegLength(uint32_t seg, const C44Matrix& basis) {
 
 // VERIFY: c8ceaa76 manual
 // OFFSET: 0x004C3BD0
-void C3Spline::ArclengthSegT(float t, const C44Matrix& basis, uint32_t segCount, uint32_t& seg, float& segT) {
+void C3Spline::ArclengthSegT(float t, const C44Matrix& basis, uint32_t segCount, uint32_t& seg, float& segT) const {
     if (segCount <= 1) {
         seg = 0;
         segT = t;
@@ -215,6 +221,7 @@ void C3Spline::ArclengthSegT(float t, const C44Matrix& basis, uint32_t segCount,
         seg++;
     } while (seg < segCount - 1);
 
+    STORM_ASSERT(GetCachedSegLength(seg) > 0.0f);
     segT = (target - before) / this->GetCachedSegLength(seg);
 }
 
@@ -233,7 +240,7 @@ float C3Spline::ILength(uint32_t segCount) {
 // VERIFY: 982a9f86 manual
 // OFFSET: 0x004C3D80
 void C3Spline::GetPoints(C3Vector* points, uint32_t count) {
-    uint32_t n = count >= this->m_pointCount ? this->m_pointCount : count;
+    uint32_t n = count >= this->pointCount ? this->pointCount : count;
 
     for (uint32_t i = 0; i < n; i++) {
         if (i >= 25) {
@@ -251,7 +258,7 @@ void C3Spline::GetPoints(C3Vector* points, uint32_t count) {
 // VERIFY: 1e5ef38f manual
 // OFFSET: 0x004C4CD0
 void C3Spline::ISetPoints(const C3Vector* points, uint32_t count) {
-    this->m_pointCount = count;
+    this->pointCount = count;
 
     for (uint32_t i = 0; i < count; i++) {
         if (i >= 25) {
@@ -278,14 +285,14 @@ C3Spline& C3Spline::operator=(const C3Spline& source) {
     }
 
     this->m_extraPoints = source.m_extraPoints;
-    this->m_pointCount = source.m_pointCount;
+    this->pointCount = source.pointCount;
 
     for (uint32_t i = 0; i < 25; i++) {
         this->cachedSegLength[i] = source.cachedSegLength[i];
     }
 
     this->m_extraSegLength = source.m_extraSegLength;
-    this->m_segCount = source.m_segCount;
+    this->cachedSegLengthCount = source.cachedSegLengthCount;
 
     return *this;
 }

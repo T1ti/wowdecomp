@@ -247,7 +247,7 @@ void Snow::UpdatePackets() {
             if (player && player->m_movement->m_spline && !(player->m_movement->m_spline->flags & SPLINEFLAG_NO_SPLINE)) {
                 C3Spline_CatmullRom* spline = player->GetSpline();
 
-                if (spline && spline->m_pointCount > 2) {
+                if (spline && spline->pointCount > 2) {
                     float elapsed = player->GetSplineElapsedTime();
                     float duration = player->GetSplineDuration();
 

@@ -2009,7 +2009,7 @@ void CMovementShared::TransformSpline(const C44Matrix& matrix, float facing) {
     *reinterpret_cast<C3Vector*>(this->m_spline->m_face.m_point) *= matrix;
     this->m_spline->m_face.m_angle = CMath::normalizeangle0to2pi_(this->m_spline->m_face.m_angle + facing);
 
-    TSStackArray<C3Vector> points(static_cast<C3Vector*>(alloca(sizeof(C3Vector) * this->m_spline->m_spline.m_pointCount)), this->m_spline->m_spline.m_pointCount, 1);
+    TSStackArray<C3Vector> points(static_cast<C3Vector*>(alloca(sizeof(C3Vector) * this->m_spline->m_spline.pointCount)), this->m_spline->m_spline.pointCount, 1);
 
     for (uint32_t i = 0; i < points.m_count; i++) {
         points.m_data[i] = this->m_spline->m_spline.Point(i) * matrix;
@@ -2105,7 +2105,7 @@ void CMovementShared::ConvertCurrentSplineToLoopingSpline(uint32_t timePassed) {
         return;
     }
 
-    uint32_t count = spline->m_spline.m_pointCount;
+    uint32_t count = spline->m_spline.pointCount;
 
     if (count < 4) {
         return;
