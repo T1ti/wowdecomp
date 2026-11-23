@@ -33,6 +33,11 @@
 #include "WoW/Source/WorldClient/World.h"
 #include "Engine/Source/ShaderEffect/Types.h"
 
+static constexpr uint32_t DETAILDOODAD_VS_POINT_LIGHTS = 2;
+static constexpr uint32_t DETAILDOODAD_VS_SHADOWS = 3;
+static constexpr uint32_t DETAILDOODAD_PS_HW_PCF = 2;
+static constexpr uint32_t DETAILDOODAD_PS_SHADOWS = 4;
+
 // STATIC: 0x00D1C4C4
 static uint32_t s_indexBufferSize;
 
@@ -40,13 +45,13 @@ static uint32_t s_indexBufferSize;
 static uint32_t s_vertexBufferSize;
 
 // STATIC: 0x00D1C4DC
-static uint32_t unk_D1C4DC;
+static uint32_t gxBufCount;
 
 // STATIC: 0x00D1C4E8
 static uint32_t unk_D1C4E8;
 
 // STATIC: 0x00D1C504
-TSGrowableArray<CGxBuf*> CDetailDoodad::s_freeGxBufs;
+TSGrowableArray<CGxBuf*> CDetailDoodad::gxBufFreeList;
 
 // STATIC: 0x00D1C488
 CGxShader* CDetailDoodad::s_pixelShader[8];
@@ -64,13 +69,13 @@ uint32_t CDetailDoodad::s_idxBufItems;
 uint32_t CDetailDoodad::s_vtxBufItems;
 
 // STATIC: 0x00D1C4D4
-CGxPool* CDetailDoodad::s_gxIndexPool;
+CGxPool* CDetailDoodad::gxIdxPool;
 
 // STATIC: 0x00D1C4D8
-CGxPool* CDetailDoodad::s_gxVertexPool;
+CGxPool* CDetailDoodad::gxVtxPool;
 
 // STATIC: 0x00D1C4E0
-CGxTex* CDetailDoodad::s_alphaRampTexture;
+CGxTex* CDetailDoodad::alphaRampTexture;
 
 // STATIC: 0x00D1C4E4
 uint32_t* CDetailDoodad::s_instHeap;
@@ -111,18 +116,22 @@ static void __stdcall BuildInstanceMatrix(C33Matrix& result, C33Matrix& rotation
 
 // VERIFY: 15a97eda manual
 // OFFSET: 0x007B2CA0
-static void AcquireBuffers(uint32_t vertexCount, CGxBuf** vertexBuf, uint32_t indexCount, CGxBuf** indexBuf) {
-    uint32_t count = CDetailDoodad::s_freeGxBufs.Count();
+static void AcquireBuffers(uint32_t vertexCount, CGxBuf** vtxBufOut, uint32_t indexCount, CGxBuf** indexBuf) {
+    uint32_t count = CDetailDoodad::gxBufFreeList.Count();
 
     if (count) {
-        *vertexBuf = CDetailDoodad::s_freeGxBufs[count - 2];
-        *indexBuf = CDetailDoodad::s_freeGxBufs[count - 1];
-        CDetailDoodad::s_freeGxBufs.SetCount(count - 2);
-        (*vertexBuf)->m_hasData = 0;
+        *vtxBufOut = CDetailDoodad::gxBufFreeList[count - 2];
+        *indexBuf = CDetailDoodad::gxBufFreeList[count - 1];
+        CDetailDoodad::gxBufFreeList.SetCount(count - 2);
+        (*vtxBufOut)->m_hasData = 0;
         (*indexBuf)->m_hasData = 0;
     } else {
-        *vertexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPNCT), vertexCount);
+        *vtxBufOut = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(CGxVertexPNCT), vertexCount);
         *indexBuf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, sizeof(uint16_t), indexCount);
+#if defined(WOWDECOMP_ASSERTIONS)
+        const CGxBuf* vtxBuf = *vtxBufOut;
+        STORM_ASSERT(!GxBufValid(vtxBuf));
+#endif
     }
 }
 
@@ -147,7 +156,9 @@ void CDetailDoodad::SetupVertexShader(const C44Matrix& world, uint32_t index) {
         shadow = 2;
     }
 
-    g_theGxDevicePtr->RsSet(GxRs_VertexShader, CDetailDoodad::s_vertexShader[3 * index + shadow]);
+    const uint32_t idx = DETAILDOODAD_VS_SHADOWS * index + shadow;
+    STORM_ASSERT(idx < (DETAILDOODAD_VS_POINT_LIGHTS * DETAILDOODAD_VS_SHADOWS));
+    g_theGxDevicePtr->RsSet(GxRs_VertexShader, CDetailDoodad::s_vertexShader[idx]);
 
     C44Matrix view;
     CGxMatrixStack& stack = g_theGxDevicePtr->m_xforms[GxXform_View];
@@ -200,7 +211,7 @@ void CDetailDoodadInstBatch::FillIndices() {
     uint32_t base = 0;
 
     for (uint32_t i = 0; i < this->m_adds.Count(); i++) {
-        CM2Model* model = CDetailDoodad::s_doodadList[this->m_adds[i].m_doodadId]->m_model;
+        CM2Model* model = CDetailDoodad::s_doodadList[this->m_adds[i].m_doodadId]->model;
 
         model->EnsureInitialized();
 
@@ -308,14 +319,26 @@ void CDetailDoodad::InitializeShaderConstants() {
 }
 
 // VERIFY: 7ec422be manual
+// INLINED
+inline void CDetailDoodadData::CheckGeometry() {
+    this->model->EnsureInitialized();
+
+    const M2Data* data = this->model->m_shared->m_data;
+    STORM_ASSERT(data->m_textures.m_count == 1); // 12213: "data->textures.count == 1"
+    this->texture = CMap::LoadTexture(data->m_textures[0].m_filename.Data());
+    STORM_ASSERT(texture);
+
+#if defined(WOWDECOMP_ASSERTIONS)
+    const M2SkinProfile* skinProfile = this->model->m_shared->m_skinData;
+    STORM_ASSERT(skinProfile);
+    STORM_ASSERT(skinProfile->m_batches.m_count == 1); // 12213: "skinProfile->batches.count == 1"
+    STORM_ASSERT(data->m_bones.m_count == 1); // 12213: "data->bones.count == 1"
+#endif
+}
+
 // OFFSET: 0x007B1B10
 void CDetailDoodadData::ModelLoadedCallback(CM2Model* model, void* arg) {
-    CDetailDoodadData* data = static_cast<CDetailDoodadData*>(arg);
-    CM2Model* doodadModel = data->m_model;
-
-    doodadModel->EnsureInitialized();
-
-    data->m_texture = CMap::LoadTexture(doodadModel->m_shared->m_data->m_textures[0].m_filename.Data());
+    static_cast<CDetailDoodadData*>(arg)->CheckGeometry();
 }
 
 // VERIFY: 69235ba2 manual
@@ -339,12 +362,12 @@ void CDetailDoodadInstBatch::FillVertices() {
     for (uint32_t i = 0; i < this->m_adds.Count(); i++) {
         CDetailDoodadInstAdd& add = this->m_adds[i];
         CDetailDoodadData* data = CDetailDoodad::s_doodadList[add.m_doodadId];
-        CM2Model* model = data->m_model;
+        CM2Model* model = data->model;
 
         model->EnsureInitialized();
 
         M2Data* m2Data = model->m_shared->m_data;
-        model = data->m_model;
+        model = data->model;
 
         model->EnsureInitialized();
 
@@ -369,7 +392,7 @@ void CDetailDoodadInstBatch::FillVertices() {
             color = swapped;
         }
 
-        if (data->m_record->m_flags & GROUND_EFFECT_DOODAD_ALIGN_TO_TERRAIN) {
+        if (data->groundEffectDoodad->m_flags & GROUND_EFFECT_DOODAD_ALIGN_TO_TERRAIN) {
             if ((add.m_triIndex & 0xFC) != cell) {
                 cell = add.m_triIndex & 0xFC;
                 built = 0;
@@ -430,17 +453,17 @@ void CDetailDoodad::DestroyModels() {
             CDetailDoodadData* data = CDetailDoodad::s_doodadList[i];
 
             if (data) {
-                if (data->m_texture) {
-                    HandleClose(reinterpret_cast<HOBJECT>(data->m_texture));
-                    data->m_texture = nullptr;
+                if (data->texture) {
+                    HandleClose(reinterpret_cast<HOBJECT>(data->texture));
+                    data->texture = nullptr;
                 }
 
-                if (data->m_model) {
-                    data->m_model->Release();
-                    data->m_model = nullptr;
+                if (data->model) {
+                    data->model->Release();
+                    data->model = nullptr;
                 }
 
-                data->m_record = nullptr;
+                data->groundEffectDoodad = nullptr;
                 SMemFree(data, "delete", SLOG_FUNCTION, 0);
             }
         }
@@ -466,12 +489,13 @@ void CDetailDoodad::Initialize() {
 
         if (record) {
             CDetailDoodadData* data = new (__FILE__, __LINE__) CDetailDoodadData();
-            data->m_record = record;
+            data->groundEffectDoodad = record;
             CDetailDoodad::s_doodadList[i] = data;
         }
     }
 
-    GxTexCreate(64, 8, GxTex_Argb8888, CGxTexFlags(), nullptr, CDetailDoodad::UpdateAlphaRampTexture, CDetailDoodad::s_alphaRampTexture);
+    GxTexCreate(64, 8, GxTex_Argb8888, CGxTexFlags(), nullptr, CDetailDoodad::UpdateAlphaRampTexture, CDetailDoodad::alphaRampTexture);
+    STORM_ASSERT(alphaRampTexture);
 
     memset(CDetailDoodad::s_vertexShader, 0, sizeof(CDetailDoodad::s_vertexShader));
     memset(CDetailDoodad::s_pixelShader, 0, sizeof(CDetailDoodad::s_pixelShader));
@@ -480,10 +504,10 @@ void CDetailDoodad::Initialize() {
     CDetailDoodad::s_idxBufItems = 0;
     s_vertexBufferSize = 0;
     s_indexBufferSize = 0;
-    CDetailDoodad::s_freeGxBufs.m_count = 0;
-    unk_D1C4DC = 0;
-    CDetailDoodad::s_gxVertexPool = nullptr;
-    CDetailDoodad::s_gxIndexPool = nullptr;
+    CDetailDoodad::gxBufFreeList.m_count = 0;
+    gxBufCount = 0;
+    CDetailDoodad::gxVtxPool = nullptr;
+    CDetailDoodad::gxIdxPool = nullptr;
     CDetailDoodad::s_bPoolsDirty = 1;
 
     CDetailDoodad::s_bUseShaders = 1;
@@ -503,32 +527,34 @@ void CDetailDoodad::Initialize() {
 // VERIFY: 2ff521ae auto
 // OFFSET: 0x007B29B0
 void CDetailDoodad::FreeGxBufMat() {
-    for (uint32_t i = 0; i < CDetailDoodad::s_freeGxBufs.Count(); i++) {
-        CGxBuf* buf = CDetailDoodad::s_freeGxBufs[i];
+    STORM_ASSERT(gxBufFreeList.Count() == gxBufCount);
+
+    for (uint32_t i = 0; i < CDetailDoodad::gxBufFreeList.Count(); i++) {
+        CGxBuf* buf = CDetailDoodad::gxBufFreeList[i];
 
         if (buf && buf != g_theGxDevicePtr->BufStream(buf->m_pool->m_target, 0, 0)) {
             g_theGxDevicePtr->BufDestroy(buf);
         }
     }
 
-    CDetailDoodad::s_freeGxBufs.SetCount(0);
-    unk_D1C4DC = 0;
+    CDetailDoodad::gxBufFreeList.SetCount(0);
+    gxBufCount = 0;
 
-    if (CDetailDoodad::s_gxVertexPool) {
-        g_theGxDevicePtr->PoolDestroy(CDetailDoodad::s_gxVertexPool);
+    if (CDetailDoodad::gxVtxPool) {
+        g_theGxDevicePtr->PoolDestroy(CDetailDoodad::gxVtxPool);
     }
 
-    if (CDetailDoodad::s_gxIndexPool) {
-        g_theGxDevicePtr->PoolDestroy(CDetailDoodad::s_gxIndexPool);
+    if (CDetailDoodad::gxIdxPool) {
+        g_theGxDevicePtr->PoolDestroy(CDetailDoodad::gxIdxPool);
     }
 
     CDetailDoodad::s_vtxBufItems = 0;
     CDetailDoodad::s_idxBufItems = 0;
     s_vertexBufferSize = 0;
     s_indexBufferSize = 0;
-    unk_D1C4DC = 0;
-    CDetailDoodad::s_gxVertexPool = nullptr;
-    CDetailDoodad::s_gxIndexPool = nullptr;
+    gxBufCount = 0;
+    CDetailDoodad::gxVtxPool = nullptr;
+    CDetailDoodad::gxIdxPool = nullptr;
     CDetailDoodad::s_bPoolsDirty = 1;
 }
 
@@ -560,19 +586,26 @@ void CDetailDoodad::UpdatePools() {
     s_vertexBufferSize = sizeof(CGxVertexPNCT) * vertexItems;
     s_indexBufferSize = sizeof(uint16_t) * indexItems;
 
-    CDetailDoodad::s_gxVertexPool = g_theGxDevicePtr->PoolCreate(GxPoolTarget_Vertex, GxPoolUsage_Dynamic, 128 * sizeof(CGxVertexPNCT) * vertexItems, GxPoolHintBit_Unk3, "CDetailDoodad_vtx");
-    CDetailDoodad::s_gxIndexPool = g_theGxDevicePtr->PoolCreate(GxPoolTarget_Index, GxPoolUsage_Dynamic, 128 * sizeof(uint16_t) * indexItems, GxPoolHintBit_Unk0, "CDetailDoodad_idx");
+    CDetailDoodad::gxVtxPool = g_theGxDevicePtr->PoolCreate(GxPoolTarget_Vertex, GxPoolUsage_Dynamic, 128 * sizeof(CGxVertexPNCT) * vertexItems, GxPoolHintBit_Unk3, "CDetailDoodad_vtx");
+    CDetailDoodad::gxIdxPool = g_theGxDevicePtr->PoolCreate(GxPoolTarget_Index, GxPoolUsage_Dynamic, 128 * sizeof(uint16_t) * indexItems, GxPoolHintBit_Unk0, "CDetailDoodad_idx");
 
-    CDetailDoodad::s_freeGxBufs.Reserve(256, 0);
+    CDetailDoodad::gxBufFreeList.Reserve(256, 0);
 
     for (uint32_t i = 0; i < 256; i += 2) {
-        *CDetailDoodad::s_freeGxBufs.New() = g_theGxDevicePtr->BufCreate(CDetailDoodad::s_gxVertexPool, sizeof(CGxVertexPNCT), CDetailDoodad::s_vtxBufItems, sizeof(CGxVertexPNCT) * CDetailDoodad::s_vtxBufItems * (i >> 1));
-        *CDetailDoodad::s_freeGxBufs.New() = g_theGxDevicePtr->BufCreate(CDetailDoodad::s_gxIndexPool, sizeof(uint16_t), CDetailDoodad::s_idxBufItems, sizeof(uint16_t) * CDetailDoodad::s_idxBufItems * (i >> 1));
+        *CDetailDoodad::gxBufFreeList.New() = g_theGxDevicePtr->BufCreate(CDetailDoodad::gxVtxPool, sizeof(CGxVertexPNCT), CDetailDoodad::s_vtxBufItems, sizeof(CGxVertexPNCT) * CDetailDoodad::s_vtxBufItems * (i >> 1));
+        *CDetailDoodad::gxBufFreeList.New() = g_theGxDevicePtr->BufCreate(CDetailDoodad::gxIdxPool, sizeof(uint16_t), CDetailDoodad::s_idxBufItems, sizeof(uint16_t) * CDetailDoodad::s_idxBufItems * (i >> 1));
         unk_D1C4E8 += 2;
     }
 
-    unk_D1C4DC = 256;
+    gxBufCount = 256;
     CDetailDoodad::s_bPoolsDirty = 0;
+}
+
+// INLINED
+inline void CDetailDoodad::SetPixelShader(uint32_t shadow) {
+    const uint32_t idx = DETAILDOODAD_PS_SHADOWS * ((CWorld::enables2 & Enables2::Enable_HwPcf) != 0) + shadow;
+    STORM_ASSERT(idx < (DETAILDOODAD_PS_HW_PCF * DETAILDOODAD_PS_SHADOWS));
+    g_theGxDevicePtr->RsSet(GxRs_PixelShader, CDetailDoodad::s_pixelShader[idx]);
 }
 
 // VERIFY: 564457f1 manual
@@ -584,8 +617,7 @@ int32_t CDetailDoodad::InitializeRenderState() {
     GxRsSet(GxRs_DepthWrite, 1);
 
     if (CDetailDoodad::s_bUseShaders) {
-        uint32_t shadow = CShadowCache::GetShadowValue();
-        g_theGxDevicePtr->RsSet(GxRs_PixelShader, CDetailDoodad::s_pixelShader[4 * ((CWorld::enables2 & Enables2::Enable_HwPcf) != 0) + shadow]);
+        CDetailDoodad::SetPixelShader(CShadowCache::GetShadowValue());
         CDetailDoodad::InitializeShaderConstants();
         CShadowCache::SetShadowMapDetailDoodad();
         return 1;
@@ -594,7 +626,7 @@ int32_t CDetailDoodad::InitializeRenderState() {
     GxRsSet(GxRs_ColorOp0, GxTexOp_Mod);
     GxRsSet(GxRs_AlphaOp0, GxTexOp_Mod);
     GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>(0xFFFFFFFF));
-    g_theGxDevicePtr->RsSet(GxRs_Texture1, CDetailDoodad::s_alphaRampTexture);
+    g_theGxDevicePtr->RsSet(GxRs_Texture1, CDetailDoodad::alphaRampTexture);
     GxRsSet(GxRs_ColorOp1, GxTexOp_Mod);
     GxRsSet(GxRs_AlphaOp1, GxTexOp_Mod);
     GxRsSet(GxRs_TexGen1, GxTexGen_View);
@@ -614,18 +646,19 @@ int32_t CDetailDoodad::InitializeRenderState() {
 // VERIFY: 168f79b0 auto
 // OFFSET: 0x007B3050
 int32_t CDetailDoodadData::Load() {
-    if (!this->m_model) {
+    if (!this->model) {
+        STORM_ASSERT(groundEffectDoodad);
         char path[260];
         size_t length = SStrCopy(path, "World\\NoDXT\\Detail\\", STORM_MAX_STR);
-        SStrCopy(path + length, this->m_record->m_doodadpath, STORM_MAX_STR);
+        SStrCopy(path + length, this->groundEffectDoodad->m_doodadpath, STORM_MAX_STR);
 
-        this->m_model = World::s_m2Scene->CreateModel(path, 0);
+        this->model = World::s_m2Scene->CreateModel(path, 0);
 
-        if (!this->m_model) {
+        if (!this->model) {
             return 0;
         }
 
-        this->m_model->SetLoadedCallback(CDetailDoodadData::ModelLoadedCallback, this);
+        this->model->SetLoadedCallback(CDetailDoodadData::ModelLoadedCallback, this);
     }
 
     return 1;
@@ -642,8 +675,10 @@ void CDetailDoodadInst::FreeBuffers() {
 // VERIFY: b905f512 manual
 // OFFSET: 0x007B31E0
 void CDetailDoodadInst::AddDoodad(uint32_t id, const C3Vector& position, float rotation, float scale, const C3Vector& normal, uint16_t triIndex, const CImVector& color) {
-    CDetailDoodadData* data = CDetailDoodad::s_doodadList[id];
-    CM2Model* model = data->m_model;
+    CDetailDoodadData* doodadData = CDetailDoodad::s_doodadList[id];
+    STORM_ASSERT(doodadData);
+    STORM_ASSERT(doodadData->model->IsLoaded());
+    CM2Model* model = doodadData->model;
 
     model->EnsureInitialized();
 
@@ -656,7 +691,7 @@ void CDetailDoodadInst::AddDoodad(uint32_t id, const C3Vector& position, float r
     for (i = 0; i < 4; i++) {
         CDetailDoodadInstBatch& batch = this->m_batches[i];
 
-        if (!HandleCompare(reinterpret_cast<HOBJECT>(batch.m_texture), reinterpret_cast<HOBJECT>(data->m_texture)) && vertexCount + batch.m_vertexCount < CDetailDoodad::s_vtxBufItems && indexCount + batch.m_indexCount < CDetailDoodad::s_idxBufItems) {
+        if (!HandleCompare(reinterpret_cast<HOBJECT>(batch.m_texture), reinterpret_cast<HOBJECT>(doodadData->texture)) && vertexCount + batch.m_vertexCount < CDetailDoodad::s_vtxBufItems && indexCount + batch.m_indexCount < CDetailDoodad::s_idxBufItems) {
             break;
         }
     }
@@ -672,7 +707,7 @@ void CDetailDoodadInst::AddDoodad(uint32_t id, const C3Vector& position, float r
             return;
         }
 
-        this->m_batches[i].m_texture = data->m_texture;
+        this->m_batches[i].m_texture = doodadData->texture;
     }
 
     CDetailDoodadInstBatch& batch = this->m_batches[i];
@@ -734,11 +769,11 @@ void CDetailDoodad::Destroy() {
     CDetailDoodad::DestroyModels();
     CDetailDoodad::FreeGxBufMat();
 
-    if (CDetailDoodad::s_alphaRampTexture) {
-        GxTexDestroy(CDetailDoodad::s_alphaRampTexture);
+    if (CDetailDoodad::alphaRampTexture) {
+        GxTexDestroy(CDetailDoodad::alphaRampTexture);
     }
 
-    CDetailDoodad::s_alphaRampTexture = nullptr;
+    CDetailDoodad::alphaRampTexture = nullptr;
 
     if (CDetailDoodad::s_instHeap) {
         SMemFree(CDetailDoodad::s_instHeap, "delete", SLOG_FUNCTION, 0);
@@ -768,12 +803,12 @@ int32_t CDetailDoodad::LoadModel(uint32_t id) {
         return 0;
     }
 
-    if (!data->m_model) {
+    if (!data->model) {
         data->Load();
         return 0;
     }
 
-    return data->m_model->IsLoaded(0, 0);
+    return data->model->IsLoaded(0, 0);
 }
 
 // VERIFY: f62a81be manual

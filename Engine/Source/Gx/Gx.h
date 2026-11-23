@@ -4,10 +4,12 @@
 #include <cstddef>
 #include <cstdint>
 #include <windows.h>
+#include "Engine/Source/Gx/CGxBuf.h"
 #include "Engine/Source/Gx/CGxDevice/Types.h"
 #include "Engine/Source/Gx/Types.h"
 #include "Engine/Source/Gx/CGxTex.h"
 #include "Engine/Source/Storm/H/stpl.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/C2iVector.h"
 
 static const float oo255 = (1.0f / 255.0f);
@@ -19,7 +21,7 @@ class CGxBatch;
 class CGxDevice;
 class CGxFormat;
 class CGxLight;
-struct CGxBuf;
+struct CGxPool;
 class CGxQuery;
 class CGxTex;
 class CGxTexParms;
@@ -69,6 +71,19 @@ void GxLightEnable(uint32_t whichLight, BOOL enable);
 char* GxBufLock(CGxBuf* buf);
 void GxBufUnlock(CGxBuf* buf, uint32_t size);
 void GxBufDestroy(CGxBuf* buf);
+
+// INLINED
+inline bool GxBufValid(const CGxBuf* buf) {
+    STORM_ASSERT(buf);
+    return buf->m_hasData && buf->m_valid;
+}
+
+// INLINED
+inline CGxPool* GxBufPool(const CGxBuf* buf) {
+    STORM_ASSERT(buf);
+    return buf->m_pool;
+}
+
 void GxRenderTargetSet(EGxBuffer buffer, CGxTex* texture, uint32_t plane);
 void GxBufData(CGxBuf* buf, const void* data, uint32_t size, uint32_t offset);
 CGxBuf* GxBufStream(EGxPoolTarget target, uint32_t itemSize, uint32_t itemCount);

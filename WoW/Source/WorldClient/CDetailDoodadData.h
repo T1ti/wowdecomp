@@ -18,13 +18,15 @@ enum GROUND_EFFECT_DOODAD_FLAGS : int32_t {
 
 class CDetailDoodadData {
     public:
-    static void ModelLoadedCallback(CM2Model* model, void* arg);
-
-    /* 0000 */ GroundEffectDoodadRec* m_record;
-    /* 0004 */ CM2Model* m_model;
-    /* 0008 */ CTexture* m_texture;
+    /* 0000 */ GroundEffectDoodadRec* groundEffectDoodad;
+    /* 0004 */ CM2Model* model;
+    /* 0008 */ CTexture* texture;
 
     int32_t Load();
+
+    private:
+    void CheckGeometry();
+    static void ModelLoadedCallback(CM2Model* model, void* arg);
 };
 
 #endif

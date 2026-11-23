@@ -7,6 +7,7 @@
 #include "Engine/Source/Gx/CGxTex.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Gx/CGxBuf.h"
+#include "Engine/Source/Gx/Gx.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "Engine/Source/Tempest/C4Vector.h"
@@ -20,35 +21,40 @@ class CDetailDoodadInst;
 class CTexture;
 
 class CDetailDoodad {
-    public:
+    private:
     struct SShaderConstants;
+    friend class CDetailDoodadInstBatch;
 
-    static CGxTex* s_alphaRampTexture;
-    static int32_t s_bPoolsDirty;
+    static void CreateAlphaRampTexture(const void*& texels);
+    static void DestroyModels();
+    static void InitializeShaderConstants();
+    static void UpdateAlphaRampTexture(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
+    static void SetPixelShader(uint32_t shadow);
+
+    static CGxTex* alphaRampTexture;
     static int32_t s_bUseShaders;
-    static TSGrowableArray<CDetailDoodadData*> s_doodadList;
-    static CGxPool* s_gxIndexPool;
-    static CGxPool* s_gxVertexPool;
-    static TSGrowableArray<CGxBuf*> s_freeGxBufs;
-    static uint32_t s_idxBufItems;
     static uint32_t* s_instHeap;
     static CGxShader* s_pixelShader[8];
     static SShaderConstants s_shaderConstants;
     static CGxShader* s_vertexShader[6];
+
+    public:
+    static int32_t s_bPoolsDirty;
+    static TSGrowableArray<CDetailDoodadData*> s_doodadList;
+    static CGxPool* gxIdxPool;
+    static CGxPool* gxVtxPool;
+    static TSGrowableArray<CGxBuf*> gxBufFreeList;
+    static uint32_t s_idxBufItems;
     static uint32_t s_vtxBufItems;
 
     static CDetailDoodadInst* AllocInst();
-    static void CreateAlphaRampTexture(const void*& texels);
     static void Destroy();
-    static void DestroyModels();
     static void FreeInst(CDetailDoodadInst* inst);
     static void FreeGxBufMat();
     static void Initialize();
     static int32_t InitializeRenderState();
-    static void InitializeShaderConstants();
     static int32_t LoadModel(uint32_t id);
     static void SetupVertexShader(const C44Matrix& world, uint32_t index);
-    static void UpdateAlphaRampTexture(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
     static void UpdatePools();
 };
 
@@ -135,9 +141,14 @@ inline void CDetailDoodadInstBatch::FreeBuffers() {
         return;
     }
 
-    if (this->m_vertexBuf->m_pool == CDetailDoodad::s_gxVertexPool) {
-        *CDetailDoodad::s_freeGxBufs.New() = this->m_vertexBuf;
-        *CDetailDoodad::s_freeGxBufs.New() = this->m_indexBuf;
+    if (this->m_vertexBuf->m_pool == CDetailDoodad::gxVtxPool) {
+#if defined(WOWDECOMP_ASSERTIONS)
+        const CGxBuf* idxBuf = this->m_indexBuf;
+        CGxPool* gxIdxPool = CDetailDoodad::gxIdxPool;
+        STORM_ASSERT(GxBufPool(idxBuf) == gxIdxPool);
+#endif
+        *CDetailDoodad::gxBufFreeList.New() = this->m_vertexBuf;
+        *CDetailDoodad::gxBufFreeList.New() = this->m_indexBuf;
     }
 
     this->m_indexBuf = nullptr;
