@@ -27,10 +27,10 @@
 CTexture* CGTaxiMap::m_mapTexture;
 
 // STATIC: 0x00C0D7E4
-int32_t CGTaxiMap::m_numNodes;
+static int32_t s_numNodes;
 
 // STATIC: 0x00C0DC30
-TSGrowableArray<TaxiNodeInfo> CGTaxiMap::m_nodes;
+static TSGrowableArray<TaxiNodeInfo> s_taxiNodes;
 
 // STATIC: 0x00C0DC80
 TSFixedArray<TSGrowableArray<TAXIROUTELINE>> CGTaxiMap::m_routeLines;
@@ -132,10 +132,10 @@ void CGTaxiMap::CloseMap() {
     CGGameUI::ClearInteractTarget(CGTaxiMap::m_unit, 0);
     CGTaxiMap::m_unit.m_guid = 0;
 
-    for (int32_t i = 0; i < CGTaxiMap::m_numNodes; i++) {
-        if (CGTaxiMap::m_nodes.m_data[i].m_path) {
-            delete[] CGTaxiMap::m_nodes.m_data[i].m_path;
-            CGTaxiMap::m_nodes.m_data[i].m_path = nullptr;
+    for (int32_t i = 0; i < s_numNodes; i++) {
+        if (s_taxiNodes.m_data[i].m_piPath) {
+            delete[] s_taxiNodes.m_data[i].m_piPath;
+            s_taxiNodes.m_data[i].m_piPath = nullptr;
         }
     }
 
@@ -145,11 +145,11 @@ void CGTaxiMap::CloseMap() {
 // VERIFY: 8f7e4a2e manual
 // OFFSET: 0x00590C30
 static uint32_t GetRouteSegmentCount(uint32_t index) {
-    if (index >= static_cast<uint32_t>(CGTaxiMap::m_numNodes)) {
+    if (index >= static_cast<uint32_t>(s_numNodes)) {
         return 0;
     }
 
-    TaxiNodeInfo& node = CGTaxiMap::m_nodes.m_data[index];
+    TaxiNodeInfo& node = s_taxiNodes.m_data[index];
 
     if (node.m_noDirectPath) {
         return node.m_numHops - 1;
@@ -161,11 +161,11 @@ static uint32_t GetRouteSegmentCount(uint32_t index) {
 // VERIFY: 4ceda8f7 auto
 // OFFSET: 0x00590C70
 const char* CGTaxiMap::TaxiNodeType(uint32_t index) {
-    if (index >= static_cast<uint32_t>(CGTaxiMap::m_numNodes)) {
+    if (index >= static_cast<uint32_t>(s_numNodes)) {
         return "NONE";
     }
 
-    int32_t nodeID = CGTaxiMap::m_nodes.m_data[index].m_rec->m_id;
+    int32_t nodeID = s_taxiNodes.m_data[index].m_rec->m_id;
 
     if (nodeID == s_currentNode->m_id) {
         return "CURRENT";
@@ -174,7 +174,7 @@ const char* CGTaxiMap::TaxiNodeType(uint32_t index) {
     uint32_t word;
     uint32_t bit;
 
-    if (!CGTaxiMap::m_nodes.m_data[index].m_reachable || !GetNodeMaskBit(nodeID, &word, &bit)) {
+    if (!s_taxiNodes.m_data[index].m_reachable || !GetNodeMaskBit(nodeID, &word, &bit)) {
         return "NONE";
     }
 
@@ -200,7 +200,7 @@ int32_t TaxiNodeCost(uint32_t index) {
         return 0;
     }
 
-    TaxiNodeInfo& node = CGTaxiMap::m_nodes.m_data[index];
+    TaxiNodeInfo& node = s_taxiNodes.m_data[index];
     uint32_t nodeID = node.m_rec->m_id;
 
     if (nodeID && nodeID <= CGTaxiMap::m_maxNodeID && s_paths.m_data[s_currentNode->m_id - 1].m_data[nodeID - 1]) {
@@ -228,7 +228,7 @@ int32_t TaxiNodeCost(uint32_t index) {
 // VERIFY: 7511acec manual
 // OFFSET: 0x005914B0
 void CGTaxiMap::TakeTaxiNode(uint32_t index) {
-    if (index >= static_cast<uint32_t>(CGTaxiMap::m_numNodes)) {
+    if (index >= static_cast<uint32_t>(s_numNodes)) {
         return;
     }
 
@@ -239,7 +239,7 @@ void CGTaxiMap::TakeTaxiNode(uint32_t index) {
         return;
     }
 
-    TaxiNodeInfo& node = CGTaxiMap::m_nodes.m_data[index];
+    TaxiNodeInfo& node = s_taxiNodes.m_data[index];
     uint32_t destination = node.m_rec->m_id;
     uint32_t source = s_currentNode->m_id;
 
@@ -247,9 +247,9 @@ void CGTaxiMap::TakeTaxiNode(uint32_t index) {
         CGGameUI::DisplayError(ERR_TAXISAMENODE);
     } else if (TaxiRouteExists(source, destination)) {
         player->StartTaxi(CGTaxiMap::m_unit, source, destination);
-    } else if (node.m_noDirectPath && node.m_path) {
+    } else if (node.m_noDirectPath && node.m_piPath) {
         if (static_cast<uint32_t>(TaxiNodeCost(index)) <= player->GetCoinage()) {
-            player->StartTaxiExpress(CGTaxiMap::m_unit, node.m_path, node.m_numHops);
+            player->StartTaxiExpress(CGTaxiMap::m_unit, node.m_piPath, node.m_numHops);
         } else {
             CGGameUI::DisplayError(ERR_TAXINOTENOUGHMONEY);
         }
@@ -263,7 +263,7 @@ void CGTaxiMap::TakeTaxiNode(uint32_t index) {
 void CGTaxiMap::TaxiNodeSetCurrent(uint32_t index) {
     s_selectedNode = -1;
 
-    if (index >= static_cast<uint32_t>(CGTaxiMap::m_numNodes) || !CGTaxiMap::m_nodes.m_data[index].m_reachable) {
+    if (index >= static_cast<uint32_t>(s_numNodes) || !s_taxiNodes.m_data[index].m_reachable) {
         return;
     }
 
@@ -271,10 +271,10 @@ void CGTaxiMap::TaxiNodeSetCurrent(uint32_t index) {
     s_taxiLines.Clear();
     CGTaxiMap::m_routeLines.m_data[index].Clear();
 
-    if (!CGTaxiMap::m_nodes.m_data[index].m_noDirectPath) {
+    if (!s_taxiNodes.m_data[index].m_noDirectPath) {
         TAXILINE* line = s_taxiLines.New();
         line->m_src = s_currentNode;
-        line->m_dest = CGTaxiMap::m_nodes.m_data[s_selectedNode].m_rec;
+        line->m_dest = s_taxiNodes.m_data[s_selectedNode].m_rec;
         TAXIROUTELINE* route = CGTaxiMap::m_routeLines.m_data[index].New();
         float srcX = GetNodeX(line->m_src);
         route->m_src.x = (s_taxiMaxY - GetNodeY(line->m_src)) / (s_taxiMaxY - s_taxiMinY);
@@ -289,8 +289,8 @@ void CGTaxiMap::TaxiNodeSetCurrent(uint32_t index) {
 
     for (uint32_t i = 0; i < GetRouteSegmentCount(index); i++) {
         TAXILINE* line = s_taxiLines.New();
-        line->m_src = g_taxiNodesDB.GetRecord(CGTaxiMap::m_nodes.m_data[s_selectedNode].m_path[i]);
-        line->m_dest = g_taxiNodesDB.GetRecord(CGTaxiMap::m_nodes.m_data[s_selectedNode].m_path[i + 1]);
+        line->m_src = g_taxiNodesDB.GetRecord(s_taxiNodes.m_data[s_selectedNode].m_piPath[i]);
+        line->m_dest = g_taxiNodesDB.GetRecord(s_taxiNodes.m_data[s_selectedNode].m_piPath[i + 1]);
         TAXIROUTELINE* route = CGTaxiMap::m_routeLines.m_data[index].New();
         TaxiNodesRec* src = s_taxiLines.m_data[i].m_src;
         int32_t mapID;
@@ -336,7 +336,7 @@ static bool LoadMapTexture() {
 // OFFSET: 0x00592580
 float CGTaxiMap::CalculateAccurateDistance(uint32_t index, uint32_t parent) {
     float distance = 0.0f;
-    TaxiPathRec* path = s_paths.m_data[CGTaxiMap::m_nodes.m_data[parent].m_rec->m_id - 1].m_data[CGTaxiMap::m_nodes.m_data[index].m_rec->m_id - 1];
+    TaxiPathRec* path = s_paths.m_data[s_taxiNodes.m_data[parent].m_rec->m_id - 1].m_data[s_taxiNodes.m_data[index].m_rec->m_id - 1];
 
     if (!path) {
         return 9.9999998e10f;
@@ -385,9 +385,9 @@ static bool IsAllianceTaxiMount(int32_t creatureId) {
 
 // VERIFY: 48c16c0c manual
 // OFFSET: 0x005926C0
-void CGTaxiMap::RecursePath(uint32_t index, uint32_t parent, int32_t cost) {
+void CGTaxiMap::RecursePath(uint32_t iToNode, uint32_t parent, int32_t cost) {
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
-    TaxiNodesRec* node = CGTaxiMap::m_nodes.m_data[index].m_rec;
+    TaxiNodesRec* node = s_taxiNodes.m_data[iToNode].m_rec;
 
     if (node && player) {
         FactionTemplateRec* factionTemplate = g_factionTemplateDB.GetRecord(player->m_unit->m_unitFieldFactiontemplate);
@@ -414,30 +414,32 @@ void CGTaxiMap::RecursePath(uint32_t index, uint32_t parent, int32_t cost) {
         }
     }
 
-    TaxiNodeInfo& parentNode = CGTaxiMap::m_nodes.m_data[parent];
+    TaxiNodeInfo& parentNode = s_taxiNodes.m_data[parent];
     uint32_t hops = parentNode.m_numHops + 1;
-    float distance = CGTaxiMap::CalculateAccurateDistance(index, parent) + parentNode.m_distance;
-    TaxiNodeInfo& info = CGTaxiMap::m_nodes.m_data[index];
+    float distance = CGTaxiMap::CalculateAccurateDistance(iToNode, parent) + parentNode.m_distance;
+    TaxiNodeInfo& info = s_taxiNodes.m_data[iToNode];
 
-    if (info.m_path) {
+    if (info.m_piPath) {
         if (distance >= info.m_distance) {
             return;
         }
 
-        delete[] info.m_path;
-        info.m_path = new (__FILE__, __LINE__) uint32_t[hops];
+        delete[] info.m_piPath;
+        info.m_piPath = new (__FILE__, __LINE__) uint32_t[hops];
     } else {
-        info.m_path = new (__FILE__, __LINE__) uint32_t[hops];
+        // 12213: "s_taxiNodes[iToNode].m_piPath == __null"
+        STORM_ASSERT(s_taxiNodes[iToNode].m_piPath == nullptr);
+        info.m_piPath = new (__FILE__, __LINE__) uint32_t[hops];
         info.m_reachable = 1;
     }
 
     uint32_t i = 0;
 
     for (; i < hops - 1; i++) {
-        info.m_path[i] = parentNode.m_path[i];
+        info.m_piPath[i] = parentNode.m_piPath[i];
     }
 
-    info.m_path[i] = info.m_rec->m_id;
+    info.m_piPath[i] = info.m_rec->m_id;
     info.m_numHops = hops;
     float scale = 1.0f;
 
@@ -448,12 +450,12 @@ void CGTaxiMap::RecursePath(uint32_t index, uint32_t parent, int32_t cost) {
 
     info.m_distance = distance;
 
-    for (int32_t j = 0; j < CGTaxiMap::m_numNodes; j++) {
+    for (int32_t j = 0; j < s_numNodes; j++) {
         uint32_t from = info.m_rec->m_id;
-        uint32_t to = CGTaxiMap::m_nodes.m_data[j].m_rec->m_id;
+        uint32_t to = s_taxiNodes.m_data[j].m_rec->m_id;
 
         if (TaxiRouteExists(from, to)) {
-            CGTaxiMap::RecursePath(j, index, s_paths.m_data[from - 1].m_data[to - 1]->m_cost);
+            CGTaxiMap::RecursePath(j, iToNode, s_paths.m_data[from - 1].m_data[to - 1]->m_cost);
         }
     }
 }
@@ -461,39 +463,54 @@ void CGTaxiMap::RecursePath(uint32_t index, uint32_t parent, int32_t cost) {
 // VERIFY: cb0f9231 manual
 // OFFSET: 0x00592BB0
 void CGTaxiMap::GeneratePaths() {
-    uint32_t start = 0;
+    uint32_t iCurrentID = 0;
 
-    for (int32_t i = 0; i < CGTaxiMap::m_numNodes; i++) {
-        if (CGTaxiMap::m_nodes.m_data[i].m_rec->m_id == s_currentNode->m_id) {
-            start = i;
+    for (int32_t i = 0; i < s_numNodes; i++) {
+        if (s_taxiNodes.m_data[i].m_rec->m_id == s_currentNode->m_id) {
+            iCurrentID = i;
             break;
         }
     }
 
-    TaxiNodeInfo& node = CGTaxiMap::m_nodes.m_data[start];
+    // 12213: "s_taxiNodes[iCurrentID].m_piPath == __null"
+    STORM_ASSERT(s_taxiNodes[iCurrentID].m_piPath == nullptr);
+    TaxiNodeInfo& node = s_taxiNodes.m_data[iCurrentID];
     for (uint32_t i = 0; i < sizeof(node.m_costs) / sizeof(node.m_costs[0]); i++) {
         node.m_costs[i] = 0;
     }
     node.m_numHops = 1;
-    node.m_path = new (__FILE__, __LINE__) uint32_t[1];
-    node.m_path[0] = s_currentNode->m_id;
+    node.m_piPath = new (__FILE__, __LINE__) uint32_t[1];
+    node.m_piPath[0] = s_currentNode->m_id;
     node.m_reachable = 1;
     node.m_distance = 0.0f;
 
-    for (int32_t i = 0; i < CGTaxiMap::m_numNodes; i++) {
+    for (int32_t i = 0; i < s_numNodes; i++) {
         uint32_t from = s_currentNode->m_id;
-        uint32_t to = CGTaxiMap::m_nodes.m_data[i].m_rec->m_id;
+        uint32_t to = s_taxiNodes.m_data[i].m_rec->m_id;
 
         if (TaxiRouteExists(from, to)) {
-            CGTaxiMap::RecursePath(i, start, s_paths.m_data[from - 1].m_data[to - 1]->m_cost);
+            CGTaxiMap::RecursePath(i, iCurrentID, s_paths.m_data[from - 1].m_data[to - 1]->m_cost);
         }
     }
 }
 
+// INLINED
+int32_t CGTaxiMap::GetNumNodes() {
+    return s_numNodes;
+}
+
+// INLINED
+const TaxiNodeInfo& CGTaxiMap::GetNode(uint32_t index) {
+    return s_taxiNodes[index];
+}
+
 // VERIFY: 6e322ad9 manual
 // OFFSET: 0x005932E0
-void CGTaxiMap::SetupMap(const WOWGUID& unit, int32_t currentNode, const uint64_t* nodeMask) {
+void CGTaxiMap::SetupMap(const WOWGUID& unit, int32_t node, const uint64_t* nodeMask) {
     if (CGTaxiMap::m_unit == unit) {
+        STORM_ASSERT(s_currentNode);
+        // 12213: "s_currentNode->m_ID == (int)node"
+        STORM_ASSERT(s_currentNode->m_id == node);
         return;
     }
 
@@ -501,14 +518,15 @@ void CGTaxiMap::SetupMap(const WOWGUID& unit, int32_t currentNode, const uint64_
         CGTaxiMap::CloseMap();
     }
 
-    CGTaxiMap::m_numNodes = 0;
+    s_numNodes = 0;
 
     for (uint32_t i = 0; i < s_nodeMask.Count(); i++) {
         s_nodeMask.m_data[i] = nodeMask[i];
     }
 
-    TaxiNodesRec* current = g_taxiNodesDB.GetRecord(currentNode);
+    TaxiNodesRec* current = g_taxiNodesDB.GetRecord(node);
     s_currentNode = current;
+    STORM_ASSERT(s_currentNode);
     int32_t dungeonMapID;
     float x;
     float y;
@@ -552,31 +570,31 @@ void CGTaxiMap::SetupMap(const WOWGUID& unit, int32_t currentNode, const uint64_
                 continue;
             }
 
-            TaxiNodesRec* node = g_taxiNodesDB.GetRecord(nodeID + bit);
+            TaxiNodesRec* nodeRec = g_taxiNodesDB.GetRecord(nodeID + bit);
 
-            if (!node) {
+            if (!nodeRec) {
                 continue;
             }
 
-            MapRec* map = g_mapDB.GetRecord(node->m_continentID);
+            MapRec* map = g_mapDB.GetRecord(nodeRec->m_continentID);
             int32_t mapID;
-            WorldMapTransformPosition(node->m_continentID, node->m_pos[0], node->m_pos[1], &mapID, &x, &y, &dungeonMapID);
+            WorldMapTransformPosition(nodeRec->m_continentID, nodeRec->m_pos[0], nodeRec->m_pos[1], &mapID, &x, &y, &dungeonMapID);
 
             if (mapID != s_mapID || (map && map->m_expansionID > ClientServices::Connection()->m_accountExpansion)) {
                 s_nodeMask.m_data[word] &= ~mask;
                 continue;
             }
 
-            TaxiNodeInfo& info = CGTaxiMap::m_nodes.m_data[CGTaxiMap::m_numNodes];
-            info.m_rec = node;
-            WorldMapTransformPosition(node->m_continentID, node->m_pos[0], node->m_pos[1], &mapID, &x, &y, &dungeonMapID);
+            TaxiNodeInfo& info = s_taxiNodes.m_data[s_numNodes];
+            info.m_rec = nodeRec;
+            WorldMapTransformPosition(nodeRec->m_continentID, nodeRec->m_pos[0], nodeRec->m_pos[1], &mapID, &x, &y, &dungeonMapID);
             info.m_x = (s_taxiMaxY - y) / (s_taxiMaxX - s_taxiMinX);
-            WorldMapTransformPosition(node->m_continentID, node->m_pos[0], node->m_pos[1], &mapID, &x, &y, &dungeonMapID);
+            WorldMapTransformPosition(nodeRec->m_continentID, nodeRec->m_pos[0], nodeRec->m_pos[1], &mapID, &x, &y, &dungeonMapID);
             info.m_y = (x - s_taxiMinX) / (s_taxiMaxY - s_taxiMinY);
             uint32_t from = s_currentNode->m_id;
-            uint32_t to = node->m_id;
+            uint32_t to = nodeRec->m_id;
             info.m_noDirectPath = !from || from > CGTaxiMap::m_maxNodeID || !to || to > CGTaxiMap::m_maxNodeID || !s_paths.m_data[from - 1].m_data[to - 1];
-            info.m_path = nullptr;
+            info.m_piPath = nullptr;
 
             for (uint32_t j = 0; j < 5; j++) {
                 info.m_costs[j] = 999999;
@@ -585,14 +603,16 @@ void CGTaxiMap::SetupMap(const WOWGUID& unit, int32_t currentNode, const uint64_
             info.m_numHops = 999999;
             info.m_reachable = 0;
             info.m_distance = 100000000.0f;
-            CGTaxiMap::m_numNodes++;
+            s_numNodes++;
+            // 12213: "s_numNodes <= CGPlayer_C::MAX_TAXINODES"
+            STORM_ASSERT(s_numNodes <= s_taxiNodes.Count());
         }
 
         nodeID += 64;
     }
 
-    if (!CGTaxiMap::m_numNodes || !LoadMapTexture()) {
-        CGTaxiMap::m_numNodes = 0;
+    if (!s_numNodes || !LoadMapTexture()) {
+        s_numNodes = 0;
         return;
     }
 
@@ -600,14 +620,14 @@ void CGTaxiMap::SetupMap(const WOWGUID& unit, int32_t currentNode, const uint64_
     CGGameUI::SetInteractTarget(unit);
     CGTaxiMap::m_unit = unit;
 
-    for (int32_t i = 0; i < CGTaxiMap::m_numNodes; i++) {
+    for (int32_t i = 0; i < s_numNodes; i++) {
         CGTaxiMap::TaxiNodeSetCurrent(i);
     }
 
     FrameScript_SignalEvent(SCRIPT_EVENT_TAXIMAP_OPENED, nullptr);
     CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_TRAVEL);
 
-    if (CGTaxiMap::m_numNodes <= 1) {
+    if (s_numNodes <= 1) {
         return;
     }
 
@@ -637,11 +657,11 @@ void CGTaxiMap::InitializeGame() {
     uint32_t maskSize = (maxNodeID >> 6) + 1;
 
     CGTaxiMap::m_unit.m_guid = 0;
-    CGTaxiMap::m_numNodes = 0;
+    s_numNodes = 0;
     CGTaxiMap::m_maxNodeID = maxNodeID;
     CGTaxiMap::m_nodeMaskSize = maskSize;
 
-    CGTaxiMap::m_nodes.SetCount(maxNodeID);
+    s_taxiNodes.SetCount(maxNodeID);
     s_nodeMask.SetCount(CGTaxiMap::m_nodeMaskSize);
     s_paths.SetCount(CGTaxiMap::m_maxNodeID);
 
@@ -698,7 +718,7 @@ void CGTaxiMap::FreeRouteLines() {
         CGTaxiMap::m_routeLines.m_data[i].Clear();
     }
 
-    CGTaxiMap::m_numNodes = 0;
+    s_numNodes = 0;
 }
 
 // VERIFY: 7911d34a auto

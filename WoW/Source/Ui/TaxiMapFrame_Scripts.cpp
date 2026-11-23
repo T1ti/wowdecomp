@@ -21,7 +21,7 @@ static int32_t Script_SetTaxiMap(lua_State* L) {
 // VERIFY: 341f53fa manual
 // OFFSET: 0x00590710
 static int32_t Script_NumTaxiNodes(lua_State* L) {
-    lua_pushnumber(L, CGTaxiMap::m_numNodes);
+    lua_pushnumber(L, CGTaxiMap::GetNumNodes());
     return 1;
 }
 
@@ -35,10 +35,10 @@ static int32_t Script_TaxiNodeName(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index >= CGTaxiMap::m_numNodes) {
+    if (index >= CGTaxiMap::GetNumNodes()) {
         lua_pushstring(L, "INVALID");
     } else {
-        lua_pushstring(L, CGTaxiMap::m_nodes.m_data[index].m_rec->m_name);
+        lua_pushstring(L, CGTaxiMap::GetNode(index).m_rec->m_name);
     }
 
     return 1;
@@ -54,12 +54,12 @@ static int32_t Script_TaxiNodePosition(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index >= CGTaxiMap::m_numNodes) {
+    if (index >= CGTaxiMap::GetNumNodes()) {
         luaL_error(L, "Invalid taxi node slot");
         return 0;
     }
 
-    TaxiNodeInfo* node = &CGTaxiMap::m_nodes.m_data[index];
+    const TaxiNodeInfo* node = &CGTaxiMap::GetNode(index);
     float y = node->m_y;
     lua_pushnumber(L, node->m_x);
     lua_pushnumber(L, y);
@@ -72,8 +72,8 @@ static int32_t Script_GetNumRoutes(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     uint32_t routes;
 
-    if (index < CGTaxiMap::m_numNodes) {
-        TaxiNodeInfo* node = &CGTaxiMap::m_nodes.m_data[index];
+    if (index < CGTaxiMap::GetNumNodes()) {
+        const TaxiNodeInfo* node = &CGTaxiMap::GetNode(index);
         routes = node->m_noDirectPath ? node->m_numHops - 1 : 1;
     } else {
         routes = 0;
@@ -90,7 +90,7 @@ static int32_t Script_TaxiGetSrcX(lua_State* L) {
     int32_t node = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
     float value;
 
-    if (node < 0 || node >= CGTaxiMap::m_numNodes || line < 0 || line >= static_cast<int32_t>(CGTaxiMap::m_routeLines.m_data[node].Count())) {
+    if (node < 0 || node >= CGTaxiMap::GetNumNodes() || line < 0 || line >= static_cast<int32_t>(CGTaxiMap::m_routeLines.m_data[node].Count())) {
         value = 0.0f;
     } else {
         value = CGTaxiMap::m_routeLines.m_data[node].m_data[line].m_src.x;
@@ -107,7 +107,7 @@ static int32_t Script_TaxiGetSrcY(lua_State* L) {
     int32_t node = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
     float value;
 
-    if (node < 0 || node >= CGTaxiMap::m_numNodes || line < 0 || line >= static_cast<int32_t>(CGTaxiMap::m_routeLines.m_data[node].Count())) {
+    if (node < 0 || node >= CGTaxiMap::GetNumNodes() || line < 0 || line >= static_cast<int32_t>(CGTaxiMap::m_routeLines.m_data[node].Count())) {
         value = 0.0f;
     } else {
         value = CGTaxiMap::m_routeLines.m_data[node].m_data[line].m_src.y;
@@ -124,7 +124,7 @@ static int32_t Script_TaxiGetDestX(lua_State* L) {
     int32_t node = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
     float value;
 
-    if (node < 0 || node >= CGTaxiMap::m_numNodes || line < 0 || line >= static_cast<int32_t>(CGTaxiMap::m_routeLines.m_data[node].Count())) {
+    if (node < 0 || node >= CGTaxiMap::GetNumNodes() || line < 0 || line >= static_cast<int32_t>(CGTaxiMap::m_routeLines.m_data[node].Count())) {
         value = 0.0f;
     } else {
         value = CGTaxiMap::m_routeLines.m_data[node].m_data[line].m_dest.x;
@@ -141,7 +141,7 @@ static int32_t Script_TaxiGetDestY(lua_State* L) {
     int32_t node = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
     float value;
 
-    if (node < 0 || node >= CGTaxiMap::m_numNodes || line < 0 || line >= static_cast<int32_t>(CGTaxiMap::m_routeLines.m_data[node].Count())) {
+    if (node < 0 || node >= CGTaxiMap::GetNumNodes() || line < 0 || line >= static_cast<int32_t>(CGTaxiMap::m_routeLines.m_data[node].Count())) {
         value = 0.0f;
     } else {
         value = CGTaxiMap::m_routeLines.m_data[node].m_data[line].m_dest.y;
@@ -181,7 +181,7 @@ static int32_t Script_TaxiNodeCost(lua_State* L) {
 
     uint32_t slot = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (slot >= static_cast<uint32_t>(CGTaxiMap::m_numNodes)) {
+    if (slot >= static_cast<uint32_t>(CGTaxiMap::GetNumNodes())) {
         luaL_error(L, "Invalid taxi node slot");
         return 0;
     }
