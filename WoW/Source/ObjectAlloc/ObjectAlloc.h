@@ -8,7 +8,10 @@
 #include "WoW/Source/ObjectAlloc/IObjectAlloc.h"
 
 class CObjectHeapList {
-    public:
+    private:
+    friend uint32_t ObjectAllocAddHeap(uint32_t objectSize, uint32_t objectsPerBlock, const char* name, bool freeEmptyHeaps); // (inferred)
+    void FreeEmptyHeaps();
+
     /* 0000 */ TSGrowableArray<CObjectHeap> m_heaps;
     /* 0010 */ uint32_t m_objSize;
     /* 0014 */ uint32_t m_objsPerBlock;
@@ -21,13 +24,18 @@ class CObjectHeapList {
     /* 0080 */ uint32_t m_uint80;
     /* 0084 */ uint8_t m_freeEmptyHeaps;
 
+    public:
     CObjectHeapList();
-    uint32_t BlocksAllocated();
+    uint32_t BlocksAllocated() const;
     void Delete(uint32_t index);
-    void FreeEmptyHeaps();
     int32_t New(uint32_t* index, void** ptr, bool zero);
-    uint32_t PercentUsed();
-    uint32_t TotalHeaps();
+    uint32_t PercentUsed() const;
+    uint32_t TotalHeaps() const;
+    void* Ptr(uint32_t index) const; // (inferred)
+    const char* GetName() const { return m_heapName; } // (inferred)
+    uint32_t GetObjectSize() const { return m_objSize; } // (inferred)
+    uint32_t GetObjectsPerBlock() const { return m_objsPerBlock; } // (inferred)
+    uint64_t GetNumAllocs() const { return m_numAllocs; } // (inferred)
 };
 
 struct OBJALLOCGLOBALS {

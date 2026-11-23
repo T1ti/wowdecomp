@@ -23,14 +23,14 @@ static int32_t HeapUsage(const char* command, const char* arguments) {
         CObjectHeapList& list = globals->objects[i];
         list.TotalHeaps();
 
-        uint32_t numAllocs = list.m_numAllocs >= 0xFFFFFFFF ? 0xFFFFFFFF : static_cast<uint32_t>(list.m_numAllocs);
-        uint32_t totalBytes = list.TotalHeaps() * list.m_objSize * list.m_objsPerBlock;
-        uint32_t usedBytes = list.BlocksAllocated() * list.m_objSize;
+        uint32_t numAllocs = list.GetNumAllocs() >= 0xFFFFFFFF ? 0xFFFFFFFF : static_cast<uint32_t>(list.GetNumAllocs());
+        uint32_t totalBytes = list.TotalHeaps() * list.GetObjectSize() * list.GetObjectsPerBlock();
+        uint32_t usedBytes = list.BlocksAllocated() * list.GetObjectSize();
 
-        str += SStrPrintf(str, line - str, "    \"%24s\" %3u blocks, %5u objs per block (%6u bytes per obj): %6u objs allocated (%3d%%) - Total bytes: %8.3fMb (%8.3fMb), Total Allocs: %d\n", list.m_heapName, list.TotalHeaps(), list.m_objsPerBlock, list.m_objSize, list.BlocksAllocated(), list.PercentUsed(), usedBytes * 0.00000095367432f, totalBytes * 0.00000095367432f, numAllocs);
+        str += SStrPrintf(str, line - str, "    \"%24s\" %3u blocks, %5u objs per block (%6u bytes per obj): %6u objs allocated (%3d%%) - Total bytes: %8.3fMb (%8.3fMb), Total Allocs: %d\n", list.GetName(), list.TotalHeaps(), list.GetObjectsPerBlock(), list.GetObjectSize(), list.BlocksAllocated(), list.PercentUsed(), usedBytes * 0.00000095367432f, totalBytes * 0.00000095367432f, numAllocs);
 
-        objectBytes += globals->objects[i].m_objSize * globals->objects[i].BlocksAllocated();
-        heapBytes += globals->objects[i].TotalHeaps() * globals->objects[i].m_objSize * globals->objects[i].m_objsPerBlock;
+        objectBytes += globals->objects[i].GetObjectSize() * globals->objects[i].BlocksAllocated();
+        heapBytes += globals->objects[i].TotalHeaps() * globals->objects[i].GetObjectSize() * globals->objects[i].GetObjectsPerBlock();
     }
 
     SStrPrintf(str, line - str, "%4.3fMb total object bytes used, %4.3fMb bytes allocated for heaps\n", objectBytes * 0.00000095367432f, heapBytes * 0.00000095367432f);

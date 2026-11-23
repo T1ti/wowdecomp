@@ -36,7 +36,10 @@ CObjectHeap::~CObjectHeap() {
 
 // INLINED
 void CObjectHeap::Delete(uint32_t index, uint32_t objSize, uint32_t count) {
-    STORM_ASSERT(m_obj != NULL);
+    // 12213: "m_obj != __null"
+    STORM_ASSERT(m_obj != nullptr);
+    STORM_ASSERT(m_allocated);
+    STORM_ASSERT(m_indexStack);
 
     if (this->m_allocated && this->m_indexStack) {
         this->m_indexStack[--this->m_allocated] = index;
@@ -44,8 +47,9 @@ void CObjectHeap::Delete(uint32_t index, uint32_t objSize, uint32_t count) {
 }
 
 // INLINED
-void* CObjectHeap::Ptr(uint32_t index, uint32_t objSize, uint32_t count) {
-    STORM_ASSERT(m_obj != NULL);
+void* CObjectHeap::Ptr(uint32_t index, uint32_t objSize, uint32_t count) const {
+    // 12213: "m_obj != __null"
+    STORM_ASSERT(m_obj != nullptr);
 
     return static_cast<char*>(this->m_obj) + index * objSize;
 }
@@ -66,6 +70,9 @@ CObjectHeapList::CObjectHeapList() {
 // VERIFY: 1ee37614 manual
 // OFFSET: 0x004D2AA0
 bool CObjectHeap::Allocate(uint32_t objSize, uint32_t count, const char* name) {
+    // 12213: "m_obj == __null"
+    STORM_ASSERT(m_obj == nullptr);
+
     this->m_obj = SMemAlloc(count * (objSize + sizeof(uint32_t)), name, 0, 0x2000000);
 
     if (!this->m_obj) {
@@ -95,6 +102,17 @@ OBJALLOCGLOBALS* GetObjAllocGlobals() {
 // OFFSET: 0x004D2B20
 void ReleaseObjAllocGlobals() {
     s_globalsLock.Leave();
+}
+
+// INLINED
+void CObjectHeap::Free() {
+    STORM_ASSERT(m_allocated == 0);
+
+    if (this->m_obj) {
+        SMemFree(this->m_obj, __FILE__, __LINE__, 0);
+    }
+
+    this->m_obj = nullptr;
 }
 
 // VERIFY: 7d28d1a5 manual
@@ -135,11 +153,7 @@ void CObjectHeapList::FreeEmptyHeaps() {
             CObjectHeap& heap = this->m_heaps[i - 1];
 
             if (heap.m_obj && !heap.m_allocated) {
-                if (heap.m_obj) {
-                    SMemFree(heap.m_obj, __FILE__, __LINE__, 0);
-                }
-
-                heap.m_obj = nullptr;
+                heap.Free();
                 capacity -= this->m_objsPerBlock;
                 emptyHeaps--;
                 this->m_deleteCount = 0;
@@ -152,11 +166,11 @@ void CObjectHeapList::FreeEmptyHeaps() {
 
 // VERIFY: a5a75ca6 manual
 // OFFSET: 0x004D2C30
-uint32_t CObjectHeapList::BlocksAllocated() {
+uint32_t CObjectHeapList::BlocksAllocated() const {
     uint32_t allocated = 0;
 
     for (uint32_t i = 0; i < this->m_heaps.Count(); i++) {
-        allocated += this->m_heaps[i].m_allocated;
+        allocated += this->m_heaps.m_data[i].m_allocated;
     }
 
     return allocated;
@@ -164,11 +178,11 @@ uint32_t CObjectHeapList::BlocksAllocated() {
 
 // VERIFY: 8e6272eb auto
 // OFFSET: 0x004D2C50
-uint32_t CObjectHeapList::TotalHeaps() {
+uint32_t CObjectHeapList::TotalHeaps() const {
     uint32_t heaps = 0;
 
     for (uint32_t i = 0; i < this->m_heaps.Count(); i++) {
-        if (this->m_heaps[i].m_obj) {
+        if (this->m_heaps.m_data[i].m_obj) {
             heaps++;
         }
     }
@@ -178,14 +192,14 @@ uint32_t CObjectHeapList::TotalHeaps() {
 
 // VERIFY: fdc6e79c auto
 // OFFSET: 0x004D2C80
-uint32_t CObjectHeapList::PercentUsed() {
+uint32_t CObjectHeapList::PercentUsed() const {
     uint32_t capacity = 0;
     uint32_t allocated = 0;
 
     for (uint32_t i = 0; i < this->m_heaps.Count(); i++) {
-        if (this->m_heaps[i].m_obj) {
+        if (this->m_heaps.m_data[i].m_obj) {
             capacity += this->m_objsPerBlock;
-            allocated += this->m_heaps[i].m_allocated;
+            allocated += this->m_heaps.m_data[i].m_allocated;
         }
     }
 
@@ -203,6 +217,7 @@ int32_t CObjectHeap::New(uint32_t objSize, uint32_t count, uint32_t* index, cons
 
     if (!this->m_obj) {
         this->Allocate(objSize, count, name);
+        STORM_ASSERT(m_obj);
     }
 
     *index = this->m_indexStack[this->m_allocated++];
@@ -218,13 +233,18 @@ int32_t CObjectHeap::New(uint32_t objSize, uint32_t count, uint32_t* index, cons
     return 1;
 }
 
+// INLINED
+void* CObjectHeapList::Ptr(uint32_t index) const {
+    return this->m_heaps.m_data[index / this->m_objsPerBlock].Ptr(index % this->m_objsPerBlock, this->m_objSize, this->m_objsPerBlock);
+}
+
 // VERIFY: ec42cc99 auto
 // OFFSET: 0x004D2D40
 void* ObjectPtr(uint32_t heapId, uint32_t memHandle) {
     s_globalsLock.Enter();
 
     CObjectHeapList& list = s_globals.objects[heapId];
-    void* ptr = list.m_heaps[memHandle / list.m_objsPerBlock].Ptr(memHandle % list.m_objsPerBlock, list.m_objSize, list.m_objsPerBlock);
+    void* ptr = list.Ptr(memHandle);
 
     s_globalsLock.Leave();
 
@@ -270,10 +290,10 @@ static void HeapUse() {
     for (uint32_t i = 0; i < count; i++) {
         CObjectHeapList& list = s_globals.objects[i];
 
-        DebugLog("    \"%24s\" %3u blocks, %5u objs per block (%6u bytes per obj): %6u objs allocated (%2d%%)\n", list.m_heapName, list.TotalHeaps(), list.m_objsPerBlock, list.m_objSize, list.BlocksAllocated(), list.PercentUsed());
+        DebugLog("    \"%24s\" %3u blocks, %5u objs per block (%6u bytes per obj): %6u objs allocated (%2d%%)\n", list.GetName(), list.TotalHeaps(), list.GetObjectsPerBlock(), list.GetObjectSize(), list.BlocksAllocated(), list.PercentUsed());
 
-        used += s_globals.objects[i].m_objSize * s_globals.objects[i].BlocksAllocated();
-        allocated += s_globals.objects[i].TotalHeaps() * s_globals.objects[i].m_objSize * s_globals.objects[i].m_objsPerBlock;
+        used += s_globals.objects[i].GetObjectSize() * s_globals.objects[i].BlocksAllocated();
+        allocated += s_globals.objects[i].TotalHeaps() * s_globals.objects[i].GetObjectSize() * s_globals.objects[i].GetObjectsPerBlock();
     }
 
     DebugLog("%u total object bytes used, %u bytes allocated for heaps\n", used, allocated);
@@ -316,6 +336,8 @@ int32_t CObjectHeapList::New(uint32_t* index, void** ptr, bool zero) {
             }
         }
     }
+
+    STORM_ASSERT(heap);
 
     if (!heap->New(this->m_objSize, this->m_objsPerBlock, index, this->m_heapName, ptr, zero)) {
         return 0;
