@@ -27,7 +27,7 @@ typedef int32_t (*OBJECTENUMFUNC)(WOWGUID guid, void* param);
 class CMirrorHandler : public TSLinkedNode<CMirrorHandler> {
     public:
     /* 0008 */ TSLink<CMirrorHandler> m_link2;
-    /* 0010 */ MIRRORHANDLERFUNC m_function;
+    /* 0010 */ MIRRORHANDLERFUNC handler;
     /* 0014 */ void* m_functionParam;
     /* 0018 */ uint32_t m_count;
     /* 001C */ uint32_t m_fieldByteOffset;
@@ -54,13 +54,19 @@ class ObjectMgr {
     /* 00C8 */ uint32_t m_type;
     /* 00CC */ uint32_t m_mapId;
     /* 00D0 */ RealmConnection* m_realmConnection;
-    /* 00D4 */ CMovementGlobals* m_movementGlobal;
 
     ObjectMgr(uint32_t type);
     ~ObjectMgr();
+
+    private:
+    friend CMovementGlobals* ClntObjMgrGetMovementGlobals();
+    friend void ClntObjMgrSetMovementGlobals(CMovementGlobals* globals);
+    friend void ClntObjMgrDestroy();
+
+    /* 00D4 */ CMovementGlobals* m_movement;
 };
 
-CGObject_C* ClntObjMgrAllocObject(OBJECT_TYPE_ID typeId, WOWGUID guid);
+CGObject_C* ClntObjMgrAllocObject(OBJECT_TYPE_ID type, WOWGUID guid);
 void ClntObjMgrDestroy();
 void ClntObjMgrDestroyShared();
 int32_t ClntObjMgrEnumVisibleObjects(OBJECTENUMFUNC func, void* param);
@@ -87,8 +93,5 @@ void ClntObjMgrUnlockObject(WOWGUID guid, const char* fileName, int32_t lineNumb
 void ClntObjMgrUnsetObjMirrorHandler(WOWGUID guid, OBJECT_TYPE_ID typeId, uint32_t fieldOffset, MIRRORHANDLERFUNC function, void* param);
 void ClntObjMgrUnsetTypeMirrorHandler(OBJECT_TYPE_ID typeId, uint32_t fieldOffset, MIRRORHANDLERFUNC function, void* param);
 void MirrorInitialize();
-int32_t Packet_SMSG_COMPRESSED_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
-int32_t Packet_SMSG_DESTROY_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
-int32_t Packet_SMSG_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 
 #endif

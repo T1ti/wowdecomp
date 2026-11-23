@@ -36,6 +36,9 @@
 
 // STATIC: 0x00DD2008
 static thread_local ObjectMgr* s_curMgr;
+#if defined(WOWDECOMP_ASSERTIONS)
+static thread_local uint32_t s_localPlayerUpdates;
+#endif
 
 // STATIC: 0x00B4B014
 static ObjectMgr* s_savMgr;
@@ -77,7 +80,7 @@ static CMirrorHandler* AssignMirrorHandler(TSList<CMirrorHandler, TSGetLink<CMir
     handler->m_fieldByteOffset = fieldByteOffset;
     handler->m_mirrorByteOffset = mirrorByteOffset;
     handler->m_fieldByteSize = fieldByteSize;
-    handler->m_function = function;
+    handler->handler = function;
     handler->m_functionParam = param;
     handler->m_linkPositionSelector = priority;
     handler->m_dispatching = 0;
@@ -162,7 +165,7 @@ static uint32_t TypeDescriptorToMirrorOffset(OBJECT_TYPE_ID typeId, uint32_t dat
 // OFFSET: 0x004D5900
 static void UnassignMirrorHandler(TSList<CMirrorHandler, TSGetLink<CMirrorHandler> >* list, MIRRORHANDLERFUNC function, void* param) {
     for (CMirrorHandler* handler = list->Head(); handler; handler = list->Next(handler)) {
-        if (handler->m_function == function && handler->m_functionParam == param) {
+        if (handler->handler == function && handler->m_functionParam == param) {
             if (handler->m_dispatching) {
                 handler->m_deletePending = 1;
             } else {
@@ -276,7 +279,7 @@ CMovementGlobals* ClntObjMgrGetMovementGlobals() {
         return nullptr;
     }
 
-    return mgr->m_movementGlobal;
+    return mgr->m_movement;
 }
 
 // VERIFY: 05ff89f3 manual
@@ -319,7 +322,7 @@ void ClntObjMgrSetMovementGlobals(CMovementGlobals* globals) {
     ObjectMgr* mgr = s_curMgr;
 
     if (mgr) {
-        mgr->m_movementGlobal = globals;
+        mgr->m_movement = globals;
     }
 }
 
@@ -834,20 +837,23 @@ static void ExpireOldObjects(uint32_t expireTime, OBJECT_TYPE_ID typeId) {
 
 // VERIFY: 30ceb511 manual
 // OFFSET: 0x004D4930
-CGObject_C* ClntObjMgrAllocObject(OBJECT_TYPE_ID typeId, WOWGUID guid) {
+CGObject_C* ClntObjMgrAllocObject(OBJECT_TYPE_ID type, WOWGUID guid) {
+    STORM_ASSERT(type > 0);
+    STORM_ASSERT(type < NUM_CLIENT_OBJECT_TYPES);
+
     if (guid == ClntObjMgrGetActivePlayer()) {
         return static_cast<CGObject_C*>(SMemAlloc(sizeof(CGPlayer_C) + s_objDwordCount[ID_PLAYER] * sizeof(uint32_t) + CGPlayer::TotalFieldsSaved() * sizeof(uint32_t) + 1002 * sizeof(TSList<void>), __FILE__, __LINE__, 0));
     }
 
-    ExpireOldObjects(10000, typeId);
+    ExpireOldObjects(10000, type);
 
     uint32_t memHandle;
 
-    if (!ObjectAlloc(s_objHeapIds[typeId], &memHandle, nullptr, false)) {
+    if (!ObjectAlloc(s_objHeapIds[type], &memHandle, nullptr, false)) {
         return nullptr;
     }
 
-    CGObject_C* object = static_cast<CGObject_C*>(ObjectPtr(s_objHeapIds[typeId], memHandle));
+    CGObject_C* object = static_cast<CGObject_C*>(ObjectPtr(s_objHeapIds[type], memHandle));
     object->m_heapIndex = memHandle;
     return object;
 }
@@ -896,20 +902,21 @@ void ClntObjMgrInitializeShared() {
 // VERIFY: 6d6f17bf manual
 // OFFSET: 0x004D5150
 static void CallMirrorFunctions(TSExplicitList<CMirrorHandler, offsetof(CMirrorHandler, m_link2)>* pending, WOWGUID guid, CGObject_C* object, OBJECT_TYPE_ID typeId) {
-    CMirrorHandler* handler = pending->Head();
+    CMirrorHandler* mirror = pending->Head();
 
-    while (handler) {
-        handler->m_dispatching = 1;
-        handler->m_count = 1;
+    while (mirror) {
+        mirror->m_dispatching = 1;
+        mirror->m_count = 1;
 
-        const void* mirror = static_cast<uint8_t*>(object->m_objMirror) + handler->m_mirrorByteOffset;
+        const void* oldValue = static_cast<uint8_t*>(object->m_objMirror) + mirror->m_mirrorByteOffset;
 
-        if (handler->m_alwaysFire || memcmp(reinterpret_cast<uint8_t*>(object->m_obj) + handler->m_fieldByteOffset, mirror, handler->m_fieldByteSize)) {
-            handler->m_function(guid, handler->m_fieldByteOffset - GetObjectTypeFieldByteOffset(typeId), handler->m_fieldByteSize, mirror, handler->m_functionParam);
+        if (mirror->m_alwaysFire || memcmp(reinterpret_cast<uint8_t*>(object->m_obj) + mirror->m_fieldByteOffset, oldValue, mirror->m_fieldByteSize)) {
+            STORM_ASSERT(mirror->handler);
+            mirror->handler(guid, mirror->m_fieldByteOffset - GetObjectTypeFieldByteOffset(typeId), mirror->m_fieldByteSize, oldValue, mirror->m_functionParam);
         }
 
-        CMirrorHandler* current = handler;
-        handler = pending->Next(handler);
+        CMirrorHandler* current = mirror;
+        mirror = pending->Next(mirror);
 
         if (current->m_deletePending) {
             delete current;
@@ -1191,7 +1198,7 @@ ObjectMgr::ObjectMgr(uint32_t type) {
     this->m_playerGuid = WOWGUID();
     this->m_mapId = 0;
     this->m_realmConnection = nullptr;
-    this->m_movementGlobal = nullptr;
+    this->m_movement = nullptr;
 }
 
 // VERIFY: 64bc6bb1 manual
@@ -1294,6 +1301,8 @@ void ClntObjMgrDestroy() {
 
     DestroyAllObjects();
 
+    // 12213: "s_curMgr->m_movement == __null"
+    STORM_ASSERT(s_curMgr->m_movement == nullptr);
     ObjectMgr* mgr = s_curMgr;
     s_curMgr = nullptr;
     delete mgr;
@@ -1434,6 +1443,12 @@ static int32_t PartialUpdateFromFullUpdate(CDataStore* msg) {
     SmartGUID guid;
     *msg >> guid;
 
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (guid == ClntObjMgrGetActivePlayer()) {
+        ++s_localPlayerUpdates;
+    }
+#endif
+
     int32_t reenabled;
     CGObject_C* object = GetUpdateObject(guid, &reenabled);
 
@@ -1458,6 +1473,7 @@ static int32_t PartialUpdateFromFullUpdate(CDataStore* msg) {
 static void UpdateInRangeObjects(CDataStore* msg) {
     uint32_t count;
     msg->Get(count);
+    STORM_ASSERT(count > 0);
 
     while (count) {
         count--;
@@ -1607,6 +1623,7 @@ static int32_t ObjectUpdateSecondPass(CDataStore* msg, uint32_t time, uint32_t c
 static void UpdateOutOfRangeObjects(CDataStore* msg) {
     uint32_t count;
     msg->Get(count);
+    STORM_ASSERT(count > 0);
 
     CVehiclePassenger_C::StartAddingPendingRescueTransitions();
 
@@ -1663,7 +1680,7 @@ static void UpdateOutOfRangeObjects(CDataStore* msg) {
 
 // VERIFY: 1da078ed manual
 // OFFSET: 0x004D73A0
-int32_t Packet_SMSG_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+static int32_t Packet_SMSG_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     uint32_t count;
     msg->Get(count);
 
@@ -1682,7 +1699,11 @@ int32_t Packet_SMSG_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, 
 
     int32_t result = 0;
 
+#if defined(WOWDECOMP_ASSERTIONS)
+    s_localPlayerUpdates = 0;
+#endif
     if (ObjectUpdateFirstPass(index, msg, time, count)) {
+        STORM_ASSERT(s_localPlayerUpdates <= 1);
         msg->m_read = read;
         result = ObjectUpdateSecondPass(msg, time, count);
     }
@@ -1696,7 +1717,7 @@ int32_t Packet_SMSG_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, 
 
 // VERIFY: d5d28268 manual
 // OFFSET: 0x004D74D0
-int32_t Packet_SMSG_COMPRESSED_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+static int32_t Packet_SMSG_COMPRESSED_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     uint32_t origSize;
     msg->Get(origSize);
 
@@ -1738,7 +1759,7 @@ int32_t Packet_SMSG_COMPRESSED_UPDATE_OBJECT(void* param, NETMESSAGE msgId, uint
 
 // VERIFY: 2f490dee manual
 // OFFSET: 0x004D7610
-int32_t Packet_SMSG_DESTROY_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+static int32_t Packet_SMSG_DESTROY_OBJECT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     WOWGUID guid;
     msg->Get(guid.m_guid);
 
