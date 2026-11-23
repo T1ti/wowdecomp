@@ -1026,7 +1026,7 @@ static void LocateWeaponSubclass() {
 
 // VERIFY: d0f3ca01 auto
 // OFFSET: 0x00634940
-int32_t ClientDBGetNumWeaponSubClasses() {
+uint32_t ClientDBGetNumWeaponSubclasses() {
     return s_weaponSubclasses.Count();
 }
 

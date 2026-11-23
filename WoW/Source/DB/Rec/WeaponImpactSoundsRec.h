@@ -17,8 +17,8 @@ class WeaponImpactSoundsRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ int32_t m_weaponSubClassID;
-    /* 0008 */ PARRYMATERIALS m_parrySoundType;
+    /* 0004 */ int32_t m_WeaponSubClassID;
+    /* 0008 */ PARRYMATERIALS m_ParrySoundType;
     /* 000C */ int32_t m_impactSoundID [NUM_WEAPON_IMPACT_SOUNDS];
     /* 0034 */ int32_t m_critImpactSoundID [NUM_WEAPON_IMPACT_SOUNDS];
 

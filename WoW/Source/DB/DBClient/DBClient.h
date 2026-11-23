@@ -507,7 +507,7 @@ extern WowClientDB_RLE<LightFloatBandRec> g_lightFloatBandDB;
 extern WowClientDB<LightParamsRec> g_lightParamsDB;
 extern WowClientDB<LightRec> g_lightDB;
 
-int32_t ClientDBGetNumWeaponSubClasses();
+uint32_t ClientDBGetNumWeaponSubclasses();
 int32_t ClientDBGetUnarmedWeapon();
 void ClientDBInitialize();
 void ClientDBShutdown();
