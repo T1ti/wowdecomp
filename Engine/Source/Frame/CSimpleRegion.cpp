@@ -145,7 +145,7 @@ void CSimpleRegion::HideThis() {
         return;
     }
 
-    if (!this->m_parent->m_isLoading) {
+    if (!this->m_parent->IsLoading()) {
         this->SetDeferredResize(1);
     }
 
@@ -160,7 +160,7 @@ void CSimpleRegion::ShowThis() {
         return;
     }
 
-    if (!this->m_parent->m_isLoading) {
+    if (!this->m_parent->IsLoading()) {
         this->SetDeferredResize(0);
     }
 

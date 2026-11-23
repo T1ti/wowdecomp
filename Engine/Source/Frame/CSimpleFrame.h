@@ -10,6 +10,9 @@
 #include "Engine/Source/Frame/CSimpleRegion.h"
 #include "Engine/Source/Frame/CSimpleAnim.h"
 #include "Engine/Source/Frame/Types.h"
+#include "Engine/Source/FrameScript/FrameScript.h"
+#include "Engine/Source/Storm/H/storm.h"
+#include "Engine/Source/lua-5.1/src/lua.h"
 #include "Engine/Source/FrameXML/XMLTree.h"
 #include "Engine/Source/Tempest/C2Vector.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -68,11 +71,16 @@ class CSimpleFrame : public CScriptRegion {
         STATE_DELETED = 3,
     };
 
-    static CDataAllocator s_allocator;
+    private:
     static int32_t s_frameCount;
     static int32_t s_metatable;
+    static const char* const s_objectTypeName;
+    static CDataAllocator s_simpleFrameHeap;
+    static void* Alloc(size_t bytes); // (inferred)
+    friend CSimpleFrame* Create_SimpleFrame(CSimpleFrame* parent);
+
+    public:
     static int32_t s_objectType;
-    static const char* s_objectTypeName;
 
     static void operator delete(void* ptr);
     static void CreateScriptMetaTable();
@@ -110,7 +118,10 @@ class CSimpleFrame : public CScriptRegion {
     /* 0120 */ uint32_t m_isMouseDragging;
     /* 0124 */ uint32_t m_mouseDragButton;
     /* 0128 */ C2Vector m_mousePosition;
-    /* 0130 */ uint32_t m_isLoading;
+    private:
+    /* 0130 */ uint32_t m_loading;
+
+    public:
     /* 0134 */ FrameScript_Object::ScriptIx m_onLoad;
     /* 013C */ FrameScript_Object::ScriptIx m_onSizeChanged;
     /* 0144 */ FrameScript_Object::ScriptIx m_onUpdate;
@@ -142,6 +153,11 @@ class CSimpleFrame : public CScriptRegion {
     /* 0284 */ TSLink<CSimpleFrame> m_framesLink;
     /* 028C */ TSLink<CSimpleFrame> m_destroyedLink;
     /* 0294 */ TSLink<CSimpleFrame> m_strataLink;
+
+    // INLINED
+    bool IsLoading() const { // (inferred)
+        return this->m_loading != 0;
+    }
 
     virtual ~CSimpleFrame();
     virtual int32_t GetScriptMetaTable();
@@ -215,6 +231,10 @@ class CSimpleFrame : public CScriptRegion {
     int32_t GetHitRect(CRect& rect);
     void GetHitRectInsets(float& left, float& right, float& top, float& bottom);
     int32_t Hide();
+    protected:
+    void RunOnCharScript(const char* text); // (inferred)
+
+    public:
     void LoadXML_Attributes(XMLNode* node, CStatus* status);
     void LoadXML_Layers(XMLNode* node, CStatus* status);
     void LoadXML_Scripts(XMLNode* node, CStatus* status);
@@ -248,5 +268,16 @@ class CSimpleFrame : public CScriptRegion {
     int32_t TestHitRect(const C2Vector& pt);
     void UnregisterForEvents(BOOL reregister);
 };
+
+// INLINED
+inline void CSimpleFrame::RunOnCharScript(const char* text) {
+    STORM_ASSERT(!m_loading);
+
+    if (this->m_onChar.m_luaRef) {
+        lua_State* L = FrameScript_GetContext();
+        lua_pushstring(L, text);
+        this->RunScript(this->m_onChar, 1, nullptr);
+    }
+}
 
 #endif

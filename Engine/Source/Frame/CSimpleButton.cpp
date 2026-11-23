@@ -1093,7 +1093,7 @@ void CSimpleButton::Enable(BOOL enabled) {
 
     FrameScript_Object::ScriptIx& script = disabled ? this->m_onDisable : this->m_onEnable;
 
-    if (script.m_luaRef && !this->m_isLoading) {
+    if (script.m_luaRef && !this->IsLoading()) {
         this->RunScript(script, 0, nullptr);
     }
 }

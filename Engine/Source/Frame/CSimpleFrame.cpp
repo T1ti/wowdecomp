@@ -38,13 +38,13 @@ int32_t CSimpleFrame::s_metatable = LUA_NOREF;
 int32_t CSimpleFrame::s_objectType;
 
 // STATIC: 0x00AC1260
-const char* CSimpleFrame::s_objectTypeName = "Frame";
+const char* const CSimpleFrame::s_objectTypeName = "Frame";
 
 // STATIC: 0x00B49980
 int32_t CSimpleFrame::s_frameCount;
 
 // STATIC: 0x00B49988
-CDataAllocator CSimpleFrame::s_allocator(sizeof(CSimpleFrame), 100);
+CDataAllocator CSimpleFrame::s_simpleFrameHeap(sizeof(CSimpleFrame), 100);
 
 // STATIC: 0x00AC1264
 static float s_dragThreshold = 0.0001f;
@@ -172,7 +172,7 @@ int32_t CSimpleFrame::GetObjectType() {
 // INLINED
 void CSimpleFrame::operator delete(void* ptr) {
     if (ptr) {
-        CSimpleFrame::s_allocator.PutData(ptr, nullptr, 0);
+        CSimpleFrame::s_simpleFrameHeap.PutData(ptr, nullptr, 0);
     }
 }
 
@@ -206,7 +206,7 @@ CSimpleFrame::CSimpleFrame(CSimpleFrame* parent) {
     this->m_isMouseDragging = 0;
     this->m_mousePosition.x = 0.0f;
     this->m_mousePosition.y = 0.0f;
-    this->m_isLoading = 0;
+    this->m_loading = 0;
     this->m_backdropGenerator = nullptr;
     this->m_batchDirty = 0;
 
@@ -604,6 +604,8 @@ void CSimpleFrame::RunOnSizeChangedScript(float width, float height) {
 // VERIFY: f5dfec34 auto
 // OFFSET: 0x0048F0F0
 void CSimpleFrame::RunOnEnterScript(int32_t motion) {
+    STORM_ASSERT(!m_loading);
+
     if (this->m_onCursorEnter.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushboolean(L, motion);
@@ -614,6 +616,8 @@ void CSimpleFrame::RunOnEnterScript(int32_t motion) {
 // VERIFY: f2d2ba21 auto
 // OFFSET: 0x0048F130
 void CSimpleFrame::RunOnLeaveScript(int32_t motion) {
+    STORM_ASSERT(!m_loading);
+
     if (this->m_onCursorExit.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushboolean(L, motion);
@@ -624,6 +628,8 @@ void CSimpleFrame::RunOnLeaveScript(int32_t motion) {
 // VERIFY: ab9ac4fe auto
 // OFFSET: 0x0048F170
 void CSimpleFrame::RunOnMouseWheelScript(int32_t delta) {
+    STORM_ASSERT(!m_loading);
+
     if (this->m_onMouseWheel.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushnumber(L, delta);
@@ -634,6 +640,8 @@ void CSimpleFrame::RunOnMouseWheelScript(int32_t delta) {
 // VERIFY: 4eba352f auto
 // OFFSET: 0x0048F1B0
 void CSimpleFrame::RunOnKeyUpScript(const char* key) {
+    STORM_ASSERT(!m_loading);
+
     if (this->m_onKeyUp.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushstring(L, key);
@@ -985,11 +993,7 @@ int32_t CSimpleFrame::OnLayerChar(const CCharEvent& evt) {
     char text[8];
     sputu8(evt.m_data.m_ch, text);
 
-    if (this->m_onChar.m_luaRef) {
-        lua_State* L = FrameScript_GetContext();
-        lua_pushstring(L, text);
-        this->RunScript(this->m_onChar, 1, nullptr);
-    }
+    this->RunOnCharScript(text);
 
     return 1;
 }
@@ -1003,6 +1007,7 @@ int32_t CSimpleFrame::OnLayerKeyDown(const CKeyEvent& evt) {
 
     const char* key = KeyCodeToString(evt.m_data.m_key);
 
+    STORM_ASSERT(!m_loading);
     if (this->m_onKeyDown.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushstring(L, key);
@@ -1040,6 +1045,7 @@ int32_t CSimpleFrame::OnLayerMouseDown(const CMouseEvent& evt, const char* btn) 
     const char* savedButton = this->m_simpleTop->m_mouseButtonName;
     this->m_simpleTop->m_mouseButtonName = btn;
 
+    STORM_ASSERT(!m_loading);
     if (this->m_onMouseDown.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushstring(L, btn);
@@ -1077,6 +1083,7 @@ int32_t CSimpleFrame::OnLayerMouseUp(const CMouseEvent& evt, const char* btn) {
     const char* savedButton = this->m_simpleTop->m_mouseButtonName;
     this->m_simpleTop->m_mouseButtonName = btn;
 
+    STORM_ASSERT(!m_loading);
     if (this->m_onMouseUp.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushstring(L, btn);
@@ -1110,6 +1117,7 @@ void CSimpleFrame::OnDragStart(const CMouseEvent& evt) {
         }
     }
 
+    STORM_ASSERT(!m_loading);
     if (this->m_onDragStart.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushstring(L, GetMouseButtonName(button));
@@ -1120,6 +1128,8 @@ void CSimpleFrame::OnDragStart(const CMouseEvent& evt) {
 // VERIFY: 445a6cbe auto
 // OFFSET: 0x0048FE60
 void CSimpleFrame::OnDragStop(const CMouseEvent& evt) {
+    STORM_ASSERT(!m_loading);
+
     if (this->m_onDragStop.m_luaRef) {
         this->RunScript(this->m_onDragStop, 0, nullptr);
     }
@@ -1128,6 +1138,8 @@ void CSimpleFrame::OnDragStop(const CMouseEvent& evt) {
 // VERIFY: 7c9a0de0 auto
 // OFFSET: 0x0048FE80
 void CSimpleFrame::OnReceiveDrag(const CMouseEvent& evt) {
+    STORM_ASSERT(!m_loading);
+
     if (this->m_onReceiveDrag.m_luaRef) {
         this->RunScript(this->m_onReceiveDrag, 0, nullptr);
     }
@@ -1257,7 +1269,7 @@ void CSimpleFrame::NotifyDrawLayerChanged(uint32_t drawLayer) {
 // VERIFY: 5d917b41 auto
 // OFFSET: 0x004902D0
 void CSimpleFrame::OnLayerShow() {
-    if (this->m_onShow.m_luaRef && !this->m_isLoading) {
+    if (this->m_onShow.m_luaRef && !this->m_loading) {
         this->RunScript(this->m_onShow, 0, nullptr);
     }
 
@@ -1267,7 +1279,7 @@ void CSimpleFrame::OnLayerShow() {
 // VERIFY: 68810318 auto
 // OFFSET: 0x00490300
 void CSimpleFrame::OnLayerHide() {
-    if (this->m_onHide.m_luaRef && !this->m_isLoading) {
+    if (this->m_onHide.m_luaRef && !this->m_loading) {
         this->RunScript(this->m_onHide, 0, nullptr);
     }
 
@@ -1300,7 +1312,7 @@ void CSimpleFrame::PreLoadXML(XMLNode* node, CStatus* status) {
         }
     }
 
-    this->m_isLoading = 1;
+    this->m_loading = 1;
     this->SetDeferredResize(1);
 
     if (this->m_titleRegion) {
@@ -1315,7 +1327,7 @@ void CSimpleFrame::PreLoadXML(XMLNode* node, CStatus* status) {
 // VERIFY: b8ec6f00 manual
 // OFFSET: 0x00490410
 void CSimpleFrame::PostLoadXML(XMLNode* node, CStatus* status) {
-    this->m_isLoading = 0;
+    this->m_loading = 0;
 
     if (this->m_isVisible) {
         this->SetDeferredResize(0);
@@ -1347,11 +1359,12 @@ void CSimpleFrame::PostLoadXML(XMLNode* node, CStatus* status) {
         }
     }
 
+    STORM_ASSERT(!m_loading);
     if (this->m_onLoad.m_luaRef) {
         this->RunScript(this->m_onLoad, 0, nullptr);
     }
 
-    if (this->m_isVisible && this->m_onShow.m_luaRef && !this->m_isLoading) {
+    if (this->m_isVisible && this->m_onShow.m_luaRef && !this->m_loading) {
         this->RunScript(this->m_onShow, 0, nullptr);
     }
 }
@@ -1429,6 +1442,8 @@ void CSimpleFrame::RemoveFrameRegion(CSimpleRegion* region, uint32_t drawLayer) 
 // VERIFY: 787b525f auto
 // OFFSET: 0x00490770
 void CSimpleFrame::OnLayerUpdate(float elapsedSec) {
+    STORM_ASSERT(!m_loading);
+
     if (this->m_onUpdate.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushnumber(L, elapsedSec);
@@ -1855,7 +1870,7 @@ int32_t CSimpleFrame::HideThis() {
         return 1;
     }
 
-    if (!this->m_isLoading) {
+    if (!this->m_loading) {
         this->SetDeferredResize(1);
 
         if (this->m_titleRegion) {
@@ -1889,7 +1904,7 @@ int32_t CSimpleFrame::ShowThis() {
         return 1;
     }
 
-    if (!this->m_isLoading) {
+    if (!this->m_loading) {
         this->SetDeferredResize(0);
 
         if (this->m_titleRegion) {

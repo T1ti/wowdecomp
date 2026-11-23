@@ -2149,11 +2149,7 @@ void CSimpleEditBox::Insert(const char* text, const char* taint, int32_t runScri
         return;
     }
 
-    if (this->m_onChar.m_luaRef) {
-        lua_State* L = FrameScript_GetContext();
-        lua_pushstring(L, text);
-        this->RunScript(this->m_onChar, 1, nullptr);
-    }
+    this->RunOnCharScript(text);
 
     for (const char* c = text;; c += chars) {
         uint32_t ch = sgetu8(reinterpret_cast<const uint8_t*>(c), &chars);

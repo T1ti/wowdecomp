@@ -213,10 +213,16 @@ CSimpleFrame* Create_SimpleButton(CSimpleFrame* parent) {
     return data ? new (data) CSimpleButton(parent) : nullptr;
 }
 
+// INLINED
+inline void* CSimpleFrame::Alloc(size_t bytes) {
+    STORM_ASSERT(bytes <= s_simpleFrameHeap.BytesPerData());
+    return s_simpleFrameHeap.GetData(0, typeid(CSimpleFrame).raw_name(), SLOG_OBJECT);
+}
+
 // VERIFY: 8993fe13 auto
 // OFFSET: 0x008128A0
 CSimpleFrame* Create_SimpleFrame(CSimpleFrame* parent) {
-    void* data = CSimpleFrame::s_allocator.GetData(0, typeid(CSimpleFrame).raw_name(), SLOG_OBJECT);
+    void* data = CSimpleFrame::Alloc(sizeof(CSimpleFrame));
     return data ? new (data) CSimpleFrame(parent) : nullptr;
 }
 

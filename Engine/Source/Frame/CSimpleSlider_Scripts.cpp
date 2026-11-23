@@ -193,7 +193,7 @@ static int32_t Script_Enable(lua_State* L) {
 
     slider->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_DISABLED, 0);
 
-    if (slider->m_onEnable.m_luaRef && !slider->m_isLoading) {
+    if (slider->m_onEnable.m_luaRef && !slider->IsLoading()) {
         slider->RunScript(slider->m_onEnable, 0, nullptr);
     }
 
@@ -207,7 +207,7 @@ static int32_t Script_Disable(lua_State* L) {
 
     slider->SetFrameFlag(CSimpleFrame::FrameFlags::FRAME_DISABLED, 1);
 
-    if (slider->m_onDisable.m_luaRef && !slider->m_isLoading) {
+    if (slider->m_onDisable.m_luaRef && !slider->IsLoading()) {
         slider->RunScript(slider->m_onDisable, 0, nullptr);
     }
 
