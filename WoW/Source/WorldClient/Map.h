@@ -327,7 +327,7 @@ class CMap {
     static bool GetTrisChunk(int32_t chunkX, int32_t chunkY, const CiRect& cellRect, const CAaBox& box, World::TriData* triData, uint32_t flags);
     static bool GetTriSubchunk(CMapChunk* chunk, const CiRect* rect, const CAaBox* box);
     static bool QueryTrisMapObjDefs(const CAaBox& box, World::TriData* triData, uint32_t flags);
-    static uint32_t QueryIntersectingModels(CM2Model** models, uint32_t maxModels, const CAaBox& box, uint32_t flags);
+    static uint32_t QueryIntersectingModels(CM2Model** doodads, uint32_t maxDoodadsToReturn, const CAaBox& box, uint32_t flags);
     static void BuildFootprintMatrix(C44Matrix& matrix, const float* size, int32_t left, float facing);
     static void NewFootprint(int32_t textureId, const float* size, const C3Vector* position, float facing, int32_t left, int32_t terrainType, int32_t activePlayer);
     static void FreeAreaLow(CMapAreaLow* areaLow);
@@ -425,10 +425,9 @@ class CMap {
     static void UpdateLightBounds(CMapLight* light);
     static void LinkLightToMapObjDefs(CMapLight* light);
     static void LinkLightToChunks(CMapLight* light);
-    static bool Intersect(C3Vector* start, C3Vector* end, C3Vector* hitPoint, float* distance, uint32_t flags, World::HitTestDebug* hitInfo);
+    static bool Intersect(C3Vector* start, C3Vector* end, C3Vector* hitPoint, float* dist, uint32_t flags, World::HitTestDebug* hitInfo);
     static bool VectorIntersect(C3Vector* start, C3Vector* end, uint32_t flags, uint32_t defIgnoreFlags, float* distance, uint16_t* hitIndex, CMapObj** outMapObj, CMapObjDef** outMapObjDef, CMapObjDefGroup** outMapObjDefGroup);
     static bool VectorIntersectTerrain(C3Vector* start, C3Vector* end, float* distance, uint32_t flags, CMapChunk** hitChunk);
-    static bool VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* distance, uint32_t flags, CMapChunk** hitChunk);
     static void VectorIntersectDoodadDefs(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* list, uint32_t flags);
     static void VectorIntersectEntitys(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* list, uint32_t flags);
     static void VectorIntersectDoodadDefs(TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_refLink)>* list, uint32_t flags);
@@ -436,7 +435,6 @@ class CMap {
     static void VectorIntersectSX(CiRect& rect);
     static void VectorIntersectDY(C3Vector& start, C3Vector& end, CiRect& cells);
     static void VectorIntersectDX(C3Vector& start, C3Vector& end, CiRect& cells);
-    static void SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject);
     static bool LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapObjDef** outDefs, uint32_t* outGroups);
     static void TestQueryAdd(const CFacet& facet, CImVector color, const C44Matrix* mat);
     static bool QueryLiquidStatusMapObjsExt(C3Vector* pos, int32_t* liquidType, float* height);
@@ -470,6 +468,8 @@ class CMap {
 
     static void PurgeArea(CMapArea* area);
     static void RemoveAreaFromTable(const CMapArea* area); // (inferred)
+    static bool VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* distance, uint32_t queryFlags, CMapChunk** hitChunk);
+    static void SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject);
 };
 
 extern int32_t s_mapId;

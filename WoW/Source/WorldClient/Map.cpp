@@ -1329,16 +1329,19 @@ void CMap::VectorIntersectEntitys(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
 
 // VERIFY: 3fe9ef3a manual
 // OFFSET: 0x007A3570
-bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* distance, uint32_t flags, CMapChunk** hitChunk) {
-    uint32_t* entry = CMap::scCollideList.m_data;
-    // The binary seeds the current chunk from the first entry's out-of-range bit, with X and Y crossed.
+bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* distance, uint32_t queryFlags, CMapChunk** hitChunk) {
+    // 12213: "queryFlags & (CWorld::WQF_allLiquidFlags | CWorld::WQF_doodadMask | CWorld::WQF_gameObjMask | CWorld::WQF_terrain | CWorld::WQF_allObjsAllGeo)"
+    STORM_ASSERT(queryFlags & (WORLD_QUERY_LIQUID_MASK | WORLD_QUERY_DOODAD_MASK | WORLD_QUERY_TERRAIN | WORLD_QUERY_ALL_OBJS_ALL_GEO));
+    const uint32_t* scPtr = CMap::scCollideList.m_data;
+    STORM_ASSERT(scPtr);
+    // The binary seeds the current chunk from the first scPtr's out-of-range bit, with X and Y crossed.
     // In-range cells give 0 for both, so a walk starting in the world's corner chunk never loads a chunk.
-    uint32_t lastChunkCellY = entry[0] & MAP_CELLS_PER_MAP_AXIS;
-    uint32_t lastChunkCellX = entry[1] & MAP_CELLS_PER_MAP_AXIS;
+    uint32_t lastChunkCellY = scPtr[0] & MAP_CELLS_PER_MAP_AXIS;
+    uint32_t lastChunkCellX = scPtr[1] & MAP_CELLS_PER_MAP_AXIS;
     uint32_t remaining = CMap::cCount;
     CMapChunk* chunk = nullptr;
     CMapChunk* bestChunk = nullptr;
-    uint32_t modelFlags = flags & WORLD_QUERY_MODEL_MASK;
+    uint32_t modelFlags = queryFlags & WORLD_QUERY_MODEL_MASK;
 
     if (modelFlags) {
         World::s_m2Scene->BeginHitTest();
@@ -1353,10 +1356,10 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
     float bestDist = *distance;
 
     while (remaining) {
-        uint32_t cellX = entry[0];
-        uint32_t cellY = entry[1];
+        uint32_t cellX = scPtr[0];
+        uint32_t cellY = scPtr[1];
         remaining -= 2;
-        entry += 2;
+        scPtr += 2;
 
         if (cellX > MAP_CELLS_PER_MAP_AXIS || cellY > MAP_CELLS_PER_MAP_AXIS) {
             break;
@@ -1385,11 +1388,11 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
             origin.z = start->z - chunk->m_topLeftCoords.z;
 
             if (modelFlags) {
-                CMap::VectorIntersectDoodadDefs(&chunk->doodadDefLinkList, flags);
+                CMap::VectorIntersectDoodadDefs(&chunk->doodadDefLinkList, queryFlags);
             }
 
-            if (flags & WORLD_QUERY_ENTITY_MASK) {
-                CMap::VectorIntersectEntitys(&chunk->entityLinkList, flags);
+            if (queryFlags & WORLD_QUERY_ENTITY_MASK) {
+                CMap::VectorIntersectEntitys(&chunk->entityLinkList, queryFlags);
             }
         }
 
@@ -1399,7 +1402,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
         ray.origin = origin;
         ray.dir = dir;
 
-        if (flags & WORLD_QUERY_TERRAIN) {
+        if (queryFlags & WORLD_QUERY_TERRAIN) {
             float t = FLT_MAX;
 
             if (chunk->Intersect(subX, subY, ray, &t)) {
@@ -1412,8 +1415,8 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
             }
         }
 
-        if (flags & WORLD_QUERY_LIQUID_MASK) {
-            int32_t checkType = (flags & WORLD_QUERY_WATER_WALK_LIQUID) && !(flags & WORLD_QUERY_LIQUID);
+        if (queryFlags & WORLD_QUERY_LIQUID_MASK) {
+            int32_t checkType = (queryFlags & WORLD_QUERY_WATER_WALK_LIQUID) && !(queryFlags & WORLD_QUERY_LIQUID);
 
             for (CChunkLiquid* liquid = chunk->liquidsList.Head(); liquid; liquid = chunk->liquidsList.Next(liquid)) {
                 if (checkType && !(g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
@@ -1447,7 +1450,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
     }
 
     if (modelFlags) {
-        if (flags & WORLD_QUERY_RENDER_HIT_TEST_MASK) {
+        if (queryFlags & WORLD_QUERY_RENDER_HIT_TEST_MASK) {
             C3Vector localStart = *start * CWorldScene::camTransportView;
             C3Vector localEnd = *end * CWorldScene::camTransportView;
             World::s_m2Scene->EndHitTest(localStart, localEnd, bestDist, 0);
@@ -4804,7 +4807,9 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
     } else if (hitObject->GetType() & CMapBaseObj::Type_MapObjDefGroup) {
         CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(hitObject);
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(defGroup->m_parentLinkList.Head()->ref);
+        STORM_ASSERT(mapObjDef->GetType() & CMapBaseObj::Type_MapObjDef);
         CMapObj* mapObj = mapObjDef->mapObj;
+        STORM_ASSERT(mapObj);
         CMapObjGroup* group = mapObj->GetGroup(defGroup->groupNum, 0);
         World::HitTestDebug::Model* entry = &hitInfo->m_models[hitInfo->m_numModels++];
         hitInfo->m_type = World::HitTestDebug::TYPE_MAP_OBJ_GROUP;
@@ -4851,7 +4856,10 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
             }
         } else if (parent->GetType() & CMapBaseObj::Type_MapObjDefGroup) {
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(parent);
-            CMapObj* mapObj = static_cast<CMapObjDef*>(defGroup->m_parentLinkList.Head()->ref)->mapObj;
+            const CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(defGroup->m_parentLinkList.Head()->ref);
+            STORM_ASSERT(mapObjDef->GetType() & CMapBaseObj::Type_MapObjDef);
+            CMapObj* mapObj = mapObjDef->mapObj;
+            STORM_ASSERT(mapObj);
             CMapObjGroup* group = mapObj->GetGroup(defGroup->groupNum, 0);
 
             if (hitInfo->m_numParents < 8) {
@@ -4888,7 +4896,7 @@ bool CMap::VectorIntersect(C3Vector* start, C3Vector* end, uint32_t flags, uint3
     box.b = C3Vector(0.0f, 0.0f, 0.0f);
     box.t = C3Vector(0.0f, 0.0f, 0.0f);
     MapObjIntersectCandidate* candidates = static_cast<MapObjIntersectCandidate*>(alloca(sizeof(MapObjIntersectCandidate) * 500));
-    uint32_t candidateCount = 0;
+    uint32_t testListCount = 0;
 
     for (CMapObjDef* def = CMap::mapObjDefHash.m_fulllist.Head(); def; def = CMap::mapObjDefHash.m_fulllist.Next(def)) {
         if (defIgnoreFlags & def->m_flags) {
@@ -4910,9 +4918,10 @@ bool CMap::VectorIntersect(C3Vector* start, C3Vector* end, uint32_t flags, uint3
                 continue;
             }
 
-            MapObjIntersectCandidate& candidate = candidates[candidateCount++];
+            MapObjIntersectCandidate& candidate = candidates[testListCount++];
             candidate.def = def;
             candidate.group = group;
+            STORM_ASSERT(testListCount < 500);
             C3Vector localStart = *start * def->m_invMat;
 
             if (owner->TestGroupBounds(localStart, i)) {
@@ -4928,13 +4937,13 @@ bool CMap::VectorIntersect(C3Vector* start, C3Vector* end, uint32_t flags, uint3
         }
     }
 
-    qsort(candidates, candidateCount, sizeof(MapObjIntersectCandidate), CompareIntersectCandidates);
+    qsort(candidates, testListCount, sizeof(MapObjIntersectCandidate), CompareIntersectCandidates);
     uint32_t ignoreFlags = CMapObj::CreateWmoIgnoreFlags(flags);
     float bestT = *distance;
     bool hit = false;
     int32_t bestFace = -1;
 
-    for (uint32_t i = 0; i < candidateCount; i++) {
+    for (uint32_t i = 0; i < testListCount; i++) {
         CMapObjDef* def = candidates[i].def;
         CMapObjDefGroup* group = candidates[i].group;
         CMapObj* mapObj = def->mapObj;
@@ -5004,7 +5013,9 @@ bool CMap::VectorIntersect(C3Vector* start, C3Vector* end, uint32_t flags, uint3
 
 // VERIFY: b625f45f manual
 // OFFSET: 0x007A3B70
-bool CMap::Intersect(C3Vector* start, C3Vector* end, C3Vector* hitPoint, float* distance, uint32_t flags, World::HitTestDebug* hitInfo) {
+bool CMap::Intersect(C3Vector* start, C3Vector* end, C3Vector* hitPoint, float* dist, uint32_t flags, World::HitTestDebug* hitInfo) {
+    STORM_ASSERT(dist);
+
     CMap::s_queryTag++;
     bool hit = false;
     CMapObjDef* mapObjDef = nullptr;
@@ -5015,7 +5026,7 @@ bool CMap::Intersect(C3Vector* start, C3Vector* end, C3Vector* hitPoint, float* 
         s_lastCollisionGUID = WOWGUID{ 0 };
         CMapObj* mapObj;
 
-        if (CMap::VectorIntersect(start, end, flags, MAPOBJ_FLAG_NO_HITTEST, distance, nullptr, &mapObj, &mapObjDef, &mapObjDefGroup)) {
+        if (CMap::VectorIntersect(start, end, flags, MAPOBJ_FLAG_NO_HITTEST, dist, nullptr, &mapObj, &mapObjDef, &mapObjDefGroup)) {
             if (mapObjDef && mapObjDef->m_objectGuid.m_guid) {
                 s_lastCollisionGUID = mapObjDef->m_objectGuid;
             }
@@ -5035,7 +5046,7 @@ bool CMap::Intersect(C3Vector* start, C3Vector* end, C3Vector* hitPoint, float* 
     if (flags & (WORLD_QUERY_MODEL_MASK | WORLD_QUERY_TERRAIN | WORLD_QUERY_LIQUID_MASK)) {
         World::s_m2Scene->m_lastHit.m_model = nullptr;
 
-        if (CMap::VectorIntersectTerrain(start, end, distance, flags, nullptr)) {
+        if (CMap::VectorIntersectTerrain(start, end, dist, flags, nullptr)) {
             s_lastCollisionGUID = WOWGUID{ 0 };
 
             if (hitInfo && World::s_m2Scene->m_lastHit.m_model) {
@@ -5051,7 +5062,7 @@ bool CMap::Intersect(C3Vector* start, C3Vector* end, C3Vector* hitPoint, float* 
     }
 
     if (hitPoint) {
-        float t = *distance;
+        float t = *dist;
         C3Vector point;
         point.x = (end->x - start->x) * t + start->x;
         point.y = (end->y - start->y) * t + start->y;
@@ -6298,12 +6309,12 @@ bool CMap::QueryTris(const CAaBox& box, World::TriData* triData, uint32_t flags)
 
 // VERIFY: 0e38b513 manual
 // OFFSET: 0x007A2AA0
-uint32_t CMap::QueryIntersectingModels(CM2Model** models, uint32_t maxModels, const CAaBox& box, uint32_t flags) {
-    if (!maxModels) {
+uint32_t CMap::QueryIntersectingModels(CM2Model** doodads, uint32_t maxDoodadsToReturn, const CAaBox& box, uint32_t flags) {
+    if (!maxDoodadsToReturn) {
         return 0;
     }
 
-    uint32_t count = 0;
+    uint32_t numFound = 0;
 
     for (CMapObjDef* mapObjDef = CMap::mapObjDefHash.m_fulllist.Head(); mapObjDef; mapObjDef = CMap::mapObjDefHash.Next(mapObjDef)) {
         if ((mapObjDef->m_flags & MAPOBJ_FLAG_NO_HITTEST) || !mapObjDef->m_bbox.Intersects(box)) {
@@ -6344,17 +6355,18 @@ uint32_t CMap::QueryIntersectingModels(CM2Model** models, uint32_t maxModels, co
                 }
 
                 if (match) {
-                    models[count++] = model;
+                    STORM_ASSERT(numFound < maxDoodadsToReturn);
+                    doodads[numFound++] = model;
 
-                    if (count == maxModels) {
-                        return count;
+                    if (numFound == maxDoodadsToReturn) {
+                        return numFound;
                     }
                 }
             }
         }
     }
 
-    return count;
+    return numFound;
 }
 
 // VERIFY: d3ebe146 manual

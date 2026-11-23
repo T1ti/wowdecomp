@@ -2399,7 +2399,7 @@ uint32_t CMapObj::CreateWmoIgnoreFlags(uint32_t flags) {
     }
 
     if (flags & WORLD_QUERY_VISIBLE_OPAQUE) {
-        if (flags & WORLD_QUERY_UNKNOWN_0x40000000) {
+        if (flags & WORLD_QUERY_ALL_OBJS_ALL_GEO) {
             return ~static_cast<uint32_t>(SMOPoly::F_DETAIL | SMOPoly::F_RENDER | SMOPoly::IGNORE_BLENDED | SMOPoly::IGNORE_OPAQUE);
         }
 
