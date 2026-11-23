@@ -6,6 +6,7 @@
 #include "Engine/Source/Gx/CGxTexFlags.h"
 #include "Engine/Source/Services/SysMessage.h"
 #include "Engine/Source/Services/Texture.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/CRandom.h"
 #include "Engine/Source/Tempest/C2Vector.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
@@ -20,9 +21,10 @@
 #include "WoW/Source/WorldClient/World.h"
 
 static const float PTSIZE = 0.19921875f;
+static constexpr uint32_t PARTICLE_TEX_SLOTS_CNT = 5;
 
 // STATIC: 0x00A3F970
-static const int32_t s_texSlots[5][8] = {
+static const int32_t s_texSlots[PARTICLE_TEX_SLOTS_CNT][8] = {
     { 0, 1, 2, 3, 4, 5, 6, 7 },
     { 8, 9, 10, 11, 8, 9, 10, 11 },
     { 12, 12, 12, 12, 12, 12, 12, 12 },
@@ -166,6 +168,7 @@ C3Vector Particulate::ComputeMovement(float elapsed) {
     }
 
     if (liquidType->m_particleMovement != LIQUID_PARTICLE_MOVEMENT_DEFAULT) {
+        STORM_ASSERT(0 && "Unknown particle movement type!");
         return C3Vector(0.0f, 0.0f, 0.0f);
     }
 
@@ -254,7 +257,8 @@ void Particulate::Render() {
     GxXformView(view);
     C44Matrix identity;
     g_theGxDevicePtr->XformSetView(identity);
-    LiquidTypeRec* liquidType = g_liquidTypeDB.GetRecord(this->m_liquidType);
+    LiquidTypeRec* rec = g_liquidTypeDB.GetRecord(this->m_liquidType);
+    STORM_ASSERT(rec->m_particleTexSlots < PARTICLE_TEX_SLOTS_CNT);
     uint32_t vertexCount = 0;
     int32_t texSlot = 8;
 
@@ -291,13 +295,13 @@ void Particulate::Render() {
             }
         }
 
-        texSlot = s_texSlots[liquidType->m_particleTexSlots][i & 7];
+        texSlot = s_texSlots[rec->m_particleTexSlots][i & 7];
     }
 
     GxBufUnlock(indexBuf, 0);
     GxBufUnlock(vertexBuf, 0);
     g_theGxDevicePtr->RsPush();
-    GxRsSet(GxRs_Fog, (liquidType->m_flags & LIQUID_TYPE_FLAG_PARTICLE_FOG) != 0);
+    GxRsSet(GxRs_Fog, (rec->m_flags & LIQUID_TYPE_FLAG_PARTICLE_FOG) != 0);
     GxRsSet(GxRs_Texture0, texture);
     GxRsSet(GxRs_BlendingMode, GxBlend_Alpha);
     GxRsSet(GxRs_AlphaRef, static_cast<int32_t>(CGxDevice::s_alphaRef[g_theGxDevicePtr->m_appRenderStates.m_data[GxRs_BlendingMode].m_value.m_data.i[0]]));

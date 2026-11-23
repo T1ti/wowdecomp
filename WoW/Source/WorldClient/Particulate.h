@@ -14,6 +14,20 @@ struct LiquidParticle {
 
 class Particulate {
     public:
+    Particulate(float particleSize, float spawnAreaSize, const char* textureName);
+    ~Particulate();
+    void InitParticles(uint32_t count);
+    void Render();
+    void Update();
+    void SetScale(float scale);
+    void SetTexture(const char* textureName);
+
+    private:
+    friend class CWorldScene; // Access inferred from UpdateViewerLiquid.
+
+    C3Vector ComputeMovement(float elapsed);
+    void InitMovement();
+
     struct Movement {
         /* 0000 */ C3Vector m_dir; // Normalized direction of the sinusoidal displacement.
         /* 000C */ float m_freq; // Frequency: phase in cycles is elapsed time multiplied by this value.
@@ -32,16 +46,6 @@ class Particulate {
     /* FA20 */ float m_unkFloat1;
     /* FA24 */ uint32_t m_liquidType;
     /* FA28 */ Movement m_movement;
-
-    Particulate(float particleSize, float spawnAreaSize, const char* textureName);
-    ~Particulate();
-    C3Vector ComputeMovement(float elapsed);
-    void InitMovement();
-    void InitParticles(uint32_t count);
-    void Render();
-    void Update();
-    void SetScale(float scale);
-    void SetTexture(const char* textureName);
 };
 
 #endif
