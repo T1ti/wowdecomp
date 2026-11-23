@@ -431,7 +431,7 @@ void CChunkLiquid::Batch() {
 
     if (CMap::enableChunkBatching) {
         CMapArea* area = static_cast<CMapArea*>(this->m_owner->m_parentLinkList.Head()->ref);
-        CMapChunk** row = &area->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * (this->m_owner->m_aIndex.y & ~(MAP_CHUNKS_PER_BATCH_AXIS - 1)) + (this->m_owner->m_aIndex.x & ~(MAP_CHUNKS_PER_BATCH_AXIS - 1))];
+        CMapChunk** row = &area->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * (this->m_owner->aIndex.y & ~(MAP_CHUNKS_PER_BATCH_AXIS - 1)) + (this->m_owner->aIndex.x & ~(MAP_CHUNKS_PER_BATCH_AXIS - 1))];
 
         for (int32_t y = 0; y < MAP_CHUNKS_PER_BATCH_AXIS; y++) {
             CMapChunk** slot = row;
@@ -439,7 +439,7 @@ void CChunkLiquid::Batch() {
             for (int32_t x = 0; x < MAP_CHUNKS_PER_BATCH_AXIS; x++) {
                 CMapChunk* chunk = *slot;
 
-                for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
+                for (CChunkLiquid* liquid = chunk->liquidsList.Head(); liquid; liquid = chunk->liquidsList.Next(liquid)) {
                     if (liquid->m_type == this->m_type) {
                         s_batch.New(liquid);
                     }

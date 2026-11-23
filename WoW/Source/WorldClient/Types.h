@@ -125,6 +125,7 @@ struct SIffChunk {
         TOKEN_MCCV = 0x4D434356, // 'MCCV'
         TOKEN_MCLQ = 0x4D434C51, // 'MCLQ'
         TOKEN_MCLY = 0x4D434C59, // 'MCLY'
+        TOKEN_MCNK = 0x4D434E4B, // 'MCNK'
         TOKEN_MCNR = 0x4D434E52, // 'MCNR'
         TOKEN_MCRF = 0x4D435246, // 'MCRF'
         TOKEN_MCSE = 0x4D435345, // 'MCSE'

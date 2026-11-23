@@ -929,7 +929,7 @@ bool CMap::QueryLiquidTerrain(const C3Vector* pos, int32_t* liquidType, float* h
 
     C2Vector frac(cellYf - cellX, cellXf - cellY);
 
-    for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
+    for (CChunkLiquid* liquid = chunk->liquidsList.Head(); liquid; liquid = chunk->liquidsList.Next(liquid)) {
         if (liquid->TileExists(tile.x, tile.y) && liquid->GetHeight(frac, tile, *height) && *height + 0.01f > pos->z) {
             if (!checkGround) {
                 *liquidType = liquid->m_type;
@@ -1393,7 +1393,7 @@ bool CMap::VectorIntersectSubChunkList(C3Vector* start, C3Vector* end, float* di
         if (flags & WORLD_QUERY_LIQUID_MASK) {
             int32_t checkType = (flags & WORLD_QUERY_WATER_WALK_LIQUID) && !(flags & WORLD_QUERY_LIQUID);
 
-            for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
+            for (CChunkLiquid* liquid = chunk->liquidsList.Head(); liquid; liquid = chunk->liquidsList.Next(liquid)) {
                 if (checkType && !(g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
                     continue;
                 }
@@ -4365,7 +4365,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
         if (flags & WORLD_QUERY_LIQUID_MASK) {
             bool walkableOnly = (flags & WORLD_QUERY_WATER_WALK_LIQUID) && !(flags & WORLD_QUERY_LIQUID);
 
-            for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
+            for (CChunkLiquid* liquid = chunk->liquidsList.Head(); liquid; liquid = chunk->liquidsList.Next(liquid)) {
                 if (!walkableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
                     CMap::GetChunkLiquidFacets(chunk, &localBox, &rect, liquid, facets);
                 }
@@ -5157,7 +5157,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
     if (flags & WORLD_QUERY_LIQUID_MASK) {
         bool walkableOnly = (flags & WORLD_QUERY_WATER_WALK_LIQUID) && !(flags & WORLD_QUERY_LIQUID);
 
-        for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
+        for (CChunkLiquid* liquid = chunk->liquidsList.Head(); liquid; liquid = chunk->liquidsList.Next(liquid)) {
             if (!walkableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
                 CMap::GetChunkLiquidFacets(chunk, &localFrustum, &rect, liquid, facets);
             }
@@ -6104,7 +6104,7 @@ bool CMap::GetTrisChunk(int32_t chunkX, int32_t chunkY, const CiRect& cellRect, 
     if (flags & WORLD_QUERY_LIQUID_MASK) {
         bool walkableOnly = (flags & WORLD_QUERY_WATER_WALK_LIQUID) && !(flags & WORLD_QUERY_LIQUID);
 
-        for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
+        for (CChunkLiquid* liquid = chunk->liquidsList.Head(); liquid; liquid = chunk->liquidsList.Next(liquid)) {
             if (walkableOnly && !(g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
                 continue;
             }

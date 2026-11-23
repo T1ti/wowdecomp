@@ -96,10 +96,10 @@ void CMapChunk::Purge() {
         this->detailDoodadInst = nullptr;
     }
 
-    CChunkLiquid* liquid = this->m_liquidChunkLinkList.Head();
+    CChunkLiquid* liquid = this->liquidsList.Head();
 
     while (liquid) {
-        CChunkLiquid* next = this->m_liquidChunkLinkList.Next(liquid);
+        CChunkLiquid* next = this->liquidsList.Next(liquid);
         liquid->m_chunkLink.Unlink();
         liquid->Purge();
         CMap::FreeChunkLiquid(liquid);
@@ -140,8 +140,8 @@ void CMapChunk::Purge() {
         link = next;
     }
 
-    for (CMapBaseObjLink* link = this->m_lightLinkList.Head(); link;) {
-        CMapBaseObjLink* next = this->m_lightLinkList.Next(link);
+    for (CMapBaseObjLink* link = this->lightLinkList.Head(); link;) {
+        CMapBaseObjLink* next = this->lightLinkList.Next(link);
         CMap::FreeBaseObjLink(link);
         link = next;
     }
@@ -158,6 +158,7 @@ void CMapChunk::SelectLights(CM2Lighting* lighting) {
     lighting->AddLight(&CMap::s_mapLight->m_light);
 
     if (CWorld::farFog > this->m_distToCamera && (this->m_flags & MAPOBJ_FLAG_UNPLACED)) {
+        STORM_ASSERT(lightLinkList.Head() == nullptr); // 12213: "lightLinkList.Head() == __null"
         this->m_flags = static_cast<MapObjFlag>(this->m_flags & ~MAPOBJ_FLAG_UNPLACED);
     }
 
@@ -170,21 +171,25 @@ void CMapChunk::SelectLights(CM2Lighting* lighting) {
 // VERIFY: 092514c8 manual
 // OFFSET: 0x007C3A10
 void CMapChunk::ProcessIffChunks(bool firstUse) {
-    SIffChunk* headerChunk = reinterpret_cast<SIffChunk*>(this->m_chunkInfoBeginPtr);
-    this->m_header = reinterpret_cast<SMChunk*>(&headerChunk->m_data);
+    SIffChunk* iffChunk = reinterpret_cast<SIffChunk*>(this->m_chunkInfoBeginPtr);
+    STORM_ASSERT(iffChunk->token == SIffChunk::TOKEN_MCNK); // 12213: "iffChunk->token=='MCNK'"
+    this->m_header = reinterpret_cast<SMChunk*>(&iffChunk->m_data);
 
-    int32_t remaining = headerChunk->m_size - sizeof(SMChunk);
+    SMChunk* smChunk = this->m_header;
+
+    int32_t dataSize = iffChunk->m_size - sizeof(SMChunk);
     SIffChunk* chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(this->m_header) + sizeof(SMChunk));
 
-    while (remaining > 0) {
+    while (dataSize > 0) {
         uint8_t* data = reinterpret_cast<uint8_t*>(&chunk->m_data);
-        remaining -= offsetof(SIffChunk, m_data);
+        dataSize -= offsetof(SIffChunk, m_data);
 
         switch (chunk->token) {
             case SIffChunk::TOKEN_MCNR:
                 this->m_normals = reinterpret_cast<int8_t*>(data);
 
                 if (firstUse) {
+                    STORM_ASSERT(smChunk->sizeAlpha >= offsetof(SIffChunk, m_data)); // 12213: "smChunk->sizeAlpha >= sizeof(SIffChunk)"
                     chunk->m_size = 448;
                 }
 
@@ -203,7 +208,7 @@ void CMapChunk::ProcessIffChunks(bool firstUse) {
                 break;
 
             case SIffChunk::TOKEN_MCSE:
-                if (this->m_header->m_nSndEmitters) {
+                if (smChunk->m_nSndEmitters) {
                     this->m_soundEmitters = reinterpret_cast<CWSoundEmitter*>(data);
                 }
 
@@ -214,9 +219,9 @@ void CMapChunk::ProcessIffChunks(bool firstUse) {
                 break;
 
             case SIffChunk::TOKEN_MCLQ:
-                if (this->m_header->m_sizeLiquid > 8) {
+                if (smChunk->m_sizeLiquid > 8) {
                     this->m_liquid = reinterpret_cast<SMLiquidChunk*>(data);
-                    chunk->m_size = this->m_header->m_sizeLiquid - 8;
+                    chunk->m_size = smChunk->m_sizeLiquid - 8;
                 }
 
                 break;
@@ -225,7 +230,8 @@ void CMapChunk::ProcessIffChunks(bool firstUse) {
                 this->m_additionalShadowmap = data;
 
                 if (firstUse) {
-                    chunk->m_size = this->m_header->m_sizeAlpha - 8;
+                    STORM_ASSERT(smChunk->sizeAlpha >= offsetof(SIffChunk, m_data)); // 12213: "smChunk->sizeAlpha >= sizeof(SIffChunk)"
+                    chunk->m_size = smChunk->sizeAlpha - 8;
                 }
 
                 break;
@@ -235,9 +241,11 @@ void CMapChunk::ProcessIffChunks(bool firstUse) {
                 break;
         }
 
-        remaining -= chunk->m_size;
+        dataSize -= chunk->m_size;
         chunk = reinterpret_cast<SIffChunk*>(data + chunk->m_size);
     }
+
+    STORM_ASSERT(dataSize == 0);
 }
 
 // VERIFY: 86d6cd8c manual
@@ -283,6 +291,7 @@ void CMapChunk::Destroy() {
 // OFFSET: 0x007C3B40
 void CMapChunk::AllocRenderChunkAndBatch() {
     this->m_renderChunk = CMap::AllocRenderChunk();
+    STORM_ASSERT(m_renderChunk);
     this->m_renderChunk->AddBatch(this, nullptr, &this->m_topLeftCoords, CMapRenderChunk::BATCH_FLAGS::BATCH_NONE);
 }
 
@@ -696,12 +705,14 @@ void CMapChunk::Batch() {
         return;
     }
 
+    STORM_ASSERT(m_renderChunk == nullptr); // 12213: "m_renderChunk == __null"
+
     if (CMap::enableChunkBatching) {
         CMapArea* area = static_cast<CMapArea*>(this->m_parentLinkList.Head()->ref);
 
         C2iVector pos;
-        pos.x = this->m_aIndex.x & ~1;
-        pos.y = this->m_aIndex.y & ~1;
+        pos.x = this->aIndex.x & ~1;
+        pos.y = this->aIndex.y & ~1;
         area->BatchChunks(pos);
     } else {
         this->AllocRenderChunkAndBatch();
@@ -731,7 +742,7 @@ void CMapChunk::GetLiquidBounds(CAaBox& box) const {
     box.t = this->m_bbox.t;
     box.b = this->m_bbox.b;
 
-    CChunkLiquid* liquid = const_cast<CMapChunk*>(this)->m_liquidChunkLinkList.Head();
+    CChunkLiquid* liquid = const_cast<CMapChunk*>(this)->liquidsList.Head();
 
     if (liquid) {
         box.t.z = liquid->m_height.m_h;
@@ -740,7 +751,7 @@ void CMapChunk::GetLiquidBounds(CAaBox& box) const {
         do {
             box.t.z = liquid->m_height.m_h >= box.t.z ? liquid->m_height.m_h : box.t.z;
             box.b.z = liquid->m_height.m_l <= box.b.z ? liquid->m_height.m_l : box.b.z;
-            liquid = const_cast<CMapChunk*>(this)->m_liquidChunkLinkList.Next(liquid);
+            liquid = const_cast<CMapChunk*>(this)->liquidsList.Next(liquid);
         } while (liquid);
     }
 }
@@ -757,7 +768,7 @@ bool CMapChunk::GetLiquidHeight(const C2Vector& pos, float* height) const {
 
     C2Vector frac(pos.x - x, pos.y - y);
 
-    for (CChunkLiquid* liquid = const_cast<CMapChunk*>(this)->m_liquidChunkLinkList.Head(); liquid; liquid = const_cast<CMapChunk*>(this)->m_liquidChunkLinkList.Next(liquid)) {
+    for (CChunkLiquid* liquid = const_cast<CMapChunk*>(this)->liquidsList.Head(); liquid; liquid = const_cast<CMapChunk*>(this)->liquidsList.Next(liquid)) {
         if (liquid->TileExists(tile.x, tile.y) && liquid->GetHeight(frac, tile, *height)) {
             return true;
         }
@@ -769,13 +780,13 @@ bool CMapChunk::GetLiquidHeight(const C2Vector& pos, float* height) const {
 // VERIFY: bb038337 manual
 // OFFSET: 0x007C5690
 void CMapChunk::CreateLiquids(bool firstUse) {
-    CChunkLiquid* liquid = this->m_liquidChunkLinkList.Head();
+    CChunkLiquid* liquid = this->liquidsList.Head();
 
     while (liquid) {
         liquid->m_chunkLink.Unlink();
         liquid->Purge();
         CMap::FreeChunkLiquid(liquid);
-        liquid = this->m_liquidChunkLinkList.Next(liquid);
+        liquid = this->liquidsList.Next(liquid);
     }
 
     SMLiquidChunk* mclq = this->m_liquid;
@@ -795,7 +806,7 @@ void CMapChunk::CreateLiquids(bool firstUse) {
                 LiquidMaterialRec* materialRec = g_liquidMaterialDB.GetRecord(typeRec->m_materialID);
 
                 CChunkLiquid* chunkLiquid = CMap::AllocChunkLiquid();
-                this->m_liquidChunkLinkList.LinkToTail(chunkLiquid);
+                this->liquidsList.LinkToTail(chunkLiquid);
                 chunkLiquid->m_type = type;
                 chunkLiquid->m_owner = this;
                 chunkLiquid->m_vertexFormat = materialRec->m_lvf;
@@ -824,7 +835,7 @@ void CMapChunk::CreateLiquids(bool firstUse) {
     CMapArea* area = static_cast<CMapArea*>(this->m_parentLinkList.Head()->ref);
 
     if (area->m_liquid && area->m_liquid->HasData()) {
-        const SMLiquidChunkDesc* chunkDesc = area->m_liquid->GetChunkDesc(this->m_aIndex.x, this->m_aIndex.y);
+        const SMLiquidChunkDesc* chunkDesc = area->m_liquid->GetChunkDesc(this->aIndex.x, this->aIndex.y);
         this->m_deepBits.SetRawData(const_cast<char*>(reinterpret_cast<const char*>(area->m_liquid->GetDeepTable(chunkDesc))), 64, false);
         this->m_fishableBits.SetRawData(const_cast<char*>(reinterpret_cast<const char*>(area->m_liquid->GetFishableTable(chunkDesc))), 64, false);
 
@@ -832,7 +843,7 @@ void CMapChunk::CreateLiquids(bool firstUse) {
             const SMLiquidInstance* instance = area->m_liquid->GetInstanceDesc(chunkDesc, i);
 
             CChunkLiquid* chunkLiquid = CMap::AllocChunkLiquid();
-            this->m_liquidChunkLinkList.LinkToTail(chunkLiquid);
+            this->liquidsList.LinkToTail(chunkLiquid);
             chunkLiquid->m_owner = this;
             chunkLiquid->m_type = instance->m_liquidType;
             chunkLiquid->m_vertexFormat = instance->m_vertexFormat;
@@ -855,7 +866,7 @@ void CMapChunk::CreateLiquids(bool firstUse) {
         }
     }
 
-    if (!this->m_liquidChunkLinkList.Head()) {
+    if (!this->liquidsList.Head()) {
         this->m_liquidBounds.b = C3Vector(FLT_MAX, FLT_MAX, FLT_MAX);
         this->m_liquidBounds.t = C3Vector(-FLT_MAX, -FLT_MAX, -FLT_MAX);
     } else {
@@ -874,7 +885,7 @@ void CMapChunk::CullAndBucketChunk() {
     float camZ = CWorldScene::s_activeWorldView.z;
     C3Vector corner(CMapChunk::vertexList[index].x + this->m_topLeftCoords.x, CMapChunk::vertexList[index].y + this->m_topLeftCoords.y, this->m_height[index] + this->m_topLeftCoords.z);
 
-    for (CChunkLiquid* liquid = this->m_liquidChunkLinkList.Head(); liquid; liquid = this->m_liquidChunkLinkList.Next(liquid)) {
+    for (CChunkLiquid* liquid = this->liquidsList.Head(); liquid; liquid = this->liquidsList.Next(liquid)) {
         CAaBox box;
         liquid->GetAaBox(box);
 
@@ -888,8 +899,8 @@ void CMapChunk::CullAndBucketChunk() {
 // VERIFY: 555895ad manual
 // OFFSET: 0x007C5C50
 CMapChunk::CMapChunk() {
-    this->m_aIndex.x = 0;
-    this->m_aIndex.y = 0;
+    this->aIndex.x = 0;
+    this->aIndex.y = 0;
     this->m_sOffset.x = 0;
     this->m_sOffset.y = 0;
     this->m_cOffset.x = 0;
@@ -903,7 +914,7 @@ CMapChunk::CMapChunk() {
     this->doodadDefLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
     this->mapObjDefLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
     this->entityLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
-    this->m_lightLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
+    this->lightLinkList.SetLinkOffset(offsetof(CMapBaseObjLink, m_refLink));
     this->m_soundHandleList.SetLinkOffset(0);
     this->m_type |= CMapBaseObj::Type_Chunk;
     this->m_distToCamera = 0.0f;
@@ -953,9 +964,12 @@ void CMapChunk::CreateSoundEmitters(bool firstUse) {
 
 // VERIFY: 80daf949 manual
 // OFFSET: 0x007C6150
-void CMapChunk::CreateRefs(CMapArea* area, uint32_t* mcrfPtr, uint32_t doodadRefs, uint32_t mapObjRefs) {
+void CMapChunk::CreateRefs(CMapArea* area, uint32_t* ref, uint32_t doodadRefs, uint32_t mapObjRefs) {
+    STORM_ASSERT(area);
+    STORM_ASSERT(ref);
+
     C3Vector center(17066.666f, 17066.666f, 0.0f);
-    uint32_t* mapObjRefList = &mcrfPtr[doodadRefs];
+    uint32_t* mapObjRefList = &ref[doodadRefs];
 
     for (uint32_t i = 0; i < mapObjRefs; i++) {
         SMMapObjDef* def = &area->m_mapObjDef[mapObjRefList[i]];
@@ -998,8 +1012,9 @@ void CMapChunk::CreateRefs(CMapArea* area, uint32_t* mcrfPtr, uint32_t doodadRef
     }
 
     for (uint32_t i = 0; i < doodadRefs; i++) {
-        SMDoodadDef* def = &area->m_doodadDef[mcrfPtr[i]];
+        SMDoodadDef* def = &area->m_doodadDef[ref[i]];
         CMapDoodadDef* doodadDef = CMap::CreateDoodadDef(&area->m_m2FileNames[area->m_modelFilenamesOffsets[def->m_nameId]], def, &center);
+        STORM_ASSERT(doodadDef);
         CMapBaseObjLink* link = CMap::AllocBaseObjLink(doodadDef);
         link->ref = this;
         this->doodadDefLinkList.LinkToTail(link);
@@ -1014,8 +1029,11 @@ void CMapChunk::CreateRefs(CMapArea* area, uint32_t* mcrfPtr, uint32_t doodadRef
 
 // VERIFY: 637523f5 manual
 // OFFSET: 0x007C64B0
-void CMapChunk::Create(SIffChunk* headerChunk, bool firstUse) {
-    this->m_chunkInfoBeginPtr = reinterpret_cast<uint8_t*>(headerChunk);
+void CMapChunk::Create(SIffChunk* data, bool firstUse) {
+    STORM_ASSERT(data);
+    STORM_ASSERT(CMap::bActive);
+
+    this->m_chunkInfoBeginPtr = reinterpret_cast<uint8_t*>(data);
     this->ProcessIffChunks(firstUse);
 
     this->m_areaId = this->m_header->m_areaid;
@@ -1036,9 +1054,15 @@ void CMapChunk::Create(SIffChunk* headerChunk, bool firstUse) {
         this->m_flags = MAPOBJ_FLAG_IMPASSABLE;
     }
 
+#if defined(WOWDECOMP_ASSERTIONS)
+    const SMChunk* smChunk = this->m_header;
+    STORM_ASSERT(smChunk->indexX == static_cast<uint32_t>(aIndex.x)); // 12213: "smChunk->indexX == (uint32)aIndex.x"
+    STORM_ASSERT(smChunk->indexY == static_cast<uint32_t>(aIndex.y)); // 12213: "smChunk->indexY == (uint32)aIndex.y"
+#endif
+
     CMapArea* area = static_cast<CMapArea*>(this->m_parentLinkList.Head()->ref);
     this->CreateRefs(area, reinterpret_cast<uint32_t*>(this->m_mcrfPtr), this->m_header->m_nDoodadRefs, this->m_header->m_nMapObjRefs);
-    area->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * this->m_aIndex.y + this->m_aIndex.x] = this;
+    area->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * this->aIndex.y + this->aIndex.x] = this;
     this->m_flags = static_cast<MapObjFlag>(this->m_flags | MAPOBJ_FLAG_PREPARED);
 }
 
@@ -1594,4 +1618,8 @@ void CMapChunk::Intersect(CiRect* rect, const CFrustum* frustum, TSGrowableArray
 // VERIFY: 15f51c4a manual
 // OFFSET: [0x007C5E50, 0x007C6480]
 CMapChunk::~CMapChunk() {
+    STORM_ASSERT(detailDoodadInst == nullptr); // 12213: "detailDoodadInst == __null"
+    STORM_ASSERT(m_refCount == 0);
+    STORM_ASSERT(m_renderChunk == nullptr); // 12213: "m_renderChunk == __null"
+    STORM_ASSERT(liquidsList.Head() == nullptr); // 12213: "liquidsList.Head()==__null"
 }

@@ -74,7 +74,7 @@ class CMapChunk : public CMapBaseObj {
     static void InitializeVertexGrid();
     static bool CanMergeChunkLayers(CMapChunk* chunkA, CMapChunk* chunkB);
 
-    /* 0024 */ C2iVector m_aIndex;
+    /* 0024 */ C2iVector aIndex;
     /* 002C */ C2iVector m_sOffset;
     /* 0034 */ C2iVector m_cOffset;
     /* 003C */ CAaSphere m_sphere;
@@ -92,9 +92,9 @@ class CMapChunk : public CMapBaseObj {
     /* 00C4 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > doodadDefLinkList;
     /* 00D0 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > mapObjDefLinkList;
     /* 00DC */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > entityLinkList;
-    /* 00E8 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > m_lightLinkList;
+    /* 00E8 */ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > lightLinkList;
     /* 00F4 */ TSList<SE2SoundKitObject, TSGetExplicitLink<SE2SoundKitObject> > m_soundHandleList;
-    /* 0100 */ TSExplicitList<CChunkLiquid, offsetof(CChunkLiquid, m_chunkLink)> m_liquidChunkLinkList;
+    /* 0100 */ TSExplicitList<CChunkLiquid, offsetof(CChunkLiquid, m_chunkLink)> liquidsList;
     /* 010C */ uint8_t* m_chunkInfoBeginPtr;
     /* 0110 */ SMChunk* m_header;
     /* 0114 */ uint16_t* m_predTex;
@@ -115,8 +115,8 @@ class CMapChunk : public CMapBaseObj {
 
     CMapChunk();
     ~CMapChunk() override;
-    void Create(SIffChunk* headerChunk, bool firstUse);
-    void CreateRefs(CMapArea* mapChunk, uint32_t* mcrfPtr, uint32_t doodadRefs, uint32_t mapObjRefs);
+    void Create(SIffChunk* data, bool firstUse);
+    void CreateRefs(CMapArea* area, uint32_t* ref, uint32_t doodadRefs, uint32_t mapObjRefs);
     void ProcessIffChunks(bool firstUse);
     void CreateBounds();
     int32_t Intersect(int32_t subX, int32_t subY, const C3Ray& ray, float* t);
@@ -202,7 +202,8 @@ struct SMChunk {
     };
 
     /* 0000 */ uint32_t m_flags; // FLAGS
-    /* 0004 */ C2iVector m_index;
+    /* 0004 */ uint32_t indexX;
+    /* 0008 */ uint32_t indexY;
     /* 000C */ uint32_t m_nLayers;
     /* 0010 */ uint32_t m_nDoodadRefs;
     /* 0014 */ uint32_t m_ofsHeight;
@@ -210,7 +211,7 @@ struct SMChunk {
     /* 001C */ uint32_t m_ofsLayer;
     /* 0020 */ uint32_t m_ofsRefs;
     /* 0024 */ uint32_t m_ofsAlpha;
-    /* 0028 */ uint32_t m_sizeAlpha;
+    /* 0028 */ uint32_t sizeAlpha;
     /* 002C */ uint32_t m_ofsShadow;
     /* 0030 */ uint32_t m_sizeShadow;
     /* 0034 */ uint32_t m_areaid;

@@ -141,7 +141,7 @@ void CMap::LinkLightToChunks(CMapLight* light) {
 
             CMapBaseObjLink* link = CMap::AllocBaseObjLink(light);
             link->ref = chunk;
-            chunk->m_lightLinkList.LinkToTail(link);
+            chunk->lightLinkList.LinkToTail(link);
             chunk->UpdateLights();
         }
     }

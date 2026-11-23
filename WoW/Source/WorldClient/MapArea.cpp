@@ -56,8 +56,8 @@ void CMapArea::Purge() {
     for (CMapBaseObjLink* link = this->chunkLinkList.Head(); link;) {
         CMapChunk* chunk = static_cast<CMapChunk*>(link->owner);
         CMapBaseObjLink* next = this->chunkLinkList.Next(link);
-        this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * chunk->m_aIndex.y + chunk->m_aIndex.x] = nullptr;
-        this->m_chunkInfo[MAP_CHUNKS_PER_AREA_AXIS * chunk->m_aIndex.y + chunk->m_aIndex.x].m_flags = 0;
+        this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * chunk->aIndex.y + chunk->aIndex.x] = nullptr;
+        this->m_chunkInfo[MAP_CHUNKS_PER_AREA_AXIS * chunk->aIndex.y + chunk->aIndex.x].m_flags = 0;
         CMap::FreeBaseObjLink(link);
         chunk->Purge();
         CMap::FreeChunk(chunk);
@@ -231,9 +231,9 @@ CMapChunk* CMapArea::PrepareChunk(int32_t x, int32_t y) {
     link->ref = this;
     this->chunkLinkList.LinkToTail(link);
 
-    chunk->m_aIndex.x = x;
+    chunk->aIndex.x = x;
     chunk->m_flags = MAPOBJ_FLAG_NONE;
-    chunk->m_aIndex.y = y;
+    chunk->aIndex.y = y;
     chunk->m_cOffset.x = x + this->m_tileChunkIndex.x;
     chunk->m_cOffset.y = y + this->m_tileChunkIndex.y;
     chunk->m_sOffset.x = 8 * (x + this->m_tileChunkIndex.x);
@@ -269,7 +269,7 @@ void CMapArea::Update(int32_t addToScene, CiRect* chunkRect) {
                 CMapChunk* chunk = this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * localY + localX];
 
                 if (chunk) {
-                    this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * chunk->m_aIndex.y + chunk->m_aIndex.x] = nullptr;
+                    this->m_mapChunks[MAP_CHUNKS_PER_AREA_AXIS * chunk->aIndex.y + chunk->aIndex.x] = nullptr;
                     CMap::FreeBaseObjLink(chunk->m_parentLinkList.Head());
                     CMapArea::PurgeChunk(chunk);
                 }
@@ -490,7 +490,7 @@ void CMapArea::QueryLiquidSounds(C3Vector* pos, float radius, TSGrowableArray<Wo
                 continue;
             }
 
-            for (CChunkLiquid* liquid = chunk->m_liquidChunkLinkList.Head(); liquid; liquid = chunk->m_liquidChunkLinkList.Next(liquid)) {
+            for (CChunkLiquid* liquid = chunk->liquidsList.Head(); liquid; liquid = chunk->liquidsList.Next(liquid)) {
                 float height = (liquid->m_height.m_h + liquid->m_height.m_l) * 0.5f;
                 LiquidChunkAndDistance* entry = chunks.New();
                 entry->m_chunk = chunk;
