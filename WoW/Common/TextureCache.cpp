@@ -10,6 +10,23 @@
 #include "Engine/Source/Services/Types.h"
 #include "Engine/Source/Storm/H/storm.h"
 
+class CACHEENTRY : public TSHashObject<CACHEENTRY, HASHKEY_NONE> {
+    public:
+    /* 0018 */ CAsyncObject* m_asyncObject;
+    /* 001C */ TCTEXTUREINFO m_info;
+    /* 0024 */ char m_fileName [128];
+    /* 00A4 */ int32_t m_refCount;
+    /* 00A8 */ uint32_t m_memHandle;
+    /* 00AC */ BLPHeader* m_data;
+    /* 00B0 */ uint32_t m_size : 20;
+    /* 00B0 */ uint32_t m_loadFailed : 1;
+    /* 00B0 */ uint32_t m_unused : 11;
+
+    CACHEENTRY();
+    ~CACHEENTRY();
+    int32_t LoadTexture();
+};
+
 // STATIC: 0x00B6BA48
 static HASHKEY_NONE s_cacheKey;
 
@@ -65,11 +82,13 @@ int32_t CACHEENTRY::LoadTexture() {
     }
 
     this->m_asyncObject = AsyncFileReadAllocObject();
+    STORM_ASSERT(m_asyncObject);
     this->m_asyncObject->userArg = this;
     this->m_asyncObject->userPostloadCallback = &LoadSuccessCallback;
     this->m_asyncObject->file = file;
     this->m_asyncObject->size = SFileGetFileSize(file, nullptr);
     this->m_asyncObject->priority = 130;
+    STORM_ASSERT(m_asyncObject->size < (1 << 19));
     this->m_size = this->m_asyncObject->size;
     this->m_data = static_cast<BLPHeader*>(SMemAlloc(this->m_size, __FILE__, __LINE__, 0));
     this->m_asyncObject->buffer = this->m_data;
@@ -152,6 +171,11 @@ void TextureCacheComputeLoadProgress(HTEXTURECACHE handle, int64_t& local, int64
 // VERIFY: 89bf2f8e manual
 // OFFSET: 0x004F2E20
 void TextureCacheDestroy() {
+#if defined(WOWDECOMP_ASSERTIONS)
+    const CACHEENTRY* entry = s_cacheTable.m_fulllist.Head();
+    STORM_ASSERT(!entry);
+#endif
+
     delete s_entryHeap;
     s_entryHeap = nullptr;
 }
@@ -236,6 +260,7 @@ CACHEENTRY::CACHEENTRY() {
 static CACHEENTRY* TextureCacheAllocEntry() {
     if (!s_entryHeap) {
         s_entryHeap = new (__FILE__, __LINE__) uint32_t(ObjectAllocAddHeap(sizeof(CACHEENTRY), 1024, "TCACHEENTRY", true));
+        STORM_ASSERT(s_entryHeap);
     }
 
     uint32_t memHandle;
@@ -281,7 +306,8 @@ HTEXTURECACHE TextureCacheCreateTexture(const char* fileName) {
 
     entry = TextureCacheAllocEntry();
     s_cacheTable.Insert(entry, hashval, s_cacheKey);
-    SStrCopy(entry->m_fileName, fileName, sizeof(entry->m_fileName));
+    size_t nCopied = SStrCopy(entry->m_fileName, fileName, sizeof(entry->m_fileName));
+    STORM_ASSERT(nCopied < 128 - 1);
     entry->m_refCount++;
 
     return entry;
