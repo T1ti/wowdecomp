@@ -12,6 +12,7 @@
 //
 //   WowEdit64.exe (Tools/WowEditApp)    the client executable plus WowEditAppMain.cpp, which calls
 //                                       WowEditAppEnable before main; the plain client never enables the app.
+//   WowEditWorldView                    the world drawn without the game, the free camera, map loading.
 //   CWowEditApp (this file)             attaches the editor to the Gx window: OsGui setup, the window procedure
 //                                       hook, the menu bar, the palettes. The Gx window is the main window, as
 //                                       OsGui expects (OSGUI_WINDOW_TYPE_GX); the 3D view is the game's world frame.
@@ -30,9 +31,11 @@
 //   - OsInputGet already passes every message to OsGuiProcessMessage (menu hotkeys, dialog keyboard navigation).
 //   - Menu commands arrive as WM_COMMAND through OsGuiWindowProc and the OsGui menu command callback.
 //
-// The editor still runs inside a logged-in game session (log in, enter the world, edit); loading a map without a
-// server is a separate step. Run it windowed (Video options, or "gxWindow 1"): a fullscreen device covers the menu
-// bar.
+// The client runs as a tool (WoW/Source/ClientTool.h): WowEditAppEnable reads WowEdit.ini (WowEditSettings.h: the
+// game folder, the start map and position) and hands the client its tool description, so no login screen, network,
+// interface or game objects are started; the editor draws the world itself around a free camera
+// (WowEditWorldView.h), with WoWEdit's view toggles (WowEditViewToggles.h) and a map list (WowEditMapDialog.h).
+// The editor keeps its own cvars, a windowed device by default: a fullscreen device would cover the menu bar.
 
 #ifdef WOWDECOMP_TOOL_FEATURES
 

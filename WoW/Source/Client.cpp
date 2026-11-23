@@ -63,6 +63,9 @@
 #include "WoW/Source/Glue/CGlueMgr.h"
 #include "WoW/Source/Glue/GlueMgr.h"
 #include "WoW/Source/Hardware.h"
+#ifdef WOWDECOMP_TOOL_FEATURES
+#include "WoW/Source/ClientTool.h"
+#endif
 #include "WoW/Source/LoadingScreen.h"
 #include "WoW/Source/Magic/MagicClient/Spell_C.h"
 #include "WoW/Source/Magic/MagicClient/SpellVisuals.h"
@@ -326,6 +329,19 @@ volatile long s_additionalCheckArmed;
 // STATIC: 0x00B2FA1C
 static C3Vector s_spawnPosition;
 
+#ifdef WOWDECOMP_TOOL_FEATURES
+// Tool features: the tool this run is (ClientTool.h), or nullptr for the game.
+static const CLIENT_TOOL* s_tool;
+
+void ClientSetTool(const CLIENT_TOOL* tool) {
+    s_tool = tool;
+}
+
+bool ClientIsTool() {
+    return s_tool != nullptr;
+}
+#endif
+
 // STATIC: 0x00B2FE50
 template <>
 CommandManager* StaticSingleton<CommandManager>::m_instance = nullptr;
@@ -582,6 +598,13 @@ void SetPaths() {
 
     const char* path = CmdLineGetString(CMD_DATA_DIR);
     char buffer[260];
+
+#ifdef WOWDECOMP_TOOL_FEATURES
+    // Tool features: the tool's game folder (ClientTool.h).
+    if (!*path && s_tool && s_tool->m_basePath && *s_tool->m_basePath) {
+        path = s_tool->m_basePath;
+    }
+#endif
 
     if (!*path) {
         OsGetExePath(buffer, sizeof(buffer));
@@ -1006,7 +1029,37 @@ static int32_t Packet_SMSG_LOGIN_VERIFY_WORLD(void* param, NETMESSAGE msgId, uin
 
 // VERIFY: 2ecb4537 auto
 // OFFSET: 0x00404130
+#ifdef WOWDECOMP_TOOL_FEATURES
+// Tool features: InitializeClient for a tool (ClientTool.h): the databases, the world and sound, without the glue
+// screens, the realm connection, the interface (FrameXML, addons) or the game objects.
+static void InitializeToolClient() {
+    EventRegister(EVENT_ID_UPDATE, EnableCallback);
+    SysMsgInitialize();
+    WowSysMessageOutput::Initialize();
+    ClientRegisterConsoleCommands();
+    ClientDBInitialize();
+    FrameScript_Initialize(0);
+    SI2::Init(0);
+    CWorldParam::Initialize();
+    CWorld::Initialize();
+    ShadowInit();
+    GxuLightInitialize();
+    GxuLightSetGridSize(16.665f);
+
+    if (s_tool->m_initialize) {
+        s_tool->m_initialize();
+    }
+}
+#endif
+
 static void InitializeClient() {
+#ifdef WOWDECOMP_TOOL_FEATURES
+    if (s_tool) {
+        InitializeToolClient();
+        return;
+    }
+#endif
+
     EventRegister(EVENT_ID_UPDATE, EnableCallback);
     SysMsgInitialize();
     WowSysMessageOutput::Initialize();
@@ -1635,10 +1688,28 @@ void ClientDestroyGame(int32_t charSelect, int32_t resumeGlue, int32_t worldLogi
 // OFFSET: 0x004066D0
 int32_t DestroyEngineCallback(const void* data, void* param) {
     RemoveConsoleDeviceDefaultCallback(SetDefaults);
-    ClientDestroyGame(0, 0, 0);
-    WowClientDestroy();
-    ClientServices::ClearMessageHandler(SMSG_TUTORIAL_FLAGS);
-    ClientServices::Destroy();
+
+#ifdef WOWDECOMP_TOOL_FEATURES
+    // Tool features: only what InitializeToolClient made.
+    if (s_tool) {
+        if (s_tool->m_shutdown) {
+            s_tool->m_shutdown();
+        }
+
+        SI2::ShutDown(0);
+        FrameScript_Destroy();
+        WowSysMessageOutput::Shutdown();
+        ClientDBShutdown();
+        SysMsgShutdown();
+    } else
+#endif
+    {
+        ClientDestroyGame(0, 0, 0);
+        WowClientDestroy();
+        ClientServices::ClearMessageHandler(SMSG_TUTORIAL_FLAGS);
+        ClientServices::Destroy();
+    }
+
     ShadowDestroy();
     CWorld::Destroy();
     ConsoleScreenDestroy();
@@ -1693,7 +1764,12 @@ bool InitializeGlobal() {
 
     ClientServices::LoadCDKey();
     ConsoleInitializeClientCommand();
+#ifdef WOWDECOMP_TOOL_FEATURES
+    // Tool features: the tool's own cvar file (ClientTool.h).
+    CVar::Initialize(s_tool && s_tool->m_configFile ? s_tool->m_configFile : "Config.wtf");
+#else
     CVar::Initialize("Config.wtf");
+#endif
     CVar::ArchiveCodeRegisteredOnly();
 
     {

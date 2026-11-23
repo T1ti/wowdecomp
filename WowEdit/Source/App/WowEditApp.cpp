@@ -6,9 +6,14 @@
 #include "Engine/Source/Event/Types.h"
 #include "Engine/Source/Os/Gui.h"
 #include "Engine/Source/Os/Input.h"
+#include "Engine/Source/Tempest/C3Vector.h"
+#include "WoW/Source/ClientTool.h"
 #include "WowEdit/Source/App/WowEditCommands.h"
 #include "WowEdit/Source/App/WowEditModule.h"
+#include "WowEdit/Source/App/WowEditSettings.h"
 #include "WowEdit/Source/App/WowEditUndo.h"
+#include "WowEdit/Source/App/WowEditViewToggles.h"
+#include "WowEdit/Source/App/WowEditWorldView.h"
 
 // See WowEditApp.h.
 
@@ -24,8 +29,42 @@ struct WowEditAppMenus {
     COsMenu* menus[WOWEDITMENU_LAST];
 };
 
+// The client runs as a tool (WoW/Source/ClientTool.h): the editor's world view instead of the game.
+static void InitializeWorld() {
+    const WowEditSettings& settings = WowEditGetSettings();
+    WowEditWorldInitialize();
+    WowEditViewTogglesInitialize();
+
+    C3Vector start(settings.m_start[0], settings.m_start[1], settings.m_start[2]);
+
+    if (!WowEditWorldLoadMap(settings.m_mapId, settings.m_hasStart ? &start : nullptr) && settings.m_mapId != 0) {
+        WowEditWorldLoadMap(0, nullptr);
+    }
+}
+
+static void ShutdownWorld() {
+    // The next run starts where this one ended.
+    if (WowEditWorldGetMapId() >= 0) {
+        float position[3];
+        WowEditWorldGetCameraPosition(position);
+        WowEditSaveStart(WowEditWorldGetMapId(), position);
+    }
+
+    WowEditWorldShutdown();
+}
+
+static CLIENT_TOOL s_clientTool;
+
 void WowEditAppEnable() {
     s_enabled = true;
+
+    // Before the client starts: the game folder comes from WowEdit.ini.
+    WowEditLoadSettings();
+    s_clientTool.m_basePath = WowEditGetSettings().m_basePath;
+    s_clientTool.m_configFile = WOWEDIT_CONFIG_FILE;
+    s_clientTool.m_initialize = InitializeWorld;
+    s_clientTool.m_shutdown = ShutdownWorld;
+    ClientSetTool(&s_clientTool);
 }
 
 bool WowEditAppEnabled() {

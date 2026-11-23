@@ -11,7 +11,13 @@ else ()
     set(WOWEDITAPP_OUTPUT_NAME WowEdit32)
 endif ()
 
-add_executable(WowEditApp WIN32 ${CLIENT_SOURCES} ${CLIENT_PLATFORM_SOURCES} WowEditAppMain.cpp)
+# The crash logger of WowClient (console window and a crash log next to the executable), when it is on.
+set(WOWEDITAPP_TOOL_SOURCES "")
+if (WOWCLIENT_CRASH_LOG)
+    list(APPEND WOWEDITAPP_TOOL_SOURCES ${CMAKE_SOURCE_DIR}/Tools/WowClient/crash_log.cpp)
+endif ()
+
+add_executable(WowEditApp WIN32 ${CLIENT_SOURCES} ${CLIENT_PLATFORM_SOURCES} ${WOWEDITAPP_TOOL_SOURCES} WowEditAppMain.cpp)
 
 set_target_properties(WowEditApp PROPERTIES
     OUTPUT_NAME ${WOWEDITAPP_OUTPUT_NAME}
@@ -28,7 +34,7 @@ target_include_directories(WowEditApp
         ${CMAKE_SOURCE_DIR}
 )
 
-target_link_options(WowEditApp PRIVATE "/INCREMENTAL:NO" "/ENTRY:start")
+target_link_options(WowEditApp PRIVATE "/INCREMENTAL:NO" "/ENTRY:start" "/MAP")
 
 # The same libraries as WowClient (WowEdit among them).
 get_target_property(WOWCLIENT_LIBRARIES WowClient LINK_LIBRARIES)

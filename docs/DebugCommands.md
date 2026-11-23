@@ -127,7 +127,13 @@ The editor library at the repository root (`WowEdit/Source/WowEdit.h`). The terr
 
 ### Editor application (`WowEdit64.exe`)
 
-The tool build also makes `WowEdit64.exe` (`Tools/WowEditApp`): the client run as the editor, its window chrome built with OsGui, the engine's tool interface layer (`WowEdit/Source/App/WowEditApp.h`). Like the client, it must sit in the game folder. It adds to the game window a menu bar (File, Edit, View, Tools, Window, Help) and a floating Tool Palette, and titles the window "World of Warcraft Editor". The View menu toggles the grid, slopes, area and marker overlays above; Tools > Terrain Brush (Ctrl+B) and the palette's checkbox and sliders drive `wowEditBrush`. Undo and Redo (Ctrl+Z, Ctrl+Y) stay greyed until a tool edits map data. You still log in and enter the world as in the game. Run it windowed: a fullscreen device covers the menu bar.
+The tool build also makes `WowEdit64.exe` (`Tools/WowEditApp`, `WowEdit/Source/App/WowEditApp.h`). It is the client engine run as a tool (`WoW/Source/ClientTool.h`): no login screen, no network, no player or game objects. It renders the world around a free camera, and its window chrome is built with OsGui, the engine's tool interface layer.
+
+- **Settings:** `WowEdit.ini` next to the exe, written with defaults on the first run. `DataPath` is the game's `Data` folder (or the folder holding it; empty means the exe's folder). `MapId` and `StartX/Y/Z` set the map and camera position at start, and are saved on exit. The editor keeps its own cvars in `WTF\WowEdit.wtf` in the game folder (a 1600x900 window by default), apart from the game's `Config.wtf`.
+- **Camera:** hold the right mouse button to look, W/A/S/D (or the arrow keys) to move, E/Q up and down, Shift for four times the speed, mouse wheel to change the speed.
+- **Maps:** File > Open Map lists Map.dbc. Map 0 starts at Northshire; other maps start over the middle of their terrain, dropped onto the ground once it loads.
+- **View:** the View menu and the floating View palette hold toggles named after WoWEdit's bottom toolbar (wowdev.wiki/WoWEdit): Game View (match in-game view), Grid, Area IDs, Impassable, Terrain, Shadows, Fog, Doodads, Detail Doodads, WMOs, Water, Sky, Particulates, Wireframe, Normals, Collision (debug build) and Markers. The View menu also sets the time of day (dawn, noon, dusk, midnight).
+- **Tools:** Tools > Terrain Brush (Ctrl+B) and the Tool Palette drive `wowEditBrush`. Undo and Redo (Ctrl+Z, Ctrl+Y) stay greyed until a tool edits map data.
 
 ## Lua functions (`WoW/Source/Ui/GameUI_Scripts.cpp`, DEBUG)
 
