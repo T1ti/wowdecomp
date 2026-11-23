@@ -545,8 +545,8 @@ void CGLookingForGroup::ClearPartyInfo() {
 static int QSortLFGParty(const void* a, const void* b) {
     LFGListParty* partyA = *static_cast<LFGListParty* const*>(a);
     LFGListParty* partyB = *static_cast<LFGListParty* const*>(b);
-    LFGListPlayer* leaderA = partyA->m_members.m_count ? partyA->m_members.m_data[0] : nullptr;
-    LFGListPlayer* leaderB = partyB->m_members.m_count ? partyB->m_members.m_data[0] : nullptr;
+    LFGListPlayer* leaderA = partyA->GetLeader();
+    LFGListPlayer* leaderB = partyB->GetLeader();
 
     if (!leaderA) {
         return leaderB ? -1 : 0;

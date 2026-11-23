@@ -214,8 +214,14 @@ class CGLookingForGroup {
     static uint32_t m_lastProposalID;
     static uint32_t m_randomDungeonBestChoice;
     static TSFixedArray<uint32_t> m_randomDungeons;
+    private:
     static TSFixedArray<CGLookingForGroup::LFGEntryInfo> m_lfdEntries;
     static TSFixedArray<CGLookingForGroup::LFGEntryInfo> m_lfrEntries;
+    public:
+    static uint32_t GetLFDChoiceCount() { return m_lfdEntries.Count(); } // (inferred)
+    static uint32_t GetLFRChoiceCount() { return m_lfrEntries.Count(); } // (inferred)
+    static const LFGEntryInfo& GetLFDChoice(uint32_t index) { return m_lfdEntries[index]; } // (inferred)
+    static const LFGEntryInfo& GetLFRChoice(uint32_t index) { return m_lfrEntries[index]; } // (inferred)
     static LFGLIST m_searchResults;
     static LFGLIST m_prevSearchResults;
     static LFGProposal m_proposal;

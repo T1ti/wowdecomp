@@ -7,29 +7,33 @@
 // OFFSET: 0x005534E0
 void LFGLIST::Reindex() {
     for (uint32_t i = 0; i < this->m_playerList.Count(); i++) {
-        this->m_playerList.m_data[i]->m_index = i;
+        STORM_ASSERT(m_playerList[i]->indexPlayer >= 0);
+        this->m_playerList.m_data[i]->indexPlayer = i;
     }
 
     for (uint32_t i = 0; i < this->m_partyList.Count(); i++) {
-        this->m_partyList.m_data[i]->m_index = i;
+        STORM_ASSERT(m_partyList[i]->indexParty >= 0);
+        this->m_partyList.m_data[i]->indexParty = i;
     }
 }
 
 // VERIFY: f92b1a5a manual
 // OFFSET: 0x00556F90
 void LFGLIST::RemovePlayer(LFGListPlayer* player) {
-    int32_t index = player->m_index;
+    int32_t index = player->indexPlayer;
 
     if (index >= 0) {
         uint32_t count = this->m_playerList.Count();
+        STORM_ASSERT(static_cast<uint32_t>(player->indexPlayer) < count); // 12213: "player->indexPlayer < count"
+        STORM_ASSERT(player == m_playerList[player->indexPlayer]);
 
         for (; static_cast<uint32_t>(index) < count - 1; index++) {
             this->m_playerList.m_data[index] = this->m_playerList.m_data[index + 1];
-            this->m_playerList.m_data[index]->m_index = index;
+            this->m_playerList.m_data[index]->indexPlayer = index;
         }
 
         this->m_playerList.SetCount(count - 1);
-        player->m_index = -1;
+        player->indexPlayer = -1;
     }
 
     if (player->m_party) {
@@ -40,28 +44,30 @@ void LFGLIST::RemovePlayer(LFGListPlayer* player) {
 // VERIFY: bd6a3fa4 manual
 // OFFSET: 0x00557030
 void LFGLIST::RemoveParty(LFGListParty* party) {
-    int32_t index = party->m_index;
+    int32_t index = party->indexParty;
 
     if (index < 0) {
         return;
     }
 
     uint32_t count = this->m_partyList.Count();
+    STORM_ASSERT(static_cast<uint32_t>(party->indexParty) < count); // 12213: "party->indexParty < count"
+    STORM_ASSERT(party == m_partyList[party->indexParty]);
 
     for (; static_cast<uint32_t>(index) < count - 1; index++) {
         this->m_partyList.m_data[index] = this->m_partyList.m_data[index + 1];
-        this->m_partyList.m_data[index]->m_index = index;
+        this->m_partyList.m_data[index]->indexParty = index;
     }
 
     this->m_partyList.SetCount(count - 1);
-    party->m_index = -1;
+    party->indexParty = -1;
 }
 
 // VERIFY: f402cb87 manual
 // OFFSET: 0x005589D0
 void LFGLIST::DeleteParty(LFGListParty* party) {
-    for (int32_t i = party->m_members.Count() - 1; i >= 0; i--) {
-        LFGListPlayer* player = party->m_members.m_data[i];
+    for (int32_t i = party->playerList.Count() - 1; i >= 0; i--) {
+        LFGListPlayer* player = party->playerList.m_data[i];
         this->RemovePlayer(player);
         delete player;
     }
@@ -118,45 +124,44 @@ LFGLIST::~LFGLIST() {
 
 // VERIFY: dc50019e manual
 // OFFSET: 0x0055B1A0
-bool LFGLIST::Copy(LFGLIST& source) {
-    this->Clear();
-    this->m_lfgID = source.m_lfgID;
-    this->m_time = source.m_time;
-    this->m_totalPlayers = source.m_totalPlayers;
-    this->m_totalParties = source.m_totalParties;
-    this->unused_0010 = source.unused_0010;
-    this->m_pendingNames = source.m_pendingNames;
+bool LFGLIST::Copy(const LFGLIST& otherList) {
+    STORM_ASSERT(&otherList != this);
 
-    for (LFGListPlayer* player = source.m_players.m_fulllist.Head(); player; player = source.m_players.m_fulllist.Next(player)) {
+    this->Clear();
+    this->m_lfgID = otherList.m_lfgID;
+    this->m_time = otherList.m_time;
+    this->m_totalPlayers = otherList.m_totalPlayers;
+    this->m_totalParties = otherList.m_totalParties;
+    this->unused_0010 = otherList.unused_0010;
+    this->m_pendingNames = otherList.m_pendingNames;
+
+    for (LFGListPlayer* player = otherList.m_players.m_fulllist.Head(); player; player = otherList.m_players.m_fulllist.Next(player)) {
         uint64_t guid = player->m_key.m_guid.m_guid;
         LFGListPlayer* copy = new (__FILE__, __LINE__) LFGListPlayer(*player);
-        copy->m_index = -1;
-        copy->m_partyIndex = -1;
+        copy->indexPlayer = -1;
+        copy->indexParty = -1;
         copy->m_party = nullptr;
         this->m_players.Insert(copy, static_cast<uint32_t>(guid), CHashKeyGUID(guid));
     }
 
-    for (uint32_t i = 0; i < source.m_playerList.Count(); i++) {
-        uint64_t guid = source.m_playerList.m_data[i]->m_key.m_guid.m_guid;
+    for (uint32_t i = 0; i < otherList.m_playerList.Count(); i++) {
+        uint64_t guid = otherList.m_playerList.m_data[i]->m_key.m_guid.m_guid;
         LFGListPlayer* player = this->m_players.Ptr(static_cast<uint32_t>(guid), CHashKeyGUID(guid));
 
         if (player->m_party) {
             player->m_party->AddPlayer(player);
-        } else if (player->m_index < 0) {
-            uint32_t count = this->m_playerList.Count();
-            this->m_playerList.SetCount(count + 1);
-            this->m_playerList.m_data[count] = player;
-            player->m_index = count;
+        } else if (player->indexPlayer < 0) {
+            this->AddPlayer(player);
         }
     }
 
-    for (LFGListParty* party = source.m_parties.m_fulllist.Head(); party; party = source.m_parties.m_fulllist.Next(party)) {
+    for (LFGListParty* party = otherList.m_parties.m_fulllist.Head(); party; party = otherList.m_parties.m_fulllist.Next(party)) {
         uint64_t guid = party->m_key.m_guid.m_guid;
         LFGListParty* copy = new (__FILE__, __LINE__) LFGListParty(*party);
-        copy->m_index = -1;
+        copy->indexParty = -1;
 
-        for (uint32_t j = 0; j < party->m_members.Count(); j++) {
-            uint64_t memberGuid = party->m_members.m_data[j]->m_key.m_guid.m_guid;
+        for (uint32_t j = 0; j < party->playerList.Count(); j++) {
+            uint64_t memberGuid = party->playerList.m_data[j]->m_key.m_guid.m_guid;
             LFGListPlayer* player = this->m_players.Ptr(static_cast<uint32_t>(memberGuid), CHashKeyGUID(memberGuid));
             player->m_party = copy;
             copy->AddPlayer(player);
@@ -165,15 +170,12 @@ bool LFGLIST::Copy(LFGLIST& source) {
         this->m_parties.Insert(copy, static_cast<uint32_t>(guid), CHashKeyGUID(guid));
     }
 
-    for (uint32_t i = 0; i < source.m_partyList.Count(); i++) {
-        uint64_t guid = source.m_partyList.m_data[i]->m_key.m_guid.m_guid;
+    for (uint32_t i = 0; i < otherList.m_partyList.Count(); i++) {
+        uint64_t guid = otherList.m_partyList.m_data[i]->m_key.m_guid.m_guid;
         LFGListParty* party = this->m_parties.Ptr(static_cast<uint32_t>(guid), CHashKeyGUID(guid));
 
-        if (party->m_index < 0) {
-            uint32_t count = this->m_partyList.Count();
-            this->m_partyList.SetCount(count + 1);
-            this->m_partyList.m_data[count] = party;
-            party->m_index = count;
+        if (party->indexParty < 0) {
+            this->AddParty(party);
         }
     }
 

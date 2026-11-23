@@ -203,18 +203,22 @@ static int32_t Script_GetRandomDungeonBestChoice(lua_State* L) {
 // VERIFY: 98c59818 manual
 // OFFSET: 0x00554E60
 static void PushLFDChoiceInfo(lua_State* L, int32_t id) {
+    STORM_ASSERT(lua_istable(L, -1)); // 12213: "(lua_type(L, (-1)) == 5)"
+
     if (id < 0) {
-        LfgDungeonGroupRec* group = g_lfgDungeonGroupDB.GetRecord(-id);
+        LfgDungeonGroupRec* rec = g_lfgDungeonGroupDB.GetRecord(-id);
+        STORM_ASSERT(rec);
         lua_pushnumber(L, 1.0);
-        lua_pushstring(L, group->m_name);
+        lua_pushstring(L, rec->m_name);
         lua_settable(L, -3);
         lua_pushnumber(L, 2.0);
-        lua_pushnumber(L, group->m_typeID);
+        lua_pushnumber(L, rec->m_typeID);
         lua_settable(L, -3);
         return;
     }
 
     LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(id);
+    STORM_ASSERT(rec);
     LfgDungeonExpansionRec* expansion = GetLfgDungeonExpansionRec(rec->m_id, ClientServices::Connection()->m_accountExpansion);
     MapDifficultyRec* difficulty = GetMapDifficultyEntryByMapIdAndDifficulty(rec->m_mapID, rec->m_difficulty, nullptr);
     lua_pushnumber(L, 1.0);
@@ -292,25 +296,28 @@ static int32_t Script_GetLFDChoiceInfo(lua_State* L) {
         lua_createtable(L, 0, 0);
     }
 
-    uint32_t count = CGLookingForGroup::m_lfdEntries.Count();
+    uint32_t count = CGLookingForGroup::GetLFDChoiceCount();
 
     for (uint32_t i = 0; i < count; i++) {
-        if (i < CGLookingForGroup::m_lfdEntries.Count()) {
-            lua_pushnumber(L, CGLookingForGroup::m_lfdEntries.m_data[i].m_id);
+        if (i < CGLookingForGroup::GetLFDChoiceCount()) {
+            lua_pushnumber(L, CGLookingForGroup::GetLFDChoice(i).m_id);
             lua_createtable(L, 0, 0);
-            PushLFDChoiceInfo(L, CGLookingForGroup::m_lfdEntries.m_data[i].m_id);
+            PushLFDChoiceInfo(L, CGLookingForGroup::GetLFDChoice(i).m_id);
             lua_settable(L, -3);
+        } else {
+            STORM_ASSERT(!"This shouldn't happen...");
         }
     }
 
-    count = CGLookingForGroup::m_lfrEntries.Count();
+    count = CGLookingForGroup::GetLFRChoiceCount();
 
     for (uint32_t i = 0; i < count; i++) {
-        if (i >= CGLookingForGroup::m_lfrEntries.Count()) {
+        if (i >= CGLookingForGroup::GetLFRChoiceCount()) {
+            STORM_ASSERT(!"This shouldn't happen...");
             continue;
         }
 
-        double id = CGLookingForGroup::m_lfrEntries.m_data[i].m_id;
+        double id = CGLookingForGroup::GetLFRChoice(i).m_id;
         lua_pushnumber(L, id);
         lua_gettable(L, -2);
 
@@ -320,7 +327,7 @@ static int32_t Script_GetLFDChoiceInfo(lua_State* L) {
             lua_settop(L, -2);
             lua_pushnumber(L, id);
             lua_createtable(L, 0, 0);
-            PushLFDChoiceInfo(L, CGLookingForGroup::m_lfrEntries.m_data[i].m_id);
+            PushLFDChoiceInfo(L, CGLookingForGroup::GetLFRChoice(i).m_id);
             lua_settable(L, -3);
         }
     }
@@ -367,7 +374,7 @@ static int32_t Script_SearchLFGGetNumResults(lua_State* L) {
     double numPlayers;
 
     if (CGLookingForGroup::m_searchResults.m_lfgID) {
-        lua_pushnumber(L, CGLookingForGroup::m_searchResults.m_playerList.m_count + CGLookingForGroup::m_searchResults.m_partyList.m_count);
+        lua_pushnumber(L, CGLookingForGroup::m_searchResults.GetPlayerCount() + CGLookingForGroup::m_searchResults.GetPartyCount());
         numPlayers = CGLookingForGroup::m_searchResults.m_totalParties + CGLookingForGroup::m_searchResults.m_totalPlayers;
     } else {
         lua_pushnumber(L, 0.0);
@@ -402,15 +409,17 @@ static int32_t Script_GetLFDChoiceOrder(lua_State* L) {
         lua_createtable(L, 0, 0);
     }
 
-    uint32_t count = CGLookingForGroup::m_lfdEntries.Count();
+    uint32_t count = CGLookingForGroup::GetLFDChoiceCount();
     uint32_t key = 1;
 
     for (uint32_t i = 0; i < count; i++) {
-        if (i < CGLookingForGroup::m_lfdEntries.Count()) {
-            CGLookingForGroup::LFGEntryInfo entry = CGLookingForGroup::m_lfdEntries.m_data[i];
+        if (i < CGLookingForGroup::GetLFDChoiceCount()) {
+            const const CGLookingForGroup::LFGEntryInfo entry = CGLookingForGroup::GetLFDChoice(i);
             lua_pushnumber(L, key++);
             lua_pushnumber(L, entry.m_id);
             lua_settable(L, -3);
+        } else {
+            STORM_ASSERT(!"This shouldn't happen...");
         }
     }
 
@@ -441,15 +450,17 @@ static int32_t Script_GetLFRChoiceOrder(lua_State* L) {
         lua_createtable(L, 0, 0);
     }
 
-    uint32_t count = CGLookingForGroup::m_lfrEntries.Count();
+    uint32_t count = CGLookingForGroup::GetLFRChoiceCount();
     uint32_t key = 1;
 
     for (uint32_t i = 0; i < count; i++) {
-        if (i < CGLookingForGroup::m_lfrEntries.Count()) {
-            CGLookingForGroup::LFGEntryInfo entry = CGLookingForGroup::m_lfrEntries.m_data[i];
+        if (i < CGLookingForGroup::GetLFRChoiceCount()) {
+            const const CGLookingForGroup::LFGEntryInfo entry = CGLookingForGroup::GetLFRChoice(i);
             lua_pushnumber(L, key++);
             lua_pushnumber(L, entry.m_id);
             lua_settable(L, -3);
+        } else {
+            STORM_ASSERT(!"This shouldn't happen...");
         }
     }
 
@@ -1100,17 +1111,19 @@ static int32_t Script_GetLFDChoiceCollapseState(lua_State* L) {
     }
 
     uint32_t count;
-    count = CGLookingForGroup::m_lfdEntries.Count();
+    count = CGLookingForGroup::GetLFDChoiceCount();
 
     for (uint32_t i = 0; i < count; i++) {
-        if (i >= CGLookingForGroup::m_lfdEntries.Count()) {
+        if (i >= CGLookingForGroup::GetLFDChoiceCount()) {
+            STORM_ASSERT(!"This shouldn't happen...");
             continue;
         }
 
-        CGLookingForGroup::LFGEntryInfo entry = CGLookingForGroup::m_lfdEntries.m_data[i];
+        const const CGLookingForGroup::LFGEntryInfo entry = CGLookingForGroup::GetLFDChoice(i);
 
         if (entry.m_id >= 0) {
             LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(entry.m_id);
+            STORM_ASSERT(rec);
             lua_pushnumber(L, entry.m_id);
             uint32_t header = rec->m_groupID;
             bool collapsed = false;
@@ -1136,17 +1149,19 @@ static int32_t Script_GetLFDChoiceCollapseState(lua_State* L) {
         lua_settable(L, -3);
     }
 
-    count = CGLookingForGroup::m_lfrEntries.Count();
+    count = CGLookingForGroup::GetLFRChoiceCount();
 
     for (uint32_t i = 0; i < count; i++) {
-        if (i >= CGLookingForGroup::m_lfrEntries.Count()) {
+        if (i >= CGLookingForGroup::GetLFRChoiceCount()) {
+            STORM_ASSERT(!"This shouldn't happen...");
             continue;
         }
 
-        CGLookingForGroup::LFGEntryInfo entry = CGLookingForGroup::m_lfrEntries.m_data[i];
+        const const CGLookingForGroup::LFGEntryInfo entry = CGLookingForGroup::GetLFRChoice(i);
 
         if (entry.m_id >= 0) {
             LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecord(entry.m_id);
+            STORM_ASSERT(rec);
             lua_pushnumber(L, entry.m_id);
             uint32_t header = rec->m_groupID;
             bool collapsed = false;
@@ -1200,14 +1215,15 @@ static int32_t Script_GetLFDChoiceEnabledState(lua_State* L) {
     }
 
     uint32_t count;
-    count = CGLookingForGroup::m_lfdEntries.Count();
+    count = CGLookingForGroup::GetLFDChoiceCount();
 
     for (uint32_t i = 0; i < count; i++) {
-        if (i >= CGLookingForGroup::m_lfdEntries.Count()) {
+        if (i >= CGLookingForGroup::GetLFDChoiceCount()) {
+            STORM_ASSERT(!"This shouldn't happen...");
             continue;
         }
 
-        CGLookingForGroup::LFGEntryInfo entry = CGLookingForGroup::m_lfdEntries.m_data[i];
+        const const CGLookingForGroup::LFGEntryInfo entry = CGLookingForGroup::GetLFDChoice(i);
 
         if (entry.m_id <= 0 || !s_cvLfdSelectedDungeons) {
             continue;
@@ -1222,14 +1238,15 @@ static int32_t Script_GetLFDChoiceEnabledState(lua_State* L) {
         }
     }
 
-    count = CGLookingForGroup::m_lfrEntries.Count();
+    count = CGLookingForGroup::GetLFRChoiceCount();
 
     for (uint32_t i = 0; i < count; i++) {
-        if (i >= CGLookingForGroup::m_lfrEntries.Count()) {
+        if (i >= CGLookingForGroup::GetLFRChoiceCount()) {
+            STORM_ASSERT(!"This shouldn't happen...");
             continue;
         }
 
-        CGLookingForGroup::LFGEntryInfo entry = CGLookingForGroup::m_lfrEntries.m_data[i];
+        const const CGLookingForGroup::LFGEntryInfo entry = CGLookingForGroup::GetLFRChoice(i);
 
         if (entry.m_id <= 0 || !s_cvLfdSelectedDungeons) {
             continue;
@@ -1476,35 +1493,35 @@ static bool GetLFGInfoByIndex(uint32_t index, LFGListParty** party, LFGListPlaye
     LFGLIST* list = &CGLookingForGroup::m_searchResults;
 
     if (CGLookingForGroup::m_listPlayersFirst) {
-        if (index < list->m_playerList.m_count) {
+        if (index < list->GetPlayerCount()) {
             *party = nullptr;
-            *player = list->m_playerList.m_data[index];
+            *player = list->GetPlayer(index);
             return true;
         }
 
-        if (index - list->m_playerList.m_count < list->m_partyList.m_count) {
-            LFGListParty* entry = list->m_partyList.m_data[index - list->m_playerList.m_count];
+        if (index - list->GetPlayerCount() < list->GetPartyCount()) {
+            LFGListParty* entry = list->GetParty(index - list->GetPlayerCount());
             *party = entry;
-            *player = entry && entry->m_members.m_count ? entry->m_members.m_data[0] : nullptr;
+            *player = entry ? entry->GetLeader() : nullptr;
             return true;
         }
 
         return false;
     }
 
-    if (index >= list->m_partyList.m_count) {
-        if (index - list->m_partyList.m_count < list->m_playerList.m_count) {
+    if (index >= list->GetPartyCount()) {
+        if (index - list->GetPartyCount() < list->GetPlayerCount()) {
             *party = nullptr;
-            *player = list->m_playerList.m_data[index - list->m_partyList.m_count];
+            *player = list->GetPlayer(index - list->GetPartyCount());
             return true;
         }
 
         return false;
     }
 
-    LFGListParty* entry = list->m_partyList.m_data[index];
+    LFGListParty* entry = list->GetParty(index);
     *party = entry;
-    *player = entry && entry->m_members.m_count ? entry->m_members.m_data[0] : nullptr;
+    *player = entry ? entry->GetLeader() : nullptr;
     return true;
 }
 

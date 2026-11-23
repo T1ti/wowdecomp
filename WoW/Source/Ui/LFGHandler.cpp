@@ -89,11 +89,8 @@ void LFGHandler::ReadPlayerInfo(CDataStore* msg, LFGLIST* list, LFGListPlayer* p
 
             if (party) {
                 party->AddPlayer(player);
-            } else if (player->m_index < 0) {
-                uint32_t count = list->m_playerList.Count();
-                list->m_playerList.SetCount(count + 1);
-                list->m_playerList.m_data[count] = player;
-                player->m_index = count;
+            } else if (player->indexPlayer < 0) {
+                list->AddPlayer(player);
             }
         }
     }

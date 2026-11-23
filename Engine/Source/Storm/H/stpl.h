@@ -27,7 +27,7 @@ class TSLink {
     TSLink();
     ~TSLink();
     int32_t IsLinked();
-    T* Next();
+    T* Next() const;
     TSLink<T>* NextLink(ptrdiff_t linkoffset);
     T* Prev();
     T* RawNext();
@@ -61,7 +61,7 @@ class TSList {
     void Clear();
     void Combine(TSList<T, TGetLink>* list, uint32_t linktype, T* existingptr);
     T* DeleteNode(T* ptr);
-    T* Head();
+    T* Head() const;
     void InitializeTerminator();
     int32_t IsEmpty();
     int32_t IsLinked(T* ptr);
@@ -70,7 +70,7 @@ class TSList {
     void LinkToHead(T* ptr);
     void LinkToTail(T* ptr);
     T* NewNode(uint32_t location, size_t extrabytes, uint32_t flags);
-    T* Next(T* ptr);
+    T* Next(T* ptr) const;
     T* Prev(T* ptr);
     T* RawNext(T* ptr);
     void SetLinkOffset(ptrdiff_t linkoffset);
@@ -355,7 +355,7 @@ int32_t TSLink<T>::IsLinked() {
 
 // INLINED
 template <class T>
-T* TSLink<T>::Next() {
+T* TSLink<T>::Next() const {
     return (reinterpret_cast<uintptr_t>(this->m_next) & 1) ? nullptr : this->m_next;
 }
 
@@ -473,7 +473,7 @@ T* TSList<T, TGetLink>::DeleteNode(T* ptr) {
 // VERIFY: 1639e241 manual
 // OFFSET: 0x006D7BA0
 template <class T, class TGetLink>
-T* TSList<T, TGetLink>::Head() {
+T* TSList<T, TGetLink>::Head() const {
     return this->m_terminator.Next();
 }
 
@@ -555,8 +555,9 @@ T* TSList<T, TGetLink>::NewNode(uint32_t location, size_t extrabytes, uint32_t f
 
 // INLINED
 template <class T, class TGetLink>
-T* TSList<T, TGetLink>::Next(T* ptr) {
-    return this->Link(ptr)->Next();
+T* TSList<T, TGetLink>::Next(T* ptr) const {
+    const TSLink<T>* link = ptr ? TGetLink::Link(ptr, this->m_linkoffset) : &this->m_terminator;
+    return link->Next();
 }
 
 // INLINED

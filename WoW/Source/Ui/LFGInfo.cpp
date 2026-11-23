@@ -1736,11 +1736,8 @@ int32_t Packet_SMSG_LFG_SEARCH_RESULTS(void* param, NETMESSAGE msgId, uint32_t t
 
         LFGHandler::ReadGroupInfo(msg, party);
 
-        if (party->m_index < 0) {
-            uint32_t index = list->m_partyList.Count();
-            list->m_partyList.SetCount(index + 1);
-            list->m_partyList.m_data[index] = party;
-            party->m_index = index;
+        if (party->indexParty < 0) {
+            list->AddParty(party);
         }
     }
 
@@ -1765,11 +1762,8 @@ int32_t Packet_SMSG_LFG_SEARCH_RESULTS(void* param, NETMESSAGE msgId, uint32_t t
 
         if (player->m_party) {
             player->m_party->AddPlayer(player);
-        } else if (player->m_index < 0) {
-            uint32_t index = list->m_playerList.Count();
-            list->m_playerList.SetCount(index + 1);
-            list->m_playerList.m_data[index] = player;
-            player->m_index = index;
+        } else if (player->indexPlayer < 0) {
+            list->AddPlayer(player);
         }
     }
 

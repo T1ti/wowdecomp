@@ -12,8 +12,8 @@ class LFGListParty;
 
 class LFGListPlayer : public TSHashObject<LFGListPlayer, CHashKeyGUID> {
     public:
-    /* 0020 */ int32_t m_index;
-    /* 0024 */ int32_t m_partyIndex;
+    /* 0020 */ int32_t indexPlayer;
+    /* 0024 */ int32_t indexParty;
     /* 0028 */ LFGListParty* m_party;
     /* 002C */ uint8_t m_level;
     /* 002D */ uint8_t m_class;
@@ -47,7 +47,7 @@ class LFGListPlayer : public TSHashObject<LFGListPlayer, CHashKeyGUID> {
     /* 0198 */ uint64_t unk_0198;
     /* 01A0 */ uint32_t m_encounterMask;
 
-    LFGListPlayer() : m_index(-1), m_partyIndex(-1), m_party(nullptr), m_leader(0) {
+    LFGListPlayer() : indexPlayer(-1), indexParty(-1), m_party(nullptr), m_leader(0) {
     }
 
     LFGListPlayer(const LFGListPlayer& source);
@@ -55,21 +55,22 @@ class LFGListPlayer : public TSHashObject<LFGListPlayer, CHashKeyGUID> {
 
 class LFGListParty : public TSHashObject<LFGListParty, CHashKeyGUID> {
     public:
-    /* 0020 */ int32_t m_index;
+    /* 0020 */ int32_t indexParty;
     /* 0024 */ char m_comment[256];
     /* 0124 */ uint8_t m_roles[3]; // Counts for tank, healer, and damage roles.
     /* 0128 */ uint64_t unk_0128;
     /* 0130 */ uint32_t m_encounterMask;
-    /* 0134 */ TSGrowableArray<LFGListPlayer*> m_members;
+    /* 0134 */ TSGrowableArray<LFGListPlayer*> playerList;
 
-    LFGListParty() : m_index(-1) {
+    LFGListParty() : indexParty(-1) {
     }
 
     LFGListParty(const LFGListParty& source);
     void AddPlayer(LFGListPlayer* player);
     void RemovePlayer(LFGListPlayer* player);
-    LFGListPlayer* GetMember(uint32_t index);
-    uint32_t GetNumMembers();
+    LFGListPlayer* GetMember(uint32_t index) const;
+    uint32_t GetNumMembers() const;
+    LFGListPlayer* GetLeader() const { return this->playerList.Count() ? this->playerList.m_data[0] : nullptr; } // (inferred)
 };
 
 #endif
