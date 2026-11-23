@@ -734,8 +734,8 @@ void VBBList::Block::Set(uint32_t itemSize, uint32_t itemCount, uint32_t offset)
         index = itemSize - remainder + offset;
     }
 
-    this->buf->m_index = index;
-    g_theGxDevicePtr->BufSizeSet(this->buf, itemSize, itemCount - 1);
+    GxBufBaseSet(this->buf, index);
+    GxBufSizeSet(this->buf, itemSize, itemCount - 1);
     this->buf->m_hasData = 0;
 }
 
@@ -1455,7 +1455,7 @@ void VBBList::AllocVBB(VBBList::Block** slot, uint32_t itemSize, uint32_t itemCo
     uint32_t size = itemSize * (itemCount + 1);
     nbb->bufPool = g_theGxDevicePtr->PoolCreate(this->m_target, this->m_usage, size + 4096, GxPoolHintBit_Unk3, name);
     STORM_ASSERT(nbb->bufPool != NULL);
-    nbb->buf = g_theGxDevicePtr->BufCreate(nbb->bufPool, itemSize, itemCount, 0);
+    nbb->buf = GxBufCreate(nbb->bufPool, itemSize, itemCount, 0);
     STORM_ASSERT(nbb->buf != NULL);
     nbb->m_offset = 0;
     nbb->m_capacity = size;

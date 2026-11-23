@@ -290,7 +290,7 @@ void GxBufUnlock(CGxBuf* buf, uint32_t size) {
 // VERIFY: 13b86081 manual
 // OFFSET: 0x00482A40
 void GxDraw(CGxBatch* batch, int32_t count) {
-    STORM_ASSERT(batch->m_count > 0);
+    STORM_ASSERT(batch->m_count > 0); // 12213: "batch.m_count > 0"
     g_theGxDevicePtr->Draw(batch, count);
 }
 
@@ -947,7 +947,7 @@ void GxFormatColor(CImVector& color) {
 // VERIFY: 25db0bac manual
 // OFFSET: 0x0057E4F0
 void GxRenderTargetSet(EGxBuffer buffer, CGxTex* texture, uint32_t plane) {
-    STORM_ASSERT(texture ? texture->m_flags.m_renderTarget : 1);
+    STORM_ASSERT((texture ? texture->m_flags.m_renderTarget : 1));
     GxRsSet(GxRs_ScissorTest, 0);
     g_theGxDevicePtr->DeviceSetRenderTarget(buffer, texture, plane);
 }
@@ -955,7 +955,7 @@ void GxRenderTargetSet(EGxBuffer buffer, CGxTex* texture, uint32_t plane) {
 // INLINED
 void GxLightSet(uint32_t whichLight, const CGxLight& lightInfo, const C3Vector& pos, BOOL enable) {
     STORM_ASSERT(whichLight < 4);
-    STORM_ASSERT(lightInfo.m_flags & CGxLight::F_ENABLED);
+    STORM_ASSERT(lightInfo.m_flags & CGxLight::F_ENABLED); // 12213: "lightInfo.m_isEnabled"
     g_theGxDevicePtr->LightSet(whichLight, lightInfo, pos);
     g_theGxDevicePtr->LightEnable(whichLight, enable);
 }

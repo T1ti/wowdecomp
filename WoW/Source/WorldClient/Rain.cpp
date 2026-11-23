@@ -599,7 +599,7 @@ void Rain::RenderDropPacketsSW() {
             batch.m_count = vertexCount;
             batch.m_minIndex = 0;
             batch.m_maxIndex = 0;
-            g_theGxDevicePtr->Draw(&batch, 0);
+            GxDraw(&batch, 0);
         }
     }
 

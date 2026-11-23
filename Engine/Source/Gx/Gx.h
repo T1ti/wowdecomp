@@ -5,7 +5,8 @@
 #include <cstdint>
 #include <windows.h>
 #include "Engine/Source/Gx/CGxBuf.h"
-#include "Engine/Source/Gx/CGxDevice/Types.h"
+#include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
+#include "Engine/Source/Gx/CGxPool.h"
 #include "Engine/Source/Gx/Types.h"
 #include "Engine/Source/Gx/CGxTex.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -82,6 +83,37 @@ inline bool GxBufValid(const CGxBuf* buf) {
 inline CGxPool* GxBufPool(const CGxBuf* buf) {
     STORM_ASSERT(buf);
     return buf->m_pool;
+}
+
+// INLINED
+inline uint32_t GxPoolSize(const CGxPool* pool) {
+    STORM_ASSERT(pool);
+    return static_cast<uint32_t>(pool->m_size);
+}
+
+// INLINED
+inline CGxBuf* GxBufCreate(CGxPool* pool, uint32_t itemSize, uint32_t itemCount, uint32_t base) {
+    STORM_ASSERT(pool);
+    STORM_ASSERT(itemSize * itemCount);
+    STORM_ASSERT(itemSize * itemCount <= (32 * 1024 * 1024));
+    STORM_ASSERT(itemSize * itemCount <= GxPoolSize(pool));
+    return g_theGxDevicePtr->BufCreate(pool, itemSize, itemCount, base);
+}
+
+// INLINED
+inline void GxBufSizeSet(CGxBuf* buf, uint32_t itemSize, uint32_t itemCount) {
+    STORM_ASSERT(buf);
+    STORM_ASSERT(itemSize * itemCount);
+    STORM_ASSERT(itemSize * itemCount <= (32 * 1024 * 1024));
+    STORM_ASSERT(itemSize * itemCount <= GxPoolSize(GxBufPool(buf)));
+    g_theGxDevicePtr->BufSizeSet(buf, itemSize, itemCount);
+}
+
+// INLINED
+inline void GxBufBaseSet(CGxBuf* buf, uint32_t base) { // (inferred)
+    STORM_ASSERT(buf);
+    STORM_ASSERT(base < 0x7FFFFFFF);
+    buf->m_index = base;
 }
 
 void GxRenderTargetSet(EGxBuffer buffer, CGxTex* texture, uint32_t plane);
