@@ -132,6 +132,10 @@ struct SIffChunk {
         TOKEN_MCSH = 0x4D435348, // 'MCSH'
         TOKEN_MCVP = 0x4D435650, // 'MCVP'
         TOKEN_MCVT = 0x4D435654, // 'MCVT'
+        TOKEN_MVER = 0x4D564552, // 'MVER'
+        TOKEN_MPHD = 0x4D504844, // 'MPHD'
+        TOKEN_MAIN = 0x4D41494E, // 'MAIN'
+        TOKEN_MODF = 0x4D4F4446, // 'MODF'
         TOKEN_MWMO = 0x4D574D4F, // 'MWMO'
     };
 

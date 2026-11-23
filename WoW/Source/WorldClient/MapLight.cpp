@@ -167,7 +167,7 @@ void CMap::LinkLightToMapObjDefs(CMapLight* light) {
                 for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
                     CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->owner);
 
-                    if (!(group->m_flags & MAPOBJ_FLAG_INTERIOR) && light->m_bbox.Intersects(group->m_bbox)) {
+                    if (!(group->m_flags & MAPOBJ_FLAG_INTERIOR) && light->m_bbox.Intersects(group->aaBox)) {
                         CMapBaseObjLink* lightLink = CMap::AllocBaseObjLink(light);
                         lightLink->ref = group;
                         group->lightLinkList.LinkToTail(lightLink);

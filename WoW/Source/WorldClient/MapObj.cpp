@@ -2654,7 +2654,7 @@ void CMapObjDef::CullMapObjDefGroupFromExterior(CMapObjDefGroup* mapObjDefGroup,
 
     uint32_t groupFlags = this->mapObj->GetGroupFlags(mapObjDefGroup->groupNum);
 
-    if (!CWorldScene::FrustumCull(&mapObjDefGroup->m_bbox) && (skipOcclusion || !CWorldOcclusion::QueryBuffer(&mapObjDefGroup->m_bbox, CWorldOcclusion::QUERY_FLAG_UNKNOWN_1))) {
+    if (!CWorldScene::FrustumCull(&mapObjDefGroup->aaBox) && (skipOcclusion || !CWorldOcclusion::QueryBuffer(&mapObjDefGroup->aaBox, CWorldOcclusion::QUERY_FLAG_UNKNOWN_1))) {
         if (groupFlags & CMapObjGroup::MOGP_FLAGS::F_ALWAYS_DRAW) {
             this->mapObj->InvokeRenderCallback(mapObjDefGroup->groupNum);
             CWorldScene::FrustumPop();
@@ -2677,6 +2677,11 @@ void CMapObjDef::CullMapObjDefGroupFromExterior(CMapObjDefGroup* mapObjDefGroup,
 // VERIFY: 7164266f manual
 // OFFSET: 0x007BF740
 void CMapObj::CreateRefs(CMapObj* mapObj, CMapObjGroup* mapObjGroup, CMapObjDef* mapObjDef, CMapObjDefGroup* mapObjDefGroup) {
+    STORM_ASSERT(mapObj);
+    STORM_ASSERT(mapObjGroup);
+    STORM_ASSERT(mapObjDef);
+    STORM_ASSERT(mapObjDefGroup);
+
     for (uint32_t i = 0; i < static_cast<uint32_t>(mapObjGroup->m_doodadRefListCount); i++) {
         uint16_t doodadRef = mapObjGroup->m_doodadRefList[i];
         int32_t doodadSet = mapObj->GetDoodadSet(doodadRef);
@@ -2702,9 +2707,10 @@ void CMapObj::CreateRefs(CMapObj* mapObj, CMapObjGroup* mapObjGroup, CMapObjDef*
             }
         }
 
-        SMODoodadDef* doodadDef = &mapObj->m_doodadDefList[doodadRef];
-        CMapDoodadDef* mapDoodadDef = CMap::CreateDoodadDef(doodadRef, doodadDef, &mapObj->m_doodadNameList[doodadDef->m_flags & SMODoodadDef::NAME_INDEX_MASK], mapObjDef->m_hashval + 1, &mapObjDef->m_mat, static_cast<uint16_t>(overrideSet));
-        CMapBaseObjLink* link = CMap::AllocBaseObjLink(mapDoodadDef);
+        SMODoodadDef* def = &mapObj->m_doodadDefList[doodadRef];
+        CMapDoodadDef* doodadDef = CMap::CreateDoodadDef(doodadRef, def, &mapObj->m_doodadNameList[def->m_flags & SMODoodadDef::NAME_INDEX_MASK], mapObjDef->m_hashval + 1, &mapObjDef->m_mat, static_cast<uint16_t>(overrideSet));
+        STORM_ASSERT(doodadDef);
+        CMapBaseObjLink* link = CMap::AllocBaseObjLink(doodadDef);
         link->ref = mapObjDefGroup;
 
         if (overrideSet) {
@@ -2713,11 +2719,11 @@ void CMapObj::CreateRefs(CMapObj* mapObj, CMapObjGroup* mapObjGroup, CMapObjDef*
             mapObjDefGroup->doodadDefLinkList.LinkToTail(link);
         }
 
-        if (!(mapObjDefGroup->m_flags & MAPOBJ_FLAG_INTERIOR) || (mapDoodadDef->m_flags & MAPOBJ_FLAG_EXTERIOR)) {
-            mapDoodadDef->m_diffuseLightScale = 1.0f;
-            mapDoodadDef->m_flags = static_cast<MapObjFlag>((mapDoodadDef->m_flags & ~MAPOBJ_FLAG_INTERIOR) | MAPOBJ_FLAG_EXTERIOR);
+        if (!(mapObjDefGroup->m_flags & MAPOBJ_FLAG_INTERIOR) || (doodadDef->m_flags & MAPOBJ_FLAG_EXTERIOR)) {
+            doodadDef->m_diffuseLightScale = 1.0f;
+            doodadDef->m_flags = static_cast<MapObjFlag>((doodadDef->m_flags & ~MAPOBJ_FLAG_INTERIOR) | MAPOBJ_FLAG_EXTERIOR);
         } else {
-            mapDoodadDef->m_flags = static_cast<MapObjFlag>(mapDoodadDef->m_flags | MAPOBJ_FLAG_INTERIOR);
+            doodadDef->m_flags = static_cast<MapObjFlag>(doodadDef->m_flags | MAPOBJ_FLAG_INTERIOR);
         }
     }
 

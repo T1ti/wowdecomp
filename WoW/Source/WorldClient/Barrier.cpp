@@ -256,7 +256,7 @@ void CBarrier::AddBarrierMapObjDefGroup(CMapObjDefGroup* mapObjDefGroup, float r
         return;
     }
 
-    if (radius < NTempest::Distance(mapObjDefGroup->m_bbox, this->m_viewerPos)) {
+    if (radius < NTempest::Distance(mapObjDefGroup->aaBox, this->m_viewerPos)) {
         return;
     }
 
@@ -266,7 +266,7 @@ void CBarrier::AddBarrierMapObjDefGroup(CMapObjDefGroup* mapObjDefGroup, float r
         }
     }
 
-    this->AddBarrier(mapObjDefGroup->m_bbox, radius);
+    this->AddBarrier(mapObjDefGroup->aaBox, radius);
     this->m_groups.Add(1, &mapObjDefGroup);
 }
 

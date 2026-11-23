@@ -681,11 +681,11 @@ void CShadowQuery::QueryMapObjDefsBand(CShadowCacheQueryData& data, int32_t band
                 continue;
             }
 
-            if (!extents.Intersects(defGroup->m_bbox) || !data.m_bandFrustums[band].Cull(defGroup->m_bbox)) {
+            if (!extents.Intersects(defGroup->aaBox) || !data.m_bandFrustums[band].Cull(defGroup->aaBox)) {
                 continue;
             }
 
-            if (data.m_useCullFrustum[band] && data.m_cullFrustums[band].CullInv(defGroup->m_bbox) == WorldCull_notOutside) {
+            if (data.m_useCullFrustum[band] && data.m_cullFrustums[band].CullInv(defGroup->aaBox) == WorldCull_notOutside) {
                 continue;
             }
 
@@ -754,12 +754,12 @@ void CShadowQuery::QueryMapObjDefs(CShadowCacheQueryData& data, int32_t firstBan
                 continue;
             }
 
-            if (!lastExtents.Intersects(defGroup->m_bbox) || !lastFrustum.Cull(defGroup->m_bbox)) {
+            if (!lastExtents.Intersects(defGroup->aaBox) || !lastFrustum.Cull(defGroup->aaBox)) {
                 continue;
             }
 
             for (int32_t band = firstBand; band <= lastBand; band++) {
-                if (data.m_extents[band].Intersects(defGroup->m_bbox) && data.m_bandFrustums[band].Cull(defGroup->m_bbox) && (!data.m_useCullFrustum[band] || data.m_cullFrustums[band].CullInv(defGroup->m_bbox) != WorldCull_notOutside)) {
+                if (data.m_extents[band].Intersects(defGroup->aaBox) && data.m_bandFrustums[band].Cull(defGroup->aaBox) && (!data.m_useCullFrustum[band] || data.m_cullFrustums[band].CullInv(defGroup->aaBox) != WorldCull_notOutside)) {
                     ShadowQueryBuffers& buffers = CShadowQuery::s_bandBuffers[band];
 
                     if (buffers.m_groupCount >= 0x800) {

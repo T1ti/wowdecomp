@@ -27,7 +27,7 @@ class CMapObjDefGroup : public CMapBaseObj {
     public:
     void Update(const C44Matrix& matrix);
     void SetSequence(uint32_t sequence, int32_t unknown3, uint16_t doodadSet);
-    /* 0024 */ CAaBox m_bbox;
+    /* 0024 */ CAaBox aaBox;
     /* 003C */ CAaSphere m_sphere;
     /* 004C */ float m_distanceToCamera;
     /* 0050 */ uint32_t groupNum;

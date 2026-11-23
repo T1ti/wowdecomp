@@ -306,7 +306,7 @@ void CMapObjDef::UpdateMoved(CMapObjDef* mapObjDef) {
         owner->GetGroupBounds(&defGroup->m_sphere, defGroup->groupNum);
         defGroup->m_sphere.c *= mapObjDef->m_mat;
         owner->GetGroupBounds(&groupBox, defGroup->groupNum);
-        CWorldMath::TransformAABox(mapObjDef->m_mat, groupBox, defGroup->m_bbox);
+        CWorldMath::TransformAABox(mapObjDef->m_mat, groupBox, defGroup->aaBox);
         defGroup->Update(mapObjDef->m_mat);
     }
 }
@@ -323,7 +323,7 @@ void CMapObjDef::LinkDoodadDef(CMapDoodadDef* doodadDef, CMapObjDef* mapObjDef, 
             continue;
         }
 
-        if (testBounds && !doodadDef->m_bbox.Intersects(group->m_bbox)) {
+        if (testBounds && !doodadDef->m_bbox.Intersects(group->aaBox)) {
             continue;
         }
 

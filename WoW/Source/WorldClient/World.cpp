@@ -2284,7 +2284,7 @@ void CWorldScene::AddMapObjDefGroup(CMapObjDef* mapObjDef, CMapObjDefGroup* mapO
     }
 
     C3Vector nearest(0.0f, 0.0f, 0.0f);
-    CWorldScene::GetNearestCornerToCamera(&mapObjDefGroup->m_bbox, &nearest);
+    CWorldScene::GetNearestCornerToCamera(&mapObjDefGroup->aaBox, &nearest);
     mapObjDefGroup->m_distanceToCamera = CWorldScene::camPlane.n.x * nearest.x + CWorldScene::camPlane.n.y * nearest.y + CWorldScene::camPlane.n.z * nearest.z + CWorldScene::camPlane.d;
 
     float dist = nearest.y * CWorldScene::camPlaneXY.n.y + nearest.z * CWorldScene::camPlaneXY.n.z + nearest.x * CWorldScene::camPlaneXY.n.x + CWorldScene::camPlaneXY.d;
@@ -2310,9 +2310,9 @@ void CWorldScene::ComputeExteriorSortDistances() {
         CMapObjDefGroup* next = CWorldScene::sortTable.moveableMapObjDefGroupList.Next(group);
         group->tableLink.Unlink();
 
-        float x = CWorldScene::camTarget.x >= CWorldScene::s_activeWorldView.x ? group->m_bbox.b.x : group->m_bbox.t.x;
-        float y = CWorldScene::camTarget.y >= CWorldScene::s_activeWorldView.y ? group->m_bbox.b.y : group->m_bbox.t.y;
-        float z = CWorldScene::camTarget.z >= CWorldScene::s_activeWorldView.z ? group->m_bbox.b.z : group->m_bbox.t.z;
+        float x = CWorldScene::camTarget.x >= CWorldScene::s_activeWorldView.x ? group->aaBox.b.x : group->aaBox.t.x;
+        float y = CWorldScene::camTarget.y >= CWorldScene::s_activeWorldView.y ? group->aaBox.b.y : group->aaBox.t.y;
+        float z = CWorldScene::camTarget.z >= CWorldScene::s_activeWorldView.z ? group->aaBox.b.z : group->aaBox.t.z;
         int32_t bucket = 0;
         group->m_distanceToCamera = CWorldScene::camPlane.n.z * z + CWorldScene::camPlane.n.y * y + CWorldScene::camPlane.n.x * x + CWorldScene::camPlane.d;
 
@@ -3939,7 +3939,7 @@ void CWorldScene::AddMapObjDefGroupToSortTable(uint32_t groupNum, void* param) {
         }
 
         C3Vector nearest(0.0f, 0.0f, 0.0f);
-        CWorldScene::GetNearestCornerToCamera(&mapObjDefGroup->m_bbox, &nearest);
+        CWorldScene::GetNearestCornerToCamera(&mapObjDefGroup->aaBox, &nearest);
         mapObjDefGroup->m_distanceToCamera = CWorldScene::camPlane.n.z * nearest.z + CWorldScene::camPlane.n.y * nearest.y + CWorldScene::camPlane.n.x * nearest.x + CWorldScene::camPlane.d;
 
         if (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_LIT) {
@@ -4195,8 +4195,8 @@ void CWorldScene::CullThroughPortal(CRect* rect) {
         bool overlaps = false;
 
         for (CMapObjDefGroup* visible = CWorldScene::sortTable.visMapObjDefGroupList.Head(); visible; visible = CWorldScene::sortTable.visMapObjDefGroupList.Next(visible)) {
-            const CAaBox& a = visible->m_bbox;
-            const CAaBox& b = group->m_bbox;
+            const CAaBox& a = visible->aaBox;
+            const CAaBox& b = group->aaBox;
 
             if (a.Intersects(b)) {
                 overlaps = true;
@@ -4204,7 +4204,7 @@ void CWorldScene::CullThroughPortal(CRect* rect) {
             }
         }
 
-        if ((overlaps || CWorldScene::frustumPortalView.m_maxViewDepth >= 0.0f) && CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(group->m_bbox)) {
+        if ((overlaps || CWorldScene::frustumPortalView.m_maxViewDepth >= 0.0f) && CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(group->aaBox)) {
             def->CullMapObjDefGroupFromExterior(group, rect, 1);
 
             uint16_t fadeLevel = CWorldView::GetFadeLevelForDistance(group->m_distanceToCamera);
@@ -4234,7 +4234,7 @@ void CWorldScene::CullMapObjDefGroups(CSortEntry* sortEntry, CRect* rect, uint32
 
         CMapObjDef* mapObjDef = static_cast<CMapObjDef*>(group->m_parentLinkList.Head()->ref);
 
-        if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(group->m_bbox) && !CWorldOcclusion::QueryVolumes(&group->m_sphere) && !CWorldOcclusion::QueryBuffer(&group->m_bbox, CWorldOcclusion::QUERY_FLAG_NONE)) {
+        if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(group->aaBox) && !CWorldOcclusion::QueryVolumes(&group->m_sphere) && !CWorldOcclusion::QueryBuffer(&group->aaBox, CWorldOcclusion::QUERY_FLAG_NONE)) {
             mapObjDef->CullMapObjDefGroupFromExterior(group, rect, 0);
             CWorldScene::AddDoodadDefs(&group->doodadDefLinkList, index);
         }

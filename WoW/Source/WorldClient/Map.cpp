@@ -1838,7 +1838,7 @@ uint32_t CMap::ComputeMapObjLoadProgress(CMapChunk* chunk, float* progress, uint
         for (CMapBaseObjLink* groupLink = mapObjDef->groupLinkList.Head(); groupLink; groupLink = mapObjDef->groupLinkList.Next(groupLink)) {
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(groupLink->owner);
 
-            if (box.t.x < defGroup->m_bbox.b.x || box.t.y < defGroup->m_bbox.b.y || box.t.z < defGroup->m_bbox.b.z || box.b.x > defGroup->m_bbox.t.x || box.b.y > defGroup->m_bbox.t.y || box.b.z > defGroup->m_bbox.t.z) {
+            if (box.t.x < defGroup->aaBox.b.x || box.t.y < defGroup->aaBox.b.y || box.t.z < defGroup->aaBox.b.z || box.b.x > defGroup->aaBox.t.x || box.b.y > defGroup->aaBox.t.y || box.b.z > defGroup->aaBox.t.z) {
                 continue;
             }
 
@@ -2237,7 +2237,7 @@ void CMap::PrepareMapObjDefs(bool addToScene) {
         for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(link->owner);
             CMapObjGroup* group = mapObj->GetGroup(defGroup->groupNum, 1);
-            CAaBox& box = defGroup->m_bbox;
+            CAaBox& box = defGroup->aaBox;
 
             if (CWorld::s_objectAreaOfInterest.b.x <= box.t.x && CWorld::s_objectAreaOfInterest.b.y <= box.t.y && CWorld::s_objectAreaOfInterest.b.z <= box.t.z && CWorld::s_objectAreaOfInterest.t.x >= box.b.x && CWorld::s_objectAreaOfInterest.t.y >= box.b.y && CWorld::s_objectAreaOfInterest.t.z >= box.b.z) {
                 if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
@@ -2496,6 +2496,7 @@ void CMap::LoadTex() {
     char fileName[256];
     SStrCopy(fileName, CMap::wdtFilename, STORM_MAX_STR);
     char* ext = strrchr(fileName, '.');
+    STORM_ASSERT(ext);
     SStrCopy(ext, ".tex", STORM_MAX_STR);
     TextureLoadBlob(fileName);
 }
@@ -2568,98 +2569,111 @@ void CMapObj::InitDefGroup(CMapObj* mapObj, CMapObjGroup* mapObjGroup, CMapObjDe
 // VERIFY: 5b940caf manual
 // OFFSET: 0x007BDE50
 void CMap::CreateMapObjDefGroups(CMapObj* mapObj, CMapObjDef* mapObjDef) {
+    STORM_ASSERT(mapObj);
+    STORM_ASSERT(mapObjDef);
+
     mapObjDef->m_defGroups.SetCount(mapObj->m_groupInfoCount);
 
     for (int32_t i = 0; i < mapObj->m_groupInfoCount; i++) {
-        CMapObjDefGroup* group = CMap::AllocMapObjDefGroup();
-        CMapBaseObjLink* link = CMap::AllocBaseObjLink(group);
+        CMapObjDefGroup* mapObjDefGroup = CMap::AllocMapObjDefGroup();
+        CMapBaseObjLink* link = CMap::AllocBaseObjLink(mapObjDefGroup);
         link->ref = mapObjDef;
         mapObjDef->groupLinkList.LinkToTail(link);
-        mapObjDef->m_defGroups[i] = group;
+        mapObjDef->m_defGroups[i] = mapObjDefGroup;
 
         CAaBox box;
-        mapObj->GetGroupBounds(&group->m_sphere, i);
-        group->m_sphere.c *= mapObjDef->m_mat;
+        mapObj->GetGroupBounds(&mapObjDefGroup->m_sphere, i);
+        mapObjDefGroup->m_sphere.c *= mapObjDef->m_mat;
         mapObj->GetGroupBounds(&box, i);
-        CWorldMath::TransformAABox(mapObjDef->m_mat, box, group->m_bbox);
+        CWorldMath::TransformAABox(mapObjDef->m_mat, box, mapObjDefGroup->aaBox);
 
-        group->groupNum = i;
-        group->m_ambientColor = mapObjDef->m_argbColor;
-        group->m_flags = MAPOBJ_FLAG_NONE;
-        group->m_flags = static_cast<MapObjFlag>(group->m_flags | ((mapObj->GetGroupFlags(i) & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK) ? MAPOBJ_FLAG_EXTERIOR : MAPOBJ_FLAG_INTERIOR));
+        STORM_ASSERT(mapObjDefGroup->aaBox.b != mapObjDefGroup->aaBox.t);
+
+        mapObjDefGroup->groupNum = i;
+        mapObjDefGroup->m_ambientColor = mapObjDef->m_argbColor;
+        mapObjDefGroup->m_flags = MAPOBJ_FLAG_NONE;
+        mapObjDefGroup->m_flags = static_cast<MapObjFlag>(mapObjDefGroup->m_flags | ((mapObj->GetGroupFlags(i) & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK) ? MAPOBJ_FLAG_EXTERIOR : MAPOBJ_FLAG_INTERIOR));
     }
 }
 
 // VERIFY: a7bf14e1 manual
 // OFFSET: 0x007BECD0
-CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, SMDoodadDef* doodadDef, C3Vector* center) {
+CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, SMDoodadDef* def, C3Vector* center) {
+    STORM_ASSERT(bActive);
+
     HASHKEY_DWORD key = { 0 };
-    CMapDoodadDef* mapDoodadDef = CMap::doodadDefHash.Ptr(doodadDef->m_uniqueId, key);
+    CMapDoodadDef* doodadDef = CMap::doodadDefHash.Ptr(def->m_uniqueId, key);
 
-    if (mapDoodadDef) {
-        return mapDoodadDef;
+    if (doodadDef) {
+        return doodadDef;
     }
 
-    mapDoodadDef = CMap::AllocDoodadDef();
+    doodadDef = CMap::AllocDoodadDef();
+    STORM_ASSERT(doodadDef);
     HASHKEY_DWORD insertKey = { 0 };
-    CMap::doodadDefHash.Insert(mapDoodadDef, doodadDef->m_uniqueId, insertKey);
-    CMap::doodadDefList.LinkToTail(mapDoodadDef);
+    CMap::doodadDefHash.Insert(doodadDef, def->m_uniqueId, insertKey);
+    CMap::doodadDefList.LinkToTail(doodadDef);
 
-    mapDoodadDef->m_position.x = -doodadDef->m_position.z;
-    mapDoodadDef->m_position.y = -doodadDef->m_position.x;
-    mapDoodadDef->m_position.z = doodadDef->m_position.y;
-    mapDoodadDef->m_position.x = mapDoodadDef->m_position.x + center->x;
-    mapDoodadDef->m_position.y = center->y + mapDoodadDef->m_position.y;
-    mapDoodadDef->m_position.z = center->z + mapDoodadDef->m_position.z;
+    doodadDef->m_position.x = -def->m_position.z;
+    doodadDef->m_position.y = -def->m_position.x;
+    doodadDef->m_position.z = def->m_position.y;
+    doodadDef->m_position.x = doodadDef->m_position.x + center->x;
+    doodadDef->m_position.y = center->y + doodadDef->m_position.y;
+    doodadDef->m_position.z = center->z + doodadDef->m_position.z;
 
-    mapDoodadDef->m_sphere.c = mapDoodadDef->m_position;
-    mapDoodadDef->m_bbox.b = mapDoodadDef->m_position;
-    mapDoodadDef->m_bbox.t = mapDoodadDef->m_position;
-    mapDoodadDef->m_scale = doodadDef->m_scale * 0.0009765625f;
-    mapDoodadDef->m_sphere.r = 0.0f;
-    mapDoodadDef->m_flags = MAPOBJ_FLAG_UNPLACED;
+    doodadDef->m_sphere.c = doodadDef->m_position;
+    doodadDef->m_bbox.b = doodadDef->m_position;
+    doodadDef->m_bbox.t = doodadDef->m_position;
+    doodadDef->m_scale = def->m_scale * 0.0009765625f;
+    doodadDef->m_sphere.r = 0.0f;
+    doodadDef->m_flags = MAPOBJ_FLAG_UNPLACED;
 
-    if (doodadDef->m_flags & SMDoodadDef::F_BIODOME) {
-        mapDoodadDef->m_flags = static_cast<MapObjFlag>(MAPOBJ_FLAG_BIODOME | MAPOBJ_FLAG_UNPLACED);
+    if (def->m_flags & SMDoodadDef::F_BIODOME) {
+        doodadDef->m_flags = static_cast<MapObjFlag>(MAPOBJ_FLAG_BIODOME | MAPOBJ_FLAG_UNPLACED);
     }
 
-    mapDoodadDef->model = nullptr;
+    doodadDef->model = nullptr;
 
-    float rotX = doodadDef->m_rotation.z * DEG_TO_RAD;
-    float rotY = doodadDef->m_rotation.x * DEG_TO_RAD;
-    float rotZ = DEG_TO_RAD * doodadDef->m_rotation.y;
+    float rotX = def->m_rotation.z * DEG_TO_RAD;
+    float rotY = def->m_rotation.x * DEG_TO_RAD;
+    float rotZ = DEG_TO_RAD * def->m_rotation.y;
 
-    mapDoodadDef->m_mat = C44Matrix();
-    mapDoodadDef->m_mat.d0 = mapDoodadDef->m_position.x;
-    mapDoodadDef->m_mat.d1 = mapDoodadDef->m_position.y;
-    mapDoodadDef->m_mat.d2 = mapDoodadDef->m_position.z;
-    mapDoodadDef->m_mat.RotateAroundZ(rotZ + PI);
-    mapDoodadDef->m_mat.RotateAroundY(rotY);
-    mapDoodadDef->m_mat.RotateAroundX(rotX);
-    mapDoodadDef->m_mat.Scale(mapDoodadDef->m_scale);
-    mapDoodadDef->m_lMat = C44Matrix();
+    doodadDef->m_mat = C44Matrix();
+    doodadDef->m_mat.d0 = doodadDef->m_position.x;
+    doodadDef->m_mat.d1 = doodadDef->m_position.y;
+    doodadDef->m_mat.d2 = doodadDef->m_position.z;
+    doodadDef->m_mat.RotateAroundZ(rotZ + PI);
+    doodadDef->m_mat.RotateAroundY(rotY);
+    doodadDef->m_mat.RotateAroundX(rotX);
+    doodadDef->m_mat.Scale(doodadDef->m_scale);
+    doodadDef->m_lMat = C44Matrix();
 
     CM2Model* model = World::s_m2Scene->CreateModel(fileName, CM2Model::INSTANCE_INITIALIZE_ON_DEMAND);
-    mapDoodadDef->model = model;
+    doodadDef->model = model;
 
     if (model) {
-        model->SetWorldTransform(mapDoodadDef->m_mat);
-        mapDoodadDef->model->SetEventCallback(CMapStaticEntity::ModelEventCallback, reinterpret_cast<uintptr_t>(mapDoodadDef));
-        mapDoodadDef->model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
-        mapDoodadDef->model->m_lightingArg = mapDoodadDef;
-        mapDoodadDef->model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
+        model->SetWorldTransform(doodadDef->m_mat);
+        doodadDef->model->SetEventCallback(CMapStaticEntity::ModelEventCallback, reinterpret_cast<uintptr_t>(doodadDef));
+        doodadDef->model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
+        doodadDef->model->m_lightingArg = doodadDef;
+        doodadDef->model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     }
 
-    return mapDoodadDef;
+    return doodadDef;
 }
 
 // VERIFY: 84c1a3e9 manual
 // OFFSET: 0x007BEB40
 CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, const C3Vector* position, float facing, BOOL waitForLoad) {
+    STORM_ASSERT(fileName);
+    STORM_ASSERT(bActive);
+
     int32_t id = CMap::uniqueId--;
     HASHKEY_DWORD key = { 0 };
-    CMap::doodadDefHash.Ptr(id, key);
-    CMapDoodadDef* doodadDef = CMap::AllocDoodadDef();
+    CMapDoodadDef* doodadDef = CMap::doodadDefHash.Ptr(id, key);
+    STORM_ASSERT(doodadDef == nullptr); // 12213: "doodadDef == __null"
+    doodadDef = CMap::AllocDoodadDef();
+    STORM_ASSERT(doodadDef);
     HASHKEY_DWORD insertKey = { 0 };
     CMap::doodadDefHash.Insert(doodadDef, id, insertKey);
     doodadDef->m_position = *position;
@@ -2683,56 +2697,59 @@ CMapDoodadDef* CMap::CreateDoodadDef(const char* fileName, const C3Vector* posit
 
 // VERIFY: ea13d7f6 manual
 // OFFSET: 0x007BEF40
-CMapDoodadDef* CMap::CreateDoodadDef(uint32_t doodadRef, SMODoodadDef* doodadDef, char* name, uint32_t key, C44Matrix* mat, uint16_t doodadSet) {
+CMapDoodadDef* CMap::CreateDoodadDef(uint32_t doodadRef, SMODoodadDef* def, char* name, uint32_t key, C44Matrix* mat, uint16_t doodadSet) {
+    STORM_ASSERT(bActive);
+
     HASHKEY_DWORD hashKey = { key };
-    CMapDoodadDef* mapDoodadDef = CMap::doodadDefHash.Ptr(doodadRef, hashKey);
+    CMapDoodadDef* doodadDef = CMap::doodadDefHash.Ptr(doodadRef, hashKey);
 
-    if (mapDoodadDef) {
-        return mapDoodadDef;
+    if (doodadDef) {
+        return doodadDef;
     }
 
-    mapDoodadDef = CMap::AllocDoodadDef();
-    CMap::doodadDefHash.Insert(mapDoodadDef, doodadRef, hashKey);
-    CMap::doodadDefList.LinkToTail(mapDoodadDef);
+    doodadDef = CMap::AllocDoodadDef();
+    STORM_ASSERT(doodadDef);
+    CMap::doodadDefHash.Insert(doodadDef, doodadRef, hashKey);
+    CMap::doodadDefList.LinkToTail(doodadDef);
 
-    mapDoodadDef->m_position = doodadDef->m_position;
-    mapDoodadDef->m_position *= *mat;
-    mapDoodadDef->m_scale = doodadDef->m_scale;
-    mapDoodadDef->m_sphere.c = mapDoodadDef->m_position;
-    mapDoodadDef->m_sphere.r = 0.0f;
-    mapDoodadDef->m_bbox.b = mapDoodadDef->m_position;
-    mapDoodadDef->m_bbox.t = mapDoodadDef->m_position;
-    mapDoodadDef->m_doodadSet = doodadSet;
-    mapDoodadDef->m_flags = MAPOBJ_FLAG_UNPLACED;
+    doodadDef->m_position = def->m_position;
+    doodadDef->m_position *= *mat;
+    doodadDef->m_scale = def->m_scale;
+    doodadDef->m_sphere.c = doodadDef->m_position;
+    doodadDef->m_sphere.r = 0.0f;
+    doodadDef->m_bbox.b = doodadDef->m_position;
+    doodadDef->m_bbox.t = doodadDef->m_position;
+    doodadDef->m_doodadSet = doodadSet;
+    doodadDef->m_flags = MAPOBJ_FLAG_UNPLACED;
 
-    if (doodadDef->m_flags & SMODoodadDef::F_ACCEPT_PROJ_TEX) {
-        mapDoodadDef->m_flags = static_cast<MapObjFlag>(MAPOBJ_FLAG_PROJ_TEX | MAPOBJ_FLAG_UNPLACED);
+    if (def->m_flags & SMODoodadDef::F_ACCEPT_PROJ_TEX) {
+        doodadDef->m_flags = static_cast<MapObjFlag>(MAPOBJ_FLAG_PROJ_TEX | MAPOBJ_FLAG_UNPLACED);
     }
 
-    mapDoodadDef->model = nullptr;
-    mapDoodadDef->m_mat = C44Matrix();
-    mapDoodadDef->m_mat.Translate(doodadDef->m_position);
-    mapDoodadDef->m_mat.Rotate(doodadDef->m_orientation);
-    mapDoodadDef->m_mat.Scale(mapDoodadDef->m_scale);
-    mapDoodadDef->m_lMat = mapDoodadDef->m_mat;
-    mapDoodadDef->m_mat *= *mat;
+    doodadDef->model = nullptr;
+    doodadDef->m_mat = C44Matrix();
+    doodadDef->m_mat.Translate(def->m_position);
+    doodadDef->m_mat.Rotate(def->m_orientation);
+    doodadDef->m_mat.Scale(doodadDef->m_scale);
+    doodadDef->m_lMat = doodadDef->m_mat;
+    doodadDef->m_mat *= *mat;
 
     CImVector limit;
     *reinterpret_cast<uint32_t*>(&limit) = MIN_DOODAD_DIRCOLOR;
-    mapDoodadDef->AdjustLightmap(&doodadDef->m_color, &mapDoodadDef->m_m2DiffuseColor, limit, &mapDoodadDef->m_m2AmbientColor, MAX_AMBIENT);
+    doodadDef->AdjustLightmap(&def->m_color, &doodadDef->m_m2DiffuseColor, limit, &doodadDef->m_m2AmbientColor, MAX_AMBIENT);
 
     CM2Model* model = World::s_m2Scene->CreateModel(name, CM2Model::INSTANCE_INITIALIZE_ON_DEMAND);
-    mapDoodadDef->model = model;
+    doodadDef->model = model;
 
     if (model) {
-        model->SetWorldTransform(mapDoodadDef->m_mat);
-        mapDoodadDef->model->SetEventCallback(CMapStaticEntity::ModelEventCallback, reinterpret_cast<uintptr_t>(mapDoodadDef));
-        mapDoodadDef->model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
-        mapDoodadDef->model->m_lightingArg = mapDoodadDef;
-        mapDoodadDef->model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
+        model->SetWorldTransform(doodadDef->m_mat);
+        doodadDef->model->SetEventCallback(CMapStaticEntity::ModelEventCallback, reinterpret_cast<uintptr_t>(doodadDef));
+        doodadDef->model->m_lightingCallback = CMapStaticEntity::ModelLightingCallback;
+        doodadDef->model->m_lightingArg = doodadDef;
+        doodadDef->model->SetBoneSequence(M2_KEY_BONE_NONE, ANIM_STAND, M2_RANDOM_VARIATION, 0, 1.0f, 1, 1);
     }
 
-    return mapDoodadDef;
+    return doodadDef;
 }
 
 // VERIFY: 140b192a manual
@@ -2745,6 +2762,8 @@ CMapObjDef* CMap::CreateMapObjDef(char* fileName, SMMapObjDef* mapObjectDef, C3V
     }
 
     mapObjDef = CMap::AllocMapObjDef();
+
+    STORM_ASSERT(mapObjDef);
 
     if (cached) {
         CMap::mapObjDefHash.Insert(mapObjDef, mapObjectDef->m_uniqueId, CMap::s_mapObjDefHashKey);
@@ -2809,16 +2828,21 @@ CMapObjDef* CMap::CreateMapObjDef(char* fileName, SMMapObjDef* mapObjectDef, C3V
 // VERIFY: 5ac717a0 manual
 // OFFSET: 0x007BF120
 CMapObjDef* CMap::CreateMapObjDef(const char* fileName, const C3Vector* position, float facing, BOOL waitLoad, uint32_t doodadSetCount, const int16_t* doodadSets, float* radius, uint32_t id) {
+    STORM_ASSERT(fileName);
+
     uint32_t uniqueId = id;
 
     if (!id) {
         uniqueId = CMap::uniqueId--;
     }
 
-    CMap::mapObjDefHash.Ptr(uniqueId, CMap::s_mapObjDefHashKey);
-    CMapObjDef* mapObjDef = CMap::AllocMapObjDef();
+    CMapObjDef* mapObjDef = CMap::mapObjDefHash.Ptr(uniqueId, CMap::s_mapObjDefHashKey);
+    STORM_ASSERT(mapObjDef == nullptr); // 12213: "mapObjDef == __null"
+    mapObjDef = CMap::AllocMapObjDef();
+    STORM_ASSERT(mapObjDef);
     CMap::mapObjDefHash.Insert(mapObjDef, uniqueId, CMap::s_mapObjDefHashKey);
     CMapObj* mapObj = CMapObj::Create(const_cast<char*>(fileName));
+    STORM_ASSERT(mapObj);
     mapObjDef->mapObj = mapObj;
 
     if (waitLoad && !mapObj->m_isGroupLoaded) {
@@ -2898,17 +2922,23 @@ void CMap::LoadWdt() {
     iffChunk.m_size = 0;
 
     SFileReadFile(file, &iffChunk, offsetof(SIffChunk, m_data), nullptr, nullptr, 0);
+    STORM_ASSERT(iffChunk.token == SIffChunk::TOKEN_MVER); // 12213: "iffChunk.token=='MVER'"
     SFileReadFile(file, &CMap::version, sizeof(CMap::version), nullptr, nullptr, 0);
     SFileReadFile(file, &iffChunk, offsetof(SIffChunk, m_data), nullptr, nullptr, 0);
+    STORM_ASSERT(iffChunk.token == SIffChunk::TOKEN_MPHD); // 12213: "iffChunk.token=='MPHD'"
     SFileReadFile(file, &CMap::header, sizeof(CMap::header), nullptr, nullptr, 0);
     SFileReadFile(file, &iffChunk, offsetof(SIffChunk, m_data), nullptr, nullptr, 0);
+    STORM_ASSERT(iffChunk.token == SIffChunk::TOKEN_MAIN); // 12213: "iffChunk.token=='MAIN'"
     SFileReadFile(file, CMap::m_areaInfo, sizeof(CMap::m_areaInfo), nullptr, nullptr, 0);
 
     if (CMap::header.m_flags & SMMapHeader::MAP_FLAGS::HAS_GLOBAL_WMO) {
         char fileName[256];
         SFileReadFile(file, &iffChunk, offsetof(SIffChunk, m_data), nullptr, nullptr, 0);
+        STORM_ASSERT(iffChunk.token == SIffChunk::TOKEN_MWMO); // 12213: "iffChunk.token == 'MWMO'"
         SFileReadFile(file, fileName, iffChunk.m_size, nullptr, nullptr, 0);
         SFileReadFile(file, &iffChunk, offsetof(SIffChunk, m_data), nullptr, nullptr, 0);
+
+        STORM_ASSERT(iffChunk.token == SIffChunk::TOKEN_MODF); // 12213: "iffChunk.token == 'MODF'"
 
         SMMapObjDef def;
         SFileReadFile(file, &def, sizeof(def), nullptr, nullptr, 0);
@@ -4488,7 +4518,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
         for (CMapBaseObjLink* link = def->groupLinkList.Head(); link; link = def->groupLinkList.Next(link)) {
             CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(link->owner);
 
-            if (box->t.x < group->m_bbox.b.x || box->t.y < group->m_bbox.b.y || box->t.z < group->m_bbox.b.z || box->b.x > group->m_bbox.t.x || box->b.y > group->m_bbox.t.y || box->b.z > group->m_bbox.t.z) {
+            if (box->t.x < group->aaBox.b.x || box->t.y < group->aaBox.b.y || box->t.z < group->aaBox.b.z || box->b.x > group->aaBox.t.x || box->b.y > group->aaBox.t.y || box->b.z > group->aaBox.t.z) {
                 continue;
             }
 
@@ -4505,7 +4535,7 @@ bool CMap::GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* face
                     return false;
                 }
 
-                World::AddAaBoxFacets(&group->m_bbox, facets);
+                World::AddAaBoxFacets(&group->aaBox, facets);
             }
         }
     }
@@ -4705,7 +4735,7 @@ void CMap::SetHitTestDebug(World::HitTestDebug* hitInfo, CMapBaseObj* hitObject)
         hitInfo->m_type = World::HitTestDebug::TYPE_MAP_OBJ_GROUP;
         entry->m_name = PathFileName(mapObj->m_wmoName);
         entry->m_depth = 0;
-        entry->m_bbox = defGroup->m_bbox;
+        entry->m_bbox = defGroup->aaBox;
         entry->m_sphere = defGroup->m_sphere;
         entry->m_numGeometryBatches = group->m_batchListCount;
         entry->m_numPrimitives = group->m_polyListSize;
@@ -4801,7 +4831,7 @@ bool CMap::VectorIntersect(C3Vector* start, C3Vector* end, uint32_t flags, uint3
         for (uint32_t i = 0; i < groupCount; i++) {
             CMapObjDefGroup* group = def->m_defGroups[i];
 
-            if (!owner->IsGroupLoaded(i) || !CWorldMath::VectorIntersectAABox2(group->m_bbox, *start, *end)) {
+            if (!owner->IsGroupLoaded(i) || !CWorldMath::VectorIntersectAABox2(group->aaBox, *start, *end)) {
                 continue;
             }
 
@@ -5521,7 +5551,7 @@ void CMap::VectorIntersectMapObjs(CMapChunk* chunk, const C3Vector& start, const
             for (CMapBaseObjLink* groupLink = mapObjDef->groupLinkList.Head(); groupLink; groupLink = mapObjDef->groupLinkList.Next(groupLink)) {
                 CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(groupLink->owner);
 
-                if (start.x <= group->m_bbox.t.x && start.x >= group->m_bbox.b.x && start.y <= group->m_bbox.t.y && start.y >= group->m_bbox.b.y && end.z <= group->m_bbox.t.z && start.z >= group->m_bbox.b.z) {
+                if (start.x <= group->aaBox.t.x && start.x >= group->aaBox.b.x && start.y <= group->aaBox.t.y && start.y >= group->aaBox.b.y && end.z <= group->aaBox.t.z && start.z >= group->aaBox.b.z) {
                     CMap::QueryDoodadDefHitTests(&group->doodadDefLinkList, start, end);
                 }
             }
@@ -5567,7 +5597,7 @@ void CMap::VectorIntersectMapObjs(CMapChunk* chunk, const C3Vector& start, const
         for (CMapBaseObjLink* groupLink = mapObjDef->groupLinkList.Head(); groupLink; groupLink = mapObjDef->groupLinkList.Next(groupLink)) {
             CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(groupLink->owner);
 
-            if (start.x <= group->m_bbox.t.x && start.x >= group->m_bbox.b.x && start.y <= group->m_bbox.t.y && start.y >= group->m_bbox.b.y && end.z <= group->m_bbox.t.z && start.z >= group->m_bbox.b.z) {
+            if (start.x <= group->aaBox.t.x && start.x >= group->aaBox.b.x && start.y <= group->aaBox.t.y && start.y >= group->aaBox.b.y && end.z <= group->aaBox.t.z && start.z >= group->aaBox.b.z) {
                 CMap::QueryDoodadDefHitTests(&group->doodadDefLinkList, start, end);
             }
         }
@@ -6207,7 +6237,7 @@ uint32_t CMap::QueryIntersectingModels(CM2Model** models, uint32_t maxModels, co
         for (CMapBaseObjLink* link = mapObjDef->groupLinkList.Head(); link; link = mapObjDef->groupLinkList.Next(link)) {
             CMapObjDefGroup* defGroup = static_cast<CMapObjDefGroup*>(link->owner);
 
-            if (!mapObj->IsGroupLoaded(defGroup->groupNum) || !defGroup->m_bbox.Intersects(box)) {
+            if (!mapObj->IsGroupLoaded(defGroup->groupNum) || !defGroup->aaBox.Intersects(box)) {
                 continue;
             }
 

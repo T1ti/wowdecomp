@@ -31,7 +31,7 @@ void CMapDoodadDef::ExtendBounds(CMapDoodadDef* doodadDef, CMapBaseObj* parent) 
         chunk->m_bbox.t.z = doodadDef->m_bbox.t.z < chunk->m_bbox.t.z ? chunk->m_bbox.t.z : doodadDef->m_bbox.t.z;
     } else if (parent->m_type & CMapBaseObj::Type_MapObjDefGroup) {
         CMapObjDefGroup* group = static_cast<CMapObjDefGroup*>(parent);
-        group->m_bbox |= doodadDef->m_bbox;
+        group->aaBox |= doodadDef->m_bbox;
 
         CMapBaseObjLink* link = group->m_parentLinkList.Head();
         static_cast<CMapObjDef*>(link->ref)->m_bbox |= doodadDef->m_bbox;
