@@ -6254,7 +6254,7 @@ void CM2Model::SetBoneSequenceDeferred(uint16_t sequenceIndex, M2Data* data, uin
                 goto found;
             }
 
-            index = data->m_sequences[index].m_aliasNext;
+            index = data->m_sequences[index].aliasNext;
 
             if (index == sequenceIndex) {
                 return;

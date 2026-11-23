@@ -109,7 +109,7 @@ class M2Sequence {
     /* 001C */ uint32_t m_blendTime;
     /* 0020 */ M2Bounds m_bounds;
     /* 003C */ uint16_t m_variationNext;
-    /* 003E */ uint16_t m_aliasNext;
+    /* 003E */ uint16_t aliasNext;
 };
 
 class M2CompBone {

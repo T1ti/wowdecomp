@@ -714,6 +714,8 @@ int32_t M2Init<M2Texture>(uint8_t* base, uint32_t size, const M2Data& data, M2Ar
 // VERIFY: 74236fcb manual
 // OFFSET: 0x00836C90
 CShaderEffect* CM2Shared::GetEffect(M2Batch* batch) {
+    STORM_ASSERT(batch);
+
     CShaderEffect* effect;
 
     if (!(batch->m_shader & M2Batch::SHADER_ID::SPECIAL)) {
@@ -763,6 +765,8 @@ CShaderEffect* CM2Shared::GetEffect(M2Batch* batch) {
         effect->InitEffect(vertexShader, pixelShader);
         effect->InitFixedFuncPass(&colorOp, &alphaOp, 1);
     }
+
+    STORM_ASSERT(effect);
 
     if (!effect) {
         return this->GetEffect(batch->m_textureCount, 0x11, batch->m_textureCoordComboIndex);
@@ -971,23 +975,25 @@ void CM2Shared::AssignBatchTextureComboIndices() {
                 DebugLog("Failed to fix up texture combo!\n");
             }
         } else {
-            uint16_t* combo = this->m_data->m_textureCombos.Data();
-            uint16_t* combosEnd = combo + this->m_data->m_textureCombos.m_count;
+            const uint16_t* entry = this->m_data->m_textureCombos.Data();
+            const uint16_t* pastEntries = entry + this->m_data->m_textureCombos.m_count;
 
-            while (combo != combosEnd && *combo != batch->m_textureComboIndex) {
-                combo++;
-            }
-
-            batch->m_textureComboIndex = static_cast<uint16_t>(combo - this->m_data->m_textureCombos.Data());
-
-            uint16_t transform = batch->m_textureTransformComboIndex ? batch->m_textureTransformComboIndex - 1 : 0xFFFF;
-            uint16_t* entry = this->m_data->m_textureTransformCombos.Data();
-            uint16_t* transformsEnd = entry + this->m_data->m_textureTransformCombos.m_count;
-
-            while (entry != transformsEnd && *entry != transform) {
+            while (entry != pastEntries && *entry != batch->m_textureComboIndex) {
                 entry++;
             }
 
+            STORM_ASSERT(entry != pastEntries);
+            batch->m_textureComboIndex = static_cast<uint16_t>(entry - this->m_data->m_textureCombos.Data());
+
+            uint16_t transform = batch->m_textureTransformComboIndex ? batch->m_textureTransformComboIndex - 1 : 0xFFFF;
+            entry = this->m_data->m_textureTransformCombos.Data();
+            pastEntries = entry + this->m_data->m_textureTransformCombos.m_count;
+
+            while (entry != pastEntries && *entry != transform) {
+                entry++;
+            }
+
+            STORM_ASSERT(entry != pastEntries);
             transformIndex = static_cast<uint16_t>(entry - this->m_data->m_textureTransformCombos.Data());
         }
 
@@ -1329,6 +1335,8 @@ int32_t CM2Shared::FinishLoadingSkinProfile(uint32_t size) {
 
     while (this->m_callbackList) {
         CM2Model* model = this->m_callbackList;
+        STORM_ASSERT(model->m_callbackPrev);
+        STORM_ASSERT(*model->m_callbackPrev == m_callbackList);
         model->UnlinkFromCallbackList();
         model->InitializeLoaded();
     }
@@ -1577,13 +1585,17 @@ int32_t CM2Shared::FinishLoadingLowPrioritySequence(uint32_t sequenceIndex, uint
 // VERIFY: b8d661f9 manual
 // OFFSET: 0x0083CA90
 int32_t CM2Shared::FinishLoadingLowPrioritySequence(uint32_t sequenceIndex, CAsyncObject* object) {
+    STORM_ASSERT(m_flags & SHARED_FLAGS::FLAG_MODEL_LOADED); // 12213: "m_m2DataLoaded"
+
     M2Sequence* sequence = &this->m_data->m_sequences[sequenceIndex];
+
+    STORM_ASSERT(sequence->m_flags & 0x00000010); // 12213: "sequence->flags & 0x00000010"
 
     if (!this->FinishLoadingLowPrioritySequence(sequenceIndex, static_cast<uint8_t*>(object->buffer), object->size)) {
         return 0;
     }
 
-    for (uint16_t* alias = &sequence->m_aliasNext; *alias != sequenceIndex; alias = &this->m_data->m_sequences[*alias].m_aliasNext) {
+    for (uint16_t* alias = &sequence->aliasNext; *alias != sequenceIndex; alias = &this->m_data->m_sequences[*alias].aliasNext) {
         if (!this->FinishLoadingLowPrioritySequence(*alias, static_cast<uint8_t*>(object->buffer), object->size)) {
             return 0;
         }
@@ -1604,6 +1616,8 @@ void CM2Shared::SkinProfileLoadedCallback(void* param) {
 // VERIFY: 2fc725dd manual
 // OFFSET: 0x0083CB40
 int32_t CM2Shared::LoadSkinProfile(uint32_t profile) {
+    STORM_ASSERT(!(m_flags & SHARED_FLAGS::FLAG_SKIN_LOADED)); // 12213: "!m_skinProfileLoaded"
+
     char fileName[260];
     MakeSkinFileName(this->m_fileName, profile, fileName);
 
@@ -1946,6 +1960,8 @@ void CM2Shared::LowPrioritySequenceLoadedCallback(void* param) {
     CM2SequenceLoad* load = static_cast<CM2SequenceLoad*>(param);
     CM2Shared* shared = load->m_shared;
 
+    STORM_ASSERT(shared);
+
     shared->m_flags |= SHARED_FLAGS::FLAG_SEQUENCE_CALLBACK;
     shared->FinishLoadingLowPrioritySequence(load->m_sequenceIndex, load->m_asyncObject);
 
@@ -2004,7 +2020,10 @@ void CM2Shared::LowPrioritySequenceFailedCallback(void* param) {
 // VERIFY: 0ec0803c manual
 // OFFSET: 0x0083DA10
 CM2SequenceLoad* CM2Shared::LoadLowPrioritySequence(uint16_t sequenceIndex) {
+    STORM_ASSERT(m_flags & SHARED_FLAGS::FLAG_MODEL_LOADED); // 12213: "m_m2DataLoaded"
+
     M2Sequence* sequence = &this->m_data->m_sequences[sequenceIndex];
+    STORM_ASSERT((sequence->m_flags & M2Sequence::FLAGS::LOAD_STATE_MASK) == 0); // 12213: "(sequence->flags & (0x00000020 | 0x00000010)) == 0"
     CM2SequenceLoad* load = this->m_sequenceLoads.NewNode(TSLIST_LINK_BEFORE, 0, 0);
 
     if (!load) {
@@ -2014,14 +2033,15 @@ CM2SequenceLoad* CM2Shared::LoadLowPrioritySequence(uint16_t sequenceIndex) {
     load->m_sequenceIndex = sequenceIndex;
     load->m_shared = this;
 
-    M2Sequence* source = sequence;
+    M2Sequence* alias = sequence;
 
-    while (source->m_flags & M2Sequence::FLAGS::ALIAS) {
-        source = &this->m_data->m_sequences[source->m_aliasNext];
+    while (alias->m_flags & M2Sequence::FLAGS::ALIAS) {
+        STORM_ASSERT(alias->aliasNext != sequenceIndex);
+        alias = &this->m_data->m_sequences[alias->aliasNext];
     }
 
     char fileName[260];
-    MakeAnimFileName(this->m_fileName, source->m_id, source->m_variationIndex, fileName);
+    MakeAnimFileName(this->m_fileName, alias->m_id, alias->m_variationIndex, fileName);
 
     SFileImpl* file;
 
@@ -2062,7 +2082,7 @@ CM2SequenceLoad* CM2Shared::LoadLowPrioritySequence(uint16_t sequenceIndex) {
 
     sequence->m_flags |= M2Sequence::FLAGS::LOAD_PENDING;
 
-    for (uint16_t i = sequence->m_aliasNext; i != sequenceIndex; i = this->m_data->m_sequences[i].m_aliasNext) {
+    for (uint16_t i = sequence->aliasNext; i != sequenceIndex; i = this->m_data->m_sequences[i].aliasNext) {
         this->m_data->m_sequences[i].m_flags |= M2Sequence::FLAGS::LOAD_PENDING;
     }
 
