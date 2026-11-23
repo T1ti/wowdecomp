@@ -170,7 +170,7 @@ int32_t CWorld::ConsoleCommand_ShowMapObjTex(const char* command, const char* ar
 
 // Debug feature: world render mode.
 // 0.5.3 reference: CWorld::ConsoleCommand_ShowCrappyBatches (0x00665B90).
-// No 3.3.5 code reads Enable_CrappyBatches yet, so this has no visible effect.
+// Has no visible effect: nothing in 0.5.3 reads Enable_CrappyBatches (only this command tests it), nor in 3.3.5.
 int32_t CWorld::ConsoleCommand_ShowCrappyBatches(const char* command, const char* arguments) {
     if (CWorld::enables & Enables::Enable_CrappyBatches) {
         ConsoleWrite("Crappy batches disabled.", DEFAULT_COLOR);
@@ -321,41 +321,58 @@ int32_t CWorld::ConsoleCommand_DetailDoodadTest(const char* command, const char*
 
 // Debug feature: world console command.
 // 0.5.3 reference: CWorld::ConsoleCommand_GroupOnly (0x00666040).
-// 0.5.3 switched CMapObj::maxRLevel between 0 (current group only) and CMapObj::DEFAULT_RLEVEL; 3.3.5 has no maxRLevel counterpart identified yet.
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// 0.5.3 switched CMapObj::maxRLevel, the portal recursion limit CMapObj::RRenderThruPortals tests (level <=
+// maxRLevel), between 0, the camera's group only, and CMapObj::DEFAULT_RLEVEL (10). 3.3.5 keeps the limit as
+// s_maxPortalDepth (CMapObj::RenderThruPortals returns past it), also 10.
+static const uint32_t DEFAULT_PORTAL_DEPTH = 10;
+
 int32_t CWorld::ConsoleCommand_GroupOnly(const char* command, const char* arguments) {
+    if (s_maxPortalDepth == DEFAULT_PORTAL_DEPTH) {
+        s_maxPortalDepth = 0;
+        ConsoleWrite("Rendering only current group", DEFAULT_COLOR);
+    } else {
+        s_maxPortalDepth = DEFAULT_PORTAL_DEPTH;
+        ConsoleWrite("Rendering all visible groups (standard)", DEFAULT_COLOR);
+    }
+
     return 1;
 }
 
 // Debug feature: world console command.
 // 0.5.3 reference: CWorld::ConsoleCommand_MapObjLightMode (0x00665B10).
-// 0.5.3 toggled enables bit 0x400 (lightmap vs vertex light), but 3.3.5 reuses 0x400 as Enable_Footprints, so it must not be ported as-is.
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// 0.5.3 toggled enables bit 0x400 ("MapObj vertex light enabled." / "MapObj lightmaps enabled."), but nothing in 0.5.3
+// reads that bit, and 3.3.5 reuses it as Enable_Footprints. The port keeps the switch and its messages on a flag of
+// its own, so the command has no visible effect, as in 0.5.3, and leaves the footprints alone.
+static bool s_mapObjVertexLight;
+
 int32_t CWorld::ConsoleCommand_MapObjLightMode(const char* command, const char* arguments) {
+    s_mapObjVertexLight = !s_mapObjVertexLight;
+    ConsoleWrite(s_mapObjVertexLight ? "MapObj vertex light enabled." : "MapObj lightmaps enabled.", DEFAULT_COLOR);
     return 1;
 }
 
-// Debug feature: world console command.
-// 0.5.3 reference: CWorld::ConsoleCommand_WaterMaxLOD (0x00665CF0).
-// 0.5.3 set CMapArea::ccWaterMaxLOD (clamped 0..4); the 3.3.5 liquid system has no such field identified yet.
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// Debug feature: world console commands, the water settings.
+// 0.5.3 references: CWorld::ConsoleCommand_WaterMaxLOD (0x00665CF0), ConsoleCommand_WaterWaves (0x00665D40),
+// ConsoleCommand_WaterSpecular (0x00665D60). They read a number into CMapArea::ccWaterMaxLOD (clamped to 0..4),
+// ccWaterWaves and ccWaterSpecular, and nothing in 0.5.3 reads those three: they had no effect there either. The
+// 3.3.5 liquid system has nothing like them. The port keeps the values, with 0.5.3's clamp, and has no effect.
+static int32_t s_waterMaxLOD;
+static int32_t s_waterWaves;
+static int32_t s_waterSpecular;
+
 int32_t CWorld::ConsoleCommand_WaterMaxLOD(const char* command, const char* arguments) {
+    s_waterMaxLOD = SStrToInt(arguments ? arguments : "0");
+    s_waterMaxLOD = s_waterMaxLOD < 0 ? 0 : (s_waterMaxLOD > 4 ? 4 : s_waterMaxLOD);
     return 1;
 }
 
-// Debug feature: world console command.
-// 0.5.3 reference: CWorld::ConsoleCommand_WaterWaves (0x00665D40).
-// 0.5.3 set CMapArea::ccWaterWaves; the 3.3.5 liquid system has no such field identified yet.
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
 int32_t CWorld::ConsoleCommand_WaterWaves(const char* command, const char* arguments) {
+    s_waterWaves = SStrToInt(arguments ? arguments : "0");
     return 1;
 }
 
-// Debug feature: world console command.
-// 0.5.3 reference: CWorld::ConsoleCommand_WaterSpecular (0x00665D60).
-// 0.5.3 set CMapArea::ccWaterSpecular; the 3.3.5 liquid system has no such field identified yet.
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
 int32_t CWorld::ConsoleCommand_WaterSpecular(const char* command, const char* arguments) {
+    s_waterSpecular = SStrToInt(arguments ? arguments : "0");
     return 1;
 }
 

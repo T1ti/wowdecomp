@@ -313,8 +313,10 @@ class CM2Model {
         DEBUG_COLLISION_MESH = 0x1, // collision triangles and face normals
         DEBUG_COLLISION_AABOX = 0x2, // collision bounds box
         DEBUG_HIT_TEST = 0x4, // the geometry object picking tests (ShowHitTestGeometry); per model only
+        DEBUG_UNSELECTABLE = 0x8, // the geometry object picking skips (ShowUnselectable); per model only
     };
     uint32_t m_debugCollision;
+    uint32_t m_debugUnselectableColor; // ARGB, for DEBUG_UNSELECTABLE
     // World-wide collision displays (DEBUG_COLLISION bits), synced from CWorld::enables every frame.
     static uint32_t s_debugWorldCollision;
     // Debug feature: while set, SetBoneSequence calls it for every sequence a model starts, with the requested
@@ -500,6 +502,8 @@ class CM2Model {
     BOOL IsShowingHitTestGeometry() const;
     void ShowMaterialLayer(uint32_t material, uint32_t layer, BOOL show);
     void ShowUnselectable(uint8_t red, uint8_t green, uint8_t blue);
+    void HideUnselectable();
+    BOOL IsShowingUnselectable() const;
 #endif
 };
 

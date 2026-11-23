@@ -28,6 +28,7 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 | `resxy`, `resmode`, `bitdepth`, `3dapi` | no-op | Empty in 0.5.3 too. |
 | `showbounds [box]` | works | Toggles the bounding sphere, or the box with `box`, on the tracked object's model, or on the player's model if nothing is tracked. Uses the Gxu debug-draw module. |
 | `showhittest` | works | Toggles the geometry object picking tests (half transparent red) on the tracked object's model, or on the player's model if nothing is tracked. From 0.8 and 0.9.1, which registered it (0.5.3 did not). Their models had separate hit-test shapes; the M2 format has none, and 3.3.5 picks an object by its model's skinned render triangles (skipping batches flagged not to be hit-tested), so that is what it shows. The collision mesh has its own display (`showCollision`). |
+| `showunselectable [red green blue]` | untested | Draws the geometry cursor picking skips (M2 batches flagged no-hit-test) on the tracked object's model, or the player's, half transparent, in yellow or the given color (0..255 each); again with no color turns it off. 0.5.3 recolored such geosets in `ModelShowUnselectable`, which nothing called; the command name is the port's. |
 | `loc`, `dloc`, `tloc` | stub | Prints or sets the player location. |
 | `facing`, `dfacing` | stub | Prints or sets the facing. |
 | `drawlog`, `animlog` | stub | M2 render/animation logs (0.5.3 wrote RenderLog.txt and AnimLog.txt). |
@@ -57,11 +58,11 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 | `showAABoxes` | works | Draws the collision box (translucent cyan) of every drawn M2 that has collision data. 0.5.3 called this "Terrain doodads AA Box visuals". |
 | `showMapObjBSP` | untested | Toggles the 0.5.3 / 0.9.1 WMO BSP display (`CMapObj::RenderGroupBsp`): every WMO group draws its faces by kind, lit and untextured. Render faces are green, detail faces blue, and collision faces translucent red over them. Port addition: `showMapObjBSP collision`, `detail`, `render`, `transition` or `collidable` draws the faces one of the 3.3.5 face renderers selects over the normal rendering (the release build has those renderers but never selects them; on their own they draw only the selected faces, which leaves the rest of the WMO invisible), and `showMapObjBSP normal` goes back to normal rendering. Picking a mode turns the BSP display off; turning the BSP display on overrides the mode. The detail and collision passes are drawn with a small depth bias so that faces lying on other faces don't z-fight. |
 | `debugBSP` | flag only | No client reads the bit: 0.5.3 sets it and nothing tests it, and by 0.9.1 the bit had become `CMap::enableTriangleStrips`. |
-| `showCrappyBatches` | flag only | No reader yet. |
+| `showCrappyBatches` | flag only | No client reads the bit: in 0.5.3 only this command tests it, and nothing in 3.3.5 does. |
 | `debugZones` | untested | Draws the terrain outside the player's zone plain white, untextured, as 0.9.1 did. 0.9.1 got the zone map from the server (message 11, one byte per world cell), which 3.3.5 does not have. The port compares the top-level zone of each chunk's area (`AreaTable` parent chain) with the player's zone instead. |
-| `groupOnly` | stub | |
-| `mapObjLightMode` | stub | |
-| `waterMaxLOD`, `waterWaves`, `waterSpecular` | stub | |
+| `groupOnly` | untested | Toggles drawing only the WMO group the camera is in: the portal recursion limit (0.5.3 `CMapObj::maxRLevel`, 3.3.5 `s_maxPortalDepth`) between 0 and 10. |
+| `mapObjLightMode` | no effect | Prints the 0.5.3 messages (vertex light / lightmaps) and changes nothing: 0.5.3 toggled an enables bit nothing read, which 3.3.5 reuses for footprints, so the port keeps a flag of its own. |
+| `waterMaxLOD`, `waterWaves`, `waterSpecular` | no effect | Store a number (`waterMaxLOD` clamped to 0..4), as 0.5.3 did; nothing in 0.5.3 read those values, and 3.3.5 water has nothing like them. |
 | `enumTextures`, `enumTextureGxCache` | stub | |
 
 0.5.3 compiled some of these handlers without registering them (`showTerrain` and the commands after it in
@@ -71,9 +72,9 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 
 | Command | Status |
 |---|---|
-| `SkyShow` | stub |
-| `SkyCloudLayers` | stub |
-| `SkyCloudDensity` | stub |
+| `SkyShow` | untested: `SkyShow 1` shows the sky, anything else hides it (sky, sun, moons, stars, glares; 3.3.5 `DNInfo::m_showSky`) |
+| `SkyCloudLayers` | untested: 0 or 1 cloud layers; 3.3.5 has a single layer, so this turns the clouds off or on (`DNClouds::m_enabled`) |
+| `SkyCloudDensity` | untested: overrides the cloud density, 0..1; 0 gives it back to the sky data |
 
 ## Units / combat (`WoW/Source/Object/ObjectClient/Unit_C_Debug.cpp`, DEBUG)
 
@@ -86,7 +87,7 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 | `DumpDeathHoldLogs` | stub | |
 | `playercombatlogdebug` | stub | |
 | `showEffectsStandalone` (CVar) | stub | |
-| `animDebug` | untested | Makes the locked target the anim debug target (no target: off), from 0.8. Every animation its model starts is printed to the console, with the 0.8 wording: `**** <time> "<unit>" "<anim>" playing [on bone "<key bone>"]`, with the 0.8 key bone names (the wheel bones, which 0.8 lacked, are named after the 3.3.5 enum). When the model lacks the animation, a `doesn't have "<anim>", falling back to "<anim>"` line comes first. The command name is the port's; 0.8 had the setter without a command. Its queueing and interrupting lines are not ported, because they came from the 0.8 unit animation queue, which 3.3.5 does not have. |
+| `animDebug` | works | Makes the locked target the anim debug target (no target: off), from 0.8. Every animation its model starts is printed to the console, with the 0.8 wording: `**** <time> "<unit>" "<anim>" playing [on bone "<key bone>"]`, with the 0.8 key bone names (the wheel bones, which 0.8 lacked, are named after the 3.3.5 enum). When the model lacks the animation, a `doesn't have "<anim>", falling back to "<anim>"` line comes first. The command name is the port's; 0.8 had the setter without a command. Its queueing and interrupting lines are not ported, because they came from the 0.8 unit animation queue, which 3.3.5 does not have. |
 
 ## Sound (`WoW/Source/SoundInterface/SndDebug.cpp`, DEBUG)
 
@@ -121,7 +122,7 @@ The editor library at the repository root (`WowEdit/Source/WowEdit.h`). The terr
 | `wowEditGrid [0-3\|off]` | works | Terrain grid, one of the four 8.1 `woweditgrid` permutations. With no argument it toggles permutation 3. 0 shows nothing on its own: it outputs transparent black on chunk borders. 1 draws cells with diagonals. 2 draws chunk and tile lines. 3 draws all three. |
 | `wowEditSlopes [0\|1]` | works | Paints terrain steeper than 50 degrees (the client's walkable limit) red at 25%. |
 | `wowEditAreas [0\|1]` | untested | The 8.1 editor overlays shader (`woweditoverlays_internal`) showing area IDs: each terrain chunk in a color of its own area ID (the chunk's MCNK area, a zone or a subzone; chunks without one stay clear), so area borders show as color changes along chunk edges, and the area under the mouse cursor named above the ground with its ID, and its zone when it is a subzone. The 8.1 shader colors a 2 x 2 chunk block with a color per chunk plus one per cell; Shader Model 3 cannot index constants and has too few for the 256 cell colors, so the chunk color is picked by comparisons and the cell colors come from a 16 x 16 texture (unused by the area overlay, which is per chunk). |
-| `wowEditBrush [radius [inner]\|off]` | untested | The terrain brush cursor of the 8.1 editor (`woweditterrainbrush_internal`), laid on the terrain under the mouse cursor: a dashed red-orange circle (16 dashes, as in the screenshots) at `radius` yards and a dashed yellow one at the inner (falloff) radius, as in screenshots and videos of the editor. No argument toggles a 10-yard brush; the inner circle defaults to half the radius, and 0 hides it. The 8.1 shader only lays a texture on the terrain and tints it, and the 8.1 brush textures are unknown, so the port generates a dashed ring texture and draws it twice, once per circle. The cursor point is the client's own picking segment (the one ground-targeted spells use) against the terrain alone, so the brush goes under buildings and doodads to the ground. It does not edit anything. `wowEdit` prints the brush radii and its terrain point. |
+| `wowEditBrush [radius [inner]\|off]` | works | The terrain brush cursor of the 8.1 editor (`woweditterrainbrush_internal`), laid on the terrain under the mouse cursor: a dashed red-orange circle (16 dashes, as in the screenshots) at `radius` yards and a dashed yellow one at the inner (falloff) radius, as in screenshots and videos of the editor. No argument toggles a 10-yard brush; the inner circle defaults to half the radius, and 0 hides it. The 8.1 shader only lays a texture on the terrain and tints it, and the 8.1 brush textures are unknown, so the port generates a dashed ring texture and draws it twice, once per circle. The cursor point is the client's own picking segment (the one ground-targeted spells use) against the terrain alone, so the brush goes under buildings and doodads to the ground. It does not edit anything. `wowEdit` prints the brush radii and its terrain point. |
 | `wowEditMarkers [0\|1]` | works | Sample editor markers ahead of the player, placed on the ground: spawn points with orientation rings, early-editor half spheres and path, and a flying path with direction diamonds. |
 
 ## Lua functions (`WoW/Source/Ui/GameUI_Scripts.cpp`, DEBUG)
@@ -138,10 +139,6 @@ In the release build, these functions are bound to the shared return-0 stub.
 | `GetDebugStats()` | stub | |
 | `TogglePerformanceDisplay()`, `TogglePerformanceValues()`, `TogglePerformancePause()`, `ResetPerformanceValues()` | stub | |
 | `GetExtendedItemInfo()` | stub | Debug-only status is inferred from its name; there is no 0.5.3 reference. |
-
-## Debug-draw features with no command yet
-
-- Unselectable geometry (`CM2Model::ShowUnselectable`).
 
 ## 0.8 / 0.9.1 debug features not ported
 

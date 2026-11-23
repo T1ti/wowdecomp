@@ -6,6 +6,7 @@
 #include "Engine/Source/Gx/Gx.h"
 #include "Engine/Source/Model2/M2Model.h"
 #include "Engine/Source/Storm/H/storm.h"
+#include <cstdio>
 #include "WoW/Source/Object/ObjectClient/Object_C.h"
 #include "WoW/Source/ObjectMgrClient/ObjectMgrClient.h"
 #include "WoW/Source/Ui/GameUI.h"
@@ -195,6 +196,37 @@ static int32_t CCommand_ShowHitTest(const char* command, const char* arguments) 
     return 1;
 }
 
+// Debug feature: console command "showunselectable" (port: the command name is the port's; 0.5.3 had
+// ModelShowUnselectable and nothing calling it). Like showhittest, on the tracked object's model or the player's:
+// toggles the display of the batches cursor picking skips (CM2Model::ShowUnselectable), in yellow, or in the color
+// given as "red green blue" (0..255).
+static int32_t CCommand_ShowUnselectable(const char* command, const char* arguments) {
+    CGObject_C* object = ClntObjMgrObjectPtr(CGGameUI::m_currentObjectTrack, TYPE_OBJECT, __FILE__, __LINE__);
+
+    if (!object) {
+        object = ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_OBJECT, __FILE__, __LINE__);
+    }
+
+    CM2Model* model = object ? object->GetObjectModel() : nullptr;
+
+    if (!model) {
+        return 0;
+    }
+
+    int32_t red = 255;
+    int32_t green = 255;
+    int32_t blue = 0;
+    bool colorGiven = arguments && *arguments && sscanf(arguments, "%d %d %d", &red, &green, &blue) == 3;
+
+    if (model->IsShowingUnselectable() && !colorGiven) {
+        model->HideUnselectable();
+    } else {
+        model->ShowUnselectable(static_cast<uint8_t>(red), static_cast<uint8_t>(green), static_cast<uint8_t>(blue));
+    }
+
+    return 1;
+}
+
 // Debug feature: console command "drawlog".
 // 0.5.3 reference: CCommand_DrawLog (0x00404070).
 // Called ModelRenderSceneLogToggle("RenderLog.txt"); see CM2Model::RenderSceneLogToggle.
@@ -316,6 +348,7 @@ void GameClientCommandsDebugInstall() {
     ConsoleCommandRegister("dfacing", CCommand_DFacing, CATEGORY_DEBUG, nullptr);
     ConsoleCommandRegister("showbounds", CCommand_ShowBounds, CATEGORY_DEBUG, nullptr);
     ConsoleCommandRegister("showhittest", CCommand_ShowHitTest, CATEGORY_DEBUG, nullptr);
+    ConsoleCommandRegister("showunselectable", CCommand_ShowUnselectable, CATEGORY_DEBUG, "Shows the target's unselectable geometry [red green blue]");
     ConsoleCommandRegister("drawlog", CCommand_DrawLog, CATEGORY_DEBUG, nullptr);
     ConsoleCommandRegister("animlog", CCommand_AnimLog, CATEGORY_DEBUG, nullptr);
     ConsoleCommandRegister("motionBlend", CCommand_ToggleAnimBlending, CATEGORY_DEBUG, nullptr);
@@ -333,6 +366,7 @@ void GameClientCommandsDebugUninstall() {
     ConsoleCommandUnregister("dfacing");
     ConsoleCommandUnregister("showbounds");
     ConsoleCommandUnregister("showhittest");
+    ConsoleCommandUnregister("showunselectable");
     ConsoleCommandUnregister("drawlog");
     ConsoleCommandUnregister("animlog");
     ConsoleCommandUnregister("motionBlend");

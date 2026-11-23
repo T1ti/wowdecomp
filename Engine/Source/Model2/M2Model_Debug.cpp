@@ -71,7 +71,8 @@ static void DrawBounds(const M2Data* data, CM2Model::DEBUG_BOUNDS mode, const C4
 static const uint32_t HIT_TEST_COLOR = 0x7FFF0000;
 static const float HIT_TEST_LIFT = 0.06f; // yards the display sits outside the model's surface
 
-// The triangles the cursor picks an object by: CM2Scene::HitTestGeometry in the mode CGWorldFrame::
+// The triangles the cursor picks an object by (or, with unselectable, those it skips: the NO_HIT_TEST batches, for
+// ShowUnselectable): CM2Scene::HitTestGeometry in the mode CGWorldFrame::
 // AddObjectToHitTestList gives object models (HIT_TEST_RENDER, or HIT_TEST_UNKNOWN_4, which no reader tells apart).
 // Same batch filter (no material layers, no NO_HIT_TEST batches, invisible batches skipped) and same skinning (one
 // bone, or the blended bones), with the bone matrices taking the vertices to M2 view space, and viewInv from there to
@@ -80,7 +81,7 @@ static const float HIT_TEST_LIFT = 0.06f; // yards the display sits outside the 
 // Not the model's m_hitTestMode: world queries set it too (CMap's doodad and object queries set HIT_TEST_COLLISION for
 // camera and movement collision), so it changes from one query to the next and a display following it flickers
 // between the render triangles and the collision mesh. The collision mesh has its own display (showCollision).
-static void DrawHitTestGeometry(const CM2Model* model, const C44Matrix& viewInv) {
+static void DrawHitTestGeometry(const CM2Model* model, const C44Matrix& viewInv, bool unselectable, uint32_t argb) {
     M2Data* data = model->m_shared->m_data;
     M2SkinProfile* skinData = model->m_shared->m_skinData;
 
@@ -88,13 +89,13 @@ static void DrawHitTestGeometry(const CM2Model* model, const C44Matrix& viewInv)
         return;
     }
 
-    CImVector color = MakeColor(HIT_TEST_COLOR);
+    CImVector color = MakeColor(argb);
     static TSGrowableArray<C3Vector> s_vertices;
 
     for (uint32_t i = 0; i < skinData->m_batches.m_count; i++) {
         M2Batch* batch = &skinData->m_batches[i];
 
-        if (batch->m_materialLayer || (batch->m_flags & M2Batch::FLAGS::NO_HIT_TEST)) {
+        if (batch->m_materialLayer || ((batch->m_flags & M2Batch::FLAGS::NO_HIT_TEST) != 0) != unselectable) {
             continue;
         }
 
@@ -259,7 +260,11 @@ void CM2Model::DebugDraw(const C44Matrix& viewInv) const {
     }
 
     if (collision & DEBUG_HIT_TEST) {
-        DrawHitTestGeometry(this, viewInv);
+        DrawHitTestGeometry(this, viewInv, false, HIT_TEST_COLOR);
+    }
+
+    if (collision & DEBUG_UNSELECTABLE) {
+        DrawHitTestGeometry(this, viewInv, true, this->m_debugUnselectableColor);
     }
 }
 
@@ -323,9 +328,23 @@ BOOL CM2Model::IsShowingHitTestGeometry() const {
 }
 
 // Debug feature: unselectable geometry display.
-// 0.5.3 reference: ModelShowUnselectable (0x00443200).
-// TODO: not implemented; the 0.5.3 code is not compatible with the 3.3.5 codebase.
+// 0.5.3 reference: ModelShowUnselectable (0x00443200), GeosetShowUnselectable: on the model and its attached models,
+// each geoset whose flags say it cannot be selected ((flags & 3) == 1) was marked (flag 2) and its color set to
+// red, green, blue (its material duplicated first when shared). Nothing in 0.5.3 calls it.
+// 3.3.5 M2 has the same notion per batch: M2Batch NO_HIT_TEST, the batches cursor picking skips. Here the model draws
+// those batches over itself in the color, half transparent, with the hit-test display (DrawHitTestGeometry), the
+// model's own colors left alone. Attached models are not followed.
 void CM2Model::ShowUnselectable(uint8_t red, uint8_t green, uint8_t blue) {
+    this->m_debugUnselectableColor = 0x7F000000u | (static_cast<uint32_t>(red) << 16) | (static_cast<uint32_t>(green) << 8) | blue;
+    this->m_debugCollision |= DEBUG_UNSELECTABLE;
+}
+
+void CM2Model::HideUnselectable() {
+    this->m_debugCollision &= ~DEBUG_UNSELECTABLE;
+}
+
+BOOL CM2Model::IsShowingUnselectable() const {
+    return (this->m_debugCollision & DEBUG_UNSELECTABLE) != 0;
 }
 
 // Debug feature: material layer toggle.
