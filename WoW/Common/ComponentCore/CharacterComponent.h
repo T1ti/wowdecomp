@@ -184,20 +184,34 @@ class CCharacterComponent {
         return this->m_flags & TEXTURES_DIRTY;
     }
 
+    // INLINED
+    CTexture* GetBaseTexture() const { // (inferred)
+        return this->m_baseTexture;
+    }
+
     /* 0000 */ TSLink<CCharacterComponent> m_link;
     /* 0008 */ uint32_t m_flags;
     /* 000C */ uint32_t m_dirtySections;
     /* 0010 */ uint32_t m_heapIndex;
     /* 0014 */ EGxTexFormat m_gxTexFormat;
     /* 0018 */ ComponentData m_data;
+
+    private:
     /* 0190 */ CTexture* m_baseTexture;
+
+    public:
     /* 0194 */ CharacterBaseVariation m_baseVariation [CHARTEXTUREVARIATIONS_NUM];
     /* 01D0 */ CharacterSection m_section [10];
     /* 0428 */ uint32_t m_itemDisplayID [12];
     /* 0458 */ uint32_t m_handItemDisplayID [3];
     /* 0464 */ int32_t m_itemSlotForAttachSlot [MODEL_ATTACHMENT_ID::NUM_ATTACH_SLOTS];
+
+    private:
+    void UpdateSections();
+    int32_t UpdateItemDisplay(COMPONENT_SECTIONS section, const ItemDisplayInfoRec* displayRec, int32_t priority);
     /* 052C */ CComponentRequest* m_componentRequest;
 
+    public:
     CCharacterComponent();
     ~CCharacterComponent();
     void AddCape();
@@ -300,8 +314,6 @@ class CCharacterComponent {
     void UpdateItemLU(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* displayRec, bool apply);
     void UpdateItemTL(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* displayRec, bool apply);
     void UpdateItemTU(ITEM_SLOT itemSlot, const ItemDisplayInfoRec* displayRec, bool apply);
-    void UpdateSections();
-    int32_t UpdateTextureSlot(COMPONENT_SECTIONS section, const ItemDisplayInfoRec* displayRec, int32_t layer);
     bool VariationsLoaded(BOOL wait);
 };
 

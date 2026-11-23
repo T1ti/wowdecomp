@@ -1419,6 +1419,10 @@ void CCharacterComponent::CreateRequestFO() {
 // VERIFY: b56204ff auto
 // OFFSET: 0x004E9510
 void CCharacterComponent::UpdateSections() {
+    STORM_ASSERT(m_componentRequest->m_flags & CComponentRequest::REQUEST_FLAGS::IN_USE); // 12213: "m_componentRequest->m_valid"
+    STORM_ASSERT(m_componentRequest->m_flags & CComponentRequest::REQUEST_FLAGS::FINISHED); // 12213: "m_componentRequest->m_finished"
+    STORM_ASSERT(m_componentRequest->m_componentMipBits);
+
     if (this->m_flags & FLAGS::TEXTURES_DIRTY) {
         GxTexUpdate(TextureGetGxTex(this->m_baseTexture, 1, nullptr), 0, 0, s_textureSize, s_textureSize, 1);
         return;
@@ -1558,8 +1562,9 @@ static void CompressBlock(const uint8_t* src, uint32_t stride, uint8_t* out) {
 
     for (uint32_t i = 0; i < 16; i++) {
         float proj = (colors[i][0] - mean[0]) * axis[0] + (colors[i][1] - mean[1]) * axis[1] + (colors[i][2] - mean[2]) * axis[2];
-        uint32_t index = static_cast<uint32_t>((proj - minProj) * indexScale + 0.5f);
-        indices |= map[index] << (2 * i);
+        const uint32_t section = static_cast<uint32_t>((proj - minProj) * indexScale + 0.5f);
+        STORM_ASSERT(section <= 3); // 12213: "section >= 0 && section <= 3"
+        indices |= map[section] << (2 * i);
     }
 
     out[4] = indices;
@@ -3618,6 +3623,8 @@ CComponentMipBits* CCharacterComponent::AllocComponentMipBits(EGxTexFormat forma
 // VERIFY: 7bf610ab manual
 // OFFSET: 0x004EE2A0
 void CCharacterComponent::RenderPrepAll() {
+    STORM_ASSERT(m_baseTexture);
+
     this->SetTexturesDirty();
     this->m_dirtySections = 0xFFFFFFFF;
 
@@ -3646,29 +3653,31 @@ void CCharacterComponent::RenderPrepAll() {
 
 // VERIFY: 9391fea1 manual
 // OFFSET: 0x004EE380
-int32_t CCharacterComponent::UpdateTextureSlot(COMPONENT_SECTIONS section, const ItemDisplayInfoRec* displayRec, int32_t layer) {
+int32_t CCharacterComponent::UpdateItemDisplay(COMPONENT_SECTIONS section, const ItemDisplayInfoRec* displayRec, int32_t priority) {
+    STORM_ASSERT(priority >= 0);
+
     if (this->m_data.m_flags & ComponentData::DATA_FLAGS::NPC_SKIN) {
         return 0;
     }
 
     CharacterSection& sectionData = this->m_section[section];
 
-    if (sectionData.m_layerItemDisplayId[layer]) {
+    if (sectionData.m_layerItemDisplayId[priority]) {
         ItemDisplayInfoRec rec;
 
-        if (g_itemDisplayInfoDB.GetRecord(sectionData.m_layerItemDisplayId[layer], &rec) && rec.m_texture[section] == displayRec->m_texture[section]) {
+        if (g_itemDisplayInfoDB.GetRecord(sectionData.m_layerItemDisplayId[priority], &rec) && rec.m_texture[section] == displayRec->m_texture[section]) {
             return 0;
         }
     }
 
-    sectionData.m_layerMask &= ~(1 << layer);
+    sectionData.m_layerMask &= ~(1 << priority);
 
-    if (sectionData.m_layerTex[layer]) {
-        TextureCacheDestroyTexture(sectionData.m_layerTex[layer]);
-        sectionData.m_layerTex[layer] = nullptr;
+    if (sectionData.m_layerTex[priority]) {
+        TextureCacheDestroyTexture(sectionData.m_layerTex[priority]);
+        sectionData.m_layerTex[priority] = nullptr;
     }
 
-    sectionData.m_layerItemDisplayId[layer] = displayRec->m_id;
+    sectionData.m_layerItemDisplayId[priority] = displayRec->m_id;
 
     return 1;
 }
@@ -4278,6 +4287,7 @@ void CCharacterComponent::UpdateBaseTexture(EGxTexCommand command, uint32_t widt
             }
 
             if (component->m_componentRequest) {
+                STORM_ASSERT(component->m_componentRequest->m_componentMipBits);
                 texels = component->m_componentRequest->m_componentMipBits->m_mipBits->m_mip[level];
             } else {
                 MipBits* mipBits = s_compressedTextureBuffer;
@@ -4388,7 +4398,7 @@ void CCharacterComponent::UpdateItem(ITEM_SLOT itemSlot, COMPONENT_SECTIONS sect
 
     if (section != SECTION_FOOT || !(this->m_flags & FLAGS::BARE_FEET)) {
         if (apply) {
-            if (!this->UpdateTextureSlot(section, displayRec, layer)) {
+            if (!this->UpdateItemDisplay(section, displayRec, layer)) {
                 return;
             }
         } else {
@@ -4402,14 +4412,14 @@ void CCharacterComponent::UpdateItem(ITEM_SLOT itemSlot, COMPONENT_SECTIONS sect
         if (itemSlot == ITEMSLOT_CHEST) {
             if (ItemDisplayHasGeosetGroup(this->m_itemDisplayID[ITEMSLOT_PANTS], ItemDisplayInfoRec::GEOSET_GROUP::ROBE, rec)) {
                 this->FreeSectionTexture(SECTION_LEG_LOWER, 3);
-                this->UpdateTextureSlot(SECTION_LEG_LOWER, &rec, 4);
+                this->UpdateItemDisplay(SECTION_LEG_LOWER, &rec, 4);
             }
 
             if (ItemDisplayHasGeosetGroup(this->m_itemDisplayID[ITEMSLOT_BOOTS], ItemDisplayInfoRec::GEOSET_GROUP::PRIMARY, rec)) {
-                this->UpdateTextureSlot(SECTION_LEG_LOWER, &rec, 3);
+                this->UpdateItemDisplay(SECTION_LEG_LOWER, &rec, 3);
             }
         } else if (itemSlot == ITEMSLOT_PANTS && ItemDisplayHasGeosetGroup(this->m_itemDisplayID[ITEMSLOT_PANTS], ItemDisplayInfoRec::GEOSET_GROUP::ROBE, rec)) {
-            this->UpdateTextureSlot(SECTION_LEG_LOWER, &rec, 4);
+            this->UpdateItemDisplay(SECTION_LEG_LOWER, &rec, 4);
         }
     }
 
@@ -4424,7 +4434,7 @@ void CCharacterComponent::UpdateItemAU(ITEM_SLOT itemSlot, const ItemDisplayInfo
     int32_t layer = s_itemPriority[itemSlot][SECTION_ARM_UPPER];
 
     if (apply) {
-        if (!this->UpdateTextureSlot(SECTION_ARM_UPPER, displayRec, layer)) {
+        if (!this->UpdateItemDisplay(SECTION_ARM_UPPER, displayRec, layer)) {
             return;
         }
     } else {
@@ -4450,7 +4460,7 @@ void CCharacterComponent::UpdateItemAL(ITEM_SLOT itemSlot, const ItemDisplayInfo
     }
 
     if (apply) {
-        if (!this->UpdateTextureSlot(SECTION_ARM_LOWER, displayRec, layer)) {
+        if (!this->UpdateItemDisplay(SECTION_ARM_LOWER, displayRec, layer)) {
             return;
         }
     } else {
@@ -4468,7 +4478,7 @@ void CCharacterComponent::UpdateItemHA(ITEM_SLOT itemSlot, const ItemDisplayInfo
     int32_t layer = s_itemPriority[itemSlot][SECTION_HAND];
 
     if (apply) {
-        if (!this->UpdateTextureSlot(SECTION_HAND, displayRec, layer)) {
+        if (!this->UpdateItemDisplay(SECTION_HAND, displayRec, layer)) {
             return;
         }
     } else {
@@ -4496,7 +4506,7 @@ void CCharacterComponent::UpdateItemTU(ITEM_SLOT itemSlot, const ItemDisplayInfo
     int32_t layer = s_itemPriority[itemSlot][SECTION_TORSO_UPPER];
 
     if (apply) {
-        if (!this->UpdateTextureSlot(SECTION_TORSO_UPPER, displayRec, layer)) {
+        if (!this->UpdateItemDisplay(SECTION_TORSO_UPPER, displayRec, layer)) {
             return;
         }
     } else {
@@ -4514,7 +4524,7 @@ void CCharacterComponent::UpdateItemTL(ITEM_SLOT itemSlot, const ItemDisplayInfo
     int32_t layer = s_itemPriority[itemSlot][SECTION_TORSO_LOWER];
 
     if (apply) {
-        if (!this->UpdateTextureSlot(SECTION_TORSO_LOWER, displayRec, layer)) {
+        if (!this->UpdateItemDisplay(SECTION_TORSO_LOWER, displayRec, layer)) {
             return;
         }
     } else {
@@ -4532,7 +4542,7 @@ void CCharacterComponent::UpdateItemLU(ITEM_SLOT itemSlot, const ItemDisplayInfo
     int32_t layer = s_itemPriority[itemSlot][SECTION_LEG_UPPER];
 
     if (apply) {
-        if (!this->UpdateTextureSlot(SECTION_LEG_UPPER, displayRec, layer)) {
+        if (!this->UpdateItemDisplay(SECTION_LEG_UPPER, displayRec, layer)) {
             return;
         }
     } else {
@@ -4556,7 +4566,7 @@ void CCharacterComponent::UpdateItemFO(ITEM_SLOT itemSlot, const ItemDisplayInfo
     int32_t layer = s_itemPriority[itemSlot][SECTION_FOOT];
 
     if (!(this->m_flags & FLAGS::BARE_FEET) && apply) {
-        if (!this->UpdateTextureSlot(SECTION_FOOT, displayRec, layer)) {
+        if (!this->UpdateItemDisplay(SECTION_FOOT, displayRec, layer)) {
             return;
         }
     } else {
@@ -5118,6 +5128,11 @@ void CCharacterComponent::RenderPrepSections() {
         this->GeosRenderPrep();
     }
 
+#if defined(WOWDECOMP_ASSERTIONS)
+    const bool dirty = this->m_dirtySections || (this->m_flags & FLAGS::TEXTURES_DIRTY);
+    STORM_ASSERT(dirty);
+#endif
+
     if (!this->m_baseTexture) {
         this->CreateBaseTexture();
     }
@@ -5146,10 +5161,13 @@ bool CCharacterComponent::RenderPrep(BOOL wait) {
             this->GeosRenderPrep();
         }
 
+        STORM_ASSERT(m_baseTexture);
         return true;
     }
 
     if (!(this->m_flags & FLAGS::TEXTURES_DIRTY)) {
+        STORM_ASSERT(m_baseTexture);
+
         if (!this->m_link.m_next) {
             CCharacterComponent::s_updateList.LinkToTail(this);
         }
@@ -5334,6 +5352,8 @@ bool CCharacterComponent::Initialize(EGxTexFormat format, uint32_t mipLevels, BO
 
     TextureCacheResetLoadCount();
 
+    STORM_ASSERT(g_chrRacesDB.GetNumRecords() > 0);
+    STORM_ASSERT(g_charSectionsDB.GetNumRecords() > 0);
     uint32_t count = 2 * g_chrRacesDB.GetMaxID() + 2;
     CCharacterComponent::s_chrVarArrayLength = count;
     BuildComponentArray(count, &CCharacterComponent::s_chrVarArray);

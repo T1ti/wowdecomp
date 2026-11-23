@@ -221,7 +221,7 @@ const char* CGCorpse_C::GetPortraitTexture() const {
 // VERIFY: e4a2c418 auto
 // OFFSET: 0x007058B0
 BOOL CGCorpse_C::ShouldFadeout() {
-    return !this->m_component || (TextureIsReadyNow(this->m_component->m_baseTexture) && this->m_component->RenderPrep(0));
+    return !this->m_component || (TextureIsReadyNow(this->m_component->GetBaseTexture()) && this->m_component->RenderPrep(0));
 }
 
 // VERIFY: 761d4ea2 auto
