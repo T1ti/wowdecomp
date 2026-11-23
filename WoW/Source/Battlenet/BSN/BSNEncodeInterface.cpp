@@ -569,7 +569,7 @@ bool BSN::BSNPrimitiveEncoder::SetOptional(EncodeContext* context, bool exists) 
 // VERIFY: 284266a9 auto
 // OFFSET: 0x00889360
 bool BSN::BSNPrimitiveEncoder::WalkAndSet(const PrimitiveEncoder* encoder, EncodeContext* context, const EncodeContext* source) const {
-    if (!source->m_protocol->m_dumpInfoSize) {
+    if (!source->m_protocol->HasDumpInfo()) {
         return false;
     }
 
@@ -588,7 +588,7 @@ bool BSN::BSNPrimitiveEncoder::WalkAndSet(const PrimitiveEncoder* encoder, Encod
 // VERIFY: c490c34a auto
 // OFFSET: 0x008893C0
 bool BSN::BSNPrimitiveEncoder::WalkAndGet(const PrimitiveEncoder* encoder, const EncodeContext* source, EncodeContext* context) const {
-    if (!context->m_protocol->m_dumpInfoSize) {
+    if (!context->m_protocol->HasDumpInfo()) {
         return false;
     }
 

@@ -16,9 +16,21 @@ class FourCC {
 };
 
 namespace Protocol {
+namespace Meta {
+class Base;
+}
+
 class Protocol {
     public:
-    /* 0000 */ uint32_t m_bytecodeSize;
+    Protocol(const uint8_t* bytecodeData, uint32_t bytecodeSize, const void* const* codeInfoData, uint32_t codeInfoCount);
+    const uint8_t* TypeInfo(uint32_t t) const;
+    const uint8_t* DumpInfo(uint32_t t) const;
+    const char* DumpString(const uint8_t* dumpInfo, uint32_t index) const;
+    bool HasDumpInfo() const { return m_dumpInfoSize != 0; } // (inferred)
+
+    private:
+    friend class Meta::Base; // Access inferred from its direct code table lookup.
+    /* 0000 */ uint32_t bytecodeSize;
     /* 0004 */ const uint8_t* m_bytecode;
     /* 0008 */ uint32_t m_codeInfoCount;
     /* 000C */ const void* const* m_codeInfo;
@@ -31,11 +43,6 @@ class Protocol {
     /* 0028 */ const uint8_t* m_typeInfo;
     /* 002C */ const uint8_t* m_dumpOffsets;
     /* 0030 */ const uint8_t* m_dumpInfo;
-
-    Protocol(const uint8_t* bytecode, uint32_t bytecodeSize, const void* const* codeInfo, uint32_t codeInfoCount);
-    const uint8_t* TypeInfo(uint32_t typeId) const;
-    const uint8_t* DumpInfo(uint32_t typeId) const;
-    const char* DumpString(const uint8_t* dumpInfo, uint32_t index) const;
 };
 
 uint32_t GetUInt32(const uint8_t*& cursor);
