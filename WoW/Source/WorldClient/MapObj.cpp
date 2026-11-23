@@ -400,7 +400,7 @@ bool CMapObj::CullBatch(SMOBatch* batch) {
 // VERIFY: bd88db75 auto
 // OFFSET: 0x007A7B00
 static void __stdcall WriteLiquidVertex(CMapObjGroup* group, const C44Matrix& matrix, const C3Vector& vertex, const SMOLVert* liquidVert, const CImVector* color, int32_t magma, float texCoord1U, int32_t* unused, uint32_t stride, C3Vector** position, C3Vector** normal, CImVector** vertexColor, C2Vector** texCoord0, C2Vector** texCoord1) {
-    DepthCoordTable* depthTable = CMap::GetDepthCoordTable(group->m_liquidType);
+    DepthCoordTable* depthTable = CMap::GetDepthCoordTable(group->GetLiquidType());
 
     if (*position) {
         **position = vertex * matrix;

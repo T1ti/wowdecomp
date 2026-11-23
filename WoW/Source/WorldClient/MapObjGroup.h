@@ -226,15 +226,12 @@ class CMapObjGroup {
         /* 0008 */ TSFixedArray<C3Vector> m_verts;
     };
 
-    static TSExplicitList<VertArray, offsetof(VertArray, m_link)> s_freeVertArrays;
     static VBBList indexVBList;
     static VBBList vertexVBList;
 
     static void Destroy();
     static void Initialize();
-    static void AsyncFailedCallback(CAsyncObject* object);
     static void AsyncPostloadCallback(void* arg);
-    static void AllocVertArray(CMapObjGroup::VertArray** vertArray, uint32_t count);
 
     /* 0000 */ int32_t m_objectIndex;
     /* 0004 */ VBBList::Block* m_vertsBlock;
@@ -283,8 +280,12 @@ class CMapObjGroup {
     /* 0138 */ SMOLTile* m_liquidTileList;
     /* 013C */ float m_liquidHeight;
     /* 0140 */ float m_liquidMaxHeight;
+
+    private:
     /* 0144 */ int32_t m_liquidType;
     /* 0148 */ int32_t m_numSharedTiles;
+
+    public:
     /* 014C */ int32_t unused_014C;
     /* 0150 */ int32_t m_polyListSize;
     /* 0154 */ int32_t m_indicesCount;
@@ -317,40 +318,45 @@ class CMapObjGroup {
     void Init();
     void Clear();
     void FreeVB();
-    void InitPtrs();
     void Create();
-    void CreateDataPointers(SIffChunk* dataChunk);
-    void CreateOptionalDataPointers(SIffChunk* dataChunk);
     void AllocVB();
     void AllocLiquidVB(EGxVertexBufferFormat format, uint32_t vertexCount, uint32_t indexCount, CGxBatch** batch);
     void FreeLiquidVB();
     void SetIndexVB();
-    void UploadIndexBuffer(CGxBuf* buf);
     void SetVertexVB();
-    void FillVertexVB(CGxBuf* buf, EGxVertexBufferFormat format);
     void SetTransparencyVB();
-    void FillTransparencyVB(CGxBuf* buf);
-    void FixColorVertexAlpha();
-    void HandleAntiportal();
-    int32_t FindLiquidType();
     bool GetTris(const CWFrustum& frustum, uint32_t flags, uint16_t faceIgnoreFlags, World::TriData* triData, CMapObjDef* mapObjDef);
     bool GetTris(const C3Segment& seg, float* dist, uint32_t flags, uint16_t faceIgnoreFlags, World::TriData* triData, CMapObjDef* mapObjDef);
     bool GetTris(const CAaBox& box, uint32_t flags, uint16_t faceIgnoreFlags, World::TriData* triData, CMapObjDef* mapObjDef);
-    void GetTrisFromQuery(World::TriData* triData, BspQuery& q, CMapObjDef* mapObjDef, uint32_t statusFlags);
     static void SetLighting(CMapObjGroup* group, uint32_t mode);
     bool Intersect(C3Segment& seg, float* dist, uint32_t flags, uint16_t faceIgnoreFlags, int32_t* hitIndex);
     bool GetFacesForLinking(C3Segment& seg, float* t0, int32_t* face0, float* t1, int32_t* face1);
     bool QueryLiquid(const C3Vector& pos, int32_t* liquidType, float* level);
     void QueryLiquidSounds(const C3Vector& pos, TSGrowableArray<World::LiquidQueryResult>& results);
-    void GenLiquidVerts();
     int32_t GetLiquidType() const;
-    int32_t GetLiquidType(uint32_t groupLiquid);
     uint32_t GetNumSharedTiles();
     bool GetLiquidTris(const CAaBox& box, uint32_t flags, World::TriData* triData, CMapObjDef* mapObjDef);
     bool GetLiquidTris(const CFrustum& frustum, uint32_t flags, World::TriData* triData, CMapObjDef* mapObjDef);
     bool GetLiquidFacets(const CAaBox& box, uint32_t flags, World::FacetData* facets, CMapObjDef* mapObjDef);
     bool VectorIntersectLiquid(const C3Segment& seg, float* t, uint32_t flags, World::TriData* triData, CMapObjDef* mapObjDef);
     bool VectorIntersectLiquidTiles(const C3Segment& seg, float* t, uint32_t flags, uint32_t* tileCount, uint8_t* tiles, World::TriData* triData, CMapObjDef* mapObjDef);
+
+    private:
+    static TSExplicitList<VertArray, offsetof(VertArray, m_link)> s_freeVertArrays;
+    static void AllocVertArray(CMapObjGroup::VertArray** vertArray, uint32_t count);
+    static void AsyncFailedCallback(CAsyncObject* object);
+    void InitPtrs();
+    void CreateDataPointers(SIffChunk* dataChunk);
+    void CreateOptionalDataPointers(SIffChunk* dataChunk);
+    void UploadIndexBuffer(CGxBuf* buf);
+    void FillVertexVB(CGxBuf* buf, EGxVertexBufferFormat format);
+    void FillTransparencyVB(CGxBuf* buf);
+    void FixColorVertexAlpha();
+    void HandleAntiportal();
+    int32_t FindLiquidType() const;
+    int32_t GetLiquidType(uint32_t groupLiquid) const;
+    void GenLiquidVerts();
+    void GetTrisFromQuery(World::TriData* triData, BspQuery& q, CMapObjDef* mapObjDef, uint32_t statusFlags);
     void VectorIntersectLiquidSX(const C3Vector& startPoint, const C3Vector& endPoint, uint32_t& numTiles, uint8_t* tiles, uint32_t maxTiles);
     void VectorIntersectLiquidSY(const C3Vector& startPoint, const C3Vector& endPoint, uint32_t& numTiles, uint8_t* tiles, uint32_t maxTiles);
     void VectorIntersectLiquidDX(const C3Vector& startPoint, const C3Vector& endPoint, uint32_t& numTiles, uint8_t* tiles, uint32_t maxTiles);

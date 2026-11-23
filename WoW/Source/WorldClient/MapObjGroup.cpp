@@ -949,7 +949,7 @@ void CMapObjGroup::UploadIndexBuffer(CGxBuf* buf) {
 
 // VERIFY: 12c31afd auto
 // OFFSET: 0x007C8D80
-int32_t CMapObjGroup::FindLiquidType() {
+int32_t CMapObjGroup::FindLiquidType() const {
     int32_t count = this->liquidTiles.x * this->liquidTiles.y;
 
     for (int32_t i = 0; i < count; i++) {
@@ -1588,7 +1588,7 @@ CMapObjGroup::~CMapObjGroup() {
 
 // VERIFY: 0c68f770 auto
 // OFFSET: 0x007D7310
-int32_t CMapObjGroup::GetLiquidType(uint32_t groupLiquid) {
+int32_t CMapObjGroup::GetLiquidType(uint32_t groupLiquid) const {
     if (groupLiquid < NUM_BASIC_LIQUID_TYPES && groupLiquid) {
         switch ((groupLiquid - 1) & 3) {
             case LIQUID_BASIC_TYPE_WATER:
