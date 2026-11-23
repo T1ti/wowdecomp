@@ -10,6 +10,7 @@
 #include "WoW/Source/ObjectMgrClient/ObjectMgrClient.h"
 #include "WoW/Source/Object/ObjectClient/Object_C.h"
 #include "WoW/Source/UIUtil/Camera.h"
+#include "WoW/Source/Ui/WorldFrame.h"
 #include "WoW/Source/WorldClient/CPortalView.h"
 #include "WoW/Source/WorldClient/DayNight__DNInfo.h"
 #include "WoW/Source/WorldClient/Map.h"
@@ -85,7 +86,11 @@ void CShadowQuery::FreeBuffers() {
 // OFFSET: 0x007BB3E0
 static void GetViewerPosition(C3Vector* position) {
     *position = DayNight::GetInfo()->m_cameraPos;
+#ifdef WOWDECOMP_TOOL_FEATURES
     CGCamera* camera = World::GetViewCamera();
+#else
+    CGCamera* camera = CGWorldFrame::GetActiveCamera();
+#endif
 
     if (!camera) {
         return;
@@ -135,7 +140,11 @@ void CShadowQuery::MatrixCallback(C3Vector& center, float radius, C44Matrix& mat
     C3Vector eye(0.0f, 0.0f, 0.0f);
     C3Vector target(0.0f, 0.0f, 0.0f);
     C3Vector camera(0.0f, 0.0f, 0.0f);
+#ifdef WOWDECOMP_TOOL_FEATURES
     World::GetViewCameraPosition(&camera);
+#else
+    CGWorldFrame::GetCameraPosition(&camera);
+#endif
 
     eye.x = center.x - CShadowCache::s_sunDir.x * 2000.0f - camera.x;
     eye.y = center.y - CShadowCache::s_sunDir.y * 2000.0f - camera.y;
@@ -351,7 +360,11 @@ int32_t CShadowQuery::RenderCallback(CShadowCacheQueryData& data, int32_t band, 
     GxRsSet(GxRs_Fog, 0);
 
     CShaderEffect* effect = CShaderEffectManager::GetEffect("ShadowMapRenderSL");
+#ifdef WOWDECOMP_TOOL_FEATURES
     World::GetViewCameraPosition(&camera);
+#else
+    CGWorldFrame::GetCameraPosition(&camera);
+#endif
     C3Vector& pos = data.m_pos[band];
     eye.x = pos.x - CShadowCache::s_sunDir.x * 2000.0f - camera.x;
     eye.y = pos.y - CShadowCache::s_sunDir.y * 2000.0f - camera.y;

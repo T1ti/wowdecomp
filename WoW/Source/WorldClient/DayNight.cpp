@@ -34,6 +34,9 @@
 #include "WoW/Source/WorldClient/WorldParam.h"
 #include "Engine/Source/Gxu/Gxu.h"
 #include "WoW/Source/Ui/WorldFrame.h"
+#ifdef WOWDECOMP_TOOL_FEATURES
+#include "WoW/Source/WorldClient/WorldEditHooks.h"
+#endif
 #include "Engine/Source/ShaderEffect/Types.h"
 #include "WoW/Source/DebugFeatures.h"
 
@@ -3075,8 +3078,13 @@ float DayNight::DNGlare::GetPointOcclusion() {
         return 0.0f;
     }
 
-    CGWorldFrame* frame = CGWorldFrame::GetActive();
-    return !frame || !frame->HitTestModelList(start, end);
+#ifdef WOWDECOMP_TOOL_FEATURES
+    // The standalone editor's scene models have already been tested by World::Intersect.
+    if (WorldEditGetView()) {
+        return 1.0f;
+    }
+#endif
+    return !CGWorldFrame::GetActive()->HitTestModelList(start, end);
 }
 
 // VERIFY: 5f4e0628 manual

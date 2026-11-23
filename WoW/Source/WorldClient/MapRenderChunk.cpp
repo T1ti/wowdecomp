@@ -25,7 +25,9 @@
 #include "WoW/Source/WorldClient/MapLight.h"
 #include "WoW/Source/WorldClient/Types.h"
 #include "WoW/Source/WorldClient/World.h"
+#ifdef WOWDECOMP_TOOL_FEATURES
 #include "WoW/Source/WorldClient/WorldEditHooks.h"
+#endif
 #if defined(_MSC_VER)
 #include <malloc.h>
 #else

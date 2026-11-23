@@ -16,6 +16,7 @@
 #include "WoW/Source/Game/GameClient/ProjectTex.h"
 #include "WoW/Source/WorldClient/MapObjGroup.h"
 #include "WoW/Source/WorldClient/MapChunk.h"
+#include "WoW/Source/Ui/WorldFrame.h"
 #include "Engine/Source/Gx/CGxBuf.h"
 #include "Engine/Source/Gx/CGxVertexPC.h"
 #include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
@@ -534,7 +535,11 @@ void ProjectTex2dDrawShaderEffect(const CAaBox& box, const CImVector& color, uin
     }
 
     C3Vector cameraPos(0.0f, 0.0f, 0.0f);
+#ifdef WOWDECOMP_TOOL_FEATURES
     World::GetViewCameraPosition(&cameraPos);
+#else
+    CGWorldFrame::GetCameraPosition(&cameraPos);
+#endif
     C44Matrix view;
     view.a0 = 1.0f;
     view.a1 = 0.0f;
@@ -645,7 +650,11 @@ static void ProjectTexRender2d(const CAaBox& box, const CImVector& color, uint32
     }
 
     C3Vector cameraPos(0.0f, 0.0f, 0.0f);
+#ifdef WOWDECOMP_TOOL_FEATURES
     World::GetViewCameraPosition(&cameraPos);
+#else
+    CGWorldFrame::GetCameraPosition(&cameraPos);
+#endif
     C44Matrix view;
     view.a0 = 1.0f;
     view.a1 = 0.0f;

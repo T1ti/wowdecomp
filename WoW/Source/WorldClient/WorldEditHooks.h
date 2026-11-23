@@ -11,7 +11,6 @@
 //     editor can draw the terrain mesh again with its own shaders (grid, slopes, ...): by CWorldScene::RenderChunks
 //     after the terrain passes, and by CGWorldFrame::OnWorldRender with the overlays, after the rest of the scene. This is an editor pass of its own, apart from the debug-feature zone pass
 //     (CWorldScene::RenderChunksZoneDebug, render list 20).
-//   - world view: overrides for the standalone editor's camera, streaming and terrain budget.
 
 #ifdef WOWDECOMP_TOOL_FEATURES
 
@@ -23,6 +22,7 @@ class C3Vector;
 class CGCamera;
 class CMapRenderChunk;
 
+// Camera, streaming and terrain budget for the standalone editor.
 struct WorldEditView {
     CGCamera* m_camera;
     float m_minFarClip;

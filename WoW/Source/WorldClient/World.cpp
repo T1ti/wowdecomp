@@ -1236,20 +1236,23 @@ void World::ObjectDestroy(CMapEntity* baseObj) {
 void World::PrepareAreaOfInterest(const C3Vector& position) {
     World::s_currentWorldPos = position;
 
+#ifdef WOWDECOMP_TOOL_FEATURES
     CGCamera* camera = World::GetViewCamera();
+#else
+    CGCamera* camera = CGWorldFrame::GetActiveCamera();
+#endif
     float farZ = camera->m_clipRange.m_h;
     float nearZ = camera->m_clipRange.m_l;
     float fov = camera->FOV();
 
     C44Matrix projection;
-    float streamFarZ = farZ;
 #ifdef WOWDECOMP_TOOL_FEATURES
     const WorldEditView* editorView = WorldEditGetView();
     if (editorView) {
-        streamFarZ = editorView->m_streamFarClip;
+        farZ = editorView->m_streamFarClip;
     }
 #endif
-    GxuXformCreateProjection_Exact(fov * 0.6f, camera->m_aspect, nearZ, streamFarZ, projection);
+    GxuXformCreateProjection_Exact(fov * 0.6f, camera->m_aspect, nearZ, farZ, projection);
 
     C44Matrix view;
     GxXformView(view);
@@ -1344,24 +1347,22 @@ C3Vector* World::GetCamPos() {
     return &CWorldScene::s_activeWorldView;
 }
 
-CGCamera* World::GetViewCamera() {
 #ifdef WOWDECOMP_TOOL_FEATURES
+CGCamera* World::GetViewCamera() {
     if (const WorldEditView* editorView = WorldEditGetView()) {
         return editorView->m_camera;
     }
-#endif
     return CGWorldFrame::GetActiveCamera();
 }
 
 void World::GetViewCameraPosition(C3Vector* position) {
-#ifdef WOWDECOMP_TOOL_FEATURES
     if (const WorldEditView* editorView = WorldEditGetView()) {
         *position = editorView->m_camera->m_position;
         return;
     }
-#endif
     CGWorldFrame::GetCameraPosition(position);
 }
+#endif
 
 // VERIFY: 21d7eb14 auto
 // OFFSET: 0x00780650
@@ -2140,16 +2141,20 @@ int32_t CWorldScene::FrustumCull(const C3Vector& center, float radius) {
 // VERIFY: e94a022f auto
 // OFFSET: 0x00791170
 void CWorldScene::BuildHorizonProjection(C44Matrix* projection) {
+#ifdef WOWDECOMP_TOOL_FEATURES
     CGCamera* camera = World::GetViewCamera();
+#else
+    CGCamera* camera = CGWorldFrame::GetActiveCamera();
+#endif
     float farZ = camera->m_clipRange.m_h;
     float fov = camera->FOV();
-    float horizonFarZ = World::s_horizonFarClipScale * World::farClip;
 #ifdef WOWDECOMP_TOOL_FEATURES
     if (const WorldEditView* editorView = WorldEditGetView()) {
-        horizonFarZ = editorView->m_horizonFarClip;
+        GxuXformCreateProjection_Exact(fov * 0.6f, camera->m_aspect, farZ - 50.0f, editorView->m_horizonFarClip, *projection);
+        return;
     }
 #endif
-    GxuXformCreateProjection_Exact(fov * 0.6f, camera->m_aspect, farZ - 50.0f, horizonFarZ, *projection);
+    GxuXformCreateProjection_Exact(fov * 0.6f, camera->m_aspect, farZ - 50.0f, World::s_horizonFarClipScale * World::farClip, *projection);
 }
 
 // VERIFY: 6cb64bd1 manual

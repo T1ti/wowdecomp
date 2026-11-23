@@ -109,7 +109,9 @@ class CChunkLiquid;
 class CDetailDoodadInst;
 class CMapBaseObj;
 class CMapChunk;
+#ifdef WOWDECOMP_TOOL_FEATURES
 class CGCamera;
+#endif
 class CMapDoodadDef;
 class CMapDoodadDefMapChunkLink;
 
@@ -417,8 +419,10 @@ extern WOWGUID s_highlightedObjectGuid;
 class WMOAreaTableRec;
 
 namespace World {
+#ifdef WOWDECOMP_TOOL_FEATURES
     CGCamera* GetViewCamera();
     void GetViewCameraPosition(C3Vector* position);
+#endif
     class TriData;
     class HitTestDebug {
         public:

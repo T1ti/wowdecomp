@@ -13,7 +13,9 @@
 #include "WoW/Source/WorldClient/MapRenderChunk.h"
 #include "WoW/Source/WorldClient/Types.h"
 #include "WoW/Source/WorldClient/World.h"
+#ifdef WOWDECOMP_TOOL_FEATURES
 #include "WoW/Source/WorldClient/WorldEditHooks.h"
+#endif
 #include <cmath>
 #include "Engine/Source/Tempest/CMath.h"
 #include "WoW/Source/WorldClient/CChunkLiquid.h"

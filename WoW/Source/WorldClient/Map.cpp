@@ -80,7 +80,9 @@
 #include "WoW/Source/WorldClient/Types.h"
 #include "WoW/Source/WorldClient/WaterRipple.h"
 #include "WoW/Source/WorldClient/World.h"
+#ifdef WOWDECOMP_TOOL_FEATURES
 #include "WoW/Source/WorldClient/WorldEditHooks.h"
+#endif
 #include "WoW/Source/WorldClient/WorldView.h"
 #include "WoW/Source/DB/Rec/GroundEffectTextureRec.h"
 #include "WoW/Source/WorldClient/WorldParam.h"
@@ -1963,16 +1965,18 @@ void CMap::ProcessRenderChunkUpdateList() {
         renderChunk->m_lastUpdateTime = FrameTime::s_tickTimeSec + renderChunk->m_lastUpdateTime;
         CMapRenderChunk* next = CMap::s_mapRenderChunkUpdateList.Next(renderChunk);
 
-        bool expired = renderChunk->m_lastUpdateTime > 2.0f;
 #ifdef WOWDECOMP_TOOL_FEATURES
+        bool expired = renderChunk->m_lastUpdateTime > 2.0f;
         if (!expired && editorView) {
             const CMapChunk* first = renderChunk->m_chunks[0];
             const CMapChunk* second = renderChunk->m_chunks[1];
             expired = (!first || !editorView->IncludesTerrain(first->m_bbox2)) &&
                       (!second || !editorView->IncludesTerrain(second->m_bbox2));
         }
-#endif
         if (expired) {
+#else
+        if (renderChunk->m_lastUpdateTime > 2.0f) {
+#endif
             renderChunk->FreeBuf();
         }
 
