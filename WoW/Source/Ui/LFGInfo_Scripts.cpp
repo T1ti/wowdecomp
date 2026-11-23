@@ -1130,7 +1130,7 @@ static int32_t Script_GetLFDChoiceCollapseState(lua_State* L) {
 
             if (s_cvLfdCollapsedHeaders) {
                 CVarArrayWrapper wrapper(s_cvLfdCollapsedHeaders);
-                collapsed = wrapper.RawGetValue(header) != wrapper.m_defaultValue;
+                collapsed = wrapper.RawGetValue(header) != wrapper.GetDefaultValue();
             }
 
             lua_pushboolean(L, collapsed);
@@ -1140,7 +1140,7 @@ static int32_t Script_GetLFDChoiceCollapseState(lua_State* L) {
 
             if (s_cvLfdCollapsedHeaders) {
                 CVarArrayWrapper wrapper(s_cvLfdCollapsedHeaders);
-                lua_pushboolean(L, wrapper.RawGetValue(header) != wrapper.m_defaultValue);
+                lua_pushboolean(L, wrapper.RawGetValue(header) != wrapper.GetDefaultValue());
             } else {
                 lua_pushboolean(L, 0);
             }
@@ -1168,7 +1168,7 @@ static int32_t Script_GetLFDChoiceCollapseState(lua_State* L) {
 
             if (s_cvLfdCollapsedHeaders) {
                 CVarArrayWrapper wrapper(s_cvLfdCollapsedHeaders);
-                collapsed = wrapper.RawGetValue(header) != wrapper.m_defaultValue;
+                collapsed = wrapper.RawGetValue(header) != wrapper.GetDefaultValue();
             }
 
             lua_pushboolean(L, collapsed);
@@ -1178,7 +1178,7 @@ static int32_t Script_GetLFDChoiceCollapseState(lua_State* L) {
 
             if (s_cvLfdCollapsedHeaders) {
                 CVarArrayWrapper wrapper(s_cvLfdCollapsedHeaders);
-                lua_pushboolean(L, wrapper.RawGetValue(header) != wrapper.m_defaultValue);
+                lua_pushboolean(L, wrapper.RawGetValue(header) != wrapper.GetDefaultValue());
             } else {
                 lua_pushboolean(L, 0);
             }
@@ -1231,7 +1231,7 @@ static int32_t Script_GetLFDChoiceEnabledState(lua_State* L) {
 
         CVarArrayWrapper wrapper(s_cvLfdSelectedDungeons);
 
-        if (wrapper.RawGetValue(entry.m_id) != wrapper.m_defaultValue) {
+        if (wrapper.RawGetValue(entry.m_id) != wrapper.GetDefaultValue()) {
             lua_pushnumber(L, entry.m_id);
             lua_pushboolean(L, 1);
             lua_settable(L, -3);
@@ -1254,7 +1254,7 @@ static int32_t Script_GetLFDChoiceEnabledState(lua_State* L) {
 
         CVarArrayWrapper wrapper(s_cvLfdSelectedDungeons);
 
-        if (wrapper.RawGetValue(entry.m_id) != wrapper.m_defaultValue) {
+        if (wrapper.RawGetValue(entry.m_id) != wrapper.GetDefaultValue()) {
             lua_pushnumber(L, entry.m_id);
             lua_pushboolean(L, 1);
             lua_settable(L, -3);

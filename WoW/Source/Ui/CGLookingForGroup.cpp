@@ -459,7 +459,7 @@ bool CGLookingForGroup::SetHeaderCollapsed(uint32_t header, bool collapsed) {
     }
 
     CVarArrayWrapper wrapper(s_cvLfdCollapsedHeaders);
-    return wrapper.RawSetValue(header, collapsed != wrapper.m_defaultValue);
+    return wrapper.RawSetValue(header, collapsed != wrapper.GetDefaultValue());
 }
 
 // VERIFY: 4c9a2a42 auto
@@ -470,7 +470,7 @@ bool CGLookingForGroup::SetDungeonEnabled(uint32_t dungeon, bool enabled) {
     }
 
     CVarArrayWrapper wrapper(s_cvLfdSelectedDungeons);
-    return wrapper.RawSetValue(dungeon, enabled != wrapper.m_defaultValue);
+    return wrapper.RawSetValue(dungeon, enabled != wrapper.GetDefaultValue());
 }
 
 // VERIFY: 60bc3b0b manual

@@ -1759,10 +1759,7 @@ int32_t CGQuestLog::GetQuestLeaderBoardForObject(int32_t questId, int32_t object
 // VERIFY: 82a1d9ef manual
 // OFFSET: 0x005E65B0
 void CGQuestLog::LoadTrackedQuests() {
-    CVarIntListWrapper list;
-    list.m_cvar = CVar::Lookup("trackedQuests");
-    list.m_pos = 2;
-    list.m_lastOp = CVarIntListWrapper::CVAR_INT_LIST_OP_NONE;
+    CVarIntListWrapper list(CVar::Lookup("trackedQuests"));
 
     for (uint32_t questId = list.GetNextValue(); questId; questId = list.GetNextValue()) {
         CGQuestLog::AddQuestWatch(questId, 0);
@@ -1770,12 +1767,7 @@ void CGQuestLog::LoadTrackedQuests() {
 
     CGQuestLog::m_trackedQuestsLoaded = 1;
 
-    if (list.m_lastOp != CVarIntListWrapper::CVAR_INT_LIST_OP_GET) {
-        list.m_buffer[0] = 'v';
-        list.m_buffer[1] = 1;
-        list.m_buffer[list.m_pos] = 0;
-        list.m_cvar->Set(list.m_buffer, true, false, false, true);
-    }
+    list.Commit();
 }
 
 // VERIFY: 0b80614f manual
@@ -2215,10 +2207,7 @@ bool CGQuestLog::IsPOIVisibleOnDungeonMap(const int32_t* point, int32_t mapId, i
 // VERIFY: 2b97ec8b manual
 // OFFSET: 0x005E0240
 void CGQuestLog::SaveTrackedQuests() {
-    CVarIntListWrapper list;
-    list.m_cvar = CVar::Lookup("trackedQuests");
-    list.m_pos = 2;
-    list.m_lastOp = CVarIntListWrapper::CVAR_INT_LIST_OP_NONE;
+    CVarIntListWrapper list(CVar::Lookup("trackedQuests"));
 
     for (uint32_t i = 0; i < CGQuestLog::m_numQuestWatches; i++) {
         if (!CGQuestLog::m_questWatches[i].m_expireTime) {
@@ -2226,12 +2215,7 @@ void CGQuestLog::SaveTrackedQuests() {
         }
     }
 
-    if (list.m_lastOp != CVarIntListWrapper::CVAR_INT_LIST_OP_GET) {
-        list.m_buffer[0] = 'v';
-        list.m_buffer[1] = 1;
-        list.m_buffer[list.m_pos] = 0;
-        list.m_cvar->Set(list.m_buffer, true, false, false, true);
-    }
+    list.Commit();
 }
 
 // STATIC: 0x00AD1264

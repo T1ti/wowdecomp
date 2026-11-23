@@ -77,27 +77,35 @@ struct CVar : public TSHashObject<CVar, HASHKEY_STRI> {
 
     CVar();
     void Default();
-    void InternalSet(const char* value, bool setValue, bool setReset, bool setDefault, bool setNeedsSave);
     void Reset();
     bool Set(const char* value, bool setValue, bool setReset, bool setDefault, bool setNeedsSave);
     bool Set(int32_t value, bool setValue, bool setReset, bool setDefault, bool setNeedsSave);
     void SetReadOnly(bool readOnly);
     bool Update();
+
+    private:
+    void InternalSet(const char* value, bool setValue, bool setReset, bool setDefault, bool setNeedsSave);
 };
 
 class CVarArrayWrapper {
-    public:
+    private:
     /* 0000 */ CVar* m_cvar;
     /* 0004 */ uint8_t m_defaultValue;
 
-    CVarArrayWrapper(CVar* cvar);
+    void UpdateFromVersion(int32_t version);
+
+    public:
+    explicit CVarArrayWrapper(CVar* cvar);
+    uint8_t GetDefaultValue() const { return this->m_defaultValue; } // (inferred)
     bool RawGetValue(uint32_t index) const;
     bool RawSetValue(uint32_t index, bool value);
-    void UpdateFromVersion(int32_t version);
 };
 
 class CVarIntListWrapper {
-    public:
+    private:
+    static constexpr uint32_t CVAR_INT_LIST_MAX_VALUE = 93 * 93 * 93 - 1;
+    static constexpr uint32_t CVAR_INT_LIST_MAX_STRING_SIZE = 256;
+
     // Last operation on the list (names from the 12213 assertions; type name and NONE inferred).
     enum CVAR_INT_LIST_OP : uint32_t {
         CVAR_INT_LIST_OP_NONE = 0,
@@ -106,14 +114,26 @@ class CVarIntListWrapper {
     };
 
     /* 0000 */ CVar* m_cvar;
-    /* 0004 */ uint32_t m_pos;
-    /* 0008 */ char m_buffer[256];
+    /* 0004 */ uint32_t m_listIndex;
+    /* 0008 */ char m_buffer[CVAR_INT_LIST_MAX_STRING_SIZE];
     /* 0108 */ CVAR_INT_LIST_OP m_lastOp;
 
-    void AddNextValue(uint32_t value);
-    uint32_t GetNextValue();
     void UpdateFromVersion(int32_t version);
     void WriteVersionTag();
+
+    public:
+    explicit CVarIntListWrapper(CVar* cvar)
+        : m_cvar(cvar), m_listIndex(2), m_lastOp(CVAR_INT_LIST_OP_NONE) {
+    }
+
+    void Commit() { // (inferred)
+        if (this->m_lastOp != CVAR_INT_LIST_OP_GET) {
+            this->WriteVersionTag();
+        }
+    }
+
+    void AddNextValue(uint32_t val);
+    uint32_t GetNextValue();
 };
 
 // INLINED

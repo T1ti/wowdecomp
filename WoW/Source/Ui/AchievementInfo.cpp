@@ -440,22 +440,13 @@ int32_t Packet_SMSG_CRITERIA_DELETED(void* param, NETMESSAGE msgId, uint32_t tim
 // VERIFY: 9a464c17 manual
 // OFFSET: 0x005B3840
 void CGAchievementInfo::LoadTrackedAchievements() {
-    CVarIntListWrapper list;
-    list.m_cvar = CVar::Lookup("trackedAchievements");
-    list.m_pos = 2;
-    list.m_lastOp = CVarIntListWrapper::CVAR_INT_LIST_OP_NONE;
+    CVarIntListWrapper list(CVar::Lookup("trackedAchievements"));
 
     for (uint32_t id = list.GetNextValue(); id; id = list.GetNextValue()) {
         AddTrackedAchievement(id);
     }
 
-    if (list.m_lastOp != CVarIntListWrapper::CVAR_INT_LIST_OP_GET) {
-        char value[256];
-        value[0] = 'v';
-        value[1] = 1;
-        value[list.m_pos] = '\0';
-        list.m_cvar->Set(value, true, false, false, true);
-    }
+    list.Commit();
 }
 
 // VERIFY: 4767fcb2 manual
@@ -502,21 +493,13 @@ void CGAchievementInfo::ShutdownGame() {
 // VERIFY: f42c8dbe manual
 // OFFSET: 0x005B1FA0
 void CGAchievementInfo::SaveTrackedAchievements() {
-    CVarIntListWrapper list;
-    list.m_cvar = CVar::Lookup("trackedAchievements");
-    list.m_pos = 2;
-    list.m_lastOp = CVarIntListWrapper::CVAR_INT_LIST_OP_NONE;
+    CVarIntListWrapper list(CVar::Lookup("trackedAchievements"));
 
     for (CLIENT_ACHIEVEMENTS* node = s_trackedAchievements.Head(); node; node = s_trackedAchievements.Next(node)) {
         list.AddNextValue(node->m_id);
     }
 
-    if (list.m_lastOp != CVarIntListWrapper::CVAR_INT_LIST_OP_GET) {
-        list.m_buffer[0] = 'v';
-        list.m_buffer[1] = 1;
-        list.m_buffer[list.m_pos] = 0;
-        list.m_cvar->Set(list.m_buffer, true, false, false, true);
-    }
+    list.Commit();
 }
 
 // VERIFY: 4929d50d manual
