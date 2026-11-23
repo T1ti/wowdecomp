@@ -83,7 +83,7 @@ void DungeonEncounterCountMatchingRows(int32_t mapId, int32_t difficulty, uint32
     *total = 0;
     *completed = 0;
 
-    for (int32_t i = 0; i < g_dungeonEncounterDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_dungeonEncounterDB.GetNumRecords(); i++) {
         DungeonEncounterRec* encounter = g_dungeonEncounterDB.GetRecordByIndex(i);
 
         if (encounter->m_mapID == mapId && encounter->m_difficulty == difficulty) {
@@ -99,7 +99,7 @@ void DungeonEncounterCountMatchingRows(int32_t mapId, int32_t difficulty, uint32
 // VERIFY: e291b497 auto
 // OFFSET: 0x005538B0
 int32_t PushDungeonEncounterInfo(lua_State* L, int32_t mapId, int32_t difficulty, int32_t index, uint32_t completedMask) {
-    for (int32_t i = 0; i < g_dungeonEncounterDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_dungeonEncounterDB.GetNumRecords(); i++) {
         DungeonEncounterRec* encounter = g_dungeonEncounterDB.GetRecordByIndex(i);
 
         if (encounter->m_mapID != mapId || encounter->m_difficulty != difficulty) {

@@ -17,8 +17,8 @@ uint32_t CompressRow(const uint8_t* src, uint32_t size, uint8_t* dst);
 class WowClientDB_Base {
     public:
     /* 0004 */ BOOL m_loaded;
-    /* 0008 */ int32_t m_nNumRecords;
     private:
+    /* 0008 */ int32_t m_nNumRecords;
     /* 000C */ int32_t m_maxID;
     /* 0010 */ int32_t m_minID;
 
@@ -29,6 +29,10 @@ class WowClientDB_Base {
     virtual void Load(const char* file, int32_t line) = 0;
     virtual void Dump(int32_t unknown1) = 0; // DBC dumping (name inferred from the 12213 assertion)
 
+    int32_t GetNumRecords() const {
+        return this->m_nNumRecords;
+    }
+
     int32_t GetMaxID() const {
         return this->m_maxID;
     }
@@ -36,6 +40,14 @@ class WowClientDB_Base {
     WowClientDB_Base();
 
     protected:
+    bool ReadNumRecords(SFileImpl* file) { // (inferred)
+        return SFileReadFile(file, &this->m_nNumRecords, sizeof(this->m_nNumRecords), nullptr, nullptr, 0) != 0;
+    }
+
+    void SetNumRecords(int32_t count) { // (inferred)
+        this->m_nNumRecords = count;
+    }
+
     int32_t GetMinID() const { // (inferred)
         return this->m_minID;
     }
@@ -137,11 +149,11 @@ void WowClientDB_Common<T>::Load(const char* file, int32_t line) {
         SErrDisplayAppFatalCustom(0x85100079, "Invalid signature 0x%x from %s", signature, T::GetFilename());
     }
 
-    if (!SFileReadFile(f, &this->m_nNumRecords, sizeof(this->m_nNumRecords), nullptr, nullptr, 0)) {
+    if (!this->ReadNumRecords(f)) {
         SErrDisplayAppFatalCustom(0x85100079, "Unable to read record count from %s", T::GetFilename());
     }
 
-    if (!this->m_nNumRecords) {
+    if (!this->GetNumRecords()) {
         SFileCloseFile(f);
         return;
     }
@@ -212,9 +224,9 @@ WowClientDB<T>::~WowClientDB() {
 // OFFSET: [0x00405860<Startup_StringsRec>, 0x00658D90<AchievementRec>, 0x00658EA0<Achievement_CriteriaRec>, 0x00658FB0<Achievement_CategoryRec>, 0x006590C0<AnimationDataRec>, 0x006591D0<AreaGroupRec>, 0x006592E0<AreaPOIRec>, 0x006593F0<AreaTableRec>, 0x00659590, 0x006596A0<BarberShopStyleRec>, 0x006597B0<BattlemasterListRec>, 0x00659910<Cfg_CategoriesRec>, 0x00659A70, 0x00659B80<CharBaseInfoRec>, 0x00659CA0, 0x00659DB0<CharStartOutfitRec>, 0x00659F00<CharTitlesRec>, 0x0065A010<CharacterFacialHairStylesRec>, 0x0065A120<ChatChannelsRec>, 0x0065A240<ChrClassesRec>, 0x0065A390<ChrRacesRec>, 0x0065A4A0, 0x0065A5B0<CinematicSequencesRec>, 0x0065A6C0<CreatureDisplayInfoExtraRec>, 0x0065A810<CreatureDisplayInfoRec>, 0x0065A920<CreatureFamilyRec>, 0x0065AA30<CreatureModelDataRec>, 0x0065AB90<CreatureSoundDataRec>, 0x0065ACE0<CreatureSpellDataRec>, 0x0065AE30, 0x0065AF50<CurrencyCategoryRec>, 0x0065B060<DanceMovesRec>, 0x0065B190<DeclinedWordCasesRec>, 0x0065B2A0<DestructibleModelDataRec>, 0x0065B3B0, 0x0065B4E0<DurabilityCostsRec>, 0x0065B670<EmotesTextRec>, 0x0065B780, 0x0065B8A0<FactionGroupRec>, 0x0065B9B0<FactionRec>, 0x0065BB00<FactionTemplateRec>, 0x0065BC10<FileDataRec>, 0x0065BD40<GameObjectArtKitRec>, 0x0065BE50<GameObjectDisplayInfoRec>, 0x0065BFA0<GameTablesRec>, 0x0065C180, 0x0065C330, 0x0065C4E0<HelmetGeosetVisDataRec>, 0x0065C610<HolidaysRec>, 0x0065C760, 0x0065C880<ItemClassRec>, 0x0065CBE0<ItemExtendedCostRec>, 0x0065CD20<ItemPurchaseGroupRec>, 0x0065CE70<ItemRandomPropertiesRec>, 0x0065CF80<ItemRandomSuffixRec>, 0x0065D0D0<ItemSetRec>, 0x0065D220<ItemSubClassMaskRec>, 0x0065D330<ItemSubClassRec>, 0x0065D450<ItemVisualsRec>, 0x0065D560, 0x0065D670, 0x0065D790<LfgDungeonGroupRec>, 0x0065D8A0<LfgDungeonsRec>, 0x0065D9B0<LiquidTypeRec>, 0x0065DAD0<LoadingScreensRec>, 0x0065DBE0<LoadingScreenTaxiSplinesRec>, 0x0065DCF0<LockRec>, 0x0065DE00<LockTypeRec>, 0x0065DF10<MailTemplateRec>, 0x0065E020<MapRec>, 0x0065E130<MapDifficultyRec>, 0x0065E240, 0x0065E3C0<NameGenRec>, 0x0065E4E0<OverrideSpellDataRec>, 0x0065E5F0<PackageRec>, 0x0065E710<PaperDollItemFrameRec>, 0x0065E820<ParticleColorRec>, 0x0065E930<PetPersonalityRec>, 0x0065EA40<PowerDisplayRec>, 0x0065EB90, 0x0065ECA0<RandPropPointsRec>, 0x0065EDB0, 0x0065EEC0<ScalingStatDistributionRec>, 0x0065EFD0<ScalingStatValuesRec>, 0x0065F0E0<ScreenEffectRec>, 0x0065F200, 0x0065F310<SkillCostsDataRec>, 0x0065F420<SkillLineAbilityRec>, 0x0065F570<SkillLineRec>, 0x0065F6E0<SkillTiersRec>, 0x0065F830<SoundAmbienceRec>, 0x0065F940<SoundEmittersRec>, 0x0065FA50<SoundEntriesRec>, 0x0065FB60<SoundProviderPreferencesRec>, 0x0065FC70<SoundSamplePreferencesRec>, 0x0065FD90, 0x0065FEC0<SpellChainEffectsRec>, 0x00660020, 0x00660130<SpellDispelTypeRec>, 0x006602C0<SpellItemEnchantmentRec>, 0x00660410<SpellItemEnchantmentConditionRec>, 0x00660570<SpellMissileRec>, 0x00660680<SpellMissileMotionRec>, 0x006607A0<SpellRangeRec>, 0x00660AE0<SpellShapeshiftFormRec>, 0x00660BF0<SpellVisualEffectNameRec>, 0x00660D00<SpellVisualKitRec>, 0x00660E30<SpellVisualRec>, 0x00660F80, 0x00661090<StationeryRec>, 0x006611C0<TalentRec>, 0x00661310<TalentTabRec>, 0x00661420<TaxiNodesRec>, 0x00661560<TerrainTypeRec>, 0x00661680, 0x006617C0, 0x006618E0, 0x00661A10, 0x00661B20<UnitBloodRec>, 0x00661C30<VehicleRec>, 0x00661D80<VehicleSeatRec>, 0x00661EF0<VocalUISoundsRec>, 0x00662040<WeaponImpactSoundsRec>, 0x00662150, 0x00662260<WeatherRec>, 0x00662370<WorldMapAreaRec>, 0x00662490<WorldMapContinentRec>, 0x006625A0<WorldMapOverlayRec>, 0x006626F0, 0x00662800<WorldSafeLocsRec>, 0x00662960<WorldStateUIRec>, 0x00662AD0<CharSectionsRec>, 0x00662BE0<ZoneIntroMusicTableRec>, 0x00662CF0<ZoneMusicRec>, 0x00662E00<WorldStateZoneSoundsRec>, 0x00662F10<WorldChunkSoundsRec>, 0x00663020<SoundEntriesAdvancedRec>, 0x00663170<ObjectEffectRec>, 0x00663290<ObjectEffectModifierRec>, 0x006633D0<SoundFilterElemRec>, 0x006634E0<WMOAreaTableRec>, 0x0076BBF0<VideoHardwareRec>, 0x007EC7A0<LightParamsRec>, 0x007EC8B0<LightRec>]
 template <class T>
 void WowClientDB<T>::LoadRecords(SFileImpl* f, const char* file, int32_t line) {
-    this->m_records = static_cast<T*>(SMemAlloc(sizeof(T) * this->m_nNumRecords, file, line, 0));
+    this->m_records = static_cast<T*>(SMemAlloc(sizeof(T) * this->GetNumRecords(), file, line, 0));
 
-    for (int32_t i = 0; i < this->m_nNumRecords; i++) {
+    for (int32_t i = 0; i < this->GetNumRecords(); i++) {
         new (&this->m_records[i]) T();
         this->m_records[i].Read(f, this->m_strings);
 
@@ -234,7 +246,7 @@ void WowClientDB<T>::LoadRecords(SFileImpl* f, const char* file, int32_t line) {
     this->m_recordsById = new (__FILE__, __LINE__) T*[this->GetMaxID() - this->GetMinID() + 1];
     memset(this->m_recordsById, 0, sizeof(T*) * (this->GetMaxID() - this->GetMinID() + 1));
 
-    for (int32_t i = 0; i < this->m_nNumRecords; i++) {
+    for (int32_t i = 0; i < this->GetNumRecords(); i++) {
         if constexpr (T::s_generatedID) {
             this->m_recordsById[this->m_records[i].m_generatedID - this->GetMinID()] = &this->m_records[i];
         } else {
@@ -247,7 +259,7 @@ void WowClientDB<T>::LoadRecords(SFileImpl* f, const char* file, int32_t line) {
 // OFFSET: [0x006594F0<AreaTableRec>, 0x006598B0, 0x00659A10, 0x00659EB0<CharStartOutfitRec>, 0x0065A340, 0x0065A7C0, 0x0065AB30<CreatureModelDataRec>, 0x0065AC90, 0x0065ADE0, 0x0065B5E0, 0x0065BAB0<FactionRec>, 0x0065BF50, 0x0065C0D0, 0x0065C2C0, 0x0065C710<HolidaysRec>, 0x0065CE20, 0x0065D080, 0x0065D1D0<ItemSetRec>, 0x0065E370, 0x0065F520<AchievementRec>, 0x0065F690, 0x0065F7E0, 0x0065FFC0, 0x00660260, 0x006603C0, 0x00660510, 0x00660F30<SpellVisualRec>, 0x006612C0, 0x00661780<TerrainTypeSoundsRec>, 0x00661D30<VehicleRec>, 0x00661E80<VehicleSeatRec>, 0x00661FF0, 0x006626A0, 0x00662900, 0x00662A60, 0x00663120]
 template <class T>
 int32_t WowClientDB<T>::GetRecordByIndex(int32_t index, void* rec) const {
-    if (index < 0 || index >= this->m_nNumRecords) {
+    if (index < 0 || index >= this->GetNumRecords()) {
         return 0;
     }
 
@@ -260,7 +272,7 @@ int32_t WowClientDB<T>::GetRecordByIndex(int32_t index, void* rec) const {
 // OFFSET: [0x00405280, 0x00635E00, 0x00635E70, 0x00635EE0, 0x00635F60, 0x00635FD0, 0x00636040, 0x006360B0, 0x00636120, 0x00636190, 0x00636200, 0x00636270, 0x006362F0, 0x00636360, 0x00636410, 0x00636490, 0x00636500, 0x00636570, 0x006365E0, 0x00636650, 0x006366C0, 0x00636740, 0x006367B0, 0x00636830, 0x006368A0, 0x00636910, 0x00636990, 0x00636A10, 0x00636A80<TerrainTypeSoundsRec>, 0x00636B00, 0x00636B80, 0x00636C20, 0x00636C90, 0x00636D00, 0x00636D70, 0x00636DE0, 0x007EB280]
 template <class T>
 void WowClientDB<T>::Free() {
-    for (int32_t i = 0; i < this->m_nNumRecords; i++) {
+    for (int32_t i = 0; i < this->GetNumRecords(); i++) {
         this->m_records[i].~T();
     }
 
@@ -287,7 +299,7 @@ void WowClientDB<T>::Reset() {
     this->m_recordsById = nullptr;
     this->m_strings = nullptr;
     this->m_loaded = 0;
-    this->m_nNumRecords = 0;
+    this->SetNumRecords(0);
     this->SetMaxID(-1);
     this->SetMinID(0xFFFFFFF);
 }
@@ -335,10 +347,10 @@ void WowClientDB_RLE<T>::LoadRecords(SFileImpl* f, const char* file, int32_t lin
     uint32_t compressedSize = 0;
 
     if (!g_clientDbPerformCompress) {
-        this->m_data = static_cast<T*>(SMemAlloc(sizeof(T) * this->m_nNumRecords, file, line, 0));
+        this->m_data = static_cast<T*>(SMemAlloc(sizeof(T) * this->GetNumRecords(), file, line, 0));
     }
 
-    for (int32_t i = 0; i < this->m_nNumRecords; i++) {
+    for (int32_t i = 0; i < this->GetNumRecords(); i++) {
         if (g_clientDbPerformCompress) {
             rec.Read(f, this->m_strings);
             compressedSize += CompressRow(reinterpret_cast<const uint8_t*>(&rec), sizeof(T), nullptr);
@@ -363,11 +375,11 @@ void WowClientDB_RLE<T>::LoadRecords(SFileImpl* f, const char* file, int32_t lin
         }
     }
 
-    STORM_ASSERT(this->m_nNumRecords > 0);
+    STORM_ASSERT(this->GetNumRecords() > 0);
 
-    T** index = static_cast<T**>(SMemAlloc(sizeof(T*) * this->m_nNumRecords + sizeof(T*) * (this->GetMaxID() - this->GetMinID()) + sizeof(T*), file, line, 0));
+    T** index = static_cast<T**>(SMemAlloc(sizeof(T*) * this->GetNumRecords() + sizeof(T*) * (this->GetMaxID() - this->GetMinID()) + sizeof(T*), file, line, 0));
     this->m_records = index;
-    this->m_papRLErecordsByID = &index[this->m_nNumRecords];
+    this->m_papRLErecordsByID = &index[this->GetNumRecords()];
     memset(this->m_papRLErecordsByID, 0, sizeof(T*) * (this->GetMaxID() - this->GetMinID()) + sizeof(T*));
 
     if (g_clientDbPerformCompress) {
@@ -376,14 +388,14 @@ void WowClientDB_RLE<T>::LoadRecords(SFileImpl* f, const char* file, int32_t lin
 
         uint8_t* dst = reinterpret_cast<uint8_t*>(this->m_data);
 
-        for (int32_t i = 0; i < this->m_nNumRecords; i++) {
+        for (int32_t i = 0; i < this->GetNumRecords(); i++) {
             rec.Read(f, this->m_strings);
             this->m_records[i] = reinterpret_cast<T*>(dst);
             this->m_papRLErecordsByID[rec.m_id - this->GetMinID()] = reinterpret_cast<T*>(dst);
             dst += CompressRow(reinterpret_cast<const uint8_t*>(&rec), sizeof(T), dst);
         }
     } else {
-        for (int32_t i = 0; i < this->m_nNumRecords; i++) {
+        for (int32_t i = 0; i < this->GetNumRecords(); i++) {
             this->m_records[i] = &this->m_data[i];
             this->m_papRLErecordsByID[this->m_data[i].m_id - this->GetMinID()] = &this->m_data[i];
         }
@@ -426,7 +438,7 @@ void WowClientDB_RLE<T>::Reset() {
     this->m_papRLErecordsByID = nullptr;
     this->m_strings = nullptr;
     this->m_loaded = 0;
-    this->m_nNumRecords = 0;
+    this->SetNumRecords(0);
     this->SetMaxID(-1);
     this->SetMinID(0xFFFFFFF);
 }
@@ -440,7 +452,7 @@ void* WowClientDB_RLE<T>::GetRecordIndex() {
 // OFFSET: [0x0061DC30<SpellRec>, 0x0065CB70<ItemDisplayInfoRec>, 0x007EC730]
 template <class T>
 int32_t WowClientDB_RLE<T>::GetRecordByIndex(int32_t index, T* rec) const {
-    if (index < 0 || index >= this->m_nNumRecords) {
+    if (index < 0 || index >= this->GetNumRecords()) {
         return 0;
     }
 
@@ -491,7 +503,7 @@ int32_t WowClientDB_RLE<T>::RecordExists(int32_t id) const {
 // OFFSET: [0x004D8580, 0x004DFD50, 0x004DFD70, 0x004FCF90, 0x00514030, 0x0061BD00]
 template <class T>
 T* WowClientDB<T>::GetRecordByIndex(int32_t index) const {
-    if (index < 0 || index >= this->m_nNumRecords) {
+    if (index < 0 || index >= this->GetNumRecords()) {
         return nullptr;
     }
 

@@ -469,10 +469,10 @@ static int32_t GetWeaponSubClassCount(int32_t* count) {
 
     int32_t maxSubClass = 0;
     BOOL found = 0;
-    int32_t index = g_itemSubClassDB.m_nNumRecords;
+    int32_t index = g_itemSubClassDB.GetNumRecords();
 
     while (index--) {
-        const ItemSubClassRec* rec = index >= 0 && index < g_itemSubClassDB.m_nNumRecords ? &g_itemSubClassDB.m_records[index] : nullptr;
+        const ItemSubClassRec* rec = index >= 0 && index < g_itemSubClassDB.GetNumRecords() ? &g_itemSubClassDB.m_records[index] : nullptr;
 
         if (rec->m_classID == ITEM_CLASS::ITEM_CLASS_WEAPON) {
             found = 1;
@@ -635,7 +635,7 @@ static void InitWeaponSkills() {
     s_defenseSpellId = 0;
 
     SpellRec rec;
-    int32_t index = g_spellDB.m_nNumRecords;
+    int32_t index = g_spellDB.GetNumRecords();
 
     while (index--) {
         if (!g_spellDB.GetRecordByIndex(index, &rec)) {
@@ -4805,8 +4805,8 @@ void CGPlayer_C::AddKnownSpell(int32_t spellId, int32_t slot, BOOL notify, int32
         }
 
         if (proficiency) {
-            for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
-                ItemSubClassRec* rec = (i < 0 || i >= g_itemSubClassDB.m_nNumRecords) ? nullptr : &g_itemSubClassDB.m_records[i];
+            for (int32_t i = 0; i < g_itemSubClassDB.GetNumRecords(); i++) {
+                ItemSubClassRec* rec = (i < 0 || i >= g_itemSubClassDB.GetNumRecords()) ? nullptr : &g_itemSubClassDB.m_records[i];
 
                 if (rec->m_classID <= 0 || rec->m_classID != spell.m_equippedItemClass || 1 << rec->m_subClassID != spell.m_equippedItemSubclass) {
                     continue;
@@ -10918,7 +10918,7 @@ void AreaTriggersInitialize(uint32_t mapId) {
     s_areaTriggerMapID = mapId;
     s_areaTriggerStart = -1;
 
-    for (; i < g_areaTriggerDB.m_nNumRecords; i++) {
+    for (; i < g_areaTriggerDB.GetNumRecords(); i++) {
         AreaTriggerRec* rec = g_areaTriggerDB.GetRecordByIndex(i);
 
         if (!rec) {
@@ -14655,7 +14655,7 @@ float CGPlayer_C::CalcRewardHonor(float honor) {
 
     int32_t index = this->m_unit->m_unitFieldLevel - 1;
 
-    if (index >= g_teamContributionPointsDB.m_nNumRecords) {
+    if (index >= g_teamContributionPointsDB.GetNumRecords()) {
         return 0.0f;
     }
 

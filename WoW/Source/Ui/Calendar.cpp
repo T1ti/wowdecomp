@@ -235,7 +235,7 @@ void CGCalendar::EnterWorld() {
     CGCalendar::QueryPendingInvites();
 
     uint32_t counts[2] = { 0, 0 };
-    int32_t numRecords = g_lfgDungeonsDB.m_nNumRecords;
+    int32_t numRecords = g_lfgDungeonsDB.GetNumRecords();
 
     for (int32_t i = 0; i < numRecords; i++) {
         LfgDungeonsRec* rec = g_lfgDungeonsDB.GetRecordByIndex(i);
@@ -1182,8 +1182,8 @@ void CGCalendar::InitHolidays() {
 
     int8_t region = static_cast<int8_t>(s_region);
 
-    for (int32_t i = 0; i < g_holidaysDB.m_nNumRecords; i++) {
-        HolidaysRec* holiday = i < 0 || i >= g_holidaysDB.m_nNumRecords ? nullptr : &g_holidaysDB.m_records[i];
+    for (int32_t i = 0; i < g_holidaysDB.GetNumRecords(); i++) {
+        HolidaysRec* holiday = i < 0 || i >= g_holidaysDB.GetNumRecords() ? nullptr : &g_holidaysDB.m_records[i];
         DYNAMICHOLIDAYHASH* dynamic = CalendarGetHolidayInfo(holiday->m_id);
         int32_t regionMask = dynamic ? dynamic->m_region : holiday->m_region;
 

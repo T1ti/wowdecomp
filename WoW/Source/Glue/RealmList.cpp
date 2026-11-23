@@ -101,7 +101,7 @@ int32_t QSortCategory(const void* a, const void* b) {
             }
 
             case REALM_SORT_MODE: {
-                if (!g_cfg_ConfigsDB.m_nNumRecords) {
+                if (!g_cfg_ConfigsDB.GetNumRecords()) {
                     continue;
                 }
 
@@ -110,8 +110,8 @@ int32_t QSortCategory(const void* a, const void* b) {
                 int32_t pvp2 = 0;
                 int32_t roleplaying2 = 0;
 
-                for (int32_t j = 0; j < g_cfg_ConfigsDB.m_nNumRecords; j++) {
-                    Cfg_ConfigsRec* config = j < 0 || j >= g_cfg_ConfigsDB.m_nNumRecords ? nullptr : &g_cfg_ConfigsDB.m_records[j];
+                for (int32_t j = 0; j < g_cfg_ConfigsDB.GetNumRecords(); j++) {
+                    Cfg_ConfigsRec* config = j < 0 || j >= g_cfg_ConfigsDB.GetNumRecords() ? nullptr : &g_cfg_ConfigsDB.m_records[j];
 
                     if (config->m_realmType == realm1->m_type) {
                         pvp1 = config->m_playerKillingAllowed != 0;
@@ -244,8 +244,8 @@ void CRealmList::SetPreferredInfo(int32_t index, int32_t pvp, int32_t roleplayin
         int32_t realmRoleplaying = 0;
         int32_t realmPvp = 0;
 
-        for (int32_t j = 0; j < g_cfg_ConfigsDB.m_nNumRecords; j++) {
-            Cfg_ConfigsRec* config = j < 0 || j >= g_cfg_ConfigsDB.m_nNumRecords ? nullptr : &g_cfg_ConfigsDB.m_records[j];
+        for (int32_t j = 0; j < g_cfg_ConfigsDB.GetNumRecords(); j++) {
+            Cfg_ConfigsRec* config = j < 0 || j >= g_cfg_ConfigsDB.GetNumRecords() ? nullptr : &g_cfg_ConfigsDB.m_records[j];
 
             if (config->m_realmType == realm->m_type) {
                 realmPvp = config->m_playerKillingAllowed != 0;
@@ -274,12 +274,12 @@ void CRealmList::SetPreferredInfo(int32_t index, int32_t pvp, int32_t roleplayin
 // VERIFY: 67ff9938 manual
 // OFFSET: 0x004DF580
 void CRealmList::Initialize() {
-    uint32_t count = g_cfg_CategoriesDB.m_nNumRecords;
+    uint32_t count = g_cfg_CategoriesDB.GetNumRecords();
     CRealmList::m_categories.SetCount(count);
 
     for (int32_t i = 0; i < static_cast<int32_t>(count); i++) {
         CRealmList::m_categories[i] = new (SMemAlloc(sizeof(RealmCategory), __FILE__, __LINE__, 0)) RealmCategory;
-        CRealmList::m_categories[i]->m_category = i >= 0 && i < g_cfg_CategoriesDB.m_nNumRecords ? &g_cfg_CategoriesDB.m_records[i] : nullptr;
+        CRealmList::m_categories[i]->m_category = i >= 0 && i < g_cfg_CategoriesDB.GetNumRecords() ? &g_cfg_CategoriesDB.m_records[i] : nullptr;
         CRealmList::m_categories[i]->m_numRealms = 0;
     }
 

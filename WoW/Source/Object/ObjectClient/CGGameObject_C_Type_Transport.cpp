@@ -21,7 +21,7 @@ static float s_progressBias = 0.5f;
 // VERIFY: 0bbb79ee manual
 // OFFSET: 0x0070C8C0
 static int32_t FindTransportAnimationIndex(int32_t transportId) {
-    int32_t high = g_transportAnimationDB.m_nNumRecords;
+    int32_t high = g_transportAnimationDB.GetNumRecords();
     int32_t low = 0;
 
     if (high <= 0) {
@@ -30,7 +30,7 @@ static int32_t FindTransportAnimationIndex(int32_t transportId) {
 
     do {
         int32_t mid = (high + low) / 2;
-        const TransportAnimationRec* first = (0 >= g_transportAnimationDB.m_nNumRecords) ? nullptr : &g_transportAnimationDB.m_records[0];
+        const TransportAnimationRec* first = (0 >= g_transportAnimationDB.GetNumRecords()) ? nullptr : &g_transportAnimationDB.m_records[0];
 
         if (first[mid].m_transportID >= transportId) {
             high = mid;
@@ -39,9 +39,9 @@ static int32_t FindTransportAnimationIndex(int32_t transportId) {
         }
     } while (low < high);
 
-    const TransportAnimationRec* first = (0 >= g_transportAnimationDB.m_nNumRecords) ? nullptr : &g_transportAnimationDB.m_records[0];
+    const TransportAnimationRec* first = (0 >= g_transportAnimationDB.GetNumRecords()) ? nullptr : &g_transportAnimationDB.m_records[0];
 
-    if (low < g_transportAnimationDB.m_nNumRecords && first[low].m_transportID == transportId) {
+    if (low < g_transportAnimationDB.GetNumRecords() && first[low].m_transportID == transportId) {
         return low;
     }
 
@@ -51,7 +51,7 @@ static int32_t FindTransportAnimationIndex(int32_t transportId) {
 // VERIFY: 8c4056b2 manual
 // OFFSET: 0x0070C930
 static int32_t FindTransportRotationIndex(int32_t transportId) {
-    int32_t high = g_transportRotationDB.m_nNumRecords;
+    int32_t high = g_transportRotationDB.GetNumRecords();
     int32_t low = 0;
 
     if (high <= 0) {
@@ -60,7 +60,7 @@ static int32_t FindTransportRotationIndex(int32_t transportId) {
 
     do {
         int32_t mid = (high + low) / 2;
-        const TransportRotationRec* first = (0 >= g_transportRotationDB.m_nNumRecords) ? nullptr : &g_transportRotationDB.m_records[0];
+        const TransportRotationRec* first = (0 >= g_transportRotationDB.GetNumRecords()) ? nullptr : &g_transportRotationDB.m_records[0];
 
         if (first[mid].m_gameObjectsID >= transportId) {
             high = mid;
@@ -69,9 +69,9 @@ static int32_t FindTransportRotationIndex(int32_t transportId) {
         }
     } while (low < high);
 
-    const TransportRotationRec* first = (0 >= g_transportRotationDB.m_nNumRecords) ? nullptr : &g_transportRotationDB.m_records[0];
+    const TransportRotationRec* first = (0 >= g_transportRotationDB.GetNumRecords()) ? nullptr : &g_transportRotationDB.m_records[0];
 
-    if (low < g_transportRotationDB.m_nNumRecords && first[low].m_gameObjectsID == transportId) {
+    if (low < g_transportRotationDB.GetNumRecords() && first[low].m_gameObjectsID == transportId) {
         return low;
     }
 
@@ -84,12 +84,12 @@ CGGameObject_C_Type_Transport::CGGameObject_C_Type_Transport(CGGameObject_C* own
     int32_t index = FindTransportAnimationIndex(owner->m_obj->m_entryID);
 
     if (index != -1) {
-        this->m_posKeys = reinterpret_cast<TransportFrame*>((index < 0 || index >= g_transportAnimationDB.m_nNumRecords) ? nullptr : &g_transportAnimationDB.m_records[index]);
+        this->m_posKeys = reinterpret_cast<TransportFrame*>((index < 0 || index >= g_transportAnimationDB.GetNumRecords()) ? nullptr : &g_transportAnimationDB.m_records[index]);
         STORM_ASSERT(m_posKeys->m_TimeIndex == 0);
         this->m_numPosKeys = 1;
 
-        for (int32_t i = index + 1; i < g_transportAnimationDB.m_nNumRecords; i++) {
-            const TransportAnimationRec* rec = (i < 0 || i >= g_transportAnimationDB.m_nNumRecords) ? nullptr : &g_transportAnimationDB.m_records[i];
+        for (int32_t i = index + 1; i < g_transportAnimationDB.GetNumRecords(); i++) {
+            const TransportAnimationRec* rec = (i < 0 || i >= g_transportAnimationDB.GetNumRecords()) ? nullptr : &g_transportAnimationDB.m_records[i];
 
             if (rec->m_transportID != owner->m_obj->m_entryID) {
                 break;
@@ -102,12 +102,12 @@ CGGameObject_C_Type_Transport::CGGameObject_C_Type_Transport(CGGameObject_C* own
     index = FindTransportRotationIndex(owner->m_obj->m_entryID);
 
     if (index != -1) {
-        this->m_rotKeys = (index < 0 || index >= g_transportRotationDB.m_nNumRecords) ? nullptr : &g_transportRotationDB.m_records[index];
+        this->m_rotKeys = (index < 0 || index >= g_transportRotationDB.GetNumRecords()) ? nullptr : &g_transportRotationDB.m_records[index];
         STORM_ASSERT(m_rotKeys->m_TimeIndex == 0);
         this->m_rotationCount = 1;
 
-        for (int32_t i = index + 1; i < g_transportRotationDB.m_nNumRecords; i++) {
-            const TransportRotationRec* rec = (i < 0 || i >= g_transportRotationDB.m_nNumRecords) ? nullptr : &g_transportRotationDB.m_records[i];
+        for (int32_t i = index + 1; i < g_transportRotationDB.GetNumRecords(); i++) {
+            const TransportRotationRec* rec = (i < 0 || i >= g_transportRotationDB.GetNumRecords()) ? nullptr : &g_transportRotationDB.m_records[i];
 
             if (rec->m_gameObjectsID != owner->m_obj->m_entryID) {
                 break;

@@ -93,8 +93,8 @@ void ConsoleDetectSetDefaultsFormat(DefaultSettings& defaults, const Hardware& h
 // VERIFY: d4b42eb1 auto
 // OFFSET: 0x0076B540
 static void SetVideoIdx(Hardware& hardware) {
-    for (int32_t i = 1; i < g_videoHardwareDB.m_nNumRecords; i++) {
-        const VideoHardwareRec* rec = i < 0 || i >= g_videoHardwareDB.m_nNumRecords ? nullptr : &g_videoHardwareDB.m_records[i];
+    for (int32_t i = 1; i < g_videoHardwareDB.GetNumRecords(); i++) {
+        const VideoHardwareRec* rec = i < 0 || i >= g_videoHardwareDB.GetNumRecords() ? nullptr : &g_videoHardwareDB.m_records[i];
 
         if (hardware.m_videoDevice.m_vendorID == rec->m_vendorID && hardware.m_videoDevice.m_deviceID == rec->m_deviceID) {
             hardware.m_videoID = rec->m_id;

@@ -2764,7 +2764,7 @@ int32_t CGQuestLog::GetQuestWorldMapAreaID(int32_t questId, int32_t* floor) {
         return 0;
     }
 
-    for (int32_t j = 0; j < g_worldMapAreaDB.m_nNumRecords; j++) {
+    for (int32_t j = 0; j < g_worldMapAreaDB.GetNumRecords(); j++) {
         WorldMapAreaRec* map = g_worldMapAreaDB.GetRecordByIndex(j);
 
         if (map && map->m_areaID == areaId) {

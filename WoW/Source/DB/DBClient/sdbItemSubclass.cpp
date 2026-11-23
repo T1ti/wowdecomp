@@ -23,8 +23,8 @@ void SDBItemSubclassInitialize() {
     int32_t counts[sizeof(s_itemSubclasses) / sizeof(s_itemSubclasses[0])];
     memset(counts, 0, sizeof(counts));
 
-    for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
-        const ItemSubClassRec* rec = i >= 0 && i < g_itemSubClassDB.m_nNumRecords ? &g_itemSubClassDB.m_records[i] : nullptr;
+    for (int32_t i = 0; i < g_itemSubClassDB.GetNumRecords(); i++) {
+        const ItemSubClassRec* rec = i >= 0 && i < g_itemSubClassDB.GetNumRecords() ? &g_itemSubClassDB.m_records[i] : nullptr;
 
 #if defined(WOWDECOMP_ARCH_64)
         if (static_cast<uint32_t>(rec->m_classID) >= sizeof(s_itemSubclasses) / sizeof(s_itemSubclasses[0]) || rec->m_subClassID < 0 || rec->m_subClassID == INT32_MAX) {
@@ -41,8 +41,8 @@ void SDBItemSubclassInitialize() {
         s_itemSubclasses[i].SetCount(counts[i]);
     }
 
-    for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
-        const ItemSubClassRec* rec = i >= 0 && i < g_itemSubClassDB.m_nNumRecords ? &g_itemSubClassDB.m_records[i] : nullptr;
+    for (int32_t i = 0; i < g_itemSubClassDB.GetNumRecords(); i++) {
+        const ItemSubClassRec* rec = i >= 0 && i < g_itemSubClassDB.GetNumRecords() ? &g_itemSubClassDB.m_records[i] : nullptr;
 
 #if defined(WOWDECOMP_ARCH_64)
         if (static_cast<uint32_t>(rec->m_classID) >= sizeof(s_itemSubclasses) / sizeof(s_itemSubclasses[0]) || static_cast<uint32_t>(rec->m_subClassID) >= s_itemSubclasses[rec->m_classID].Count()) {

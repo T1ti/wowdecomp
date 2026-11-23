@@ -99,16 +99,16 @@ void CGAchievementInfo::InitializeGame() {
     s_trackedAchievements.Clear();
     s_completedQuests.Clear();
 
-    for (int32_t i = 0; i < g_achievementDB.m_nNumRecords; i++) {
-        AchievementRec* rec = i < 0 || i >= g_achievementDB.m_nNumRecords ? nullptr : &g_achievementDB.m_records[i];
+    for (int32_t i = 0; i < g_achievementDB.GetNumRecords(); i++) {
+        AchievementRec* rec = i < 0 || i >= g_achievementDB.GetNumRecords() ? nullptr : &g_achievementDB.m_records[i];
         int32_t id = rec->m_id;
 
         ACHIEVEMENT* achievement = s_achievements.New(id, HASHKEY_NONE(), 0, 0);
         achievement->m_rec = rec;
     }
 
-    for (int32_t i = 0; i < g_achievement_CriteriaDB.m_nNumRecords; i++) {
-        Achievement_CriteriaRec* rec = i < 0 || i >= g_achievement_CriteriaDB.m_nNumRecords ? nullptr : &g_achievement_CriteriaDB.m_records[i];
+    for (int32_t i = 0; i < g_achievement_CriteriaDB.GetNumRecords(); i++) {
+        Achievement_CriteriaRec* rec = i < 0 || i >= g_achievement_CriteriaDB.GetNumRecords() ? nullptr : &g_achievement_CriteriaDB.m_records[i];
 
         if (!rec || !g_achievementDB.GetRecord(rec->m_achievementID) || static_cast<uint32_t>(rec->m_type) > 123) {
             continue;
@@ -764,7 +764,7 @@ bool CGAchievementInfo::IsRealAchievement(int32_t id) {
 // VERIFY: 57bfe33b manual
 // OFFSET: 0x005B37C0
 bool CGAchievementInfo::IsSupersededByCompleted(int32_t id) {
-    for (int32_t i = 0; i < g_achievementDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_achievementDB.GetNumRecords(); i++) {
         AchievementRec* achievement = g_achievementDB.GetRecordByIndex(i);
 
         if (!achievement || achievement->m_supercedes != id) {

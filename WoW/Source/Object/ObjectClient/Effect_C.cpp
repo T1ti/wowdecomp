@@ -71,8 +71,8 @@ static int32_t s_specialUnitEffectIDs[sizeof(s_specialUnitEffectNames) / sizeof(
 static int32_t BuildSpecialUnitEffectTable() {
     memset(s_specialUnitEffectIDs, 0, sizeof(s_specialUnitEffectIDs));
 
-    for (int32_t i = 0; i < g_spellVisualEffectNameDB.m_nNumRecords; i++) {
-        SpellVisualEffectNameRec* rec = (i < 0 || i >= g_spellVisualEffectNameDB.m_nNumRecords) ? nullptr : &g_spellVisualEffectNameDB.m_records[i];
+    for (int32_t i = 0; i < g_spellVisualEffectNameDB.GetNumRecords(); i++) {
+        SpellVisualEffectNameRec* rec = (i < 0 || i >= g_spellVisualEffectNameDB.GetNumRecords()) ? nullptr : &g_spellVisualEffectNameDB.m_records[i];
 
         for (uint32_t effect = 0; effect < sizeof(s_specialUnitEffectNames) / sizeof(s_specialUnitEffectNames[0]); effect++) {
             if (!SStrCmp(s_specialUnitEffectNames[effect], rec->m_name, STORM_MAX_STR)) {

@@ -119,8 +119,8 @@ static int32_t Script_GetAuctionItemSubClasses(lua_State* L) {
 
     int32_t count = 0;
 
-    for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
-        ItemSubClassRec* rec = i < 0 || i >= g_itemSubClassDB.m_nNumRecords ? nullptr : &g_itemSubClassDB.m_records[i];
+    for (int32_t i = 0; i < g_itemSubClassDB.GetNumRecords(); i++) {
+        ItemSubClassRec* rec = i < 0 || i >= g_itemSubClassDB.GetNumRecords() ? nullptr : &g_itemSubClassDB.m_records[i];
 
         if (rec->m_classID == s_auctionClasses[index].m_classID && !(rec->m_displayFlags & ITEM_SUBCLASS_DISPLAY_FLAG_HIDE_IN_AUCTION)) {
             lua_checkstack(L, 1);
@@ -149,8 +149,8 @@ static int32_t Script_GetAuctionInvTypes(lua_State* L) {
 
     int32_t remaining = subClass;
 
-    for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
-        ItemSubClassRec* rec = i < 0 || i >= g_itemSubClassDB.m_nNumRecords ? nullptr : &g_itemSubClassDB.m_records[i];
+    for (int32_t i = 0; i < g_itemSubClassDB.GetNumRecords(); i++) {
+        ItemSubClassRec* rec = i < 0 || i >= g_itemSubClassDB.GetNumRecords() ? nullptr : &g_itemSubClassDB.m_records[i];
 
         if (rec->m_classID != s_auctionClasses[classIndex].m_classID || (rec->m_displayFlags & ITEM_SUBCLASS_DISPLAY_FLAG_HIDE_IN_AUCTION)) {
             continue;
@@ -490,8 +490,8 @@ static int32_t Script_QueryAuctionItems(lua_State* L) {
     if (classID >= 0 && lua_isnumber(L, 6)) {
         int32_t remaining = static_cast<int32_t>(lua_tonumber(L, 6)) - 1;
 
-        for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
-            ItemSubClassRec* rec = i < 0 || i >= g_itemSubClassDB.m_nNumRecords ? nullptr : &g_itemSubClassDB.m_records[i];
+        for (int32_t i = 0; i < g_itemSubClassDB.GetNumRecords(); i++) {
+            ItemSubClassRec* rec = i < 0 || i >= g_itemSubClassDB.GetNumRecords() ? nullptr : &g_itemSubClassDB.m_records[i];
 
             if (rec->m_classID == classID && !(rec->m_displayFlags & ITEM_SUBCLASS_DISPLAY_FLAG_HIDE_IN_AUCTION)) {
                 if (!remaining) {

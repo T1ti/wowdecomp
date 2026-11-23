@@ -340,7 +340,7 @@ void CGBarberShop::EnterWorld() {
     int32_t race = player->m_unit->m_raceID;
     int32_t sex = player->m_player->sex;
 
-    for (int32_t i = 0; i < g_barberShopStyleDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_barberShopStyleDB.GetNumRecords(); i++) {
         BarberShopStyleRec* rec = g_barberShopStyleDB.GetRecordByIndex(i);
 
         if (!rec || rec->m_race != race || (rec->m_sex != sex && rec->m_sex != -1)) {

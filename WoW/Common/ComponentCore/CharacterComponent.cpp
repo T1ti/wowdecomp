@@ -1696,8 +1696,8 @@ void CCharacterComponent::ValidateComponentData(ComponentData* data, COMPONENT_C
 // VERIFY: 43fe9206 auto
 // OFFSET: 0x004EA000
 static CharacterFacialHairStylesRec* GetConditionalFacialHairStyle(CharacterPreferences* prefs) {
-    for (int32_t i = 0; i < g_characterFacialHairStylesDB.m_nNumRecords; i++) {
-        CharacterFacialHairStylesRec* rec = (i < 0 || i >= g_characterFacialHairStylesDB.m_nNumRecords) ? nullptr : &g_characterFacialHairStylesDB.m_records[i];
+    for (int32_t i = 0; i < g_characterFacialHairStylesDB.GetNumRecords(); i++) {
+        CharacterFacialHairStylesRec* rec = (i < 0 || i >= g_characterFacialHairStylesDB.GetNumRecords()) ? nullptr : &g_characterFacialHairStylesDB.m_records[i];
 
         if (!rec) {
             return nullptr;
@@ -1714,8 +1714,8 @@ static CharacterFacialHairStylesRec* GetConditionalFacialHairStyle(CharacterPref
 // VERIFY: 82a8a223 auto
 // OFFSET: 0x004EA050
 static int32_t GetConditionalGeoset(CharacterPreferences* prefs) {
-    for (int32_t i = 0; i < g_charHairGeosetsDB.m_nNumRecords; i++) {
-        CharHairGeosetsRec* rec = (i < 0 || i >= g_charHairGeosetsDB.m_nNumRecords) ? nullptr : &g_charHairGeosetsDB.m_records[i];
+    for (int32_t i = 0; i < g_charHairGeosetsDB.GetNumRecords(); i++) {
+        CharHairGeosetsRec* rec = (i < 0 || i >= g_charHairGeosetsDB.GetNumRecords()) ? nullptr : &g_charHairGeosetsDB.m_records[i];
 
         if (!rec) {
             return 1;

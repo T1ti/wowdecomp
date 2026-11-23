@@ -183,8 +183,8 @@ static int32_t Script_GetFactionForRace(lua_State* L) {
         FactionTemplateRec* factionTemplate = g_factionTemplateDB.GetRecord(raceRec->m_factionID);
 
         if (factionTemplate) {
-            for (int32_t i = 0; i < g_factionGroupDB.m_nNumRecords; i++) {
-                FactionGroupRec* group = i >= 0 && i < g_factionGroupDB.m_nNumRecords ? &g_factionGroupDB.m_records[i] : nullptr;
+            for (int32_t i = 0; i < g_factionGroupDB.GetNumRecords(); i++) {
+                FactionGroupRec* group = i >= 0 && i < g_factionGroupDB.GetNumRecords() ? &g_factionGroupDB.m_records[i] : nullptr;
 
                 if (group && group->m_maskID && ((1 << group->m_maskID) & factionTemplate->m_factionGroup)) {
                     lua_pushstring(L, group->m_name);
@@ -203,10 +203,10 @@ static int32_t Script_GetFactionForRace(lua_State* L) {
 // VERIFY: 3d7dbaad manual
 // OFFSET: 0x004E0830
 static int32_t Script_GetAvailableClasses(lua_State* L) {
-    int32_t count = g_chrClassesDB.m_nNumRecords;
+    int32_t count = g_chrClassesDB.GetNumRecords();
 
     for (int32_t i = 0; i < count; i++) {
-        ChrClassesRec* classRec = i >= 0 && i < g_chrClassesDB.m_nNumRecords ? &g_chrClassesDB.m_records[i] : nullptr;
+        ChrClassesRec* classRec = i >= 0 && i < g_chrClassesDB.GetNumRecords() ? &g_chrClassesDB.m_records[i] : nullptr;
         const char* name = CGUnit_C::GetDisplayClassNameFromRecord(classRec, CCharacterCreation::m_character->m_data.m_preferences.m_sexID, nullptr);
         bool available = ClientServices::Connection()->m_accountExpansion >= classRec->m_requiredExpansion;
 
@@ -283,8 +283,8 @@ static int32_t Script_GetSelectedClass(lua_State* L) {
 
     int32_t index = 0;
 
-    for (int32_t i = 0; i < g_chrClassesDB.m_nNumRecords; i++) {
-        ChrClassesRec* rec = i >= 0 && i < g_chrClassesDB.m_nNumRecords ? &g_chrClassesDB.m_records[i] : nullptr;
+    for (int32_t i = 0; i < g_chrClassesDB.GetNumRecords(); i++) {
+        ChrClassesRec* rec = i >= 0 && i < g_chrClassesDB.GetNumRecords() ? &g_chrClassesDB.m_records[i] : nullptr;
 
         if (rec->m_id == classID) {
             index = i;
@@ -368,7 +368,7 @@ static int32_t Script_IsRaceClassValid(lua_State* L) {
 
     uint32_t raceIndex = static_cast<uint32_t>(lua_tointeger(L, 1) - 1);
     int32_t classIndex = static_cast<int32_t>(lua_tointeger(L, 2) - 1);
-    ChrClassesRec* classRec = classIndex >= 0 && classIndex < g_chrClassesDB.m_nNumRecords ? &g_chrClassesDB.m_records[classIndex] : nullptr;
+    ChrClassesRec* classRec = classIndex >= 0 && classIndex < g_chrClassesDB.GetNumRecords() ? &g_chrClassesDB.m_records[classIndex] : nullptr;
 
     if (!classRec) {
         return 0;
@@ -493,7 +493,7 @@ static int32_t Script_SetSelectedClass(lua_State* L) {
     }
 
     int32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
-    ChrClassesRec* classRec = index >= 0 && index < g_chrClassesDB.m_nNumRecords ? &g_chrClassesDB.m_records[index] : nullptr;
+    ChrClassesRec* classRec = index >= 0 && index < g_chrClassesDB.GetNumRecords() ? &g_chrClassesDB.m_records[index] : nullptr;
     CCharacterCreation::SetSelectedClass(classRec->m_id);
     return 0;
 }

@@ -692,12 +692,12 @@ void ValidateNameInitialize(int32_t localeMask, int32_t charsetMask) {
         }
 
         TSFixedArray<regex_t>& profanityTokens = g_profanityTokens[language];
-        uint32_t profanityCount = g_namesProfanityDB.m_nNumRecords;
+        uint32_t profanityCount = g_namesProfanityDB.GetNumRecords();
         profanityTokens.SetCount(profanityCount);
         uint32_t numProfanityTokens = 0;
 
         for (int32_t i = 0; static_cast<uint32_t>(i) < profanityCount; i++) {
-            NamesProfanityRec* rec = (i < 0 || i >= g_namesProfanityDB.m_nNumRecords) ? nullptr : &g_namesProfanityDB.m_records[i];
+            NamesProfanityRec* rec = (i < 0 || i >= g_namesProfanityDB.GetNumRecords()) ? nullptr : &g_namesProfanityDB.m_records[i];
 
             if (rec->m_language == language || rec->m_language == -1) {
                 if (regcomp(&profanityTokens.m_data[numProfanityTokens], rec->m_name, REG_ICASE)) {
@@ -711,12 +711,12 @@ void ValidateNameInitialize(int32_t localeMask, int32_t charsetMask) {
         profanityTokens.SetCount(numProfanityTokens);
 
         TSFixedArray<regex_t>& chatProfanityTokens = g_chatProfanityTokens[language];
-        uint32_t chatProfanityCount = g_chatProfanityDB.m_nNumRecords;
+        uint32_t chatProfanityCount = g_chatProfanityDB.GetNumRecords();
         chatProfanityTokens.SetCount(chatProfanityCount);
         uint32_t numChatProfanityTokens = 0;
 
         for (int32_t i = 0; static_cast<uint32_t>(i) < chatProfanityCount; i++) {
-            ChatProfanityRec* rec = (i < 0 || i >= g_chatProfanityDB.m_nNumRecords) ? nullptr : &g_chatProfanityDB.m_records[i];
+            ChatProfanityRec* rec = (i < 0 || i >= g_chatProfanityDB.GetNumRecords()) ? nullptr : &g_chatProfanityDB.m_records[i];
 
             if (rec->m_language == language || rec->m_language == -1) {
                 if (regcomp(&chatProfanityTokens.m_data[numChatProfanityTokens], rec->m_text, REG_ICASE)) {
@@ -730,12 +730,12 @@ void ValidateNameInitialize(int32_t localeMask, int32_t charsetMask) {
         chatProfanityTokens.SetCount(numChatProfanityTokens);
 
         TSFixedArray<regex_t>& reservedNameTokens = g_reservedNameTokens[language];
-        uint32_t reservedCount = g_namesReservedDB.m_nNumRecords;
+        uint32_t reservedCount = g_namesReservedDB.GetNumRecords();
         reservedNameTokens.SetCount(reservedCount);
         uint32_t numReservedNameTokens = 0;
 
         for (int32_t i = 0; static_cast<uint32_t>(i) < reservedCount; i++) {
-            NamesReservedRec* rec = (i < 0 || i >= g_namesReservedDB.m_nNumRecords) ? nullptr : &g_namesReservedDB.m_records[i];
+            NamesReservedRec* rec = (i < 0 || i >= g_namesReservedDB.GetNumRecords()) ? nullptr : &g_namesReservedDB.m_records[i];
 
             if (rec->m_language == language || rec->m_language == -1) {
                 if (regcomp(&reservedNameTokens.m_data[numReservedNameTokens], rec->m_name, REG_ICASE)) {
@@ -749,12 +749,12 @@ void ValidateNameInitialize(int32_t localeMask, int32_t charsetMask) {
         reservedNameTokens.SetCount(numReservedNameTokens);
     }
 
-    uint32_t spamCount = g_spamMessagesDB.m_nNumRecords;
+    uint32_t spamCount = g_spamMessagesDB.GetNumRecords();
     g_chatSpamTokens.SetCount(spamCount);
     uint32_t numSpamTokens = 0;
 
     for (int32_t i = 0; static_cast<uint32_t>(i) < spamCount; i++) {
-        SpamMessagesRec* rec = (i < 0 || i >= g_spamMessagesDB.m_nNumRecords) ? nullptr : &g_spamMessagesDB.m_records[i];
+        SpamMessagesRec* rec = (i < 0 || i >= g_spamMessagesDB.GetNumRecords()) ? nullptr : &g_spamMessagesDB.m_records[i];
 
         if (regcomp(&g_chatSpamTokens.m_data[numSpamTokens], rec->m_text, REG_ICASE)) {
             DebugLog("Warning: invalid chat spam filter expression: \"%s\" (record ID %d)\n", rec->m_text, rec->m_id);

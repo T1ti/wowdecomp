@@ -109,10 +109,10 @@ void SI2::InitFootstepSounds() {
 
     uint32_t count = g_terrainTypeSoundsDB.GetMaxID() + 1;
 
-    for (int32_t i = g_footstepTerrainLookupDB.m_nNumRecords; i;) {
+    for (int32_t i = g_footstepTerrainLookupDB.GetNumRecords(); i;) {
         i--;
 
-        FootstepTerrainLookupRec* rec = (i < 0 || i >= g_footstepTerrainLookupDB.m_nNumRecords) ? nullptr : &g_footstepTerrainLookupDB.m_records[i];
+        FootstepTerrainLookupRec* rec = (i < 0 || i >= g_footstepTerrainLookupDB.GetNumRecords()) ? nullptr : &g_footstepTerrainLookupDB.m_records[i];
 
         if (!rec || rec->m_terrainSoundID < 0) {
             continue;

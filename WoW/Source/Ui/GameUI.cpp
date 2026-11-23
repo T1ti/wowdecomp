@@ -7930,7 +7930,7 @@ static int32_t FindMovieFileDataID(int32_t movieId) {
     int32_t height;
     sscanf(resolution, "%dx%d", &width, &height);
 
-    for (int32_t i = 0; i < g_movieVariationDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_movieVariationDB.GetNumRecords(); i++) {
         MovieVariationRec* variation = g_movieVariationDB.GetRecordByIndex(i);
 
         if (!variation || variation->m_movieID != movieId) {

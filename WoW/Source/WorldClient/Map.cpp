@@ -856,12 +856,12 @@ void CMap::FootprintInitialize() {
     s_nextPlayerFootprint = 0;
     s_footprintTextures.SetCount(g_footprintTexturesDB.GetMaxID() + 1);
 
-    int32_t index = g_footprintTexturesDB.m_nNumRecords;
+    int32_t index = g_footprintTexturesDB.GetNumRecords();
 
     while (index) {
         index--;
 
-        FootprintTexturesRec* record = (index < 0 || index >= g_footprintTexturesDB.m_nNumRecords) ? nullptr : &g_footprintTexturesDB.m_records[index];
+        FootprintTexturesRec* record = (index < 0 || index >= g_footprintTexturesDB.GetNumRecords()) ? nullptr : &g_footprintTexturesDB.m_records[index];
         CMapFootprintTexture* footprint = &s_footprintTextures[record->m_id];
 
         if (!footprint->m_texture) {
@@ -5141,7 +5141,7 @@ WMOAreaTableRec* GetWMOAreaRec(int32_t wmoId, int32_t nameSet, int32_t groupId) 
     key.m_nameSetID = nameSet;
     key.m_wmoid = wmoId;
     key.m_wmogroupID = groupId;
-    return static_cast<WMOAreaTableRec*>(bsearch(&key, g_wmoAreaTableDB.m_nNumRecords <= 0 ? nullptr : g_wmoAreaTableDB.m_records, g_wmoAreaTableDB.m_nNumRecords, sizeof(WMOAreaTableRec), CompareWMOAreaRec));
+    return static_cast<WMOAreaTableRec*>(bsearch(&key, g_wmoAreaTableDB.GetNumRecords() <= 0 ? nullptr : g_wmoAreaTableDB.m_records, g_wmoAreaTableDB.GetNumRecords(), sizeof(WMOAreaTableRec), CompareWMOAreaRec));
 }
 
 // VERIFY: ff49ec1c manual

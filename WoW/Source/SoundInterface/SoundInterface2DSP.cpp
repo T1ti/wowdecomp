@@ -184,8 +184,8 @@ void SI2::DSP_AttachCustomDspChain(FMOD::Channel* pFmodChannel, char* name) {
 // VERIFY: 1f3d2404 manual
 // OFFSET: 0x004CE7C0
 void SI2::DSP_Init() {
-    for (int32_t i = 0; i < g_soundFilterDB.m_nNumRecords; i++) {
-        SoundFilterRec* pRec = (i < 0 || i >= g_soundFilterDB.m_nNumRecords) ? nullptr : &g_soundFilterDB.m_records[i];
+    for (int32_t i = 0; i < g_soundFilterDB.GetNumRecords(); i++) {
+        SoundFilterRec* pRec = (i < 0 || i >= g_soundFilterDB.GetNumRecords()) ? nullptr : &g_soundFilterDB.m_records[i];
         STORM_ASSERT(pRec);
 
         if (s_dspChains.Ptr(pRec->m_name)) {
@@ -210,8 +210,8 @@ void SI2::DSP_Init() {
         }
     }
 
-    for (int32_t i = 0; i < g_soundFilterElemDB.m_nNumRecords; i++) {
-        SoundFilterElemRec* pFilterElemRec = (i < 0 || i >= g_soundFilterElemDB.m_nNumRecords) ? nullptr : &g_soundFilterElemDB.m_records[i];
+    for (int32_t i = 0; i < g_soundFilterElemDB.GetNumRecords(); i++) {
+        SoundFilterElemRec* pFilterElemRec = (i < 0 || i >= g_soundFilterElemDB.GetNumRecords()) ? nullptr : &g_soundFilterElemDB.m_records[i];
         STORM_ASSERT(pFilterElemRec);
         SoundFilterRec* pFilterRec = g_soundFilterDB.GetRecord(pFilterElemRec->m_soundFilterID);
         STORM_ASSERT(pFilterRec);

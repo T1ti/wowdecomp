@@ -1094,7 +1094,7 @@ static void BuildPathVertices(C3Spline* spline, int32_t segments) {
 // VERIFY: 8b8c8fa2 manual
 // OFFSET: 0x00408BB0
 static LoadingScreenTaxiSplinesRec* FindTaxiSpline(int32_t pathID, int32_t legIndex) {
-    for (int32_t i = 0; i < g_loadingScreenTaxiSplinesDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_loadingScreenTaxiSplinesDB.GetNumRecords(); i++) {
         LoadingScreenTaxiSplinesRec* rec = g_loadingScreenTaxiSplinesDB.GetRecordByIndex(i);
 
         if (rec->m_pathID == pathID && rec->m_legIndex == legIndex) {

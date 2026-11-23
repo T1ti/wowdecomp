@@ -96,7 +96,7 @@ static int32_t Script_SelectPackage(lua_State* L) {
     int32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
     const PackageRec* rec;
 
-    if (index >= 0 && index < g_packageDB.m_nNumRecords && (rec = &g_packageDB.m_records[index])) {
+    if (index >= 0 && index < g_packageDB.GetNumRecords() && (rec = &g_packageDB.m_records[index])) {
         CGMailInfo::m_selectedPackage = rec->m_id;
         return 0;
     }
@@ -274,7 +274,7 @@ static int32_t Script_GetPackageInfo(lua_State* L) {
     }
 
     int32_t index = static_cast<int32_t>(lua_tonumber(L, 1)) - 1;
-    PackageRec* rec = index >= 0 && index < g_packageDB.m_nNumRecords ? &g_packageDB.m_records[index] : nullptr;
+    PackageRec* rec = index >= 0 && index < g_packageDB.GetNumRecords() ? &g_packageDB.m_records[index] : nullptr;
     double cost;
 
     if (rec) {
@@ -297,7 +297,7 @@ static int32_t Script_GetPackageInfo(lua_State* L) {
 // VERIFY: 4291f14f auto
 // OFFSET: 0x0056E1E0
 static int32_t Script_GetNumPackages(lua_State* L) {
-    lua_pushnumber(L, g_packageDB.m_nNumRecords);
+    lua_pushnumber(L, g_packageDB.GetNumRecords());
     return 1;
 }
 

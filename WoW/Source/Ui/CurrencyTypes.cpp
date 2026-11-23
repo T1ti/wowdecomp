@@ -74,8 +74,8 @@ void CGCurrencyTypes::SetCategoryExpand(int32_t index, int32_t expand) {
 // VERIFY: 7bd12f82 manual
 // OFFSET: 0x005AFD90
 void CGCurrencyTypes::InitializeGame() {
-    int32_t numCategories = g_currencyCategoryDB.m_nNumRecords;
-    CGCurrencyTypes::m_numCategories = g_currencyCategoryDB.m_nNumRecords;
+    int32_t numCategories = g_currencyCategoryDB.GetNumRecords();
+    CGCurrencyTypes::m_numCategories = g_currencyCategoryDB.GetNumRecords();
     memset(CGCurrencyTypes::m_categories, 0, sizeof(CGCurrencyTypes::m_categories));
 
     for (int32_t i = 0; i < numCategories; i++) {
@@ -95,7 +95,7 @@ void CGCurrencyTypes::InitializeGame() {
 // VERIFY: cd06e9a4 manual
 // OFFSET: 0x005AFE30
 int32_t CGCurrencyTypes::CategoryHasKnownTypes(int32_t index, uint32_t known1, uint32_t known2, uint32_t unused1, uint32_t unused2) {
-    for (int32_t i = 0; i < g_currencyTypesDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_currencyTypesDB.GetNumRecords(); i++) {
         CurrencyTypesRec* rec = g_currencyTypesDB.GetRecordByIndex(i);
 
         if (!rec || (CGCurrencyTypes::m_categories[index].m_id != rec->m_categoryID && index != CGCurrencyTypes::m_numCategories - 1)) {
@@ -198,7 +198,7 @@ void CGCurrencyTypes::BuildDisplayList() {
 
         int32_t first = CGCurrencyTypes::m_listSize;
 
-        for (int32_t i = 0; i < g_currencyTypesDB.m_nNumRecords; i++) {
+        for (int32_t i = 0; i < g_currencyTypesDB.GetNumRecords(); i++) {
             CurrencyTypesRec* rec = g_currencyTypesDB.GetRecordByIndex(i);
 
             if (!rec) {
@@ -285,7 +285,7 @@ CurrencyTypesRec* CGCurrencyTypes::GetBackpackCurrencyInfo(int32_t index) {
     uint32_t known2 = static_cast<uint32_t>(player->m_player->m_playerFieldKnownCurrencies.m_guid >> 32);
     int32_t found = 0;
 
-    for (int32_t i = 0; i < g_currencyTypesDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_currencyTypesDB.GetNumRecords(); i++) {
         CurrencyTypesRec* rec = g_currencyTypesDB.GetRecordByIndex(i);
 
         if (!rec) {
@@ -332,7 +332,7 @@ CurrencyTypesRec* CGCurrencyTypes::GetCurrencyRec(int32_t index) {
         return nullptr;
     }
 
-    for (int32_t i = 0; i < g_currencyTypesDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_currencyTypesDB.GetNumRecords(); i++) {
         CurrencyTypesRec* rec = &g_currencyTypesDB.m_records[i];
 
         if (rec->m_itemID == CGCurrencyTypes::m_list[index].m_itemID) {

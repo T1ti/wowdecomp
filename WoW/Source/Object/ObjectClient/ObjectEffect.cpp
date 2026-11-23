@@ -300,26 +300,26 @@ void ObjectEffectSystem_ShutDown() {
 void ObjectEffectSystem_Initialize() {
     InitObjectEffectStateMap();
 
-    int32_t packageCount = g_objectEffectPackageDB.m_nNumRecords;
+    int32_t packageCount = g_objectEffectPackageDB.GetNumRecords();
 
     for (int32_t i = 0; i < packageCount; i++) {
-        ObjectEffectPackageRec* rec = (i < 0 || i >= g_objectEffectPackageDB.m_nNumRecords) ? nullptr : &g_objectEffectPackageDB.m_records[i];
+        ObjectEffectPackageRec* rec = (i < 0 || i >= g_objectEffectPackageDB.GetNumRecords()) ? nullptr : &g_objectEffectPackageDB.m_records[i];
         OBJ_EFFECT_PACKAGE_DEF_LOOKUP* packageLookup = s_packageDefLookup.New(rec->m_id, s_hashKeyNone, 0, 0);
         packageLookup->m_objectEffectPackageDef.m_id = rec->m_id;
     }
 
-    int32_t groupCount = g_objectEffectGroupDB.m_nNumRecords;
+    int32_t groupCount = g_objectEffectGroupDB.GetNumRecords();
 
     for (int32_t i = 0; i < groupCount; i++) {
-        ObjectEffectGroupRec* rec = (i < 0 || i >= g_objectEffectGroupDB.m_nNumRecords) ? nullptr : &g_objectEffectGroupDB.m_records[i];
+        ObjectEffectGroupRec* rec = (i < 0 || i >= g_objectEffectGroupDB.GetNumRecords()) ? nullptr : &g_objectEffectGroupDB.m_records[i];
         OBJ_EFFECT_GROUP_DEF_LOOKUP* groupLookup = s_groupDefLookup.New(rec->m_id, s_hashKeyNone, 0, 0);
         groupLookup->m_objectEffectGroupDef.m_id = rec->m_id;
     }
 
-    int32_t elemCount = g_objectEffectPackageElemDB.m_nNumRecords;
+    int32_t elemCount = g_objectEffectPackageElemDB.GetNumRecords();
 
     for (int32_t i = 0; i < elemCount; i++) {
-        ObjectEffectPackageElemRec* rec = (i < 0 || i >= g_objectEffectPackageElemDB.m_nNumRecords) ? nullptr : &g_objectEffectPackageElemDB.m_records[i];
+        ObjectEffectPackageElemRec* rec = (i < 0 || i >= g_objectEffectPackageElemDB.GetNumRecords()) ? nullptr : &g_objectEffectPackageElemDB.m_records[i];
         OBJ_EFFECT_PACKAGE_DEF_LOOKUP* packageLookup = s_packageDefLookup.Ptr(rec->m_objectEffectPackageID, s_hashKeyNone);
 
         if (!packageLookup) {
@@ -340,10 +340,10 @@ void ObjectEffectSystem_Initialize() {
         refList->m_groupDefRefs.LinkToTail(pNewGroupDefRef);
     }
 
-    int32_t effectCount = g_objectEffectDB.m_nNumRecords;
+    int32_t effectCount = g_objectEffectDB.GetNumRecords();
 
     for (int32_t i = 0; i < effectCount; i++) {
-        ObjectEffectRec* pEffectRec = (i < 0 || i >= g_objectEffectDB.m_nNumRecords) ? nullptr : &g_objectEffectDB.m_records[i];
+        ObjectEffectRec* pEffectRec = (i < 0 || i >= g_objectEffectDB.GetNumRecords()) ? nullptr : &g_objectEffectDB.m_records[i];
         STORM_ASSERT(pEffectRec);
         OBJ_EFFECT_DEF_LOOKUP* pEffectDefLookup = s_effectDefLookup.New(pEffectRec->m_id, s_hashKeyNone, 0, 0);
         pEffectDefLookup->m_objectEffectDef.m_id = pEffectRec->m_id;

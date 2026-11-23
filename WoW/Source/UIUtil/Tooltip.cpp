@@ -2972,7 +2972,7 @@ static void AddSpellEquippedItemLine(CGTooltip* tooltip, const SpellRec* spell, 
     items[0] = '\0';
     BOOL found = 0;
 
-    for (int32_t i = 0; i < g_itemSubClassMaskDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_itemSubClassMaskDB.GetNumRecords(); i++) {
         ItemSubClassMaskRec* mask = &g_itemSubClassMaskDB.m_records[i];
 
         if (mask->m_classID == spell->m_equippedItemClass && mask->m_mask == spell->m_equippedItemSubclass) {
@@ -2996,7 +2996,7 @@ static void AddSpellEquippedItemLine(CGTooltip* tooltip, const SpellRec* spell, 
         equipped = 0;
     }
 
-    for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_itemSubClassDB.GetNumRecords(); i++) {
         ItemSubClassRec* subClass = &g_itemSubClassDB.m_records[i];
 
         if (subClass->m_classID != spell->m_equippedItemClass || !((1 << subClass->m_subClassID) & spell->m_equippedItemSubclass) || found) {
@@ -3040,14 +3040,14 @@ static void AddSpellFormLine(CGTooltip* tooltip, const SpellRec* spell, CGUnit_C
     int32_t needsForm = spell->m_attributesExB & SPELL_ATTR2::SPELL_ATTR2_ALLOW_WHILE_NOT_SHAPESHIFTED_CASTER_FORM;
 
     if (!needsForm) {
-        uint32_t count = g_spellShapeshiftFormDB.m_nNumRecords;
+        uint32_t count = g_spellShapeshiftFormDB.GetNumRecords();
 
         if (count > NUM_SPELL_SHAPESHIFT_FORMS) {
             count = NUM_SPELL_SHAPESHIFT_FORMS;
         }
 
         for (uint32_t i = 0; i < count; i++) {
-            if (!SpellRec::UsableInShapeshift(spell, i) || static_cast<int32_t>(i) >= g_spellShapeshiftFormDB.m_nNumRecords) {
+            if (!SpellRec::UsableInShapeshift(spell, i) || static_cast<int32_t>(i) >= g_spellShapeshiftFormDB.GetNumRecords()) {
                 continue;
             }
 
@@ -4522,7 +4522,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
     ItemSubClassRec* subClass = nullptr;
     subClassName[0] = '\0';
 
-    for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_itemSubClassDB.GetNumRecords(); i++) {
         ItemSubClassRec* rec = g_itemSubClassDB.GetRecordByIndex(i);
 
         if (rec && rec->m_classID == static_cast<int32_t>(stats->m_class) && rec->m_subClassID == static_cast<int32_t>(stats->m_subClass)) {
@@ -4631,7 +4631,7 @@ static void AddItemTypeLines(CGTooltip* tooltip, const ItemStats_C* stats, CGPla
             if (alternate == -1) {
                 subClassRed = 1;
             } else {
-                for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
+                for (int32_t i = 0; i < g_itemSubClassDB.GetNumRecords(); i++) {
                     ItemSubClassRec* rec = g_itemSubClassDB.GetRecordByIndex(i);
 
                     if (rec && rec->m_classID == ITEM_CLASS::ITEM_CLASS_ARMOR && rec->m_subClassID == alternate) {
@@ -5397,7 +5397,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         int32_t allRaces = 1;
         int32_t allClasses = 1;
 
-        for (int32_t i = 0; i < g_chrRacesDB.m_nNumRecords; i++) {
+        for (int32_t i = 0; i < g_chrRacesDB.GetNumRecords(); i++) {
             ChrRacesRec* race = g_chrRacesDB.GetRecordByIndex(i);
 
             if (race && !(race->m_flags & ChrRacesRec::RACE_FLAGS::NON_PLAYABLE) && !((1 << (race->m_id - 1)) & stats->m_allowableRace)) {
@@ -5406,7 +5406,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
             }
         }
 
-        for (int32_t i = 0; i < g_chrClassesDB.m_nNumRecords; i++) {
+        for (int32_t i = 0; i < g_chrClassesDB.GetNumRecords(); i++) {
             ChrClassesRec* playerClass = g_chrClassesDB.GetRecordByIndex(i);
 
             if (playerClass && !((1 << (playerClass->m_id - 1)) & stats->m_allowableClass)) {
@@ -5420,7 +5420,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
             int32_t first = 1;
             allowed = 0;
 
-            for (int32_t i = 0; i < g_chrRacesDB.m_nNumRecords; i++) {
+            for (int32_t i = 0; i < g_chrRacesDB.GetNumRecords(); i++) {
                 ChrRacesRec* race = g_chrRacesDB.GetRecordByIndex(i);
 
                 if (!(race->m_flags & ChrRacesRec::RACE_FLAGS::NON_PLAYABLE) && race->m_name && ((1 << (race->m_id - 1)) & stats->m_allowableRace)) {
@@ -5450,7 +5450,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
             BOOL first = 1;
             allowed = 0;
 
-            for (int32_t i = 0; i < g_chrClassesDB.m_nNumRecords; i++) {
+            for (int32_t i = 0; i < g_chrClassesDB.GetNumRecords(); i++) {
                 ChrClassesRec* playerClass = g_chrClassesDB.GetRecordByIndex(i);
 
                 if (playerClass && playerClass->m_name && ((1 << (playerClass->m_id - 1)) & stats->m_allowableClass)) {
@@ -5478,7 +5478,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         return;
     }
 
-    for (int32_t i = 0; i < g_chrRacesDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_chrRacesDB.GetNumRecords(); i++) {
         ChrRacesRec* race = g_chrRacesDB.GetRecordByIndex(i);
 
         if (!(race->m_flags & ChrRacesRec::RACE_FLAGS::NON_PLAYABLE) && race->m_name && ((1 << (race->m_id - 1)) & stats->m_allowableRace)) {
@@ -5492,7 +5492,7 @@ static void AddItemRaceClassLines(CGTooltip* tooltip, const ItemStats_C* stats, 
         }
     }
 
-    for (int32_t i = 0; i < g_chrClassesDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_chrClassesDB.GetNumRecords(); i++) {
         ChrClassesRec* playerClass = g_chrClassesDB.GetRecordByIndex(i);
 
         if (playerClass && playerClass->m_name && ((1 << (playerClass->m_id - 1)) & stats->m_allowableClass)) {
@@ -7484,7 +7484,7 @@ void CGTooltip::AddEmpathyText(CGUnit_C* unit, char* buffer, uint32_t size) {
         char diet[256];
         diet[0] = '\0';
         int32_t first = 1;
-        uint32_t count = g_itemPetFoodDB.m_nNumRecords;
+        uint32_t count = g_itemPetFoodDB.GetNumRecords();
 
         for (uint32_t i = 0; i < count; i++) {
             ItemPetFoodRec* food = g_itemPetFoodDB.GetRecordByIndex(i);
@@ -7525,7 +7525,7 @@ void CGTooltip::AddEmpathyText(CGUnit_C* unit, char* buffer, uint32_t size) {
     BOOL first = 1;
 
     for (uint32_t j = 0; j < NUM_CREATURE_FAMILY_SKILL_LINES; j++) {
-        for (int32_t i = 0; i < g_skillLineAbilityDB.m_nNumRecords; i++) {
+        for (int32_t i = 0; i < g_skillLineAbilityDB.GetNumRecords(); i++) {
             SkillLineAbilityRec* ability = g_skillLineAbilityDB.GetRecordByIndex(i);
 
             if (!ability || ability->m_skillLine != family->m_skillLine[j]) {

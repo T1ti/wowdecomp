@@ -183,10 +183,10 @@ static int32_t Script_GetInspectHonorData(lua_State* L) {
 static int32_t Script_GetInventorySlotInfo(lua_State* L) {
     if (lua_isstring(L, 1)) {
         const char* name = lua_tolstring(L, 1, nullptr);
-        int32_t count = g_paperDollItemFrameDB.m_nNumRecords;
+        int32_t count = g_paperDollItemFrameDB.GetNumRecords();
 
         for (int32_t i = 0; i < count; i++) {
-            PaperDollItemFrameRec* rec = i < 0 || i >= g_paperDollItemFrameDB.m_nNumRecords ? nullptr : &g_paperDollItemFrameDB.m_records[i];
+            PaperDollItemFrameRec* rec = i < 0 || i >= g_paperDollItemFrameDB.GetNumRecords() ? nullptr : &g_paperDollItemFrameDB.m_records[i];
 
             if (rec && !SStrCmpI(rec->m_itemButtonName, name, STORM_MAX_STR)) {
                 lua_pushnumber(L, rec->m_slotNumber);
@@ -329,7 +329,7 @@ static int32_t Script_GetInventoryItemCount(lua_State* L) {
         return 1;
     }
 
-    for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_itemSubClassDB.GetNumRecords(); i++) {
         ItemSubClassRec* rec = g_itemSubClassDB.GetRecordByIndex(i);
 
         if (rec->m_classID != static_cast<int32_t>(item->GetClassID()) || rec->m_subClassID != static_cast<int32_t>(item->GetSubtypeID())) {
@@ -581,8 +581,8 @@ static int32_t Script_GetInventoryItemsForSlot(lua_State* L) {
         if (lua_isstring(L, 1)) {
             const char* name = lua_tolstring(L, 1, nullptr);
 
-            for (int32_t i = 0; i < g_paperDollItemFrameDB.m_nNumRecords; i++) {
-                PaperDollItemFrameRec* rec = i >= 0 && i < g_paperDollItemFrameDB.m_nNumRecords ? &g_paperDollItemFrameDB.m_records[i] : nullptr;
+            for (int32_t i = 0; i < g_paperDollItemFrameDB.GetNumRecords(); i++) {
+                PaperDollItemFrameRec* rec = i >= 0 && i < g_paperDollItemFrameDB.GetNumRecords() ? &g_paperDollItemFrameDB.m_records[i] : nullptr;
 
                 if (rec && !SStrCmpI(rec->m_itemButtonName, name, STORM_MAX_STR)) {
                     slot = rec->m_slotNumber;

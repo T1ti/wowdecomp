@@ -228,7 +228,7 @@ static int32_t Script_GetTradeSkillSubClasses(lua_State* L) {
             continue;
         }
 
-        for (int32_t j = 0; j < g_itemSubClassDB.m_nNumRecords; j++) {
+        for (int32_t j = 0; j < g_itemSubClassDB.GetNumRecords(); j++) {
             ItemSubClassRec* rec = g_itemSubClassDB.GetRecordByIndex(j);
 
             if (rec->m_classID == subClass->m_itemClass && rec->m_subClassID == subClass->m_itemSubClass) {
@@ -313,7 +313,7 @@ static int32_t Script_GetTradeSkillInfo(lua_State* L) {
             ItemSubClassRec* rec = nullptr;
 
             if (!skillHeader) {
-                for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
+                for (int32_t i = 0; i < g_itemSubClassDB.GetNumRecords(); i++) {
                     ItemSubClassRec* subClass = g_itemSubClassDB.GetRecordByIndex(i);
 
                     if (subClass->m_classID == info->m_itemClass && subClass->m_subClassID == info->m_itemSubClass) {

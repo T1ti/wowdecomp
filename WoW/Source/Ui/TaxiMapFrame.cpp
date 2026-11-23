@@ -521,7 +521,7 @@ void CGTaxiMap::SetupMap(const WOWGUID& unit, int32_t currentNode, const uint64_
     WorldMapContinentRec* continent = nullptr;
     int32_t index = 0;
 
-    for (; index < g_worldMapContinentDB.m_nNumRecords; index++) {
+    for (; index < g_worldMapContinentDB.GetNumRecords(); index++) {
         continent = g_worldMapContinentDB.GetRecordByIndex(index);
 
         if (continent->m_mapID == s_mapID) {
@@ -529,7 +529,7 @@ void CGTaxiMap::SetupMap(const WOWGUID& unit, int32_t currentNode, const uint64_
         }
     }
 
-    if (index == g_worldMapContinentDB.m_nNumRecords) {
+    if (index == g_worldMapContinentDB.GetNumRecords()) {
         return;
     }
 
@@ -656,8 +656,8 @@ void CGTaxiMap::InitializeGame() {
     s_unused_C0DC70.SetCount(CGTaxiMap::m_maxNodeID);
     CGTaxiMap::m_routeLines.SetCount(CGTaxiMap::m_maxNodeID);
 
-    for (int32_t i = g_taxiPathDB.m_nNumRecords - 1; i >= 0; i--) {
-        TaxiPathRec* path = i < 0 || i >= g_taxiPathDB.m_nNumRecords ? nullptr : &g_taxiPathDB.m_records[i];
+    for (int32_t i = g_taxiPathDB.GetNumRecords() - 1; i >= 0; i--) {
+        TaxiPathRec* path = i < 0 || i >= g_taxiPathDB.GetNumRecords() ? nullptr : &g_taxiPathDB.m_records[i];
         TaxiNodesRec* from = g_taxiNodesDB.GetRecord(path->m_fromTaxiNode);
         TaxiNodesRec* to = g_taxiNodesDB.GetRecord(path->m_toTaxiNode);
 
@@ -669,8 +669,8 @@ void CGTaxiMap::InitializeGame() {
     int32_t lastPathID = -1;
     TAXIPATHNODESCLIENT* pathNodes = nullptr;
 
-    for (int32_t i = 0; i < g_taxiPathNodeDB.m_nNumRecords; i++) {
-        TaxiPathNodeRec* node = i < 0 || i >= g_taxiPathNodeDB.m_nNumRecords ? nullptr : &g_taxiPathNodeDB.m_records[i];
+    for (int32_t i = 0; i < g_taxiPathNodeDB.GetNumRecords(); i++) {
+        TaxiPathNodeRec* node = i < 0 || i >= g_taxiPathNodeDB.GetNumRecords() ? nullptr : &g_taxiPathNodeDB.m_records[i];
         int32_t pathID = node->m_pathID;
 
         if (pathID == lastPathID) {

@@ -1082,7 +1082,7 @@ void MinimapInitialize(int32_t mapId) {
 
         uint32_t count = 0;
 
-        for (int32_t i = g_areaPOIDB.m_nNumRecords - 1; i >= 0; i--) {
+        for (int32_t i = g_areaPOIDB.GetNumRecords() - 1; i >= 0; i--) {
             AreaPOIRec* rec = g_areaPOIDB.GetRecordByIndex(i);
 
             if (rec->m_continentID == mapId && (rec->m_flags & AREA_POI_FLAG_SHOW_ON_MINIMAP)) {

@@ -5868,8 +5868,8 @@ int32_t SpellHistory::RecentlyCast(int32_t spellId, int32_t itemId) {
 // VERIFY: 293fcda8 manual
 // OFFSET: 0x007FEA30
 ItemSubClassRec* FindAnyItemSubclassRec(int32_t classId, int32_t subclassMask) {
-    for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
-        ItemSubClassRec* rec = i < 0 || i >= g_itemSubClassDB.m_nNumRecords ? nullptr : &g_itemSubClassDB.m_records[i];
+    for (int32_t i = 0; i < g_itemSubClassDB.GetNumRecords(); i++) {
+        ItemSubClassRec* rec = i < 0 || i >= g_itemSubClassDB.GetNumRecords() ? nullptr : &g_itemSubClassDB.m_records[i];
 
         if (rec->m_classID == classId && ((1 << rec->m_subClassID) & subclassMask)) {
             return rec;
@@ -5900,8 +5900,8 @@ void ShowPetSpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t r
             FormatString(GetSpellFailedResult(reason), -1, GENDER_NOT_APPLICABLE, format, sizeof(format));
             bool found = false;
 
-            for (int32_t i = 0; i < g_itemSubClassMaskDB.m_nNumRecords; i++) {
-                ItemSubClassMaskRec* rec = i < 0 || i >= g_itemSubClassMaskDB.m_nNumRecords ? nullptr : &g_itemSubClassMaskDB.m_records[i];
+            for (int32_t i = 0; i < g_itemSubClassMaskDB.GetNumRecords(); i++) {
+                ItemSubClassMaskRec* rec = i < 0 || i >= g_itemSubClassMaskDB.GetNumRecords() ? nullptr : &g_itemSubClassMaskDB.m_records[i];
 
                 if (rec->m_classID == misc1 && rec->m_mask == misc2) {
                     SStrPrintf(text, sizeof(text), format, rec->m_name);
@@ -5953,7 +5953,7 @@ void ShowPetSpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t r
 
         case SpellCastResult::SPELL_FAILED_ONLY_SHAPESHIFT: {
             FormatString(GetSpellFailedResult(reason), -1, GENDER_NOT_APPLICABLE, text, sizeof(text));
-            uint32_t count = g_spellShapeshiftFormDB.m_nNumRecords;
+            uint32_t count = g_spellShapeshiftFormDB.GetNumRecords();
 
             if (count > NUM_SPELL_SHAPESHIFT_FORMS) {
                 count = NUM_SPELL_SHAPESHIFT_FORMS;
@@ -5964,7 +5964,7 @@ void ShowPetSpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t r
                     continue;
                 }
 
-                SpellShapeshiftFormRec* form = static_cast<int32_t>(i) < 0 || static_cast<int32_t>(i) >= g_spellShapeshiftFormDB.m_nNumRecords ? nullptr : &g_spellShapeshiftFormDB.m_records[i];
+                SpellShapeshiftFormRec* form = static_cast<int32_t>(i) < 0 || static_cast<int32_t>(i) >= g_spellShapeshiftFormDB.GetNumRecords() ? nullptr : &g_spellShapeshiftFormDB.m_records[i];
 
                 if (form && form->m_name && *form->m_name) {
                     SStrPrintf(format, sizeof(format), text, form->m_name);
@@ -6553,8 +6553,8 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
         case SPELL_FAILED_EQUIPPED_ITEM_CLASS_OFFHAND: {
             bool found = false;
 
-            for (int32_t i = 0; i < g_itemSubClassMaskDB.m_nNumRecords; i++) {
-                ItemSubClassMaskRec* rec = i < 0 || i >= g_itemSubClassMaskDB.m_nNumRecords ? nullptr : &g_itemSubClassMaskDB.m_records[i];
+            for (int32_t i = 0; i < g_itemSubClassMaskDB.GetNumRecords(); i++) {
+                ItemSubClassMaskRec* rec = i < 0 || i >= g_itemSubClassMaskDB.GetNumRecords() ? nullptr : &g_itemSubClassMaskDB.m_records[i];
 
                 if (rec->m_classID == misc1 && rec->m_mask == misc2) {
                     SStrPrintf(text, sizeof(text), format, rec->m_name);
@@ -6620,7 +6620,7 @@ void Spell_C_SpellFailed(PendingSpellCast* cast, const SpellRec* spell, int32_t 
         }
 
         case SPELL_FAILED_ONLY_SHAPESHIFT: {
-            uint32_t count = g_spellShapeshiftFormDB.m_nNumRecords;
+            uint32_t count = g_spellShapeshiftFormDB.GetNumRecords();
 
             if (count > NUM_SPELL_SHAPESHIFT_FORMS) {
                 count = NUM_SPELL_SHAPESHIFT_FORMS;
@@ -7087,7 +7087,7 @@ bool Spell_C_HaveEquippedSpellItems(CGUnit_C* unit, const SpellRec* spell, bool 
         return true;
     }
 
-    uint32_t count = g_itemSubClassDB.m_nNumRecords;
+    uint32_t count = g_itemSubClassDB.GetNumRecords();
 
     for (uint32_t i = 0; i < count; i++) {
         ItemSubClassRec* subClass = g_itemSubClassDB.GetRecordByIndex(i);

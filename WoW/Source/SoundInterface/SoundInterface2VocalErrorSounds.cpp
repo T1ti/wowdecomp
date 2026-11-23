@@ -23,8 +23,8 @@ void SI2::InitVocalErrorSounds(int32_t race, uint32_t sex) {
         return;
     }
 
-    for (int32_t i = 0; i < g_vocalUISoundsDB.m_nNumRecords; i++) {
-        VocalUISoundsRec* rec = (i < 0 || i >= g_vocalUISoundsDB.m_nNumRecords) ? nullptr : &g_vocalUISoundsDB.m_records[i];
+    for (int32_t i = 0; i < g_vocalUISoundsDB.GetNumRecords(); i++) {
+        VocalUISoundsRec* rec = (i < 0 || i >= g_vocalUISoundsDB.GetNumRecords()) ? nullptr : &g_vocalUISoundsDB.m_records[i];
 
         if (rec && rec->m_vocalUienum < NUM_VOCALUISOUNDS && rec->m_raceID == race) {
             s_vocalErrorSounds[rec->m_vocalUienum] = rec->m_normalSoundID[sex];

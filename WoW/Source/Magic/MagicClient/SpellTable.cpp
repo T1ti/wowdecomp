@@ -64,8 +64,8 @@ bool SpellTableMatchRaceClass(int32_t race, int32_t classId, int32_t raceMask, i
 // VERIFY: 57f2bfbe auto
 // OFFSET: 0x00810410
 SkillLineAbilityRec* SpellTableLookupPetAbility(int32_t skillLine, int32_t spellId) {
-    for (int32_t i = 0; i < g_skillLineAbilityDB.m_nNumRecords; i++) {
-        SkillLineAbilityRec* ability = (i < 0 || i >= g_skillLineAbilityDB.m_nNumRecords) ? nullptr : &g_skillLineAbilityDB.m_records[i];
+    for (int32_t i = 0; i < g_skillLineAbilityDB.GetNumRecords(); i++) {
+        SkillLineAbilityRec* ability = (i < 0 || i >= g_skillLineAbilityDB.GetNumRecords()) ? nullptr : &g_skillLineAbilityDB.m_records[i];
 
         if (ability->m_skillLine == skillLine && ability->m_spell == spellId) {
             return ability;
@@ -159,16 +159,16 @@ static void SpellTableBuildSkillLineLinkInfo() {
     bool first = true;
     int32_t lastSkillLine = -1;
 
-    for (int32_t i = 0; i < g_charBaseInfoDB.m_nNumRecords; i++) {
-        CharBaseInfoRec* base = (i < 0 || i >= g_charBaseInfoDB.m_nNumRecords) ? nullptr : &g_charBaseInfoDB.m_records[i];
+    for (int32_t i = 0; i < g_charBaseInfoDB.GetNumRecords(); i++) {
+        CharBaseInfoRec* base = (i < 0 || i >= g_charBaseInfoDB.GetNumRecords()) ? nullptr : &g_charBaseInfoDB.m_records[i];
         uint8_t race = static_cast<uint8_t>(base->m_raceID);
 
         if (!g_chrRacesDB.GetRecord(race)) {
             continue;
         }
 
-        for (int32_t j = 0; j < g_skillLineAbilityDB.m_nNumRecords; j++) {
-            SkillLineAbilityRec* ability = (j < 0 || j >= g_skillLineAbilityDB.m_nNumRecords) ? nullptr : &g_skillLineAbilityDB.m_records[j];
+        for (int32_t j = 0; j < g_skillLineAbilityDB.GetNumRecords(); j++) {
+            SkillLineAbilityRec* ability = (j < 0 || j >= g_skillLineAbilityDB.GetNumRecords()) ? nullptr : &g_skillLineAbilityDB.m_records[j];
             SpellTableAddSkillLineRec(race, static_cast<uint8_t>(base->m_classID), ability);
 
             if (!first) {
@@ -207,8 +207,8 @@ void SpellTableInitialize() {
     RACECLASSINFO* raceClassInfo = nullptr;
     int32_t lastSkill = -1;
 
-    for (int32_t i = 0; i < g_skillRaceClassInfoDB.m_nNumRecords; i++) {
-        SkillRaceClassInfoRec* rec = (i < 0 || i >= g_skillRaceClassInfoDB.m_nNumRecords) ? nullptr : &g_skillRaceClassInfoDB.m_records[i];
+    for (int32_t i = 0; i < g_skillRaceClassInfoDB.GetNumRecords(); i++) {
+        SkillRaceClassInfoRec* rec = (i < 0 || i >= g_skillRaceClassInfoDB.GetNumRecords()) ? nullptr : &g_skillRaceClassInfoDB.m_records[i];
 
         if (rec->m_skillID == lastSkill) {
             raceClassInfo->m_count++;
@@ -225,8 +225,8 @@ void SpellTableInitialize() {
     SKILLCOSTSINFO* skillCostsInfo = nullptr;
     int32_t lastCosts = -1;
 
-    for (int32_t i = 0; i < g_skillCostsDataDB.m_nNumRecords; i++) {
-        SkillCostsDataRec* rec = (i < 0 || i >= g_skillCostsDataDB.m_nNumRecords) ? nullptr : &g_skillCostsDataDB.m_records[i];
+    for (int32_t i = 0; i < g_skillCostsDataDB.GetNumRecords(); i++) {
+        SkillCostsDataRec* rec = (i < 0 || i >= g_skillCostsDataDB.GetNumRecords()) ? nullptr : &g_skillCostsDataDB.m_records[i];
 
         if (rec->m_skillCostsID == lastCosts) {
             skillCostsInfo->m_count++;
@@ -271,8 +271,8 @@ SkillLineAbilityRec* SpellTableLookupAbility(int32_t race, int32_t classId, int3
         return nullptr;
     }
 
-    for (int32_t i = 0; i < g_skillLineAbilityDB.m_nNumRecords; i++) {
-        SkillLineAbilityRec* ability = (i < 0 || i >= g_skillLineAbilityDB.m_nNumRecords) ? nullptr : &g_skillLineAbilityDB.m_records[i];
+    for (int32_t i = 0; i < g_skillLineAbilityDB.GetNumRecords(); i++) {
+        SkillLineAbilityRec* ability = (i < 0 || i >= g_skillLineAbilityDB.GetNumRecords()) ? nullptr : &g_skillLineAbilityDB.m_records[i];
 
         if (ability->m_spell == spellId && SpellTableLookupInfo(race, classId, ability->m_skillLine) && SpellTableMatchRaceClass(race, classId, ability->m_raceMask, ability->m_classMask, ability->m_excludeRace, ability->m_excludeClass)) {
             return ability;

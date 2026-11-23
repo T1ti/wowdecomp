@@ -2060,12 +2060,12 @@ void CGlueMgr::EnterWorld() {
     if (!CGlueMgr::m_characterInfo->m_firstLogin && s_showGameTips->m_intValue) {
         int32_t tip = s_curGameTip->m_intValue;
 
-        if (tip < 0 || tip >= g_gameTipsDB.m_nNumRecords) {
+        if (tip < 0 || tip >= g_gameTipsDB.GetNumRecords()) {
             tip = 0;
         }
 
-        if (g_gameTipsDB.m_nNumRecords > 0) {
-            GameTipsRec* rec = tip >= 0 && tip < g_gameTipsDB.m_nNumRecords ? &g_gameTipsDB.m_records[tip] : nullptr;
+        if (g_gameTipsDB.GetNumRecords() > 0) {
+            GameTipsRec* rec = tip >= 0 && tip < g_gameTipsDB.GetNumRecords() ? &g_gameTipsDB.m_records[tip] : nullptr;
             STORM_ASSERT(rec);
             LoadingScreenSetTip(rec->m_text);
 

@@ -2003,8 +2003,8 @@ static int32_t Script_GetZonePVPInfo(lua_State* L) {
     lua_pushstring(L, type ? type : "contested");
     const char* factionName = "";
 
-    for (int32_t i = 0; i < g_factionGroupDB.m_nNumRecords; i++) {
-        FactionGroupRec* group = i >= 0 && i < g_factionGroupDB.m_nNumRecords ? &g_factionGroupDB.m_records[i] : nullptr;
+    for (int32_t i = 0; i < g_factionGroupDB.GetNumRecords(); i++) {
+        FactionGroupRec* group = i >= 0 && i < g_factionGroupDB.GetNumRecords() ? &g_factionGroupDB.m_records[i] : nullptr;
 
         if (((1 << group->m_maskID) & area->m_factionGroupMask) && *group->m_name) {
             factionName = group->m_name;
@@ -2618,8 +2618,8 @@ static int32_t Script_GetItemInfo(lua_State* L) {
     lua_pushstring(L, itemClass ? itemClass->m_className : "");
     const ItemSubClassRec* subClass = nullptr;
 
-    for (int32_t i = 0; i < g_itemSubClassDB.m_nNumRecords; i++) {
-        const ItemSubClassRec* rec = i >= 0 && i < g_itemSubClassDB.m_nNumRecords ? &g_itemSubClassDB.m_records[i] : nullptr;
+    for (int32_t i = 0; i < g_itemSubClassDB.GetNumRecords(); i++) {
+        const ItemSubClassRec* rec = i >= 0 && i < g_itemSubClassDB.GetNumRecords() ? &g_itemSubClassDB.m_records[i] : nullptr;
 
         if (rec && rec->m_classID == static_cast<int32_t>(stats->m_class) && rec->m_subClassID == static_cast<int32_t>(stats->m_subClass)) {
             subClass = rec;
@@ -2964,7 +2964,7 @@ static int32_t Script_GetTitleName(lua_State* L) {
     title[0] = 0;
     CharTitlesRec* rec = nullptr;
 
-    for (int32_t i = 0; i < g_charTitlesDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_charTitlesDB.GetNumRecords(); i++) {
         CharTitlesRec* candidate = g_charTitlesDB.GetRecordByIndex(i);
 
         if (candidate && candidate->m_maskID == maskId) {
@@ -4049,7 +4049,7 @@ static int32_t Script_ReplaceEnchant(lua_State* L) {
 // VERIFY: d4f1a121 manual
 // OFFSET: 0x00516AA0
 static int32_t Script_GetGMTicketCategories(lua_State* L) {
-    int32_t count = g_gmTicketCategoryDB.m_nNumRecords;
+    int32_t count = g_gmTicketCategoryDB.GetNumRecords();
     int32_t results = 2 * count;
     lua_checkstack(L, results);
 
@@ -5052,11 +5052,11 @@ int32_t FindItemClassTypeCallback(const CGItem_C* item, void* param) {
         return 1;
     }
 
-    int32_t i = g_itemSubClassDB.m_nNumRecords;
+    int32_t i = g_itemSubClassDB.GetNumRecords();
 
     while (i) {
         i--;
-        const ItemSubClassRec* rec = i >= 0 && i < g_itemSubClassDB.m_nNumRecords ? &g_itemSubClassDB.m_records[i] : nullptr;
+        const ItemSubClassRec* rec = i >= 0 && i < g_itemSubClassDB.GetNumRecords() ? &g_itemSubClassDB.m_records[i] : nullptr;
 
         if (rec && rec->m_classID == static_cast<int32_t>(stats->m_class) && rec->m_subClassID == static_cast<int32_t>(stats->m_subClass)) {
             if (!SStrCmpUTF8I(rec->m_verboseName, type, STORM_MAX_STR) || !SStrCmpUTF8I(rec->m_displayName, type, STORM_MAX_STR)) {
@@ -5067,11 +5067,11 @@ int32_t FindItemClassTypeCallback(const CGItem_C* item, void* param) {
         }
     }
 
-    i = g_itemSubClassMaskDB.m_nNumRecords;
+    i = g_itemSubClassMaskDB.GetNumRecords();
 
     while (i) {
         i--;
-        const ItemSubClassMaskRec* rec = i >= 0 && i < g_itemSubClassMaskDB.m_nNumRecords ? &g_itemSubClassMaskDB.m_records[i] : nullptr;
+        const ItemSubClassMaskRec* rec = i >= 0 && i < g_itemSubClassMaskDB.GetNumRecords() ? &g_itemSubClassMaskDB.m_records[i] : nullptr;
 
         if (rec->m_classID == static_cast<int32_t>(stats->m_class) && ((1 << stats->m_subClass) & rec->m_mask) && !SStrCmpUTF8I(rec->m_name, type, STORM_MAX_STR)) {
             return 1;
@@ -5287,8 +5287,8 @@ static int32_t Script_EquipItemByName(lua_State* L) {
         if (lua_isstring(L, 2)) {
             const char* name = lua_tolstring(L, 2, nullptr);
 
-            for (int32_t i = 0; i < g_paperDollItemFrameDB.m_nNumRecords; i++) {
-                const PaperDollItemFrameRec* rec = i >= 0 && i < g_paperDollItemFrameDB.m_nNumRecords ? &g_paperDollItemFrameDB.m_records[i] : nullptr;
+            for (int32_t i = 0; i < g_paperDollItemFrameDB.GetNumRecords(); i++) {
+                const PaperDollItemFrameRec* rec = i >= 0 && i < g_paperDollItemFrameDB.GetNumRecords() ? &g_paperDollItemFrameDB.m_records[i] : nullptr;
 
                 if (!SStrCmpI(rec->m_itemButtonName, name, STORM_MAX_STR)) {
                     dstSlot = rec->m_slotNumber;

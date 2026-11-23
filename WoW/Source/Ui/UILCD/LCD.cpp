@@ -1702,8 +1702,8 @@ bool CGLCD::GeneratePOIs(XMLNode* node) {
         int32_t continentID = SStrToInt(child->GetAttributeByName("id"));
         int32_t x = 0;
 
-        for (int32_t i = 0; i < g_areaPOIDB.m_nNumRecords; i++) {
-            AreaPOIRec* rec = i >= 0 && i < g_areaPOIDB.m_nNumRecords ? &g_areaPOIDB.m_records[i] : nullptr;
+        for (int32_t i = 0; i < g_areaPOIDB.GetNumRecords(); i++) {
+            AreaPOIRec* rec = i >= 0 && i < g_areaPOIDB.GetNumRecords() ? &g_areaPOIDB.m_records[i] : nullptr;
 
             if (!rec || rec->m_continentID != continentID) {
                 continue;

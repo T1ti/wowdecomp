@@ -414,7 +414,7 @@ static int32_t Script_GetPetFoodTypes(lua_State* L) {
         return 0;
     }
 
-    for (int32_t i = 0; i < g_itemPetFoodDB.m_nNumRecords; i++) {
+    for (int32_t i = 0; i < g_itemPetFoodDB.GetNumRecords(); i++) {
         ItemPetFoodRec* food = g_itemPetFoodDB.GetRecordByIndex(i);
 
         if (food && ((1 << (food->m_id - 1)) & family->m_petFoodMask)) {
@@ -434,7 +434,7 @@ static int32_t Script_GetPetTalentTree(lua_State* L) {
     CreatureFamilyRec* family;
 
     if (pet && pet->CanGainXP() && (family = g_creatureFamilyDB.GetRecord(pet->GetCreatureFamily())) && family->m_petTalentType >= 0) {
-        for (int32_t i = 0; i < g_talentTabDB.m_nNumRecords; i++) {
+        for (int32_t i = 0; i < g_talentTabDB.GetNumRecords(); i++) {
             TalentTabRec* tab = g_talentTabDB.GetRecordByIndex(i);
 
             if (tab->m_categoryEnumID && ((1 << family->m_petTalentType) & tab->m_categoryEnumID)) {
