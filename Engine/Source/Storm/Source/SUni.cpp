@@ -123,10 +123,14 @@ int32_t STORMAPI SUniConvertUTF16to8(char* dst, uint32_t dstmaxchars, const uint
     }
 
     if (srcchars) {
+        STORM_ASSERT((src) >= (srcStart));
+        STORM_ASSERT((static_cast<ptrdiff_t>(src - srcStart)) <= 0x7FFFFFF); // 12213: "((ptrdiff_t)((src)-(srcStart))) <= 0x7FFFFFF"
         *srcchars = static_cast<uint32_t>(src - srcStart);
     }
 
     if (dstchars) {
+        STORM_ASSERT((dst) >= (dstStart));
+        STORM_ASSERT((static_cast<ptrdiff_t>(dst - dstStart)) <= 0x7FFFFFF); // 12213: "((ptrdiff_t)((dst)-(dstStart))) <= 0x7FFFFFF"
         *dstchars = static_cast<uint32_t>(dst - dstStart);
     }
 
@@ -135,8 +139,8 @@ int32_t STORMAPI SUniConvertUTF16to8(char* dst, uint32_t dstmaxchars, const uint
 
 // VERIFY: 24f1c391 manual
 // OFFSET: 0x00775D90
-int32_t STORMAPI SUniConvertUTF8to16Len(const char* src, uint32_t srcmaxchars, uint32_t* srcchars) {
-    if (!srcmaxchars || !src) {
+int32_t STORMAPI SUniConvertUTF8to16Len(const char* srcStart, uint32_t srcmaxchars, uint32_t* srcchars) {
+    if (!srcmaxchars || !srcStart) {
         if (srcchars) {
             *srcchars = 0;
         }
@@ -144,19 +148,19 @@ int32_t STORMAPI SUniConvertUTF8to16Len(const char* src, uint32_t srcmaxchars, u
         return -1;
     }
 
-    const char* source = src;
-    const char* sourceEnd = srcmaxchars == STORM_MAX_STR ? reinterpret_cast<const char*>(-1) : source + srcmaxchars;
+    const char* src = srcStart;
+    const char* srcEnd = srcmaxchars == STORM_MAX_STR ? reinterpret_cast<const char*>(-1) : src + srcmaxchars;
     int32_t result = 0;
 
     for (;;) {
-        if (source >= sourceEnd) {
+        if (src >= srcEnd) {
             result = -1;
             break;
         }
 
-        uint32_t extraBytesToRead = trailingBytesForUTF8[static_cast<uint8_t>(*source)];
+        uint32_t extraBytesToRead = trailingBytesForUTF8[static_cast<uint8_t>(*src)];
 
-        if (source + extraBytesToRead >= sourceEnd) {
+        if (src + extraBytesToRead >= srcEnd) {
             result = -1 - static_cast<int32_t>(extraBytesToRead);
             break;
         }
@@ -165,22 +169,22 @@ int32_t STORMAPI SUniConvertUTF8to16Len(const char* src, uint32_t srcmaxchars, u
 
         switch (extraBytesToRead) {
             case 5:
-                ch += *source++;
+                ch += *src++;
                 ch <<= 6;
             case 4:
-                ch += *source++;
+                ch += *src++;
                 ch <<= 6;
             case 3:
-                ch += *source++;
+                ch += *src++;
                 ch <<= 6;
             case 2:
-                ch += *source++;
+                ch += *src++;
                 ch <<= 6;
             case 1:
-                ch += *source++;
+                ch += *src++;
                 ch <<= 6;
             case 0:
-                ch += *source++;
+                ch += *src++;
         }
 
         ch -= offsetsFromUTF8[extraBytesToRead];
@@ -201,7 +205,9 @@ int32_t STORMAPI SUniConvertUTF8to16Len(const char* src, uint32_t srcmaxchars, u
     }
 
     if (srcchars) {
-        *srcchars = static_cast<uint32_t>(source - src);
+        STORM_ASSERT((src) >= (srcStart));
+        STORM_ASSERT((static_cast<ptrdiff_t>(src - srcStart)) <= 0x7FFFFFF); // 12213: "((ptrdiff_t)((src)-(srcStart))) <= 0x7FFFFFF"
+        *srcchars = static_cast<uint32_t>(src - srcStart);
     }
 
     return result;
@@ -209,31 +215,32 @@ int32_t STORMAPI SUniConvertUTF8to16Len(const char* src, uint32_t srcmaxchars, u
 
 // VERIFY: 125cc92d manual
 // OFFSET: 0x00775EB0
-int32_t STORMAPI SUniConvertUTF8to16(uint16_t* dst, uint32_t dstmaxchars, const char* src, uint32_t srcmaxchars, uint32_t* dstchars, uint32_t* srcchars) {
-    if (!src || !srcmaxchars) {
+int32_t STORMAPI SUniConvertUTF8to16(uint16_t* dst, uint32_t dstmaxchars, const char* srcIn, uint32_t srcmaxchars, uint32_t* dstchars, uint32_t* srcchars) {
+    if (!srcIn || !srcmaxchars) {
         return -1;
     }
 
     uint16_t* dstStart = dst;
-    const uint8_t* source = reinterpret_cast<const uint8_t*>(src);
-    const uint8_t* sourceEnd = srcmaxchars == STORM_MAX_STR ? reinterpret_cast<const uint8_t*>(-1) : source + srcmaxchars;
+    const auto* srcStart = reinterpret_cast<const uint8_t*>(srcIn);
+    const uint8_t* src = srcStart;
+    const uint8_t* srcEnd = srcmaxchars == STORM_MAX_STR ? reinterpret_cast<const uint8_t*>(-1) : src + srcmaxchars;
     uint16_t* dstEnd = dst + dstmaxchars;
     int32_t result;
 
     for (;;) {
-        if (source >= sourceEnd) {
+        if (src >= srcEnd) {
             result = -1;
             break;
         }
 
-        uint32_t extraBytesToRead = trailingBytesForUTF8[*source];
+        uint32_t extraBytesToRead = trailingBytesForUTF8[*src];
 
-        if (source + extraBytesToRead >= sourceEnd) {
+        if (src + extraBytesToRead >= srcEnd) {
             result = -1 - static_cast<int32_t>(extraBytesToRead);
             break;
         }
 
-        const uint8_t* next = source;
+        const uint8_t* next = src;
         uint32_t ch = 0;
 
         switch (extraBytesToRead) {
@@ -285,14 +292,18 @@ int32_t STORMAPI SUniConvertUTF8to16(uint16_t* dst, uint32_t dstmaxchars, const 
             }
         }
 
-        source = next;
+        src = next;
     }
 
     if (srcchars) {
-        *srcchars = static_cast<uint32_t>(source - reinterpret_cast<const uint8_t*>(src));
+        STORM_ASSERT((src) >= (srcStart));
+        STORM_ASSERT((static_cast<ptrdiff_t>(src - srcStart)) <= 0x7FFFFFF); // 12213: "((ptrdiff_t)((src)-(srcStart))) <= 0x7FFFFFF"
+        *srcchars = static_cast<uint32_t>(src - srcStart);
     }
 
     if (dstchars) {
+        STORM_ASSERT((dst) >= (dstStart));
+        STORM_ASSERT((static_cast<ptrdiff_t>(dst - dstStart)) <= 0x7FFFFFF); // 12213: "((ptrdiff_t)((dst)-(dstStart))) <= 0x7FFFFFF"
         *dstchars = static_cast<uint32_t>(dst - dstStart);
     }
 
