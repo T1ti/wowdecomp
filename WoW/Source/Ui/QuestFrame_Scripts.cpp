@@ -86,14 +86,14 @@ static int32_t Script_GetRewardTalents(lua_State* L) {
 // VERIFY: db1d2e60 auto
 // OFFSET: 0x0058BDD0
 static int32_t Script_GetNumAvailableQuests(lua_State* L) {
-    lua_pushnumber(L, CGQuestInfo::m_numQuests);
+    lua_pushnumber(L, CGQuestInfo::GetNumQuests());
     return 1;
 }
 
 // VERIFY: 2f7697ab auto
 // OFFSET: 0x0058BE00
 static int32_t Script_GetNumActiveQuests(lua_State* L) {
-    lua_pushnumber(L, CGQuestInfo::m_numInProgress);
+    lua_pushnumber(L, CGQuestInfo::GetNumQuestsInProgress());
     return 1;
 }
 
@@ -266,8 +266,8 @@ static int32_t Script_GetAvailableTitle(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index < CGQuestInfo::m_numQuests) {
-        lua_pushstring(L, CGQuestInfo::m_availableQuests[index].m_title);
+    if (index < CGQuestInfo::GetNumQuests()) {
+        lua_pushstring(L, CGQuestInfo::GetAvailableQuest(index).m_title);
     } else {
         lua_pushstring(L, nullptr);
     }
@@ -286,8 +286,8 @@ static int32_t Script_GetAvailableLevel(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     int32_t level;
 
-    if (index < CGQuestInfo::m_numQuests) {
-        level = CGQuestInfo::m_availableQuests[index].m_level;
+    if (index < CGQuestInfo::GetNumQuests()) {
+        level = CGQuestInfo::GetAvailableQuest(index).m_level;
     } else {
         level = 0;
     }
@@ -307,8 +307,8 @@ static int32_t Script_GetActiveLevel(lua_State* L) {
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
     int32_t level;
 
-    if (index < CGQuestInfo::m_numInProgress) {
-        level = CGQuestInfo::m_inProgressQuests[index].m_level;
+    if (index < CGQuestInfo::GetNumQuestsInProgress()) {
+        level = CGQuestInfo::GetQuestInProgress(index).m_level;
     } else {
         level = 0;
     }
@@ -344,7 +344,7 @@ static int32_t Script_GetActiveTitle(lua_State* L) {
     }
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
-    lua_pushstring(L, index < CGQuestInfo::m_numInProgress ? CGQuestInfo::m_inProgressQuests[index].m_title : nullptr);
+    lua_pushstring(L, index < CGQuestInfo::GetNumQuestsInProgress() ? CGQuestInfo::GetQuestInProgress(index).m_title : nullptr);
     lua_pushboolean(L, CGQuestInfo::IsQuestCompleteAt(index));
     return 2;
 }
@@ -423,7 +423,7 @@ static int32_t Script_IsAvailableQuestTrivial(lua_State* L) {
     }
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
-    int32_t level = index < CGQuestInfo::m_numQuests ? CGQuestInfo::m_availableQuests[index].m_level : 0;
+    int32_t level = index < CGQuestInfo::GetNumQuests() ? CGQuestInfo::GetAvailableQuest(index).m_level : 0;
 
     if (CGQuestInfo::IsLowLevel(level)) {
         lua_pushnumber(L, 1.0);
@@ -443,7 +443,7 @@ static int32_t Script_IsActiveQuestTrivial(lua_State* L) {
     }
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
-    int32_t level = index < CGQuestInfo::m_numInProgress ? CGQuestInfo::m_inProgressQuests[index].m_level : 0;
+    int32_t level = index < CGQuestInfo::GetNumQuestsInProgress() ? CGQuestInfo::GetQuestInProgress(index).m_level : 0;
 
     if (CGQuestInfo::IsLowLevel(level)) {
         lua_pushnumber(L, 1.0);
@@ -674,7 +674,7 @@ static int32_t Script_GetAvailableQuestInfo(lua_State* L) {
     }
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
-    int32_t level = index < CGQuestInfo::m_numQuests ? CGQuestInfo::m_availableQuests[index].m_level : 0;
+    int32_t level = index < CGQuestInfo::GetNumQuests() ? CGQuestInfo::GetAvailableQuest(index).m_level : 0;
 
     if (CGQuestInfo::IsLowLevel(level)) {
         lua_pushnumber(L, 1.0);
@@ -684,7 +684,7 @@ static int32_t Script_GetAvailableQuestInfo(lua_State* L) {
 
     index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index < CGQuestInfo::m_numQuests && (CGQuestInfo::m_availableQuests[index].m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_DAILY)) {
+    if (index < CGQuestInfo::GetNumQuests() && (CGQuestInfo::GetAvailableQuest(index).m_flags & QUEST_TEMPLATE_FLAGS::QUEST_FLAG_DAILY)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -692,7 +692,7 @@ static int32_t Script_GetAvailableQuestInfo(lua_State* L) {
 
     index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index < CGQuestInfo::m_numQuests && CGQuestInfo::m_availableQuests[index].m_repeatable) {
+    if (index < CGQuestInfo::GetNumQuests() && CGQuestInfo::GetAvailableQuest(index).m_repeatable) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

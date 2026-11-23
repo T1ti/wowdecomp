@@ -7,9 +7,9 @@
 #include "WoW/Source/Object/QuestCache.h"
 #include "WoW/Source/Object/WGUID.h"
 
-// Quest giver dialog list sizes (FrameXML QuestFrame.lua MAX_NUM_QUESTS, MAX_REQUIRED_ITEMS).
+// Quest giver dialog list sizes (QuestFrame.cpp assertion and FrameXML MAX_REQUIRED_ITEMS).
 // Each QuestItemSlot holds the reward, choice and required item at one index.
-constexpr uint32_t MAX_NUM_QUESTS = 32;
+constexpr uint32_t QUESTGIVER_MAX_QUEST_COUNT = 32;
 constexpr uint32_t MAX_REQUIRED_ITEMS = 6;
 
 // Inferred name: reward factions listed for a quest, reputation spillover included.
@@ -35,7 +35,7 @@ enum QUEST_STATE : int32_t {
     QUEST_OFFER = 1,
     QUEST_ACCEPTED = 2,
     QUEST_REWARD = 3,
-    // QUEST_STATE_NUM_TYPES = 4, // Unused reference member.
+    QUEST_STATE_NUM_TYPES = 4,
 };
 
 struct QuestItemInfo {
@@ -67,9 +67,7 @@ class CGQuestInfo {
     static QUEST_STATE m_state;
     static int32_t m_currentQuest;
     static int32_t m_autoLaunched;
-    static int32_t m_startQuestCheat;
     static int32_t m_lastChosenItem;
-    static int32_t m_responseSent;
     static float m_rewardHonorMultiplier;
     static int32_t m_rewardSpell;
     static int32_t m_rewardSpellCast;
@@ -79,14 +77,13 @@ class CGQuestInfo {
     static int32_t m_rewardFactionValues[QUEST_REPUTATION_REWARDS];
     static int32_t m_rewardFactionOverrides[QUEST_REPUTATION_REWARDS];
     static void ClearState();
-    static void ClearQuestItems();
     static void ProcessQuestLogRewardFactions();
     static void InitRewRepFields(uint32_t index, int32_t faction, int32_t value, int32_t override);
     static void InitRewRepShowMask(uint32_t mask);
     static int32_t m_numRewardFactions;
     static void SetState(WOWGUID npc, WOWGUID inform, QUEST_STATE state, const char* text, int32_t questId, int32_t startCheat);
     static void SetLogDescription(const char* text);
-    static void AddReward(const char* title, const uint32_t* choiceItems, const uint32_t* choiceDisplays, const uint32_t* choiceCounts, int32_t numChoices, const uint32_t* rewardItems, const uint32_t* rewardDisplays, const uint32_t* rewardCounts, int32_t numRewards, int32_t money, int32_t xp, uint32_t honor, float honorMultiplier, int32_t spell, int32_t spellCast, int32_t autoLaunched, int32_t suggestedGroupNum, int32_t rewardTitle, int32_t talents, int32_t arenaPoints, uint32_t factionMask, const uint32_t* factionIDs, const uint32_t* factionValues, const uint32_t* factionOverrides, uint32_t questFlags);
+    static void AddReward(const char* title, const uint32_t* choiceItems, const uint32_t* choiceDisplays, const uint32_t* choiceCounts, int32_t numChoice, const uint32_t* rewardItems, const uint32_t* rewardDisplays, const uint32_t* rewardCounts, int32_t numReward, int32_t money, int32_t xp, uint32_t honor, float honorMultiplier, int32_t spell, int32_t spellCast, int32_t autoLaunched, int32_t suggestedGroupNum, int32_t rewardTitle, int32_t talents, int32_t arenaPoints, uint32_t factionMask, const uint32_t* factionIDs, const uint32_t* factionValues, const uint32_t* factionOverrides, uint32_t questFlags);
     static void QuestGiverFinished(BOOL keepOpen, uint32_t questId, BOOL notify);
     static void EnterWorld();
     static WOWGUID m_npc;
@@ -100,11 +97,7 @@ class CGQuestInfo {
     static int32_t m_rewardMoney;
     static int32_t m_rewardXP;
     static int32_t m_rewardTalents;
-    static int32_t m_numQuests;
-    static int32_t m_numInProgress;
     static QuestItemSlot m_questItems[MAX_REQUIRED_ITEMS];
-    static QuestGiverQuest m_inProgressQuests[MAX_NUM_QUESTS];
-    static QuestGiverQuest m_availableQuests[MAX_NUM_QUESTS];
     static uint32_t m_rewardHonor;
     static int32_t m_rewardArenaPoints;
     static int32_t m_requiredMoney;
@@ -130,6 +123,19 @@ class CGQuestInfo {
     static void GiveQuestItems();
     static int32_t QuestItemInfo(const char* type, uint32_t index, char* name, uint32_t nameSize, char* texture, uint32_t textureSize, int32_t* count, int32_t* quality, int32_t* usable);
     static int32_t GetReward(int32_t choice);
+    static int32_t GetNumQuests() { return m_numQuests; } // (inferred)
+    static int32_t GetNumQuestsInProgress() { return m_numInProgress; } // (inferred)
+    static const QuestGiverQuest& GetAvailableQuest(uint32_t index) { return m_availableQuests[index]; } // (inferred)
+    static const QuestGiverQuest& GetQuestInProgress(uint32_t index) { return m_inProgressQuests[index]; } // (inferred)
+
+    private:
+    static int32_t m_numQuests;
+    static int32_t m_numInProgress;
+    static QuestGiverQuest m_availableQuests[QUESTGIVER_MAX_QUEST_COUNT];
+    static QuestGiverQuest m_inProgressQuests[QUESTGIVER_MAX_QUEST_COUNT];
+    static void ClearQuestItems();
+    static int32_t m_responseSent;
+    static int32_t m_startQuestCheat;
 };
 struct lua_State;
 

@@ -311,19 +311,19 @@ static int32_t s_questsAccepted;
 static WOWGUID s_questListNpc;
 
 // STATIC: 0x00C9D750
-static uint32_t s_questListIds[MAX_NUM_QUESTS];
+static uint32_t s_questListIds[QUESTGIVER_MAX_QUEST_COUNT];
 
 // STATIC: 0x00C9D6D0
-static uint32_t s_questListStatus[MAX_NUM_QUESTS]; // QUEST_LIST_TYPE
+static uint32_t s_questListStatus[QUESTGIVER_MAX_QUEST_COUNT]; // QUEST_LIST_TYPE
 
 // STATIC: 0x00C9D650
-static uint32_t s_questListLevels[MAX_NUM_QUESTS];
+static uint32_t s_questListLevels[QUESTGIVER_MAX_QUEST_COUNT];
 
 // STATIC: 0x00C9D5D0
-static uint32_t s_questListFlags[MAX_NUM_QUESTS];
+static uint32_t s_questListFlags[QUESTGIVER_MAX_QUEST_COUNT];
 
 // STATIC: 0x00C9D550
-static uint32_t s_questListRepeatable[MAX_NUM_QUESTS];
+static uint32_t s_questListRepeatable[QUESTGIVER_MAX_QUEST_COUNT];
 
 // STATIC: 0x00C9EB04
 static uint32_t s_questFailedReason;
@@ -7459,7 +7459,7 @@ int32_t __stdcall CGPlayer_C::OnQuestGiverQuestList(CDataStore* msg) {
     memset(s_questListRepeatable, 0, sizeof(s_questListRepeatable));
     CGQuestInfo::SetState(npc, WOWGUID(), QUEST_GREETING, greeting, 0, 0);
 
-    char titles[MAX_NUM_QUESTS][512];
+    char titles[QUESTGIVER_MAX_QUEST_COUNT][512];
 
     for (uint32_t i = 0; i < count; i++) {
         msg->Get(s_questListIds[i]);

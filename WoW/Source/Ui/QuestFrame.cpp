@@ -148,10 +148,10 @@ uint32_t CGQuestInfo::m_pendingQuest;
 QuestItemSlot CGQuestInfo::m_questItems[MAX_REQUIRED_ITEMS];
 
 // STATIC: 0x00C01868
-QuestGiverQuest CGQuestInfo::m_inProgressQuests[MAX_NUM_QUESTS];
+QuestGiverQuest CGQuestInfo::m_inProgressQuests[QUESTGIVER_MAX_QUEST_COUNT];
 
 // STATIC: 0x00C05AE8
-QuestGiverQuest CGQuestInfo::m_availableQuests[MAX_NUM_QUESTS];
+QuestGiverQuest CGQuestInfo::m_availableQuests[QUESTGIVER_MAX_QUEST_COUNT];
 
 // VERIFY: 63c859fb manual
 // OFFSET: 0x0058CA70
@@ -188,7 +188,7 @@ void CGQuestInfo::QuestGiverFinished(BOOL keepOpen, uint32_t questId, BOOL notif
 // VERIFY: fa332c43 manual
 // OFFSET: 0x0058B720
 void CGQuestInfo::ClearState() {
-    for (int32_t i = 0; i < MAX_NUM_QUESTS; i++) {
+    for (int32_t i = 0; i < QUESTGIVER_MAX_QUEST_COUNT; i++) {
         CGQuestInfo::m_availableQuests[i].m_questID = 0;
         CGQuestInfo::m_availableQuests[i].m_level = 0;
         CGQuestInfo::m_availableQuests[i].m_flags = QUEST_TEMPLATE_FLAGS::QUEST_FLAG_NONE;
@@ -235,6 +235,8 @@ void CGQuestInfo::ClearQuestItems() {
 // VERIFY: 2ce3fb4d manual
 // OFFSET: 0x0058C5A0
 void CGQuestInfo::SetState(WOWGUID npc, WOWGUID inform, QUEST_STATE state, const char* text, int32_t questId, int32_t startCheat) {
+    STORM_ASSERT(state < QUEST_STATE_NUM_TYPES);
+
     CGObject_C* object = ClntObjMgrObjectPtr(npc, TYPE_OBJECT, __FILE__, __LINE__);
 
     if (!object || !(object->m_obj->m_type & (TYPE_ITEM | TYPE_UNIT | TYPE_GAMEOBJECT))) {
@@ -304,11 +306,14 @@ void CGQuestInfo::SetLogDescription(const char* text) {
 
 // VERIFY: 99119eef manual
 // OFFSET: 0x0058DD50
-void CGQuestInfo::AddReward(const char* title, const uint32_t* choiceItems, const uint32_t* choiceDisplays, const uint32_t* choiceCounts, int32_t numChoices, const uint32_t* rewardItems, const uint32_t* rewardDisplays, const uint32_t* rewardCounts, int32_t numRewards, int32_t money, int32_t xp, uint32_t honor, float honorMultiplier, int32_t spell, int32_t spellCast, int32_t autoLaunched, int32_t suggestedGroupNum, int32_t rewardTitle, int32_t talents, int32_t arenaPoints, uint32_t factionMask, const uint32_t* factionIDs, const uint32_t* factionValues, const uint32_t* factionOverrides, uint32_t questFlags) {
+void CGQuestInfo::AddReward(const char* title, const uint32_t* choiceItems, const uint32_t* choiceDisplays, const uint32_t* choiceCounts, int32_t numChoice, const uint32_t* rewardItems, const uint32_t* rewardDisplays, const uint32_t* rewardCounts, int32_t numReward, int32_t money, int32_t xp, uint32_t honor, float honorMultiplier, int32_t spell, int32_t spellCast, int32_t autoLaunched, int32_t suggestedGroupNum, int32_t rewardTitle, int32_t talents, int32_t arenaPoints, uint32_t factionMask, const uint32_t* factionIDs, const uint32_t* factionValues, const uint32_t* factionOverrides, uint32_t questFlags) {
+    STORM_ASSERT(numChoice <= 6);
+    STORM_ASSERT(numReward <= 6);
+
     CGQuestInfo::ClearQuestItems();
     int32_t i = 0;
 
-    for (; i < numChoices; i++) {
+    for (; i < numChoice; i++) {
         CGQuestInfo::m_questItems[i].m_choice.m_itemID = choiceItems[i];
         CGQuestInfo::m_questItems[i].m_choice.m_displayID = choiceDisplays[i];
         CGQuestInfo::m_questItems[i].m_choice.m_count = choiceCounts[i];
@@ -322,7 +327,7 @@ void CGQuestInfo::AddReward(const char* title, const uint32_t* choiceItems, cons
 
     i = 0;
 
-    for (; i < numRewards; i++) {
+    for (; i < numReward; i++) {
         CGQuestInfo::m_questItems[i].m_reward.m_itemID = rewardItems[i];
         CGQuestInfo::m_questItems[i].m_reward.m_displayID = rewardDisplays[i];
         CGQuestInfo::m_questItems[i].m_reward.m_count = rewardCounts[i];
@@ -541,6 +546,7 @@ static void QuestItemStatsCallback(int32_t id, const WOWGUID& guid, void* param,
 // OFFSET: 0x0058B990
 void CGQuestInfo::AddQuest(int32_t questId, const char* title, int32_t level, int32_t flags, int32_t turnIn, int32_t repeatable) {
     STORM_ASSERT(m_state == QUEST_GREETING);
+    STORM_ASSERT((m_numQuests + m_numInProgress) < (QUESTGIVER_MAX_QUEST_COUNT));
 
     CGQuestInfo::m_availableQuests[CGQuestInfo::m_numQuests].m_questID = questId;
     CGQuestInfo::m_availableQuests[CGQuestInfo::m_numQuests].m_level = level;
@@ -558,6 +564,9 @@ void CGQuestInfo::AddQuest(int32_t questId, const char* title, int32_t level, in
 // VERIFY: 199b28f6 auto
 // OFFSET: 0x0058BA00
 void CGQuestInfo::AddQuestInProgress(int32_t questId, const char* title, int32_t level, int32_t flags, int32_t repeatable) {
+    STORM_ASSERT(m_state == QUEST_GREETING);
+    STORM_ASSERT((m_numQuests + m_numInProgress) < (QUESTGIVER_MAX_QUEST_COUNT - 1));
+
     CGQuestInfo::m_inProgressQuests[CGQuestInfo::m_numInProgress].m_questID = questId;
     CGQuestInfo::m_inProgressQuests[CGQuestInfo::m_numInProgress].m_level = level;
     CGQuestInfo::m_inProgressQuests[CGQuestInfo::m_numInProgress].m_flags = flags;
@@ -580,6 +589,8 @@ void CGQuestInfo::EndQuestList() {
 // VERIFY: 1a14e0c3 manual
 // OFFSET: 0x0058BA80
 void CGQuestInfo::AddItemRequest(const char* title, const uint32_t* itemIds, const uint32_t* itemCounts, const uint32_t* itemDisplays, int32_t numItems, int32_t requiredMoney, BOOL canComplete, int32_t autoLaunched, int32_t suggestedGroupNum, uint32_t questFlags) {
+    STORM_ASSERT(numItems <= 6);
+
     int32_t i = 0;
 
     for (; i < numItems; i++) {
@@ -907,10 +918,12 @@ void CGQuestInfo::EnterWorld() {
 // OFFSET: 0x0058BC50
 void CGQuestInfo::ConfirmAcceptQuest(int32_t questId, const char* title, const WOWGUID* guid) {
     CGQuestInfo::m_pendingQuest = questId;
-    NameCache* name = g_nameDBCache.GetRecord(guid->m_guid, WOWGUID{ 0 }, nullptr, nullptr, false);
+    NameCache* nc = g_nameDBCache.GetRecord(guid->m_guid, WOWGUID{ 0 }, nullptr, nullptr, false);
 
-    if (name) {
-        FrameScript_SignalEvent(SCRIPT_EVENT_QUEST_ACCEPT_CONFIRM, "%s%s", name->m_name, title);
+    STORM_ASSERT(nc);
+
+    if (nc) {
+        FrameScript_SignalEvent(SCRIPT_EVENT_QUEST_ACCEPT_CONFIRM, "%s%s", nc->m_name, title);
     }
 }
 
