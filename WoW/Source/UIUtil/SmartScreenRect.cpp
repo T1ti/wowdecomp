@@ -39,7 +39,7 @@ static const float BOTTOMBORDER = 0.01875f;
 static const float LEFTBORDER = 0.0f;
 
 // STATIC: 0x00A23C08
-static TEST_DIRECTION s_testDirections[9][NUM_TESTDIRECTIONS] = {
+static const TEST_DIRECTION s_testDirections[9][NUM_TESTDIRECTIONS] = {
     { TEST_UP, TEST_RIGHT, TEST_DOWN, TEST_LEFT },
     { TEST_LEFT, TEST_UP, TEST_RIGHT, TEST_UP },
     { TEST_LEFT, TEST_DOWN, TEST_RIGHT, TEST_DOWN },
@@ -52,7 +52,7 @@ static TEST_DIRECTION s_testDirections[9][NUM_TESTDIRECTIONS] = {
 };
 
 // STATIC: 0x00A23C98
-static CRect (*s_testFunctions[NUM_TESTDIRECTIONS])(SCREENRECTGRIDS grid, CRect rect) = {
+static CRect (*const s_testFunctions[NUM_TESTDIRECTIONS])(SCREENRECTGRIDS grid, CRect rect) = {
     SmartScreenRectMoveUp,
     SmartScreenRectMoveLeft,
     SmartScreenRectMoveRight,
@@ -66,11 +66,11 @@ static TSList<BFSNODE> s_searchQueue;
 static TSList<BFSNODE> s_freeNodes;
 
 // 3.3.5 keeps three slots, but bulk clear/shutdown process only two.
-static const uint32_t SCREENRECTGRID_STORAGE_COUNT = 3;
+static const uint32_t NUM_SRECTGRIDS = 3;
 static const uint32_t SCREENRECTGRID_CLEAR_COUNT = 2;
 
 // STATIC: 0x00C25CAC
-static TSGrowableArray<CRect> s_grids[SCREENRECTGRID_STORAGE_COUNT];
+static TSGrowableArray<CRect> s_grids[NUM_SRECTGRIDS];
 
 // INLINED
 inline BFSNODE::BFSNODE() {
@@ -78,6 +78,19 @@ inline BFSNODE::BFSNODE() {
     this->m_rect.minX = 0.0f;
     this->m_rect.maxY = 0.0f;
     this->m_rect.maxX = 0.0f;
+}
+
+// INLINED
+static inline bool CheckRect(const CRect& rect, bool checkBounds) {
+    if (checkBounds) {
+        const float screenWidth = NDCToDDCWidth(1.0f);
+        const float screenHeight = NDCToDDCHeight(1.0f);
+        if (rect.minX < 0.0f || rect.maxY < 0.0f || rect.maxX > screenWidth || rect.minY > screenHeight) {
+            return false;
+        }
+    }
+
+    return rect.minY >= rect.maxY && rect.maxX >= rect.minX;
 }
 
 // VERIFY: f32025e7 auto
@@ -92,6 +105,7 @@ static uint32_t RectOutsideBorder(CRect* clippedRect, CRect rect, int32_t testOn
     uint32_t hitFlags = SRECTCLAMP_NONE;
     float width = rect.maxX - rect.minX;
     float height = rect.minY - rect.maxY;
+    STORM_ASSERT(CheckRect(rect,0));
     STORM_ASSERT(rect.minY >= rect.maxY);  // 12213: "rect.t >= rect.b"
     STORM_ASSERT(rect.maxX >= rect.minX);  // 12213: "rect.r >= rect.l"
     STORM_ASSERT(VIEWABLE_WIDTH > width);
@@ -205,6 +219,7 @@ static void SmartScreenRectClipRect(CRect& rect) {
 // OFFSET: 0x00615380
 static int32_t SmartScreenRectFindOverlap(SCREENRECTGRIDS grid, const CRect& rect, uint32_t direction, float* offset) {
     STORM_ASSERT(offset);
+    STORM_ASSERT(grid < NUM_SRECTGRIDS);
     STORM_ASSERT((rect.minY >= rect.maxY) && (rect.maxX >= rect.minX));  // 12213: "( rect.t >= rect.b ) && ( rect.r >= rect.l )"
 
     TSGrowableArray<CRect>& rects = s_grids[grid];
@@ -333,6 +348,9 @@ static BFSNODE* SmartScreenRectAllocNode() {
 // VERIFY: a1ae77d0 manual
 // OFFSET: 0x00615980
 static CRect SmartScreenRectFindFreeRect(SCREENRECTGRIDS grid, const CRect& rect) {
+    STORM_ASSERT(grid < NUM_SRECTGRIDS);
+    STORM_ASSERT(CheckRect(rect,0));
+
     CRect result;
     result.minY = 0.0f;
     result.minX = 0.0f;
@@ -411,17 +429,28 @@ static CRect SmartScreenRectFindFreeRect(SCREENRECTGRIDS grid, const CRect& rect
 // VERIFY: 392e628c auto
 // OFFSET: 0x00615C50
 static C2Vector SmartScreenRectFindPosition(SCREENRECTGRIDS grid, const CRect& rect, int32_t* repositioned) {
+    STORM_ASSERT(grid < NUM_SRECTGRIDS);
+
     STORM_ASSERT(repositioned);
 
-    CRect found = SmartScreenRectFindFreeRect(grid, rect);
+    CRect validRect = SmartScreenRectFindFreeRect(grid, rect);
 
-    *repositioned = found.minY != rect.minY || found.minX != rect.minX || found.maxY != rect.maxY || found.maxX != rect.maxX;
+    *repositioned = validRect.minY != rect.minY || validRect.minX != rect.minX || validRect.maxY != rect.maxY || validRect.maxX != rect.maxX;
 
+    STORM_ASSERT(validRect.maxY <= validRect.minY); // 12213: "validRect.b <= validRect.t"
+    STORM_ASSERT(validRect.minX <= validRect.maxX); // 12213: "validRect.l <= validRect.r"
     C2Vector position;
-    position.x = (found.maxX + found.minX) * 0.5f;
-    position.y = found.minY;
+    position.x = (validRect.maxX + validRect.minX) * 0.5f;
+    position.y = validRect.minY;
 
     return position;
+}
+
+// INLINED
+static inline void SmartScreenRectAdd(SCREENRECTGRIDS grid, const CRect& rect) { // (inferred)
+    STORM_ASSERT(grid < NUM_SRECTGRIDS);
+    STORM_ASSERT(CheckRect(rect,1));
+    *s_grids[grid].New() = rect;
 }
 
 // VERIFY: 9ea2ce49 manual
@@ -449,12 +478,14 @@ void SmartScreenRectPlace(SCREENRECTGRIDS grid, CRect& rect) {
     rect.maxX = point.x + halfWidth;
     SmartScreenRectClipRect(rect);
 
-    *s_grids[grid].New() = rect;
+    SmartScreenRectAdd(grid, rect);
 }
 
 // VERIFY: c9083189 manual
 // OFFSET: 0x00615E10
 void SmartScreenRectPositionFrame(SCREENRECTGRIDS grid, CSimpleFrame* frame, CSimpleFrame* parent, const C3Vector& position, int32_t center) {
+    STORM_ASSERT(grid < NUM_SRECTGRIDS);
+
     float halfWidth = frame->GetWidth();
     float height = frame->GetHeight();
     halfWidth = halfWidth * 0.5f;
@@ -484,7 +515,7 @@ void SmartScreenRectPositionFrame(SCREENRECTGRIDS grid, CSimpleFrame* frame, CSi
     rect.maxX = point.x + halfWidth;
     SmartScreenRectClipRect(rect);
 
-    *s_grids[grid].New() = rect;
+    SmartScreenRectAdd(grid, rect);
 
     frame->MarkFramePointsUnused();
     float depth = position.z - parent->m_layoutDepth;
