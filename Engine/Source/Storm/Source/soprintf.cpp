@@ -5,9 +5,9 @@
 #include <cstring>
 #include "Engine/Source/Storm/H/storm.h"
 
-#define MAX_ARGUMENTS 64
-#define MAX_SPECIFIER_LENGTH 64
-#define UNBOUNDED_OUTPUT_SIZE 0x100000
+static constexpr int32_t MAX_ARGUMENTS = 64;
+static constexpr int32_t MAX_SPECIFIER_LENGTH = 64;
+static constexpr size_t UNBOUNDED_OUTPUT_SIZE = 0x100000;
 
 struct FormatSpecifier {
     /* 0000 */ const char* start;
@@ -131,13 +131,13 @@ static void FixUpLongLongFormatSpecifier(char* specifier) {
 
 // VERIFY: 33f0aefe manual
 // OFFSET: 0x00773E60
-int32_t vsnoprintf(char* out, size_t outSize, const char* format, va_list argumentList) {
+int32_t vsnoprintf(char* start, size_t outSize, const char* format, va_list argumentList) {
     if (!outSize) {
         return 0;
     }
 
-    char* dest = out;
-    char* end = &out[outSize - 1];
+    char* out = start;
+    char* end = &start[outSize - 1];
 
     ArgumentSize sizes[MAX_ARGUMENTS + 1] = {};
     ArgumentValue values[MAX_ARGUMENTS] = {};
@@ -148,37 +148,39 @@ int32_t vsnoprintf(char* out, size_t outSize, const char* format, va_list argume
     int32_t numArguments = 0;
     int32_t numSpecifiers = 0;
     FormatSpecifier* spec = specifiers;
-    const char* curr = format;
+    const char* formatAt = format;
     char ch;
 
     do {
-        ch = *curr++;
+        ch = *formatAt++;
 
         if (ch != '%') {
             continue;
         }
 
         if (numSpecifiers >= MAX_ARGUMENTS) {
-            *dest = 0;
-            return dest - out;
+            *out = 0;
+            return out - start;
         }
 
-        const char* start = curr - 1;
+        const char* formatBefore = formatAt - 1;
         ArgumentSize size;
-        int32_t result = ParseFormatSpecifier(&curr, &size, &orderingPtr);
+        int32_t result = ParseFormatSpecifier(&formatAt, &size, &orderingPtr);
 
         if (result == -1) {
-            *dest = 0;
-            return dest - out;
+            *out = 0;
+            return out - start;
         }
 
-        spec->start = start;
-        spec->length = curr - start;
+        spec->start = formatBefore;
+        STORM_ASSERT((formatAt) >= (formatBefore));
+        STORM_ASSERT(((ptrdiff_t)((formatAt)-(formatBefore))) <= 0x7FFFFFF);
+        spec->length = formatAt - formatBefore;
 
         if (result > 0) {
             if (sizes[orderingPtr] && sizes[orderingPtr] != size) {
-                *dest = 0;
-                return dest - out;
+                *out = 0;
+                return out - start;
             }
 
             spec->argument = orderingPtr;
@@ -199,8 +201,8 @@ int32_t vsnoprintf(char* out, size_t outSize, const char* format, va_list argume
     for (int32_t i = 0; i < numArguments; i++) {
         switch (sizes[i]) {
         case e_unspecified:
-            *dest = 0;
-            return dest - out;
+            *out = 0;
+            return out - start;
         case e_intSized:
             values[i].intValue = va_arg(argumentList, int32_t);
             break;
@@ -221,7 +223,7 @@ int32_t vsnoprintf(char* out, size_t outSize, const char* format, va_list argume
 
     spec = specifiers;
 
-    while (dest < end) {
+    while (out < end) {
         ch = *format++;
 
         if (!ch) {
@@ -229,7 +231,7 @@ int32_t vsnoprintf(char* out, size_t outSize, const char* format, va_list argume
         }
 
         if (ch != '%') {
-            *dest++ = ch;
+            *out++ = ch;
             continue;
         }
 
@@ -249,25 +251,27 @@ int32_t vsnoprintf(char* out, size_t outSize, const char* format, va_list argume
         int32_t argument = spec->argument;
         spec++;
 
-        int32_t avail = static_cast<int32_t>(end - dest);
+        STORM_ASSERT((end) >= (out));
+        STORM_ASSERT(((ptrdiff_t)((end)-(out))) <= 0x7FFFFFF);
+        int32_t avail = static_cast<int32_t>(end - out);
         int32_t written = 0;
 
         switch (sizes[argument]) {
         case e_intSized:
-            written = _snprintf(dest, avail, specifier, values[argument].intValue);
+            written = _snprintf(out, avail, specifier, values[argument].intValue);
             break;
         case e_pointerSized:
-            written = _snprintf(dest, avail, specifier, values[argument].pointerValue);
+            written = _snprintf(out, avail, specifier, values[argument].pointerValue);
             break;
         case e_longLongSized:
             FixUpLongLongFormatSpecifier(specifier);
-            written = _snprintf(dest, avail, specifier, values[argument].longLongValue);
+            written = _snprintf(out, avail, specifier, values[argument].longLongValue);
             break;
         case e_doubleSized:
-            written = _snprintf(dest, avail, specifier, values[argument].doubleValue);
+            written = _snprintf(out, avail, specifier, values[argument].doubleValue);
             break;
         case e_takesNoSpace:
-            written = _snprintf(dest, avail, specifier);
+            written = _snprintf(out, avail, specifier);
             break;
         }
 
@@ -275,12 +279,14 @@ int32_t vsnoprintf(char* out, size_t outSize, const char* format, va_list argume
             written = avail;
         }
 
-        dest += written;
+        out += written;
         format += length - 1;
     }
 
-    *dest = 0;
-    return dest - out;
+    *out = 0;
+    STORM_ASSERT((out) >= (start));
+    STORM_ASSERT(((ptrdiff_t)((out)-(start))) <= 0x7FFFFFF);
+    return out - start;
 }
 
 // VERIFY: 04457973 auto
