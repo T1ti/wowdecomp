@@ -157,3 +157,14 @@ foreach (target Wow WowClient MapViewer M2Viewer GxTest MpqTest BlpTest DbcTest 
         target_sources(${target} PRIVATE ${CMAKE_SOURCE_DIR}/waystone.rc)
     endif ()
 endforeach ()
+
+# List headers in the IDE projects (Visual Studio) so they can be searched and opened there.
+include(${CMAKE_SOURCE_DIR}/cmake/IdeHeaders.cmake)
+wowdecomp_add_ide_headers()
+
+# Visual Studio: WowClient is the startup project (F5 builds and launches it), run from its output directory like
+# launching the exe directly.
+if (TARGET WowClient)
+    set_property(DIRECTORY ${CMAKE_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT WowClient)
+    set_property(TARGET WowClient PROPERTY VS_DEBUGGER_WORKING_DIRECTORY $<TARGET_FILE_DIR:WowClient>)
+endif ()
