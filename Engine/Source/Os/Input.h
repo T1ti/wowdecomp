@@ -70,4 +70,9 @@ void OsInputSetMousePosition(int32_t x, int32_t y);
 int32_t OsGetDefaultWindowRect(tagRECT* rect);
 intptr_t OsWindowProc(void* window, uint32_t message, uintptr_t wparam, intptr_t lparam);
 
+#ifdef WOWDECOMP_TOOL_FEATURES
+// Tool features (0.5.3): the procedure OsWindowProc forwards the messages it does not keep to (nullptr: DefWindowProcA).
+void OsSetWindowProc(intptr_t (*windowProc)(void* window, uint32_t message, uintptr_t wparam, intptr_t lparam));
+#endif
+
 #endif

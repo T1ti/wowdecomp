@@ -125,6 +125,10 @@ The editor library at the repository root (`WowEdit/Source/WowEdit.h`). The terr
 | `wowEditBrush [radius [inner]\|off]` | works | The terrain brush cursor of the 8.1 editor (`woweditterrainbrush_internal`), laid on the terrain under the mouse cursor: a dashed red-orange circle (16 dashes, as in the screenshots) at `radius` yards and a dashed yellow one at the inner (falloff) radius, as in screenshots and videos of the editor. No argument toggles a 10-yard brush; the inner circle defaults to half the radius, and 0 hides it. The 8.1 shader only lays a texture on the terrain and tints it, and the 8.1 brush textures are unknown, so the port generates a dashed ring texture and draws it twice, once per circle. The cursor point is the client's own picking segment (the one ground-targeted spells use) against the terrain alone, so the brush goes under buildings and doodads to the ground. It does not edit anything. `wowEdit` prints the brush radii and its terrain point. |
 | `wowEditMarkers [0\|1]` | works | Sample editor markers ahead of the player, placed on the ground: spawn points with orientation rings, early-editor half spheres and path, and a flying path with direction diamonds. |
 
+### Editor application (`WowEdit64.exe`)
+
+The tool build also makes `WowEdit64.exe` (`Tools/WowEditApp`): the client run as the editor, its window chrome built with OsGui, the engine's tool interface layer (`WowEdit/Source/App/WowEditApp.h`). Like the client, it must sit in the game folder. It adds to the game window a menu bar (File, Edit, View, Tools, Window, Help) and a floating Tool Palette, and titles the window "World of Warcraft Editor". The View menu toggles the grid, slopes, area and marker overlays above; Tools > Terrain Brush (Ctrl+B) and the palette's checkbox and sliders drive `wowEditBrush`. Undo and Redo (Ctrl+Z, Ctrl+Y) stay greyed until a tool edits map data. You still log in and enter the world as in the game. Run it windowed: a fullscreen device covers the menu bar.
+
 ## Lua functions (`WoW/Source/Ui/GameUI_Scripts.cpp`, DEBUG)
 
 In the release build, these functions are bound to the shared return-0 stub.

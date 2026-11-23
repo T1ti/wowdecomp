@@ -10,6 +10,7 @@
 #include "WoW/Source/Object/ObjectClient/Player_C.h"
 #include "WoW/Source/ObjectMgrClient/ObjectMgrClient.h"
 #include "WoW/Source/WorldClient/WorldEditHooks.h"
+#include "WowEdit/Source/App/WowEditApp.h"
 #include "WowEdit/Source/WowEditDraw.h"
 #include "WowEdit/Source/WowEditShaders.h"
 #include "WowEdit/Source/WowEditTerrain.h"
@@ -114,9 +115,8 @@ static bool ParseSwitch(const char* arguments, bool current) {
     return !current;
 }
 
-// After an overlay is turned on: builds its shaders now, so a missing compiler, a compile error or a card without
-// Shader Model 3 shows in the console at once rather than as an overlay that never appears.
-static void PrepareTerrainOverlays() {
+// See WowEdit.h.
+void WowEditPrepareTerrainOverlays() {
     const char* reason = nullptr;
 
     if (!WowEditShadersSupported(&reason)) {
@@ -159,7 +159,7 @@ static int32_t CCommand_WowEdit(const char* command, const char* arguments) {
         ConsoleWriteA("WowEdit: test overlay %s", DEFAULT_COLOR, s_testNames[WowEditTerrainGetTest()]);
 
         if (WowEditTerrainGetTest() != WOWEDITTEST_OFF) {
-            PrepareTerrainOverlays();
+            WowEditPrepareTerrainOverlays();
         }
 
         return 1;
@@ -236,7 +236,7 @@ static int32_t CCommand_WowEditGrid(const char* command, const char* arguments) 
 
     if (grid >= 0) {
         ConsoleWriteA("WowEdit: grid permutation %d", DEFAULT_COLOR, grid);
-        PrepareTerrainOverlays();
+        WowEditPrepareTerrainOverlays();
     } else {
         ConsoleWrite("WowEdit: grid off", DEFAULT_COLOR);
     }
@@ -250,7 +250,7 @@ static int32_t CCommand_WowEditSlopes(const char* command, const char* arguments
     ConsoleWrite(show ? "WowEdit: impassable slopes on" : "WowEdit: impassable slopes off", DEFAULT_COLOR);
 
     if (show) {
-        PrepareTerrainOverlays();
+        WowEditPrepareTerrainOverlays();
     }
 
     return 1;
@@ -262,7 +262,7 @@ static int32_t CCommand_WowEditAreas(const char* command, const char* arguments)
     ConsoleWrite(show ? "WowEdit: area overlay on" : "WowEdit: area overlay off", DEFAULT_COLOR);
 
     if (show) {
-        PrepareTerrainOverlays();
+        WowEditPrepareTerrainOverlays();
     }
 
     return 1;
@@ -307,7 +307,7 @@ static int32_t CCommand_WowEditBrush(const char* command, const char* arguments)
 
     if (WowEditTerrainGetBrush() > 0.0f) {
         ConsoleWriteA("WowEdit: brush, %.2f yards, inner circle %.2f", DEFAULT_COLOR, WowEditTerrainGetBrush(), WowEditTerrainGetBrushInner());
-        PrepareTerrainOverlays();
+        WowEditPrepareTerrainOverlays();
     } else {
         ConsoleWrite("WowEdit: brush off", DEFAULT_COLOR);
     }
@@ -315,20 +315,30 @@ static int32_t CCommand_WowEditBrush(const char* command, const char* arguments)
     return 1;
 }
 
-static int32_t CCommand_WowEditMarkers(const char* command, const char* arguments) {
-    s_markers = ParseSwitch(arguments, s_markers);
+void WowEditSetMarkers(bool show) {
+    s_markers = show;
 
     if (s_markers) {
         WorldEditRegisterOverlay(MarkersOverlay, nullptr);
     } else {
         WorldEditUnregisterOverlay(MarkersOverlay, nullptr);
     }
+}
 
+bool WowEditGetMarkers() {
+    return s_markers;
+}
+
+static int32_t CCommand_WowEditMarkers(const char* command, const char* arguments) {
+    WowEditSetMarkers(ParseSwitch(arguments, s_markers));
     ConsoleWrite(s_markers ? "WowEdit: markers on" : "WowEdit: markers off", DEFAULT_COLOR);
     return 1;
 }
 
 void WowEditRegisterConsoleCommands() {
+    // The editor application (WowEdit64.exe) hooks the Gx window here; the plain client does nothing.
+    WowEditAppStartup();
+
     ConsoleCommandRegister("wowEdit", CCommand_WowEdit, CATEGORY_DEBUG, "WowEdit: shader support and overlays in use");
     ConsoleCommandRegister("wowEditGrid", CCommand_WowEditGrid, CATEGORY_DEBUG, "WowEdit: terrain grid [0-3|off]");
     ConsoleCommandRegister("wowEditSlopes", CCommand_WowEditSlopes, CATEGORY_DEBUG, "WowEdit: impassable slopes [0|1]");

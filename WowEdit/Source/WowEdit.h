@@ -11,7 +11,8 @@
 //   - WowEditDraw: markers (spawn points, orientation rings, paths, flying path points) on the Gxu debug-draw module;
 //   - WowEditShaders / WowEditTerrain: the 8.1 terrain overlay shaders rewritten for Shader Model 3, drawn as an
 //     editor terrain pass;
-//   - console commands to turn them on (WowEditRegisterConsoleCommands).
+//   - console commands to turn them on (WowEditRegisterConsoleCommands);
+//   - App/: the editor application (WowEdit64.exe), its menus and palettes built with OsGui (App/WowEditApp.h).
 // The client only exposes hook points for it (WoW/Source/WorldClient/WorldEditHooks.h) and calls
 // WowEditRegisterConsoleCommands; WowEdit depends on the client and engine, never the other way round.
 //
@@ -28,6 +29,14 @@
 
 // From ClientRegisterConsoleCommands, with the other tool-feature commands.
 void WowEditRegisterConsoleCommands();
+
+// After a terrain overlay is turned on: builds its shaders now, so a missing compiler, a compile error or a card
+// without Shader Model 3 shows in the console at once rather than as an overlay that never appears.
+void WowEditPrepareTerrainOverlays();
+
+// The markers sample (wowEditMarkers).
+void WowEditSetMarkers(bool show);
+bool WowEditGetMarkers();
 
 #endif
 
