@@ -382,7 +382,7 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
                         CHARCODEDESC* desc = this->m_currentFace->NewCodeDesc(lastCode);
 
                         if (desc) {
-                            step = this->m_currentFace->GetGlyphBearing(desc, (this->m_flags >> 7) & 1, this->m_currentFontHeight) + desc->m_bitmapData.m_glyphCellWidth;
+                            step = this->m_currentFace->GetGlyphBearing(desc, (this->m_flags >> 7) & 1, this->m_currentFontHeight) + desc->bitmapData.m_glyphCellWidth;
                         }
 
                         x = step * scale;
@@ -494,7 +494,7 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
                     vert.m_tc.y = 0.0f;
                     vert.m_vc.x = this->m_currentFace->GetGlyphBearing(desc, (flags >> 7) & 1, this->m_currentFontHeight) + pos.x;
 
-                    float width = desc->m_bitmapData.m_glyphCellWidth * scale;
+                    float width = desc->bitmapData.m_glyphCellWidth * scale;
 
                     if (!(this->m_flags & EGxStringFlags::EGxStringFlags_Unscaled)) {
                         width = floor(width);
@@ -506,7 +506,7 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
                         vert.m_vc.y = vert.m_vc.y - 1.0;
                     }
 
-                    vert.m_vc.y = desc->m_bitmapData.m_yOffset * scale + vert.m_vc.y;
+                    vert.m_vc.y = desc->bitmapData.m_yOffset * scale + vert.m_vc.y;
 
                     uint32_t vertIndex = textLine->m_verts.Add(4, 0, &vert);
                     VERT* verts = &textLine->m_verts.m_data[vertIndex];
@@ -522,7 +522,7 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
                     verts[1].m_vc.y = top;
                     verts[0].m_vc.y = verts[2].m_vc.y;
 
-                    CRect coords = desc->m_bitmapData.m_textureCoords;
+                    CRect coords = desc->bitmapData.m_textureCoords;
 
                     if (this->m_flags & EGxStringFlags::EGxStringFlags_Unscaled) {
                         coords.minY = coords.minY + pixelAdjustments.minY;

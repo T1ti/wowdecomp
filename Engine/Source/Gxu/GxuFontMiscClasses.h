@@ -42,7 +42,7 @@ struct CHARCODEDESC : public TSHashObject<CHARCODEDESC, HASHKEY_NONE> {
     /* 002C */ uint32_t m_rowNumber;
     /* 0030 */ uint32_t glyphStartPixel;
     /* 0034 */ uint32_t m_glyphEndPixel;
-    /* 0038 */ GLYPHBITMAPDATA m_bitmapData;
+    /* 0038 */ GLYPHBITMAPDATA bitmapData;
 
     CHARCODEDESC();
     void GenerateTextureCoords(uint32_t rowNumber, uint32_t glyphSide);
@@ -113,23 +113,31 @@ struct TEXTURECACHEROW {
 };
 
 struct TEXTURECACHE {
-    static void TextureCallback(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
+    private:
+    friend struct CGxFont;
+
+    static void TextureCallback(EGxTexCommand command, uint32_t w, uint32_t h, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
 
     /* 0000 */ CTexture* m_texture;
     /* 0004 */ CGxFont* m_theFace;
     /* 0008 */ uint8_t m_anyDirtyGlyphs;
     /* 000C */ TSFixedArray<TEXTURECACHEROW> m_textureRows;
 
+    void PasteGlyphNonOutlinedAA(const GLYPHBITMAPDATA& data, uint16_t* dest);
+    void PasteGlyphNonOutlinedMonochrome(const GLYPHBITMAPDATA& data, uint16_t* dest);
+    void PasteGlyphOutlinedAA(const GLYPHBITMAPDATA& data, uint16_t* dest);
+    void PasteGlyphOutlinedMonochrome(const GLYPHBITMAPDATA& data, uint16_t* dest);
+    void PasteGlyph(const GLYPHBITMAPDATA& bitmapData, uint16_t* dest);
+    void WriteGlyphToTexture(CHARCODEDESC* glyph);
+
+    public:
     TEXTURECACHE();
     ~TEXTURECACHE();
     CHARCODEDESC* AllocateNewGlyph(GLYPHBITMAPDATA* data);
     void CreateTexture(int32_t filter);
     void Destroy();
-    void Initialize(CGxFont* face, uint32_t cellHeight);
-    void PasteGlyphNonOutlinedAA(const GLYPHBITMAPDATA& data, uint16_t* dest);
-    void PasteGlyphNonOutlinedMonochrome(const GLYPHBITMAPDATA& data, uint16_t* dest);
-    void PasteGlyphOutlinedAA(const GLYPHBITMAPDATA& data, uint16_t* dest);
-    void PasteGlyphOutlinedMonochrome(const GLYPHBITMAPDATA& data, uint16_t* dest);
+    void Initialize(CGxFont* face, uint32_t pixelSize);
+    CTexture* GetTexture() const { return this->m_texture; } // (inferred)
     void UpdateDirty();
 };
 

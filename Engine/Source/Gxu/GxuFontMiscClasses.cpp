@@ -91,10 +91,10 @@ void CHARCODEDESC::GenerateTextureCoords(uint32_t rowNumber, uint32_t glyphSide)
     coords.minX = left * ONEOVERTEXSIZE;
     coords.maxY = (top + glyphSide) * ONEOVERTEXSIZE;
 
-    float right = left + this->m_bitmapData.m_glyphCellWidth;
+    float right = left + this->bitmapData.m_glyphCellWidth;
     coords.maxX = ONEOVERTEXSIZE * right;
 
-    this->m_bitmapData.m_textureCoords = coords;
+    this->bitmapData.m_textureCoords = coords;
 }
 
 // VERIFY: 132485d8 auto
@@ -329,7 +329,7 @@ void BATCHEDRENDERFONTDESC::RenderBatch() {
     int32_t space = 2048;
 
     for (int32_t texturePage = 0; texturePage < 8; texturePage++) {
-        CTexture* texture = this->face->m_textureCache[texturePage].m_texture;
+        CTexture* texture = this->face->m_textureCache[texturePage].GetTexture();
 
         if (!texture) {
             continue;
@@ -402,7 +402,7 @@ TEXTLINETEXTURE* TEXTLINETEXTURE::NewTextLineTexture() {
 // VERIFY: be22d63b manual
 // OFFSET: 0x006C4F80
 void TEXTURECACHEROW::EvictGlyph(CHARCODEDESC* desc) {
-    uint32_t pixelsNeeded = desc->m_bitmapData.m_glyphCellWidth;
+    uint32_t pixelsNeeded = desc->bitmapData.m_glyphCellWidth;
     STORM_ASSERT(pixelsNeeded);
 
     CHARCODEDESC* glyph = this->m_glyphlist.Head();
@@ -468,7 +468,7 @@ CHARCODEDESC* TEXTURECACHEROW::CreateNewDesc(GLYPHBITMAPDATA* data, uint32_t row
         desc->glyphStartPixel = 0;
         desc->m_glyphEndPixel = glyphWidth - 1;
         desc->m_rowNumber = rowNumber;
-        desc->m_bitmapData.CopyFrom(data);
+        desc->bitmapData.CopyFrom(data);
         desc->GenerateTextureCoords(rowNumber, glyphSide);
 
         return desc;
@@ -483,7 +483,7 @@ CHARCODEDESC* TEXTURECACHEROW::CreateNewDesc(GLYPHBITMAPDATA* data, uint32_t row
         desc->m_glyphEndPixel = current->glyphStartPixel - 1;
         desc->glyphStartPixel = desc->m_glyphEndPixel - glyphWidth + 1;
         desc->m_rowNumber = rowNumber;
-        desc->m_bitmapData.CopyFrom(data);
+        desc->bitmapData.CopyFrom(data);
         desc->GenerateTextureCoords(rowNumber, glyphSide);
 
         CHARCODEDESC* first = this->m_glyphlist.Head();
@@ -517,7 +517,7 @@ CHARCODEDESC* TEXTURECACHEROW::CreateNewDesc(GLYPHBITMAPDATA* data, uint32_t row
             desc->glyphStartPixel = glyph->m_glyphEndPixel + 1;
             desc->m_glyphEndPixel = glyph->m_glyphEndPixel + glyphWidth;
             desc->m_rowNumber = rowNumber;
-            desc->m_bitmapData.CopyFrom(data);
+            desc->bitmapData.CopyFrom(data);
             desc->GenerateTextureCoords(rowNumber, glyphSide);
             inserted = 1;
             next = desc;

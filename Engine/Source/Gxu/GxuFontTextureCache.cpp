@@ -39,6 +39,7 @@ void TEXTURECACHE::PasteGlyphOutlinedMonochrome(const GLYPHBITMAPDATA& data, uin
     }
 
     uint32_t cellHeight = this->m_theFace->m_cellHeight;
+    STORM_ASSERT(cellHeight);
     uint32_t cellWidth = data.m_glyphCellWidth;
     uint32_t passes = (thick != 0) + 1;
 
@@ -347,7 +348,8 @@ void TEXTURECACHE::UpdateDirty() {
 // VERIFY: 0d8fc085 manual
 // OFFSET: 0x006C9D90
 CHARCODEDESC* TEXTURECACHE::AllocateNewGlyph(GLYPHBITMAPDATA* data) {
-    uint32_t count = this->m_textureRows.m_count;
+    STORM_ASSERT(m_theFace);
+    uint32_t count = this->m_textureRows.Count();
 
     for (uint32_t i = 0; i < count; i++) {
         CHARCODEDESC* desc = this->m_textureRows.m_data[i].CreateNewDesc(data, i, this->m_theFace->m_cellHeight);
@@ -360,9 +362,42 @@ CHARCODEDESC* TEXTURECACHE::AllocateNewGlyph(GLYPHBITMAPDATA* data) {
     return nullptr;
 }
 
+inline void TEXTURECACHE::PasteGlyph(const GLYPHBITMAPDATA& bitmapData, uint16_t* dest) {
+    STORM_ASSERT(m_theFace);
+    const CGxFont* font = this->m_theFace;
+
+    if (font->m_fontFlags & CGxFont::FONT_FLAGS::FONT_OUTLINE) {
+        if (font->m_fontFlags & CGxFont::FONT_FLAGS::FONT_MONOCHROME) {
+            this->PasteGlyphOutlinedMonochrome(bitmapData, dest);
+        } else {
+            this->PasteGlyphOutlinedAA(bitmapData, dest);
+        }
+    } else if (font->m_fontFlags & CGxFont::FONT_FLAGS::FONT_MONOCHROME) {
+        this->PasteGlyphNonOutlinedMonochrome(bitmapData, dest);
+    } else {
+        this->PasteGlyphNonOutlinedAA(bitmapData, dest);
+    }
+}
+
+inline void TEXTURECACHE::WriteGlyphToTexture(CHARCODEDESC* glyph) {
+    if (!this->m_texture || !this->m_theFace || !this->m_theFace->m_cellHeight) {
+        return;
+    }
+
+    STORM_ASSERT(glyph->bitmapData.m_data);
+    STORM_ASSERT(glyph->ValidBlockEndPoints());
+    STORM_ASSERT(glyph->bitmapData.m_yStart <= m_theFace->m_cellHeight); // 12213: "glyph->bitmapData.m_yStart <= (int)m_theFace->m_cellHeight"
+
+    uint16_t* dest = &s_textureData[glyph->glyphStartPixel + ((glyph->m_rowNumber * this->m_theFace->m_cellHeight) << 8)];
+    this->PasteGlyph(glyph->bitmapData, dest);
+}
+
 // VERIFY: 248ca280 manual
 // OFFSET: 0x006C9F50
-void TEXTURECACHE::TextureCallback(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
+void TEXTURECACHE::TextureCallback(EGxTexCommand command, uint32_t w, uint32_t h, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
+    STORM_ASSERT(w == 256);
+    STORM_ASSERT(h == 256);
+
     if (command != GxTex_Latch) {
         return;
     }
@@ -373,24 +408,7 @@ void TEXTURECACHE::TextureCallback(EGxTexCommand command, uint32_t width, uint32
         TEXTURECACHEROW& cacheRow = cache->m_textureRows.m_data[row - 1];
 
         for (CHARCODEDESC* glyph = cacheRow.m_glyphlist.Head(); glyph; glyph = cacheRow.m_glyphlist.Next(glyph)) {
-            if (!cache->m_texture || !cache->m_theFace || !cache->m_theFace->m_cellHeight) {
-                continue;
-            }
-
-            CGxFont* font = cache->m_theFace;
-            uint16_t* dest = &s_textureData[glyph->glyphStartPixel + ((glyph->m_rowNumber * font->m_cellHeight) << 8)];
-
-            if (font->m_fontFlags & CGxFont::FONT_FLAGS::FONT_OUTLINE) {
-                if (font->m_fontFlags & CGxFont::FONT_FLAGS::FONT_MONOCHROME) {
-                    cache->PasteGlyphOutlinedMonochrome(glyph->m_bitmapData, dest);
-                } else {
-                    cache->PasteGlyphOutlinedAA(glyph->m_bitmapData, dest);
-                }
-            } else if (font->m_fontFlags & CGxFont::FONT_FLAGS::FONT_MONOCHROME) {
-                cache->PasteGlyphNonOutlinedMonochrome(glyph->m_bitmapData, dest);
-            } else {
-                cache->PasteGlyphNonOutlinedAA(glyph->m_bitmapData, dest);
-            }
+            cache->WriteGlyphToTexture(glyph);
         }
     }
 
@@ -405,13 +423,15 @@ void TEXTURECACHE::CreateTexture(int32_t filter) {
 
     CGxTexFlags flags(static_cast<EGxTexFilter>(filter != 0), 0, 0, 0, 0, 0, 1, 0, 0, 0);
     this->m_texture = TextureCreate(256, 256, GxTex_Argb4444, GxTex_Argb4444, flags, this, TEXTURECACHE::TextureCallback, "GxuFont", 0);
+    STORM_ASSERT(m_texture);
 }
 
 // VERIFY: ba005b39 manual
 // OFFSET: 0x006CA130
-void TEXTURECACHE::Initialize(CGxFont* face, uint32_t cellHeight) {
+void TEXTURECACHE::Initialize(CGxFont* face, uint32_t pixelSize) {
     this->m_theFace = face;
-    uint32_t rows = 256 / cellHeight;
+    STORM_ASSERT(pixelSize);
+    uint32_t rows = 256 / pixelSize;
     this->m_textureRows.SetCount(rows);
 
     for (uint32_t i = 0; i < rows; i++) {

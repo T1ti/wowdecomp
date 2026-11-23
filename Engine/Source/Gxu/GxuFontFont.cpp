@@ -121,14 +121,14 @@ bool CGxFont::GetGlyphData(GLYPHBITMAPDATA* data, uint32_t code) {
 // OFFSET: 0x006C24F0
 float CGxFont::GetGlyphBearing(const CHARCODEDESC* desc, bool scaled, float height) {
     if (!scaled) {
-        float bearing = desc->m_bitmapData.m_glyphBearing;
+        float bearing = desc->bitmapData.m_glyphBearing;
         return ceil(bearing);
     }
 
     float pixelHeight = ScreenToPixelHeight(1, height);
     float scale = pixelHeight / this->m_pixelSize;
 
-    return scale * desc->m_bitmapData.m_glyphBearing;
+    return scale * desc->bitmapData.m_glyphBearing;
 }
 
 // VERIFY: 29412482 manual
@@ -164,7 +164,7 @@ float CGxFont::GetGlyphAdvance(uint32_t code) {
         return 0.0f;
     }
 
-    float advance = desc->m_bitmapData.m_glyphAdvance;
+    float advance = desc->bitmapData.m_glyphAdvance;
 
     if (this->m_fontFlags & CGxFont::FONT_FLAGS::FONT_THICK_OUTLINE) {
         advance += 1.0;
