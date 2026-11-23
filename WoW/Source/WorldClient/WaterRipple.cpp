@@ -1,4 +1,5 @@
 #include "WaterRipple.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/C2Vector.h"
 #include "Engine/Source/Tempest/CAaBox.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
@@ -37,7 +38,7 @@ static const char* s_rippleTextureNames[2] = {
 static float s_rippleFadeFraction[2] = { 0.4f, 0.4f };
 
 // STATIC: 0x00ADFB58
-static TSExplicitList<CWaterRipple, offsetof(CWaterRipple, m_link)> s_activeRipples;
+static TSExplicitList<CWaterRipple, offsetof(CWaterRipple, m_link)> water0RippleList;
 
 // STATIC: 0x00CDF7C0
 static CTexture* s_rippleTextures[2];
@@ -72,7 +73,7 @@ CWaterRipple::~CWaterRipple() {
 // VERIFY: 801d27b4 manual
 // OFFSET: 0x0079D5E0
 void CMap::RenderWaterRipples() {
-    CWaterRipple* ripple = s_activeRipples.Head();
+    CWaterRipple* ripple = water0RippleList.Head();
 
     if (!ripple) {
         return;
@@ -82,7 +83,7 @@ void CMap::RenderWaterRipples() {
     TSExplicitList<CWaterRipple, offsetof(CWaterRipple, m_bucketLink)> buckets[2];
 
     while (ripple) {
-        CWaterRipple* next = s_activeRipples.Next(ripple);
+        CWaterRipple* next = water0RippleList.Next(ripple);
 
         if (ripple->m_endTime <= FrameTime::s_curTimeSec) {
             ripple->m_link.Unlink();
@@ -258,6 +259,8 @@ void WaterRipple::Initialize() {
     }
 
     s_ripplePool.SetCount(NUM_RIPPLES);
+    // 12213: "water0RippleList.Head()==__null"
+    STORM_ASSERT(water0RippleList.Head() == nullptr);
     s_ripplesInitialized = 0;
 
     g_theGxDevicePtr->ShaderCreate(&WaterRipple::s_vsWaterRipples, GxSh_Vertex, "Shaders\\Vertex", "WaterRipples", 1);
@@ -281,7 +284,7 @@ void WaterRipple::Destroy() {
         s_ripplePool.Clear();
     }
 
-    s_activeRipples.Clear();
+    water0RippleList.Clear();
 
     if (WaterRipple::s_vsWaterRipples) {
         g_theGxDevicePtr->ShaderDestroy(WaterRipple::s_vsWaterRipples);
@@ -359,5 +362,5 @@ void WaterRipple::Create(const C3Vector& pos, float facing, float size, float al
 
     CWaterRipple* ripple = &s_ripplePool.m_data[index];
     ripple->InitRipple(pos, -facing, size, alpha, duration, growth, type);
-    s_activeRipples.LinkToTail(ripple);
+    water0RippleList.LinkToTail(ripple);
 }

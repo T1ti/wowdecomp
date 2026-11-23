@@ -39,13 +39,14 @@ class CWaterRipple {
 class WaterRipple {
     public:
     static void Create(const C3Vector& pos, float facing, float size, float alpha, float duration, float growth, int32_t type, int32_t player);
-    static uint32_t s_nextPlayerRipple;
-    static uint32_t s_nextUnitRipple;
+    static void Destroy();
+    static void Initialize();
     static CGxShader* s_psWaterRipples;
     static CGxShader* s_vsWaterRipples;
 
-    static void Destroy();
-    static void Initialize();
+    private:
+    static uint32_t s_nextPlayerRipple;
+    static uint32_t s_nextUnitRipple;
 };
 
 #endif
