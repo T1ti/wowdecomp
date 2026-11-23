@@ -1984,7 +1984,7 @@ void CGUnit_C::RotateWheels() {
 
     CMoveSpline* spline = movement->m_spline;
 
-    if ((spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) || (flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
+    if ((spline && !(spline->flags & SPLINEFLAG_NO_SPLINE) && (spline->flags & SPLINEFLAG_FLYING)) || (flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
         for (int32_t i = 0; i < NUM_WHEEL_KEY_BONES; i++) {
             if ((1 << i) & this->m_wheelMask) {
                 model->SetBoneFlags(KEY_BONE_WHEEL1 + i, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM, M2CompBone::FLAGS::PROCEDURAL_TRANSFORM);
@@ -10999,7 +10999,7 @@ static int32_t AckMessageHasValue(uint32_t msgId) {
 void CGUnit_C::SendTimeSkip(uint32_t skip) {
     STORM_ASSERT(IsActiveMover());
 
-    if (this->m_movement->IsOnSpline() || (this->m_movementData.m_flags & MOVEMENTFLAG_ONTRANSPORT)) {
+    if (this->m_movement->IsSplineMover() || (this->m_movementData.m_flags & MOVEMENTFLAG_ONTRANSPORT)) {
         return;
     }
 
@@ -11018,7 +11018,7 @@ BOOL CGUnit_C::IsAllowedToSendMessage(uint32_t msgId) const {
         return FALSE;
     }
 
-    if (!this->m_movement->IsOnSpline() || IsMessageAllowedWhileOnSpline(msgId)) {
+    if (!this->m_movement->IsSplineMover() || IsMessageAllowedWhileOnSpline(msgId)) {
         return TRUE;
     }
 
@@ -13295,7 +13295,7 @@ void CGUnit_C::SetActiveMover(uint64_t guid) {
             oldMover->m_movementData.m_flags &= ~MOVEMENTFLAG_ONTRANSPORT;
         }
 
-        if (!oldMover->m_movement->m_spline || (oldMover->m_movement->m_spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+        if (!oldMover->m_movement->m_spline || (oldMover->m_movement->m_spline->flags & SPLINEFLAG_NO_SPLINE)) {
             oldMover->m_movementData.OnUnsetActiveMover();
 
             if (oldMover->IsActivePlayer()) {
@@ -15161,7 +15161,7 @@ void CGUnit_C::AddWorldDamageText(const WOWGUID& source, int32_t amount, const S
 // VERIFY: 25d16696 auto
 // OFFSET: 0x0073C220
 void CGUnit_C::SetUpdateInfo(const CClientMoveUpdate& update, int32_t activeMover) {
-    this->m_movementData.SetUpdateInfo(OsGetAsyncTimeMs(), &update, activeMover);
+    this->m_movementData.SetUpdateInfo(OsGetAsyncTimeMs(), update, activeMover);
 
     if (this->m_movementData.m_flags & MOVEMENTFLAG_FALLING_FAR) {
         this->OnCollideFalling();
@@ -20569,7 +20569,7 @@ void CGUnit_C::StartSwimming(uint32_t time, int32_t spline) {
     if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
         this->m_movementData.OnSwimStartLocal(time);
         CGTutorial::TriggerTutorial(TUTORIAL::TUTORIAL_SWIMMING);
-    } else if (spline || (this->m_movement->m_spline && !(this->m_movement->m_spline->m_flags & SPLINEFLAG_NO_SPLINE))) {
+    } else if (spline || (this->m_movement->m_spline && !(this->m_movement->m_spline->flags & SPLINEFLAG_NO_SPLINE))) {
         this->m_movementData.OnSplineStartSwim();
     } else {
         this->m_movementData.OnSwimStart(time);
@@ -20581,7 +20581,7 @@ void CGUnit_C::StartSwimming(uint32_t time, int32_t spline) {
 void CGUnit_C::StopSwimming(uint32_t time, int32_t spline) {
     if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
         this->m_movementData.OnSwimStopLocal(time);
-    } else if (spline || (this->m_movement->m_spline && !(this->m_movement->m_spline->m_flags & SPLINEFLAG_NO_SPLINE))) {
+    } else if (spline || (this->m_movement->m_spline && !(this->m_movement->m_spline->flags & SPLINEFLAG_NO_SPLINE))) {
         this->m_movementData.OnSplineStopSwim();
     } else {
         this->m_movementData.OnSwimStop(time);

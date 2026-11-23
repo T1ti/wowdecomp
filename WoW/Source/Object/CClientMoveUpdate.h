@@ -9,15 +9,15 @@
 class CClientMoveUpdate {
     public:
     /* 0000 */ CMovementStatus m_status;
-    /* 0060 */ float m_walkSpeed;
-    /* 0064 */ float m_runSpeed;
-    /* 0068 */ float m_runBackSpeed;
-    /* 006C */ float m_swimSpeed;
-    /* 0070 */ float m_swimBackSpeed;
-    /* 0074 */ float m_flightSpeed;
-    /* 0078 */ float m_flightBackSpeed;
-    /* 007C */ float m_turnRate;
-    /* 0080 */ float m_pitchRate;
+    /* 0060 */ float walkSpeed;
+    /* 0064 */ float runSpeed;
+    /* 0068 */ float runBackSpeed;
+    /* 006C */ float swimSpeed;
+    /* 0070 */ float swimBackSpeed;
+    /* 0074 */ float flightSpeed;
+    /* 0078 */ float flightBackSpeed;
+    /* 007C */ float turnRate;
+    /* 0080 */ float pitchRate;
     /* 0084 */ uint32_t unknown_0084;
     /* 0088 */ CMoveSpline m_moveSpline;
 

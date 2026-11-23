@@ -180,7 +180,7 @@ BOOL CGUnit::CanPlayEmote(EMOTE_FLAGS emoteFlags, int32_t targeted, int32_t* sta
     if (emoteFlags & EMOTE_FLAGS::EMOTE_FLAG_DISALLOW_FLYING) {
         CMoveSpline* spline = this->m_movement->m_spline;
 
-        if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) {
+        if (spline && !(spline->flags & SPLINEFLAG_NO_SPLINE) && (spline->flags & SPLINEFLAG_FLYING)) {
             return 0;
         }
 
@@ -265,7 +265,7 @@ BOOL CGUnit::HasAuraState(int32_t state) const {
 BOOL CGUnit::IsOnFlyingSpline() const {
     CMoveSpline* spline = this->m_movement->m_spline;
 
-    if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) {
+    if (spline && !(spline->flags & SPLINEFLAG_NO_SPLINE) && (spline->flags & SPLINEFLAG_FLYING)) {
         return 1;
     }
 
@@ -276,7 +276,7 @@ BOOL CGUnit::IsOnFlyingSpline() const {
 // OFFSET: 0x005F9810
 BOOL CGUnit::IsOnSpline() const {
     CMoveSpline* spline = this->m_movement->m_spline;
-    return spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE);
+    return spline && !(spline->flags & SPLINEFLAG_NO_SPLINE);
 }
 
 // VERIFY: ea2cbe01 auto

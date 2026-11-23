@@ -266,7 +266,7 @@ float CMovementShared::CalcSplineHeight(uint32_t time, float z) const {
         return z;
     }
 
-    if (spline->m_flags & SPLINEFLAG_PARABOLIC) {
+    if (spline->flags & SPLINEFLAG_PARABOLIC) {
         if (time <= spline->m_effectStartTime) {
             return z;
         }
@@ -276,7 +276,7 @@ float CMovementShared::CalcSplineHeight(uint32_t time, float z) const {
         return (0.001f * this->m_spline->m_duration - start) * this->m_spline->m_verticalAcceleration * 0.5f * elapsed - 0.5f * (elapsed * (this->m_spline->m_verticalAcceleration * elapsed)) + z;
     }
 
-    if (!(spline->m_flags & SPLINEFLAG_FALLING)) {
+    if (!(spline->flags & SPLINEFLAG_FALLING)) {
         return z;
     }
 
@@ -341,7 +341,7 @@ BOOL CMovementShared::CanCollideWhileFlying() const {
 
     CMoveSpline* spline = this->m_spline;
 
-    if ((this->m_moveFlags2 & MOVEFLAG2_JUMP_SPLINE_IN_AIR) && spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_PARABOLIC)) {
+    if ((this->m_moveFlags2 & MOVEFLAG2_JUMP_SPLINE_IN_AIR) && spline && !(spline->flags & SPLINEFLAG_NO_SPLINE) && (spline->flags & SPLINEFLAG_PARABOLIC)) {
         return 1;
     }
 
@@ -351,7 +351,7 @@ BOOL CMovementShared::CanCollideWhileFlying() const {
         return 0;
     }
 
-    if ((spline->m_flags & SPLINEFLAG_NO_SPLINE) || !(spline->m_flags & SPLINEFLAG_FALLING)) {
+    if ((spline->flags & SPLINEFLAG_NO_SPLINE) || !(spline->flags & SPLINEFLAG_FALLING)) {
         return 0;
     }
 
@@ -523,7 +523,7 @@ float CMovementShared::GetBaseSpeed(int32_t walk) const {
 
     CMoveSpline* spline = this->m_spline;
 
-    if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+    if (spline && !(spline->flags & SPLINEFLAG_NO_SPLINE)) {
         if (!spline->m_duration) {
             return 0.0f;
         }
@@ -563,7 +563,7 @@ float CMovementShared::GetBaseSpeed(int32_t walk) const {
 float CMovementShared::GetDistanceFallen() const {
     CMoveSpline* spline = this->m_spline;
 
-    if (spline && (spline->m_flags & SPLINEFLAG_FALL_MASK)) {
+    if (spline && (spline->flags & SPLINEFLAG_FALL_MASK)) {
         float time = (spline->m_duration - spline->m_effectStartTime) * 0.001f;
         return CalcFallDistance(time, 0, -(spline->m_verticalAcceleration * time * 0.5f));
     }
@@ -660,7 +660,7 @@ BOOL CMovementShared::IsFalling() const {
 
     CMoveSpline* spline = this->m_spline;
 
-    if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FALLING)) {
+    if (spline && !(spline->flags & SPLINEFLAG_NO_SPLINE) && (spline->flags & SPLINEFLAG_FALLING)) {
         return 1;
     }
 
@@ -672,7 +672,7 @@ BOOL CMovementShared::IsFalling() const {
         return 0;
     }
 
-    if ((spline->m_flags & SPLINEFLAG_NO_SPLINE) || !(spline->m_flags & SPLINEFLAG_PARABOLIC)) {
+    if ((spline->flags & SPLINEFLAG_NO_SPLINE) || !(spline->flags & SPLINEFLAG_PARABOLIC)) {
         return 0;
     }
 
@@ -695,11 +695,11 @@ BOOL CMovementShared::IsGravityDisabled() const {
     CMoveSpline* spline = this->m_spline;
 
     if (spline) {
-        if (!(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FALLING)) {
+        if (!(spline->flags & SPLINEFLAG_NO_SPLINE) && (spline->flags & SPLINEFLAG_FALLING)) {
             return 0;
         }
 
-        if (!(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) {
+        if (!(spline->flags & SPLINEFLAG_NO_SPLINE) && (spline->flags & SPLINEFLAG_FLYING)) {
             return 1;
         }
     }
@@ -718,7 +718,7 @@ BOOL CMovementShared::IsJumpingUp() const {
 BOOL CMovementShared::IsOnFallingSpline() const {
     CMoveSpline* spline = this->m_spline;
 
-    if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FALLING)) {
+    if (spline && !(spline->flags & SPLINEFLAG_NO_SPLINE) && (spline->flags & SPLINEFLAG_FALLING)) {
         return 1;
     }
 
@@ -727,10 +727,10 @@ BOOL CMovementShared::IsOnFallingSpline() const {
 
 // VERIFY: 5918282d manual
 // OFFSET: 0x004F5260
-BOOL CMovementShared::IsOnFlyingSpline() const {
+BOOL CMovementShared::IsSplineFlyer() const {
     CMoveSpline* spline = this->m_spline;
 
-    if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) {
+    if (spline && !(spline->flags & SPLINEFLAG_NO_SPLINE) && (spline->flags & SPLINEFLAG_FLYING)) {
         return 1;
     }
 
@@ -742,7 +742,7 @@ BOOL CMovementShared::IsOnFlyingSpline() const {
 BOOL CMovementShared::IsOnParabolicSpline() const {
     CMoveSpline* spline = this->m_spline;
 
-    if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_PARABOLIC)) {
+    if (spline && !(spline->flags & SPLINEFLAG_NO_SPLINE) && (spline->flags & SPLINEFLAG_PARABOLIC)) {
         return 1;
     }
 
@@ -751,8 +751,8 @@ BOOL CMovementShared::IsOnParabolicSpline() const {
 
 // VERIFY: 80c031fa auto
 // OFFSET: 0x004F5240
-BOOL CMovementShared::IsOnSpline() const {
-    return this->m_spline && !(this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE);
+BOOL CMovementShared::IsSplineMover() const {
+    return this->m_spline && !(this->m_spline->flags & SPLINEFLAG_NO_SPLINE);
 }
 
 // VERIFY: 1e461b71 auto
@@ -1525,7 +1525,7 @@ int32_t CMovementShared::StartFalling(float velocity) {
         return 0;
     }
 
-    if (this->m_spline && (this->m_spline->m_flags & SPLINEFLAG_FALL_MASK)) {
+    if (this->m_spline && (this->m_spline->flags & SPLINEFLAG_FALL_MASK)) {
         return 0;
     }
 
@@ -1687,7 +1687,7 @@ void CMovementShared::GetMoveStatus(NETMESSAGE msgId, uint32_t gameTime, CMoveme
         status->m_transportTime2 = 0;
     }
 
-    if (!this->m_spline || (this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+    if (!this->m_spline || (this->m_spline->flags & SPLINEFLAG_NO_SPLINE)) {
         status->m_moveFlags &= ~MOVEMENTFLAG_SPLINE_ENABLED;
     } else {
         status->m_moveFlags |= MOVEMENTFLAG_SPLINE_ENABLED;
@@ -1728,10 +1728,10 @@ void CMovementShared::ForceStopMove(int32_t tryFall) {
     this->CalcCurrentSpeed(0);
     this->UpdateAnchors(0);
 
-    if (this->IsOnSpline()) {
-        this->m_spline->m_flags |= SPLINEFLAG_NO_SPLINE;
+    if (this->IsSplineMover()) {
+        this->m_spline->flags |= SPLINEFLAG_NO_SPLINE;
 
-        if (tryFall && this->m_spline && (this->m_spline->m_flags & SPLINEFLAG_FLYING) && !this->IsFallingSwimmingFlying()) {
+        if (tryFall && this->m_spline && (this->m_spline->flags & SPLINEFLAG_FLYING) && !this->IsFallingSwimmingFlying()) {
             this->StartFalling(0.0f);
         }
     }
@@ -1744,7 +1744,7 @@ int32_t CMovementShared::Jump(int32_t checkHover) {
         return 0;
     }
 
-    if (this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_FLYING)) {
+    if (this->IsSplineMover() && (this->m_spline->flags & SPLINEFLAG_FLYING)) {
         return 0;
     }
 
@@ -1847,24 +1847,24 @@ void CMovementShared::UnRoot(int32_t tryFall) {
 void CMovementShared::OnSpline(uint32_t timePassed, const C3Vector* points, uint32_t pointCount, uint32_t duration, uint32_t splineFlags, uint32_t splineId) {
     STORM_ASSERT(m_spline);
 
-    this->m_spline->m_flags = splineFlags;
+    this->m_spline->flags = splineFlags;
     this->m_spline->m_timePassed = timePassed;
     this->m_spline->m_start = 0;
     this->m_spline->m_duration = duration;
-    this->m_spline->m_spline.splineMode = (this->m_spline->m_flags & SPLINEFLAG_CATMULLROM_MASK) != 0 ? MODE_CATMULLROM : MODE_LINEAR;
+    this->m_spline->m_spline.splineMode = (this->m_spline->flags & SPLINEFLAG_CATMULLROM_MASK) != 0 ? MODE_CATMULLROM : MODE_LINEAR;
     this->m_spline->m_spline.SetPoints(points, pointCount);
     this->m_spline->m_id = splineId;
     this->m_spline->m_durationModNext = 1.0f;
     this->m_spline->m_durationMod = 1.0f;
-    this->StartMove(!(this->m_spline->m_flags & SPLINEFLAG_BACKWARD), 1);
+    this->StartMove(!(this->m_spline->flags & SPLINEFLAG_BACKWARD), 1);
 
     uint32_t flags = this->m_flags;
 
-    if ((flags & MOVEMENTFLAG_ROOT) && (this->m_spline->m_flags & SPLINEFLAG_FALL_MASK)) {
+    if ((flags & MOVEMENTFLAG_ROOT) && (this->m_spline->flags & SPLINEFLAG_FALL_MASK)) {
         this->m_flags = (flags & ~(MOVEMENTFLAG_ROOT | MOVEMENTFLAG_PENDING_ROOT)) | MOVEMENTFLAG_PENDING_ROOT;
     }
 
-    if (this->m_spline->m_flags & SPLINEFLAG_FALLING) {
+    if (this->m_spline->flags & SPLINEFLAG_FALLING) {
         if (this->m_flags & MOVEMENTFLAG_FLYING) {
             this->StopFlying();
         }
@@ -2035,7 +2035,7 @@ void CMovementShared::TransportTransform(const C44Matrix& matrix, float facing, 
     this->m_moveDir2D = C2Vector(this->m_moveDir);
     this->m_moveDir2D.NormalizeSafe();
 
-    if (this->IsOnSpline()) {
+    if (this->IsSplineMover()) {
         this->TransformSpline(matrix, facing);
     }
 }
@@ -2079,11 +2079,11 @@ void CMovementShared::Teleport(const C3Vector& position, float facing, int32_t r
         this->m_currentSpeed = this->GetBaseSpeed(0);
     }
 
-    if (this->IsOnSpline()) {
+    if (this->IsSplineMover()) {
         if (removeSpline) {
             this->RemoveSpline();
         } else {
-            this->m_spline->m_flags |= SPLINEFLAG_NO_SPLINE;
+            this->m_spline->flags |= SPLINEFLAG_NO_SPLINE;
         }
     }
 }
@@ -2126,7 +2126,7 @@ void CMovementShared::ConvertCurrentSplineToLoopingSpline(uint32_t timePassed) {
 
     spline->m_spline.GetPoints(points, count);
     points[1] = points[count - 3];
-    this->OnSpline(timePassed, &points[1], count - 1, spline->m_duration, spline->m_flags, spline->m_id);
+    this->OnSpline(timePassed, &points[1], count - 1, spline->m_duration, spline->flags, spline->m_id);
     MovementDelSpline(spline);
 }
 
@@ -2139,7 +2139,7 @@ uint32_t CMovementShared::PlotUnitSplineMovement(uint32_t time, C3Vector* positi
         return this->m_flags & MOVEMENTFLAG_MOVING_MASK;
     }
 
-    if (this->m_spline->m_flags & SPLINEFLAG_FROZEN) {
+    if (this->m_spline->flags & SPLINEFLAG_FROZEN) {
         return 1;
     }
 
@@ -2149,22 +2149,22 @@ uint32_t CMovementShared::PlotUnitSplineMovement(uint32_t time, C3Vector* positi
     float t;
 
     if (!duration) {
-        spline->m_flags |= SPLINEFLAG_DONE;
+        spline->flags |= SPLINEFLAG_DONE;
         t = 1.0f;
     } else if (static_cast<int32_t>(spline->m_start) < 0) {
         t = 0.0f;
     } else if (spline->m_start < duration) {
         t = static_cast<float>(static_cast<int32_t>(spline->m_start)) / static_cast<float>(duration);
-    } else if (!(spline->m_flags & SPLINEFLAG_CYCLIC)) {
-        spline->m_flags |= SPLINEFLAG_DONE;
+    } else if (!(spline->flags & SPLINEFLAG_CYCLIC)) {
+        spline->flags |= SPLINEFLAG_DONE;
         t = 1.0f;
     } else {
         spline->m_start -= duration;
         this->m_spline->m_timePassed = time - this->m_spline->m_start;
 
-        if (this->m_spline->m_flags & SPLINEFLAG_ENTER_CYCLE) {
+        if (this->m_spline->flags & SPLINEFLAG_ENTER_CYCLE) {
             this->ConvertCurrentSplineToLoopingSpline(this->m_spline->m_timePassed);
-            this->m_spline->m_flags &= ~SPLINEFLAG_ENTER_CYCLE;
+            this->m_spline->flags &= ~SPLINEFLAG_ENTER_CYCLE;
         }
 
         this->m_spline->m_durationMod = this->m_spline->m_durationModNext;
@@ -2182,13 +2182,13 @@ uint32_t CMovementShared::PlotUnitSplineMovement(uint32_t time, C3Vector* positi
     this->m_spline->m_spline.Frame(t, frame, C3Spline::EVAL_ARCLENGTH);
     spline = this->m_spline;
 
-    if (!(spline->m_flags & (SPLINEFLAG_ORIENTATION_FIXED | SPLINEFLAG_FALLING))) {
+    if (!(spline->flags & (SPLINEFLAG_ORIENTATION_FIXED | SPLINEFLAG_FALLING))) {
         if (frame.a0 * frame.a0 + frame.a1 * frame.a1 > 0.0018490001f) {
             this->m_facing = static_cast<float>(atan2(static_cast<double>(frame.a1), static_cast<double>(frame.a0)));
         }
     }
 
-    if (spline->m_flags & SPLINEFLAG_BACKWARD) {
+    if (spline->flags & SPLINEFLAG_BACKWARD) {
         this->m_facing = this->m_facing - PI;
     }
 
@@ -2200,7 +2200,7 @@ uint32_t CMovementShared::PlotUnitSplineMovement(uint32_t time, C3Vector* positi
 
     if (this->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) {
         this->m_pitch = static_cast<float>(asin(static_cast<double>(frame.a2)));
-    } else if (spline->m_flags & SPLINEFLAG_FLYING) {
+    } else if (spline->flags & SPLINEFLAG_FLYING) {
         C3Vector point;
         float progress = 1.0f;
 
@@ -2208,7 +2208,7 @@ uint32_t CMovementShared::PlotUnitSplineMovement(uint32_t time, C3Vector* positi
             progress = static_cast<float>(static_cast<int32_t>(spline->m_start + 1000)) / static_cast<float>(duration);
         }
 
-        if ((spline->m_flags & SPLINEFLAG_CYCLIC) && progress > 1.0f) {
+        if ((spline->flags & SPLINEFLAG_CYCLIC) && progress > 1.0f) {
             progress = progress - 1.0f;
         }
 
@@ -2231,7 +2231,7 @@ uint32_t CMovementShared::PlotUnitSplineMovement(uint32_t time, C3Vector* positi
 
     *position = *reinterpret_cast<C3Vector*>(&frame.d0);
     spline = this->m_spline;
-    uint32_t flags = spline->m_flags;
+    uint32_t flags = spline->flags;
 
     if (flags & SPLINEFLAG_ANIMATION) {
         if (!(this->m_moveFlags2 & MOVEFLAG2_ANIM_TIER_IN_TRANS) && spline->m_start > spline->m_effectStartTime) {
@@ -2259,7 +2259,7 @@ uint32_t CMovementShared::PlotUnitSplineMovement(uint32_t time, C3Vector* positi
                 this->m_spline->m_start = fallTime;
             }
 
-            this->m_spline->m_flags |= SPLINEFLAG_DONE;
+            this->m_spline->flags |= SPLINEFLAG_DONE;
         }
     }
 
@@ -2273,7 +2273,7 @@ void CMovementShared::AddSpline(const C3Vector& position) {
         this->m_spline = MovementNewSpline();
     }
 
-    this->m_spline->m_flags = SPLINEFLAG_NONE;
+    this->m_spline->flags = SPLINEFLAG_NONE;
     this->m_spline->m_finalDestination = position;
 }
 

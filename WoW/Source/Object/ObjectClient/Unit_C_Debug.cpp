@@ -500,7 +500,7 @@ static const TSGrowableArray<C3Vector>& SampleDebugPathCurve(const WOWGUID& guid
 void CGUnit_C::RenderDebugPathing() {
     const WOWGUID& guid = this->m_obj->m_guid;
     CMoveSpline* spline = this->m_movementData.m_spline;
-    bool moving = spline && !(spline->m_flags & SPLINEFLAG_DONE) && spline->m_spline.m_pointCount;
+    bool moving = spline && !(spline->flags & SPLINEFLAG_DONE) && spline->m_spline.m_pointCount;
 
     if (moving) {
         RememberDebugPath(guid, spline, this->m_movementData.m_transportGuid);

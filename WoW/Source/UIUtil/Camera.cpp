@@ -2364,7 +2364,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
         swimming = unit->m_movement->m_flags & MOVEMENTFLAG_SWIMMING;
 
         CMoveSpline* spline = unit->m_movement->m_spline;
-        int32_t splineControlled = spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) ? 1 : 0;
+        int32_t splineControlled = spline && !(spline->flags & SPLINEFLAG_NO_SPLINE) ? 1 : 0;
 
         unitPitch = unit->GetPitch();
         this->UpdateMountHeightOrOffset(unit);

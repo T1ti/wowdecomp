@@ -52,13 +52,13 @@ CDataStore& operator>>(CDataStore& msg, C3Vector& vector) {
 // VERIFY: f14e9e22 manual
 // OFFSET: 0x004F4B50
 CDataStore& operator>>(CDataStore& msg, CMoveSpline& spline) {
-    msg.Get(spline.m_flags);
+    msg.Get(spline.flags);
 
-    if (spline.m_flags & SPLINEFLAG_FINAL_ANGLE) {
+    if (spline.flags & SPLINEFLAG_FINAL_ANGLE) {
         msg.Get(spline.m_face.m_angle);
-    } else if (spline.m_flags & SPLINEFLAG_FINAL_TARGET) {
+    } else if (spline.flags & SPLINEFLAG_FINAL_TARGET) {
         msg.Get(*reinterpret_cast<uint64_t*>(&spline.m_face.m_target));
-    } else if (spline.m_flags & SPLINEFLAG_FINAL_POINT) {
+    } else if (spline.flags & SPLINEFLAG_FINAL_POINT) {
         msg >> *reinterpret_cast<C3Vector*>(spline.m_face.m_point);
     }
 
@@ -86,7 +86,7 @@ CMoveSpline& CMoveSpline::CopyFrom(const CMoveSpline& source) {
     this->unknown_0008 = source.unknown_0008;
     this->m_face = source.m_face;
     this->unknown_001C = source.unknown_001C;
-    this->m_flags = source.m_flags;
+    this->flags = source.flags;
     this->m_timePassed = source.m_timePassed;
     this->m_start = source.m_start;
     this->m_duration = source.m_duration;

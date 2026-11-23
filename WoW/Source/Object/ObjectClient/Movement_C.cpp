@@ -167,7 +167,7 @@ int32_t MovementGetLastUpdateTime(uint32_t* time) {
         return 0;
     }
 
-    *time = globals->m_lastUpdateTime;
+    *time = globals->GetLastUpdateTime();
 
     return 1;
 }
@@ -180,13 +180,13 @@ int32_t MovementIdleMoveUnits(const void* data, void* param) {
     STORM_ASSERT(globals);
     // 12213: "globals->initialized"
     STORM_ASSERT(globals->m_flags & CMovementGlobals::FLAG_INITIALIZED);
-    int32_t elapsed = now - globals->m_lastUpdateTime;
+    int32_t elapsed = now - globals->GetLastUpdateTime();
 
     if (elapsed > 0) {
         MovementMoveTransports(now, elapsed);
 
         if (globals->m_movers.Head()) {
-            CMovement_C::MoveUnits(now, globals->m_lastUpdateTime);
+            CMovement_C::MoveUnits(now, globals->GetLastUpdateTime());
         }
 
         CGUnit_C* mover = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(CGUnit_C::s_activeMover, TYPE_UNIT, __FILE__, __LINE__));
@@ -196,7 +196,7 @@ int32_t MovementIdleMoveUnits(const void* data, void* param) {
         }
 
         globals->m_idleTime = now;
-        globals->m_lastUpdateTime = now;
+        globals->SetLastUpdateTime(now);
     }
 
     return 1;

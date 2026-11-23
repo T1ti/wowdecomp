@@ -112,9 +112,9 @@ class CMovementShared : public CPassenger {
     BOOL IsJumpingUp() const;
     int32_t Jump(int32_t checkHover);
     BOOL IsOnFallingSpline() const;
-    BOOL IsOnFlyingSpline() const;
+    BOOL IsSplineFlyer() const;
     BOOL IsOnParabolicSpline() const;
-    BOOL IsOnSpline() const;
+    BOOL IsSplineMover() const;
     BOOL IsSplineFlyerOrFlyingOrSwimming() const;
     BOOL IsSplineFlyerOrHovering() const;
     BOOL IsSplineFlyerOrHoveringFlyingOrSwimming() const;

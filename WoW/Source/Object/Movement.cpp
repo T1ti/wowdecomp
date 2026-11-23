@@ -118,7 +118,7 @@ CMovementGlobals::CMovementGlobals() {
 // VERIFY: 67bd1f8c manual
 // OFFSET: 0x006EC2C0
 void MovementInitialize(const char* logFile) {
-    STORM_ASSERT(MovementGetGlobals() == NULL);
+    STORM_ASSERT(MovementGetGlobals() == nullptr); // 12213: "((CMovementGlobals *)MovementGetGlobals()) == __null"
 
     MovementSetGlobals(new (SMemAlloc(sizeof(CMovementGlobals), __FILE__, __LINE__, 0)) CMovementGlobals());
 
@@ -129,7 +129,7 @@ void MovementInitialize(const char* logFile) {
     uint32_t now = OsGetAsyncTimeMs();
     globals->m_flags |= CMovementGlobals::FLAG_INITIALIZED;
     globals->m_idleTime = now;
-    globals->m_lastUpdateTime = now;
+    globals->SetLastUpdateTime(now);
 
     s_cvSplineOpt = CVar::Register("SplineOpt", "toggles use of spline coll optimization", CVAR_FLAGS::CVAR_ARCHIVE, "1", nullptr, 0, false, nullptr, false);
 }
@@ -726,14 +726,18 @@ void CMovement_C::SetInterpolation(uint32_t time) {
 // VERIFY: 0eac7dea auto
 // OFFSET: 0x006E96A0
 void CMovement_C::SetSplineFaceAngle(float facing) {
-    this->m_spline->m_flags |= SPLINEFLAG_FINAL_ANGLE;
+    STORM_ASSERT(IsSplineMover());
+
+    this->m_spline->flags |= SPLINEFLAG_FINAL_ANGLE;
     this->m_spline->m_face.m_angle = facing;
 }
 
 // VERIFY: 8b3481cb manual
 // OFFSET: 0x006E9640
 void CMovement_C::SetSplineFacePoint(const C3Vector& point) {
-    this->m_spline->m_flags |= SPLINEFLAG_FINAL_POINT;
+    STORM_ASSERT(IsSplineMover());
+
+    this->m_spline->flags |= SPLINEFLAG_FINAL_POINT;
     CMoveSplineFaceData& face = this->m_spline->m_face;
     face.m_point[0] = point.x;
     face.m_point[1] = point.y;
@@ -743,7 +747,9 @@ void CMovement_C::SetSplineFacePoint(const C3Vector& point) {
 // VERIFY: 42b61ef1 auto
 // OFFSET: 0x006E9670
 void CMovement_C::SetSplineFaceTarget(const WOWGUID& target) {
-    this->m_spline->m_flags |= SPLINEFLAG_FINAL_TARGET;
+    STORM_ASSERT(IsSplineMover());
+
+    this->m_spline->flags |= SPLINEFLAG_FINAL_TARGET;
     this->m_spline->m_face.m_target = target;
 }
 
@@ -865,7 +871,7 @@ int32_t CMovement_C::UpdateTransportStatus(WOWGUID transport, uint8_t seat) {
     }
 
     if (transport) {
-        int32_t reason = !(this->m_unit->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) && (!this->m_spline || (this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE));
+        int32_t reason = !(this->m_unit->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_POST_INITED) && (!this->m_spline || (this->m_spline->flags & SPLINEFLAG_NO_SPLINE));
 
         if (!MovementAddToTransport(this, transport, reason)) {
             return 0;
@@ -903,27 +909,37 @@ int32_t CMovement_C::UpdateTransportStatus(WOWGUID transport, uint8_t seat) {
 
 // VERIFY: da0fd9da manual
 // OFFSET: 0x006F1520
-void CMovement_C::SetUpdateInfo(uint32_t time, const CClientMoveUpdate* update, int32_t activePlayer) {
-    this->m_walkSpeed = update->m_walkSpeed;
-    this->m_runSpeed = update->m_runSpeed;
-    this->m_runBackSpeed = update->m_runBackSpeed;
-    this->m_swimSpeed = update->m_swimSpeed;
-    this->m_swimBackSpeed = update->m_swimBackSpeed;
-    this->m_flightSpeed = update->m_flightSpeed;
-    this->m_flightBackSpeed = update->m_flightBackSpeed;
-    this->m_turnRate = update->m_turnRate;
-    this->m_pitchRate = update->m_pitchRate;
+void CMovement_C::SetUpdateInfo(uint32_t time, const CClientMoveUpdate& init, int32_t activePlayer) {
+    STORM_ASSERT(CMath::fnotequal_(init.runSpeed,0));
+    STORM_ASSERT(CMath::fnotequal_(init.runBackSpeed,0));
+    STORM_ASSERT(CMath::fnotequal_(init.walkSpeed,0));
+    STORM_ASSERT(CMath::fnotequal_(init.swimSpeed,0));
+    STORM_ASSERT(CMath::fnotequal_(init.swimBackSpeed,0));
+    STORM_ASSERT(CMath::fnotequal_(init.flightSpeed,0));
+    STORM_ASSERT(CMath::fnotequal_(init.flightBackSpeed,0));
+    STORM_ASSERT(CMath::fnotequal_(init.turnRate,0));
+    STORM_ASSERT(CMath::fnotequal_(init.pitchRate,0));
+
+    this->m_walkSpeed = init.walkSpeed;
+    this->m_runSpeed = init.runSpeed;
+    this->m_runBackSpeed = init.runBackSpeed;
+    this->m_swimSpeed = init.swimSpeed;
+    this->m_swimBackSpeed = init.swimBackSpeed;
+    this->m_flightSpeed = init.flightSpeed;
+    this->m_flightBackSpeed = init.flightBackSpeed;
+    this->m_turnRate = init.turnRate;
+    this->m_pitchRate = init.pitchRate;
     this->m_anchorElapsedMs = 0;
     this->m_flags = MOVEMENTFLAG_NONE;
 
-    if (update->m_status.m_moveFlags & MOVEMENTFLAG_SPLINE_ENABLED) {
+    if (init.m_status.m_moveFlags & MOVEMENTFLAG_SPLINE_ENABLED) {
         this->AddSpline(this->m_position);
         this->FlushMoveQueue(0, 1);
         this->RemoveFromMoversList(0);
-        this->m_spline->CopyFrom(update->m_moveSpline);
-        this->m_spline->m_spline.splineMode = (this->m_spline->m_flags & SPLINEFLAG_CATMULLROM_MASK) != 0 ? MODE_CATMULLROM : MODE_LINEAR;
+        this->m_spline->CopyFrom(init.m_moveSpline);
+        this->m_spline->m_spline.splineMode = (this->m_spline->flags & SPLINEFLAG_CATMULLROM_MASK) != 0 ? MODE_CATMULLROM : MODE_LINEAR;
     } else {
-        if (this->m_spline && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC)) {
+        if (this->m_spline && (this->m_spline->flags & SPLINEFLAG_PARABOLIC)) {
             this->m_unit->OnCollideFallLand(0, 1);
         }
 
@@ -931,7 +947,7 @@ void CMovement_C::SetUpdateInfo(uint32_t time, const CClientMoveUpdate* update, 
     }
 
     int32_t statusChanged;
-    this->UpdateStatusInternal(time, update->m_status, statusChanged, activePlayer, 1);
+    this->UpdateStatusInternal(time, init.m_status, statusChanged, activePlayer, 1);
 
     if ((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK) || this->m_moveQueue.Head()) {
         this->AddToMoversList();
@@ -940,7 +956,7 @@ void CMovement_C::SetUpdateInfo(uint32_t time, const CClientMoveUpdate* update, 
     }
 
     if ((this->m_flags & MOVEMENTFLAG_MOVING_MASK) && this->m_unit->m_obj->m_guid == CGUnit_C::s_activeMover) {
-        MovementGetGlobals()->m_timeCounterMaybe = time + HEARTBEAT_INTERVAL_MS;
+        MovementGetGlobals()->SetNextHeartBeatTime(time + HEARTBEAT_INTERVAL_MS);
     }
 
     if (!(this->m_flags & MOVEMENTFLAG_ACTIVE_MASK)) {
@@ -1079,6 +1095,8 @@ void CMovement_C::OnPitchRateChangeLocal(uint32_t eventTime, uint32_t ackCounter
 // VERIFY: 85716caa auto
 // OFFSET: 0x006EECA0
 void CMovement_C::OnPitchStopLocal(uint32_t eventTime) {
+    STORM_ASSERT(IsSwimmingOrFlying() || IsAlwaysAllowPitching());
+
     this->AddPlayerMoveEvent(eventTime, PMOVE_PITCH_STOP, true, 0, 0.0f, 0.0f, 0);
     this->m_moveQueue.UnlinkEventById(MOVEEVENT_STOP_PITCH_AT_ANGLE);
 }
@@ -1548,7 +1566,7 @@ void CMovement_C::SnapToSpline(const C3Vector& position, BOOL force) {
 
     this->m_position = position;
 
-    if (this->m_spline->m_flags & SPLINEFLAG_FALLING) {
+    if (this->m_spline->flags & SPLINEFLAG_FALLING) {
         this->m_fallTimeMs = this->m_spline->m_start;
         this->UpdateAnchors(0);
     } else {
@@ -1709,6 +1727,8 @@ int32_t CMovement_C::HandlePendingActions() {
 // VERIFY: 29d51d84 manual
 // OFFSET: 0x006E9FF0
 void CMovement_C::Launch(const C2Vector& direction, float speed, float verticalSpeed) {
+    STORM_ASSERT(!IsSplineFlyer());
+
     if (this->m_flags & MOVEMENTFLAG_SWIMMING) {
         this->StopSwim();
     } else if (this->m_flags & MOVEMENTFLAG_FLYING) {
@@ -1766,7 +1786,7 @@ void CMovement_C::SplineToggleEnableFlying(BOOL enable) {
 // OFFSET: 0x006E9B70
 void CMovement_C::UpdateHeartbeatTimerA(uint32_t time) {
     if (this->m_unit->m_obj->m_guid == CGUnit_C::s_activeMover) {
-        MovementGetGlobals()->m_timeCounterMaybe = time + HEARTBEAT_INTERVAL_MS;
+        MovementGetGlobals()->SetNextHeartBeatTime(time + HEARTBEAT_INTERVAL_MS);
     }
 }
 
@@ -1814,7 +1834,7 @@ void CMovement_C::OnTurnToAngleLocal(uint32_t eventTime, float facing) {
 // VERIFY: 77cf4a10 manual
 // OFFSET: 0x006EE940
 void CMovement_C::OnSwimStartLocal(uint32_t eventTime) {
-    if (this->IsOnSpline()) {
+    if (this->IsSplineMover()) {
         this->OnSplineStartSwim();
         this->m_unit->ProcessLocalMoveEvent(eventTime, MSG_MOVE_START_SWIM, true, 0.0f, 0, 0, 255);
         return;
@@ -1826,7 +1846,7 @@ void CMovement_C::OnSwimStartLocal(uint32_t eventTime) {
 // VERIFY: a91c7c3b manual
 // OFFSET: 0x006EEA50
 void CMovement_C::OnSwimStopLocal(uint32_t eventTime) {
-    if (this->IsOnSpline()) {
+    if (this->IsSplineMover()) {
         this->StopSwim();
 
         if ((this->m_flags & MOVEMENTFLAG_ACTIVE_MASK) || this->m_moveQueue.Head()) {
@@ -3129,7 +3149,7 @@ int32_t CMovement_C::SetTransport(WOWGUID transport) {
         return 0;
     }
 
-    if (this->IsOnSpline()) {
+    if (this->IsSplineMover()) {
         return 0;
     }
 
@@ -4182,7 +4202,7 @@ uint32_t CMovement_C::CollideRequestMove(uint32_t time, uint32_t elapsed, C3Vect
             goto groundNormal;
         }
 
-        if (!this->IsOnSpline() && this->m_currentSpeed != oldSpeed) {
+        if (!this->IsSplineMover() && this->m_currentSpeed != oldSpeed) {
             this->CalcCurrentSpeed(0);
             goto groundNormal;
         }
@@ -4196,7 +4216,7 @@ uint32_t CMovement_C::CollideRequestMove(uint32_t time, uint32_t elapsed, C3Vect
         }
     }
 
-    if (this->IsOnSpline()) {
+    if (this->IsSplineMover()) {
         this->MoveSplineMoverWithoutCollision(target, time, elapsed);
         onSpline = 1;
     } else {
@@ -4211,7 +4231,7 @@ uint32_t CMovement_C::CollideRequestMove(uint32_t time, uint32_t elapsed, C3Vect
     }
 
 groundNormal:
-    if (!this->m_spline || (this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE) || !(this->m_spline->m_flags & SPLINEFLAG_FLYING)) {
+    if (!this->m_spline || (this->m_spline->flags & SPLINEFLAG_NO_SPLINE) || !(this->m_spline->flags & SPLINEFLAG_FLYING)) {
         this->GroundNormal();
     }
 
@@ -4222,14 +4242,14 @@ done:
 
 // VERIFY: 1038edbb auto
 // OFFSET: 0x006EAE70
-void CMovement_C::OnSplineStop(uint32_t time) {
-    this->m_spline->m_flags |= SPLINEFLAG_NO_SPLINE;
+void CMovement_C::OnSplineStop(uint32_t eventTime) {
+    this->m_spline->flags |= SPLINEFLAG_NO_SPLINE;
 
-    if (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC) {
+    if (this->m_spline->flags & SPLINEFLAG_PARABOLIC) {
         this->m_unit->OnCollideFallLand(0, 1);
     }
 
-    if (this->m_spline->m_flags & SPLINEFLAG_FALL_MASK) {
+    if (this->m_spline->flags & SPLINEFLAG_FALL_MASK) {
         this->StopFalling();
     }
 
@@ -4243,7 +4263,7 @@ void CMovement_C::OnSplineStop(uint32_t time) {
     CMoveSpline* spline = this->m_spline;
     uint32_t splineId = spline->m_id;
 
-    if (spline && (spline->m_flags & SPLINEFLAG_PARABOLIC)) {
+    if (spline && (spline->flags & SPLINEFLAG_PARABOLIC)) {
         unit->OnCollideFallLand(0, 1);
     }
 
@@ -4253,7 +4273,9 @@ void CMovement_C::OnSplineStop(uint32_t time) {
         this->AddToMoversList();
     }
 
-    this->m_unit->SendSplineDone(time, splineId);
+    this->m_unit->SendSplineDone(eventTime, splineId);
+    STORM_ASSERT(!IsTranslating() || int32_t(eventTime - MovementGetGlobals()->GetNextHeartBeatTime()) < 0);
+    // 12213: "!IsTranslating() || !(!(int((eventTime)-(((CMovementGlobals *)MovementGetGlobals())->GetNextHeartBeatTime())) < 0))"
 }
 
 // VERIFY: c68d5a1e auto
@@ -4266,7 +4288,7 @@ void CMovement_C::SkipTime(uint32_t time) {
     CMovementGlobals* globals = MovementGetGlobals();
     STORM_ASSERT(globals);
     this->m_unit->SendTimeSkip(time);
-    globals->m_timeCounterMaybe += time;
+    globals->SetNextHeartBeatTime(globals->GetNextHeartBeatTime() + (time));
 }
 
 // VERIFY: 728cff7e manual
@@ -4274,14 +4296,14 @@ void CMovement_C::SkipTime(uint32_t time) {
 void CMovement_C::CallMoveEventHandlers(uint32_t time, uint32_t remaining, uint32_t oldFlags, uint32_t oldFlags2, int32_t jumping, int32_t transportChanged) {
     CMoveSpline* spline = this->m_spline;
 
-    if (!remaining && spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (this->m_flags & MOVEMENTFLAG_MOVE_MASK) && (spline->m_flags & SPLINEFLAG_DONE)) {
+    if (!remaining && spline && !(spline->flags & SPLINEFLAG_NO_SPLINE) && (this->m_flags & MOVEMENTFLAG_MOVE_MASK) && (spline->flags & SPLINEFLAG_DONE)) {
         this->ForceStopMove(1);
         this->SnapToSpline(this->m_spline->m_finalDestination, 0);
         spline = this->m_spline;
 
-        if (spline->m_flags & SPLINEFLAG_FINAL_ANGLE) {
+        if (spline->flags & SPLINEFLAG_FINAL_ANGLE) {
             this->m_facing = spline->m_face.m_angle;
-        } else if (spline->m_flags & SPLINEFLAG_FINAL_TARGET) {
+        } else if (spline->flags & SPLINEFLAG_FINAL_TARGET) {
             CGObject_C* target = ClntObjMgrObjectPtr(spline->m_face.m_target, TYPE_OBJECT, __FILE__, __LINE__);
 
             if (target) {
@@ -4289,11 +4311,11 @@ void CMovement_C::CallMoveEventHandlers(uint32_t time, uint32_t remaining, uint3
                 C3Vector position = this->GetPosition();
                 this->SetFacing(CalculateFacingTo(&position, &targetPosition));
             }
-        } else if (spline->m_flags & SPLINEFLAG_FINAL_POINT) {
+        } else if (spline->flags & SPLINEFLAG_FINAL_POINT) {
             this->m_facing = CalculateFacingTo(&this->m_position, reinterpret_cast<const C3Vector*>(spline->m_face.m_point));
         }
 
-        uint32_t splineFlags = this->m_spline->m_flags;
+        uint32_t splineFlags = this->m_spline->flags;
         uint32_t parabolic = splineFlags & SPLINEFLAG_PARABOLIC;
         uint32_t falling = splineFlags & SPLINEFLAG_FALL_MASK;
         this->OnSplineStop(time);
@@ -4303,7 +4325,7 @@ void CMovement_C::CallMoveEventHandlers(uint32_t time, uint32_t remaining, uint3
         } else {
             this->m_unit->ProcessLocalMoveEvent(time, MSG_MOVE_STOP, false, 0.0f, 0, 0, 255);
         }
-    } else if (spline && (spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+    } else if (spline && (spline->flags & SPLINEFLAG_NO_SPLINE)) {
         this->SnapToSpline(spline->m_finalDestination, 0);
         this->OnSplineStop(time);
     }
@@ -4311,12 +4333,12 @@ void CMovement_C::CallMoveEventHandlers(uint32_t time, uint32_t remaining, uint3
     if ((this->m_flags & MOVEMENTFLAG_FALLING) || !(oldFlags & MOVEMENTFLAG_FALLING) || !this->m_unit->OnCollideFallLandNotify(time, oldFlags, oldFlags2, jumping)) {
         CGUnit_C* unit = this->m_unit;
 
-        if (transportChanged && unit->m_obj->m_guid == CGUnit_C::s_activeMover && !this->IsOnSpline()) {
+        if (transportChanged && unit->m_obj->m_guid == CGUnit_C::s_activeMover && !this->IsSplineMover()) {
             unit->SendMovementUpdate(time, CMSG_MOVE_CHANGE_TRANSPORT, 0.0f, 0, 0, 255);
         } else if ((oldFlags ^ this->m_flags) & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK) {
             unit = this->m_unit;
 
-            if (unit->m_obj->m_guid == CGUnit_C::s_activeMover && !this->IsOnSpline()) {
+            if (unit->m_obj->m_guid == CGUnit_C::s_activeMover && !this->IsSplineMover()) {
                 unit->SendMovementUpdate(time, this->GetMoveEventMsgId(oldFlags, jumping), 0.0f, 0, 0, 255);
             }
         }
@@ -4331,7 +4353,7 @@ void CMovement_C::CallMoveEventHandlers(uint32_t time, uint32_t remaining, uint3
     if (!(this->m_flags & MOVEMENTFLAG_SWIMMING) && (oldFlags & MOVEMENTFLAG_SWIMMING)) {
         CGUnit_C* unit = this->m_unit;
 
-        if (unit->m_obj->m_guid == CGUnit_C::s_activeMover && !this->IsOnSpline()) {
+        if (unit->m_obj->m_guid == CGUnit_C::s_activeMover && !this->IsSplineMover()) {
             unit->ProcessLocalMoveEvent(time, MSG_MOVE_JUMP, true, 0.0f, 0, 0, 255);
         }
     }
@@ -4388,16 +4410,16 @@ void CMovement_C::Halt() {
     this->m_flags &= ~(MOVEMENTFLAG_PENDING_MOTION_MASK | MOVEMENTFLAG_ASCEND_DESCEND_MASK | MOVEMENTFLAG_SPLINE_ELEVATION);
 
     if (this->StopTurn()) {
-        this->m_unit->ProcessLocalMoveEvent(MovementGetGlobals()->m_lastUpdateTime, MSG_MOVE_STOP_TURN, false, 0.0f, 0, 0, 255);
+        this->m_unit->ProcessLocalMoveEvent(MovementGetGlobals()->GetLastUpdateTime(), MSG_MOVE_STOP_TURN, false, 0.0f, 0, 0, 255);
     }
 
     if (this->StopPitch()) {
-        this->m_unit->ProcessLocalMoveEvent(MovementGetGlobals()->m_lastUpdateTime, MSG_MOVE_STOP_PITCH, false, 0.0f, 0, 0, 255);
+        this->m_unit->ProcessLocalMoveEvent(MovementGetGlobals()->GetLastUpdateTime(), MSG_MOVE_STOP_PITCH, false, 0.0f, 0, 0, 255);
     }
 
     if (this->m_flags & MOVEMENTFLAG_STRAFE_MASK) {
         this->ForceStopStrafe();
-        this->m_unit->ProcessLocalMoveEvent(MovementGetGlobals()->m_lastUpdateTime, MSG_MOVE_STOP_STRAFE, false, 0.0f, 0, 0, 255);
+        this->m_unit->ProcessLocalMoveEvent(MovementGetGlobals()->GetLastUpdateTime(), MSG_MOVE_STOP_STRAFE, false, 0.0f, 0, 0, 255);
     }
 
     this->ForceStopMove(0);
@@ -4409,7 +4431,7 @@ void CMovement_C::Halt() {
 void CMovement_C::FinishSpline(BOOL force) {
     this->SnapToSpline(this->m_spline->m_finalDestination, force);
     this->m_spline->m_start = this->m_spline->m_duration;
-    this->m_spline->m_flags |= SPLINEFLAG_DONE;
+    this->m_spline->flags |= SPLINEFLAG_DONE;
 }
 
 // VERIFY: bbf210de auto
@@ -4474,7 +4496,7 @@ void CMovement_C::RemoveFromMoversList(BOOL stopSpline) {
 
     CMoveSpline* spline = this->m_spline;
 
-    if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+    if (spline && !(spline->flags & SPLINEFLAG_NO_SPLINE)) {
         if (stopSpline) {
             this->OnSplineStop(MovementGetGlobals()->m_idleTime);
 
@@ -4482,7 +4504,7 @@ void CMovement_C::RemoveFromMoversList(BOOL stopSpline) {
                 return;
             }
         } else {
-            spline->m_flags |= SPLINEFLAG_NO_SPLINE;
+            spline->flags |= SPLINEFLAG_NO_SPLINE;
         }
     }
 
@@ -4494,11 +4516,11 @@ void CMovement_C::RemoveFromMoversList(BOOL stopSpline) {
 void CMovement_C::GravityStateChanged() {
     CMoveSpline* spline = this->m_spline;
 
-    if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FALLING)) {
+    if (spline && !(spline->flags & SPLINEFLAG_NO_SPLINE) && (spline->flags & SPLINEFLAG_FALLING)) {
         goto falling;
     }
 
-    if ((spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE) && (spline->m_flags & SPLINEFLAG_FLYING)) || (this->m_moveFlags2 & MOVEFLAG2_DISABLE_GRAVITY) || (this->m_flags & MOVEMENTFLAG_DISABLE_GRAVITY)) {
+    if ((spline && !(spline->flags & SPLINEFLAG_NO_SPLINE) && (spline->flags & SPLINEFLAG_FLYING)) || (this->m_moveFlags2 & MOVEFLAG2_DISABLE_GRAVITY) || (this->m_flags & MOVEMENTFLAG_DISABLE_GRAVITY)) {
         uint32_t flags = this->m_flags;
         int32_t jumping = (flags & MOVEMENTFLAG_FALLING) && 0.0f != this->m_fallVelocity;
         uint32_t oldFlags = flags & ~MOVEMENTFLAG_DISABLE_GRAVITY;
@@ -4618,7 +4640,7 @@ uint32_t CMovement_C::RequestMove(uint32_t time, uint32_t elapsed, const C3Vecto
         return this->CollideRequestMove(time, elapsed, delta);
     }
 
-    if (!(this->m_spline->m_flags & SPLINEFLAG_FALLING)) {
+    if (!(this->m_spline->flags & SPLINEFLAG_FALLING)) {
         this->StopFalling();
     }
 
@@ -4658,7 +4680,7 @@ int32_t CMovement_C::UpdatePlayerMovement(uint32_t time) {
 
             if (event->m_hasMoveStatus) {
                 if (!(event->m_moveFlags & MOVEMENTFLAG_SPLINE_ENABLED)) {
-                    if (this->m_spline && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC)) {
+                    if (this->m_spline && (this->m_spline->flags & SPLINEFLAG_PARABOLIC)) {
                         this->m_unit->OnCollideFallLand(0, 1);
                     }
 
@@ -4920,7 +4942,7 @@ int32_t CMovement_C::UpdatePlayerMovement(uint32_t time) {
                     break;
 
                 case MOVEEVENT_ROOT: {
-                    if (event->m_needAck && this->IsOnSpline()) {
+                    if (event->m_needAck && this->IsSplineMover()) {
                         this->FinishSpline(0);
                     }
 
@@ -5083,7 +5105,7 @@ void CMovement_C::ApplyMovement(uint32_t time, uint32_t elapsed) {
     C3Vector destination;
     uint32_t consumed = 0;
 
-    if (this->IsOnSpline()) {
+    if (this->IsSplineMover()) {
         destination = this->m_spline->m_finalDestination;
     }
 
@@ -5100,7 +5122,7 @@ void CMovement_C::ApplyMovement(uint32_t time, uint32_t elapsed) {
         C3Vector move;
         this->m_anchorElapsedMs += step;
 
-        if (this->IsOnSpline()) {
+        if (this->IsSplineMover()) {
             if (!this->PlotUnitSplineMovement(time, step, &destination)) {
                 return;
             }
@@ -5139,11 +5161,11 @@ void CMovement_C::ApplyMovement(uint32_t time, uint32_t elapsed) {
     if (this->IsValidPosition()) {
         CMoveSpline* spline = this->m_spline;
 
-        if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+        if (spline && !(spline->flags & SPLINEFLAG_NO_SPLINE)) {
             this->SnapToSpline(destination, 0);
         }
 
-        if (this->IsOnFlyingSpline()) {
+        if (this->IsSplineFlyer()) {
             this->UpdateAnchors(0);
         }
     }
@@ -5185,9 +5207,9 @@ void CMovement_C::ExecuteMovement(uint32_t time, uint32_t lastTime) {
             }
         }
 
-        if (this->m_unit->m_obj->m_guid == CGUnit_C::s_activeMover && !this->IsOnSpline() && (this->m_flags & MOVEMENTFLAG_MOVING_MASK)) {
-            if (globals->m_timeCounterMaybe - cursor < step) {
-                step = globals->m_timeCounterMaybe - cursor;
+        if (this->m_unit->m_obj->m_guid == CGUnit_C::s_activeMover && !this->IsSplineMover() && (this->m_flags & MOVEMENTFLAG_MOVING_MASK)) {
+            if (globals->GetNextHeartBeatTime() - cursor < step) {
+                step = globals->GetNextHeartBeatTime() - cursor;
             }
         }
 
@@ -5199,11 +5221,11 @@ void CMovement_C::ExecuteMovement(uint32_t time, uint32_t lastTime) {
 
             if (flags & (MOVEMENTFLAG_ACTIVE_MASK | MOVEMENTFLAG_HOVER)) {
                 if (flags & MOVEMENTFLAG_ONTRANSPORT) {
-                    globals->m_timeCounterMaybe += step;
+                    globals->SetNextHeartBeatTime(globals->GetNextHeartBeatTime() + (step));
                 } else {
                     this->ApplyMovement(cursor, step);
 
-                    if (this->m_unit->m_obj->m_guid == CGUnit_C::s_activeMover && (this->m_flags & MOVEMENTFLAG_MOVING_MASK) && !this->IsOnSpline() && static_cast<int32_t>(cursor - globals->m_timeCounterMaybe) >= 0) {
+                    if (this->m_unit->m_obj->m_guid == CGUnit_C::s_activeMover && (this->m_flags & MOVEMENTFLAG_MOVING_MASK) && !this->IsSplineMover() && static_cast<int32_t>(cursor - globals->GetNextHeartBeatTime()) >= 0) {
                         this->m_unit->SendMovementUpdate(cursor, MSG_MOVE_HEARTBEAT, 0.0f, 0, 0, 255);
                     }
                 }
@@ -5227,7 +5249,7 @@ void CMovement_C::ExecuteMovement(uint32_t time, uint32_t lastTime) {
 
     if (result) {
         if (this->m_unit->m_obj->m_guid == CGUnit_C::s_activeMover) {
-            globals->m_timeCounterMaybe += total - processed;
+            globals->SetNextHeartBeatTime(globals->GetNextHeartBeatTime() + (total - processed));
         }
     } else {
         this->RemoveFromMoversList(1);
@@ -5270,19 +5292,19 @@ void CMovement_C::MoveUnits(uint32_t time, uint32_t lastUpdateTime) {
 // VERIFY: 1ce66aca manual
 // OFFSET: 0x006E9C30
 int32_t CMovement_C::PlotUnitSplineMovement(uint32_t time, uint32_t elapsed, C3Vector* position) {
-    BOOL wasInAir = (this->m_moveFlags2 & MOVEFLAG2_JUMP_SPLINE_IN_AIR) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC);
-    BOOL wasAnimTier = (this->m_moveFlags2 & MOVEFLAG2_ANIM_TIER_IN_TRANS) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_ANIMATION);
+    BOOL wasInAir = (this->m_moveFlags2 & MOVEFLAG2_JUMP_SPLINE_IN_AIR) && this->IsSplineMover() && (this->m_spline->flags & SPLINEFLAG_PARABOLIC);
+    BOOL wasAnimTier = (this->m_moveFlags2 & MOVEFLAG2_ANIM_TIER_IN_TRANS) && this->IsSplineMover() && (this->m_spline->flags & SPLINEFLAG_ANIMATION);
 
     if (!this->CMovementShared::PlotUnitSplineMovement(time, position)) {
         return 0;
     }
 
-    if (!wasInAir && (this->m_moveFlags2 & MOVEFLAG2_JUMP_SPLINE_IN_AIR) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC)) {
+    if (!wasInAir && (this->m_moveFlags2 & MOVEFLAG2_JUMP_SPLINE_IN_AIR) && this->IsSplineMover() && (this->m_spline->flags & SPLINEFLAG_PARABOLIC)) {
         this->m_unit->ProcessLocalMoveEvent(time, MSG_MOVE_JUMP, true, 0.0f, 0, 0, 255);
     }
 
-    if (!wasAnimTier && (this->m_moveFlags2 & MOVEFLAG2_ANIM_TIER_IN_TRANS) && this->IsOnSpline() && (this->m_spline->m_flags & SPLINEFLAG_ANIMATION)) {
-        this->m_unit->SetAnimType(static_cast<uint8_t>(this->m_spline->m_flags));
+    if (!wasAnimTier && (this->m_moveFlags2 & MOVEFLAG2_ANIM_TIER_IN_TRANS) && this->IsSplineMover() && (this->m_spline->flags & SPLINEFLAG_ANIMATION)) {
+        this->m_unit->SetAnimType(static_cast<uint8_t>(this->m_spline->flags));
     }
 
     uint32_t flags = this->m_flags;
@@ -5444,7 +5466,7 @@ void CMovement_C::Teleport(WOWGUID transport, const C3Vector& position, float fa
 // VERIFY: 930c3840 manual
 // OFFSET: 0x006EB730
 int32_t CMovement_C::UpdateStatusInternal(uint32_t time, const CMovementStatus& status, int32_t& timeOffset, int32_t local, BOOL force) {
-    if ((!this->m_spline || (this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE))
+    if ((!this->m_spline || (this->m_spline->flags & SPLINEFLAG_NO_SPLINE))
         && this->m_unit->m_vehiclePassenger
         && (this->m_unit->m_vehiclePassenger->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_WAITING_FOR_TRANSITION_ANIM)) {
         return 0;
@@ -5463,8 +5485,8 @@ int32_t CMovement_C::UpdateStatusInternal(uint32_t time, const CMovementStatus& 
     CMovementGlobals* globals = MovementGetGlobals();
     STORM_ASSERT(globals);
 
-    if (static_cast<int32_t>(time - globals->m_lastUpdateTime) < 0) {
-        time = globals->m_lastUpdateTime;
+    if (static_cast<int32_t>(time - globals->GetLastUpdateTime()) < 0) {
+        time = globals->GetLastUpdateTime();
     }
 
     int32_t serverDelta = status.m_gameTime - this->m_gameTime;
@@ -5496,7 +5518,7 @@ int32_t CMovement_C::UpdateStatusInternal(uint32_t time, const CMovementStatus& 
         timeOffset = static_cast<uint32_t>(timeOffset + 500) > 1500 ? (timeOffset + 500 < 0 ? -500 : 1000) : timeOffset;
         this->m_statusTimeMs = time + timeOffset;
 
-        if (static_cast<int32_t>(globals->m_lastUpdateTime - this->m_statusTimeMs) < 0) {
+        if (static_cast<int32_t>(globals->GetLastUpdateTime() - this->m_statusTimeMs) < 0) {
             return 0;
         }
     }
@@ -5528,7 +5550,7 @@ int32_t CMovement_C::UpdateStatusInternal(uint32_t time, const CMovementStatus& 
     }
 
     if (!force) {
-        this->Extrapolate(this->m_statusTimeMs, globals->m_lastUpdateTime - this->m_statusTimeMs);
+        this->Extrapolate(this->m_statusTimeMs, globals->GetLastUpdateTime() - this->m_statusTimeMs);
     }
 
     if (!(this->m_flags & MOVEMENTFLAG_ACTIVE_MASK)) {
@@ -5561,7 +5583,7 @@ void CMovement_C::AddPlayerSpeedEvent(uint32_t eventTime, MoveEventId eventType,
     this->AddToMoversList();
 
     if (status && !queued) {
-        this->SetInterpolation(MovementGetGlobals()->m_lastUpdateTime);
+        this->SetInterpolation(MovementGetGlobals()->GetLastUpdateTime());
     }
 }
 
@@ -5660,7 +5682,7 @@ void CMovement_C::FlushMoveEvent(CPlayerMoveEvent* event, BOOL removeSpline) {
             this->m_unit->ProcessLocalMoveEvent(time, CMSG_MOVE_WATER_WALK_ACK, event->m_needAck, 0.0f, event->m_ackCounter, 0, 0xFF);
             break;
         case MOVEEVENT_ROOT:
-            if (event->m_needAck && this->IsOnSpline()) {
+            if (event->m_needAck && this->IsSplineMover()) {
                 this->FinishSpline(0);
             }
 
@@ -5733,6 +5755,7 @@ void CMovement_C::FlushMoveQueue(BOOL removeSpline, BOOL halt) {
         if (passenger->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_WAITING_FOR_TRANSITION_ANIM) {
             passenger->StopWaitingForVehicleTransitionAnim();
         } else {
+            STORM_ASSERT(!"Passenger has deferred vehicle transition spline but isn't waiting for vehicle animation");
             passenger->DeleteAllDeferredVehicleTransitionAnimSplines();
         }
     }
@@ -5741,7 +5764,7 @@ void CMovement_C::FlushMoveQueue(BOOL removeSpline, BOOL halt) {
         this->FlushMoveEvent(this->m_moveQueue.Head(), removeSpline);
     }
 
-    if (halt || !this->m_spline || (this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+    if (halt || !this->m_spline || (this->m_spline->flags & SPLINEFLAG_NO_SPLINE)) {
         this->Halt();
     }
 
@@ -5759,7 +5782,7 @@ int32_t CMovement_C::UpdateStatus(uint32_t time, const CMovementStatus& status, 
     }
 
     if (!(status.m_moveFlags & MOVEMENTFLAG_SPLINE_ENABLED)) {
-        if (this->m_spline && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC)) {
+        if (this->m_spline && (this->m_spline->flags & SPLINEFLAG_PARABOLIC)) {
             this->m_unit->OnCollideFallLand(0, 1);
         }
 
@@ -5786,7 +5809,7 @@ int32_t CMovement_C::UpdateFacingStatus(uint32_t time, const CMovementStatus& st
     }
 
     if (!(status.m_moveFlags & MOVEMENTFLAG_SPLINE_ENABLED)) {
-        if (this->m_spline && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC)) {
+        if (this->m_spline && (this->m_spline->flags & SPLINEFLAG_PARABOLIC)) {
             this->m_unit->OnCollideFallLand(0, 1);
         }
 
@@ -6310,6 +6333,9 @@ void CMovement_C::OnSplineStartSwim() {
 // VERIFY: 7c5d2bd6 manual
 // OFFSET: 0x006E96C0
 void CMovement_C::SetSplineParabolic(float verticalAcceleration, uint32_t effectStartTime) {
+    STORM_ASSERT(IsSplineMover());
+    STORM_ASSERT(m_spline->flags & 0x00000800);
+
     this->m_spline->m_verticalAcceleration = verticalAcceleration;
     this->m_spline->m_effectStartTime = effectStartTime;
 
@@ -6320,17 +6346,20 @@ void CMovement_C::SetSplineParabolic(float verticalAcceleration, uint32_t effect
 
     this->SetJumpSplineInAir(1);
 
-    if (this->m_spline->m_flags & SPLINEFLAG_ORIENTATION_FIXED) {
-        this->m_unit->ProcessLocalMoveEvent(MovementGetGlobals()->m_lastUpdateTime, CMSG_MOVE_KNOCK_BACK_ACK, false, 0.0f, 0, 0, 0xFF);
+    if (this->m_spline->flags & SPLINEFLAG_ORIENTATION_FIXED) {
+        this->m_unit->ProcessLocalMoveEvent(MovementGetGlobals()->GetLastUpdateTime(), CMSG_MOVE_KNOCK_BACK_ACK, false, 0.0f, 0, 0, 0xFF);
     } else {
-        this->m_unit->ProcessLocalMoveEvent(MovementGetGlobals()->m_lastUpdateTime, MSG_MOVE_JUMP, false, 0.0f, 0, 0, 0xFF);
+        this->m_unit->ProcessLocalMoveEvent(MovementGetGlobals()->GetLastUpdateTime(), MSG_MOVE_JUMP, false, 0.0f, 0, 0, 0xFF);
     }
 }
 
 // VERIFY: e1e1b87f auto
 // OFFSET: 0x006E9780
 void CMovement_C::SetSplineAnimation(uint8_t animType, uint32_t effectStartTime) {
-    this->m_spline->m_flags = (this->m_spline->m_flags & ~(SPLINEFLAG_ANIMATION_ID_MASK)) | animType;
+    STORM_ASSERT(IsSplineMover());
+    STORM_ASSERT(m_spline->flags & 0x00200000);
+
+    this->m_spline->flags = (this->m_spline->flags & ~(SPLINEFLAG_ANIMATION_ID_MASK)) | animType;
     this->m_spline->m_effectStartTime = effectStartTime;
 
     if (!effectStartTime) {
@@ -6365,7 +6394,7 @@ int32_t CMovement_C::OnSpline(const C3Vector* points, uint32_t pointCount, uint3
     }
 
     this->AddSpline(points[pointCount - 1]);
-    CMovementShared::OnSpline(MovementGetGlobals()->m_lastUpdateTime, points, pointCount, duration, splineFlags, splineId);
+    CMovementShared::OnSpline(MovementGetGlobals()->GetLastUpdateTime(), points, pointCount, duration, splineFlags, splineId);
 
     this->AddToMoversList();
 
@@ -6388,7 +6417,7 @@ void CMovement_C::SetFacingAndFlush(float facing, int32_t flush) {
 // OFFSET: 0x006F0C70
 void CMovement_C::ForceSetTransport(WOWGUID transport, uint8_t seat, BOOL force) {
     if (this->ForceSetTransportInt(transport, seat, force) && this->m_unit->m_obj->m_guid == CGUnit_C::s_activeMover) {
-        this->m_unit->SendMovementUpdate(MovementGetGlobals()->m_lastUpdateTime, CMSG_MOVE_CHANGE_TRANSPORT, 0.0f, 0, 0, 0xFF);
+        this->m_unit->SendMovementUpdate(MovementGetGlobals()->GetLastUpdateTime(), CMSG_MOVE_CHANGE_TRANSPORT, 0.0f, 0, 0, 0xFF);
     }
 }
 
@@ -6405,7 +6434,7 @@ void CMovement_C::OnSplineSnap(uint32_t splineId, const C3Vector& destination, u
     this->ResetSpline(splineId, splineFlags);
     this->SnapToSpline(this->m_spline->m_finalDestination, splineFlags & SPLINEFLAG_TRANSPORT_MASK);
     this->m_spline->m_start = this->m_spline->m_duration;
-    this->m_spline->m_flags |= SPLINEFLAG_DONE;
+    this->m_spline->flags |= SPLINEFLAG_DONE;
     this->OnSplineStop(MovementGetGlobals()->m_idleTime);
 }
 
@@ -6435,7 +6464,7 @@ void CPlayerMoveEvent::FromMoveStatus(const CMovementStatus& status) {
 // VERIFY: 90a2e8c4 manual
 // OFFSET: 0x006EA550
 void CMovement_C::Extrapolate(uint32_t time, uint32_t elapsed) {
-    if (!elapsed || !(this->m_flags & MOVEMENTFLAG_MOVING_MASK) || this->IsOnSpline()) {
+    if (!elapsed || !(this->m_flags & MOVEMENTFLAG_MOVING_MASK) || this->IsSplineMover()) {
         return;
     }
 
@@ -6493,7 +6522,7 @@ void CMovement_C::AddPlayerMoveEvent(uint32_t eventTime, MoveEventId eventType, 
     this->AddToMoversList();
 
     if (status && !queued) {
-        this->SetInterpolation(MovementGetGlobals()->m_lastUpdateTime);
+        this->SetInterpolation(MovementGetGlobals()->GetLastUpdateTime());
     }
 }
 
@@ -6543,7 +6572,7 @@ int32_t CMovement_C::UpdateLaunchStatus(uint32_t time, const CMovementStatus& st
     }
 
     if (!(status.m_moveFlags & MOVEMENTFLAG_SPLINE_ENABLED)) {
-        if (this->m_spline && (this->m_spline->m_flags & SPLINEFLAG_PARABOLIC)) {
+        if (this->m_spline && (this->m_spline->flags & SPLINEFLAG_PARABOLIC)) {
             this->m_unit->OnCollideFallLand(0, 1);
         }
 
@@ -6564,6 +6593,7 @@ int32_t CMovement_C::UpdateLaunchStatus(uint32_t time, const CMovementStatus& st
 void CMovement_C::OnSetActiveMover() {
     this->FlushMoveQueue(0, 0);
     CMovementGlobals* globals = MovementGetGlobals();
+    STORM_ASSERT(globals);
 
     if (this->m_transportGuid.m_guid) {
         CGGameObject_C* transport = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(this->m_transportGuid, TYPE_GAMEOBJECT, __FILE__, __LINE__));
@@ -6575,14 +6605,16 @@ void CMovement_C::OnSetActiveMover() {
         }
     }
 
-    if (this->m_spline && (this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
-        this->OnSplineStop(globals->m_lastUpdateTime);
+    if (this->m_spline && (this->m_spline->flags & SPLINEFLAG_NO_SPLINE)) {
+        this->OnSplineStop(globals->GetLastUpdateTime());
     }
 
     this->m_flags &= ~MOVEMENTFLAG_STATUS_APPLIED;
 
-    if (!this->m_spline || (this->m_spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
-        this->OnFallLocal(globals->m_lastUpdateTime);
+    if (!this->m_spline || (this->m_spline->flags & SPLINEFLAG_NO_SPLINE)) {
+        this->OnFallLocal(globals->GetLastUpdateTime());
+        STORM_ASSERT(!IsTranslating() || int32_t(globals->GetLastUpdateTime() - globals->GetNextHeartBeatTime()) < 0);
+        // 12213: "!IsTranslating() || !(!(int((globals->GetLastUpdateTime())-(globals->GetNextHeartBeatTime())) < 0))"
     }
 }
 
@@ -6706,7 +6738,7 @@ void CMovement_C::CollideWithTransport(uint32_t time, uint32_t elapsed, float di
         return;
     }
 
-    if (this->IsOnSpline()) {
+    if (this->IsSplineMover()) {
         return;
     }
 

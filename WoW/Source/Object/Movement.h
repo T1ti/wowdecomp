@@ -77,7 +77,7 @@ class CMovement_C : public CMovementShared {
 
     CMovement_C(const C3Vector& position, float facing, const WOWGUID& ownerGuid, CGUnit_C* unit);
     ~CMovement_C();
-    void SetUpdateInfo(uint32_t time, const CClientMoveUpdate* update, int32_t activePlayer);
+    void SetUpdateInfo(uint32_t time, const CClientMoveUpdate& init, int32_t activePlayer);
     void AddPlayerChangeSeatsEvent(uint32_t eventTime, MoveEventId eventType, bool needAck, WOWGUID transport, uint8_t seat);
     void AddPlayerMoveEvent(uint32_t eventTime, MoveEventId eventType, bool needAck, uint32_t ackCounter, float facing, float pitch, uint16_t extraFlags);
     int32_t AddTimeSkewSample(uint32_t localTime, uint32_t serverTime);
@@ -286,7 +286,7 @@ class CMovement_C : public CMovementShared {
     uint32_t TraceSurface(uint32_t time, uint32_t elapsed, float distance, const C2Vector& direction);
     uint32_t HoverMove(uint32_t time, uint32_t elapsed, float distance, C3Vector direction);
     uint32_t CollideRequestMove(uint32_t time, uint32_t elapsed, C3Vector move);
-    void OnSplineStop(uint32_t time);
+    void OnSplineStop(uint32_t eventTime);
     void SkipTime(uint32_t time);
     int32_t UpdatePlayerMovement(uint32_t time);
     int32_t UpdatePitch(uint32_t time, CPlayerMoveEvent* event);
@@ -314,6 +314,22 @@ class CMovement_C : public CMovementShared {
     static int32_t ToggleLogging();
     void ShowCollisionBox(const C3Vector& position, const C3Vector& move);
 #endif
+
+    private:
+    // INLINED
+    bool IsTranslating() const {
+        return (this->m_flags & MOVEMENTFLAG_MOVING_MASK) != 0;
+    }
+
+    // INLINED
+    bool IsSwimmingOrFlying() const {
+        return (this->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK) != 0;
+    }
+
+    // INLINED
+    bool IsAlwaysAllowPitching() const {
+        return (this->m_moveFlags2 & MOVEFLAG2_ALWAYS_ALLOW_PITCHING) != 0;
+    }
 };
 
 #endif

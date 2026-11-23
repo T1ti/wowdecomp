@@ -108,7 +108,7 @@ static int32_t Script_ToggleRun(lua_State* L) {
 
     uint32_t time = CSimpleTop::s_eventTime;
 
-    if (mover->m_unit->m_unitFieldHealth > 0 && !mover->m_movement->IsOnSpline() && !mover->IsAlteredFormTransitionPreventingMovement() && mover->CanMove()) {
+    if (mover->m_unit->m_unitFieldHealth > 0 && !mover->m_movement->IsSplineMover() && !mover->IsAlteredFormTransitionPreventingMovement() && mover->CanMove()) {
         mover->ToggleRunModeLocal(time);
     }
 

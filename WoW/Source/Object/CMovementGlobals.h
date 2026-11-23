@@ -22,12 +22,37 @@ class CMovementGlobals {
     /* 0114 */ uint32_t unknown_0114;
     /* 0118 */ TSList<CMovement_C, TSGetExplicitLink<CMovement_C> > m_movers;
     /* 0124 */ uint32_t m_flags; // FLAGS
+    private:
     /* 0128 */ uint32_t m_lastUpdateTime;
+
+    public:
     /* 012C */ uint32_t m_idleTime;
     /* 0130 */ uint32_t m_transportTime;
     /* 0134 */ uint32_t m_hasTransportTime2;
     /* 0138 */ uint32_t m_transportTime2;
-    /* 013C */ uint32_t m_timeCounterMaybe;
+    private:
+    /* 013C */ uint32_t m_nextHeartBeatTime; // (inferred)
+
+    public:
+    // INLINED
+    uint32_t GetLastUpdateTime() const {
+        return this->m_lastUpdateTime;
+    }
+
+    // INLINED
+    void SetLastUpdateTime(uint32_t time) { // (inferred)
+        this->m_lastUpdateTime = time;
+    }
+
+    // INLINED
+    uint32_t GetNextHeartBeatTime() const {
+        return this->m_nextHeartBeatTime;
+    }
+
+    // INLINED
+    void SetNextHeartBeatTime(uint32_t time) { // (inferred)
+        this->m_nextHeartBeatTime = time;
+    }
 
     CMovementGlobals();
     ~CMovementGlobals();

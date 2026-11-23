@@ -345,7 +345,7 @@ BOOL __stdcall CGInputControl::CanControl(CGUnit_C* unit) {
 
     CMoveSpline* spline = unit->m_movement->m_spline;
 
-    if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+    if (spline && !(spline->flags & SPLINEFLAG_NO_SPLINE)) {
         return 0;
     }
 
@@ -370,7 +370,7 @@ int32_t CGInputControl::CameraCanTurnPlayer() const {
 
         CMoveSpline* spline = mover->m_movement->m_spline;
 
-        if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+        if (spline && !(spline->flags & SPLINEFLAG_NO_SPLINE)) {
             return 0;
         }
 
@@ -523,7 +523,7 @@ int32_t CGInputControl::CameraCanPitchPlayer() {
 
     CMoveSpline* spline = mover->m_movement->m_spline;
 
-    if (spline && !(spline->m_flags & SPLINEFLAG_NO_SPLINE)) {
+    if (spline && !(spline->flags & SPLINEFLAG_NO_SPLINE)) {
         return 0;
     }
 
@@ -1262,7 +1262,7 @@ void CGInputControl::UpdatePlayer(uint32_t time, BOOL canControl) {
         }
 
         if (this->m_flags & INPUT_MOVE_PLAYER_SENT) {
-            if (!mover->m_movement->IsOnSpline()) {
+            if (!mover->m_movement->IsSplineMover()) {
                 mover->OnMoveStopLocal(time);
             }
 
@@ -1270,7 +1270,7 @@ void CGInputControl::UpdatePlayer(uint32_t time, BOOL canControl) {
         }
 
         if (this->m_flags & INPUT_STRAFE_PLAYER_SENT) {
-            if (!mover->m_movement->IsOnSpline()) {
+            if (!mover->m_movement->IsSplineMover()) {
                 mover->OnStrafeStopLocal(time);
             }
 
@@ -1282,7 +1282,7 @@ void CGInputControl::UpdatePlayer(uint32_t time, BOOL canControl) {
         }
 
         if (this->m_flags & INPUT_ASCEND_DESCEND_PLAYER_SENT) {
-            if (!mover->m_movement->IsOnSpline()) {
+            if (!mover->m_movement->IsSplineMover()) {
                 mover->OnAscendDescendStopLocal(time);
             }
 
@@ -1298,7 +1298,7 @@ void CGInputControl::UpdatePlayer(uint32_t time, BOOL canControl) {
         }
     } else {
         if (this->m_flags & INPUT_TURN_PLAYER_SENT) {
-            if (!mover->m_movement->IsOnSpline()) {
+            if (!mover->m_movement->IsSplineMover()) {
                 mover->OnTurnStopLocal(time);
             }
 
@@ -1306,7 +1306,7 @@ void CGInputControl::UpdatePlayer(uint32_t time, BOOL canControl) {
         }
 
         if (this->m_flags & INPUT_PITCH_PLAYER_SENT) {
-            if (!mover->m_movement->IsOnSpline() && (mover->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
+            if (!mover->m_movement->IsSplineMover() && (mover->m_movement->m_flags & MOVEMENTFLAG_SWIMMING_OR_FLYING_MASK)) {
                 mover->OnPitchStopLocal(time);
             }
 
