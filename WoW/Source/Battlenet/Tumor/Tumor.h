@@ -60,6 +60,7 @@ class Tumor : public SystemClient {
         EventAdapter(BSN::FourCC eventId, EventSubscriber& subscriber, Tumor* tumor, uint32_t index, const uint32_t& tendrilId);
     };
 
+    private:
     struct EventBinding {
         /* 0000 */ BSN::FourCC m_eventId;
         /* 0004 */ EventSubscriber* m_subscriber;
@@ -89,6 +90,7 @@ class Tumor : public SystemClient {
     /* 01EC */ ConnectionBinding m_connectionBindings[NUM_CONNECTION_BINDINGS];
     /* 05EC */ TokenBinding m_tokenBindings[NUM_TOKEN_BINDINGS];
 
+    public:
     void Resolved(uint32_t request, const Client::DNSInfo& info) override;
     void Connected(uint32_t connection, const IP4::AddressPort& address) override;
     void Disconnected(uint32_t connection) override;
@@ -103,13 +105,20 @@ class Tumor : public SystemClient {
 
     Tumor(Application& application);
     Adapter* AllocAdapter(SystemClient& client, const uint32_t& tendrilId);
+    private:
+    uint32_t Resolve(uint32_t requestorId, uint32_t token, const char* hostname);
+    void Disconnect(uint32_t requestorId, uint32_t connection);
+    bool Send(uint32_t requestorId, uint32_t connection, const void* data, uint32_t size);
+    void CloseDatagram(uint32_t requestorId, uint32_t connection);
+    bool SendDatagram(uint32_t requestorId, uint32_t connection, const void* data, uint32_t size, const IP4::AddressPort& address);
+
     ConnectionBinding* FindConnectionBinding(uint32_t connection);
     TokenBinding* FindTokenBinding(uint32_t token);
     EventBinding* AllocEventBinding();
     ConnectionBinding* AllocConnectionBinding();
     TokenBinding* AllocTokenBinding();
-    uint32_t Connect(uint32_t index, const IP4::AddressPort& address, const uint32_t& tendrilId);
-    uint32_t OpenDatagram(uint32_t index, int32_t port, const uint32_t& tendrilId);
+    uint32_t Connect(uint32_t requestorId, const IP4::AddressPort& address, const uint32_t& tendrilId);
+    uint32_t OpenDatagram(uint32_t requestorId, int32_t port, const uint32_t& tendrilId);
     void SendEvent(const Event::Header& header, const BSN::EncodedObject* data);
 };
 }

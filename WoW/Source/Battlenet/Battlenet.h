@@ -80,7 +80,7 @@ struct Header {
 
     /* 0000 */ uint8_t m_eventType; // EVENT_TYPE
     /* 0004 */ Source m_source;
-    /* 0010 */ Target m_target;
+    /* 0010 */ Target m_destination;
 
     Header();
 };
