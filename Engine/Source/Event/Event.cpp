@@ -67,6 +67,26 @@ HEVENTCONTEXT EventGetCurrentContext() {
     return static_cast<HEVENTCONTEXT>(PropGet(PROP_EVENTCONTEXT));
 }
 
+#if defined(WOWDECOMP_ASSERTIONS)
+bool EventIsContextInteractive() {
+    int32_t findMask;
+    auto& table = TSingletonInstanceId<EvtContext, 8>::s_idTable;
+    EvtContext* context = table.Ptr(static_cast<uint32_t>(reinterpret_cast<uintptr_t>(EventGetCurrentContext())), 0, &findMask, 0, 1);
+
+    if (!context) {
+        return false;
+    }
+
+    bool interactive = IEvtSchedulerIsContextInteractive(context) != 0;
+
+    if (findMask != -1) {
+        table.Unlock(findMask & 7, findMask >= 8);
+    }
+
+    return interactive;
+}
+#endif
+
 // VERIFY: 627859ff auto
 // OFFSET: 0x0047D1D0
 int32_t EventIsButtonDown(MOUSEBUTTON button) {

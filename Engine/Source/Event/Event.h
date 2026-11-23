@@ -13,6 +13,9 @@ void EventDestroy();
 void EventDoMessageLoop();
 HEVENTCONTEXT EventGetCurrentContext();
 void EventInitialize(uint32_t threadCount, int32_t netServer);
+#if defined(WOWDECOMP_ASSERTIONS)
+bool EventIsContextInteractive();
+#endif
 void EventInitiateShutdown();
 void EventInputGetMousePosition(float* x, float* y);
 int32_t EventInputProcess(HEVENTCONTEXT contextHandle);

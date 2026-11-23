@@ -452,8 +452,9 @@ static void MovementInit() {
     }
 
     uint32_t processId = SGetCurrentProcessId();
-    char* extension = SStrChrR(logFile, '.');
-    SStrPrintf(extension, logFile + sizeof(logFile) - extension, "%04d.txt", processId);
+    char* exten = SStrChrR(logFile, '.');
+    STORM_ASSERT(exten);
+    SStrPrintf(exten, logFile + sizeof(logFile) - exten, "%04d.txt", processId);
     MovementInitialize(logFile);
     EventRegisterEx(EVENT_ID_IDLE, MovementIdleMoveUnits, nullptr, 2.0f);
 }
@@ -638,7 +639,7 @@ const char* GetInstallLocationString() {
 
 // VERIFY: 1ebb13ac auto
 // OFFSET: 0x00402AA0
-static bool BuildDataFileName(int32_t directory, char* buffer, uint32_t size, const char* pattern, const char* locale) {
+static bool BuildDataFileName(int32_t directory, char* buffer, uint32_t size, const char* pattern, const char* localeName) {
     if (directory == 2) {
         if (!GetInstallLocationString()) {
             return false;
@@ -649,8 +650,10 @@ static bool BuildDataFileName(int32_t directory, char* buffer, uint32_t size, co
         SStrPrintf(buffer, size, "%s%s", s_dataDirectories[directory], pattern);
     }
 
+    STORM_ASSERT(SStrLen(localeName) == 4);
+
     for (char* token = SStrStr(buffer, "****"); token; token = SStrStr(buffer, "****")) {
-        memcpy(token, locale, 4);
+        memcpy(token, localeName, 4);
     }
 
     return true;
@@ -707,6 +710,7 @@ static void LoadMopaqFileSigningData(const char* locale) {
     return;
 #endif
 
+    STORM_ASSERT(SStrCmp(locale, "----", 4) != 0);
     SFileClearAllFileFlags();
 
     char* data;
@@ -967,7 +971,9 @@ static int32_t LoadNewWorld(const void* data, void* param) {
 
 // VERIFY: a5146d91 auto
 // OFFSET: 0x00403D10
-static int32_t Packet_SMSG_NEW_WORLD(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+static int32_t Packet_SMSG_NEW_WORLD(void* param, NETMESSAGE msgID, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgID == SMSG_NEW_WORLD);
+
     msg->Get(s_zoneID);
     msg->Get(s_spawnPosition.x);
     msg->Get(s_spawnPosition.y);
@@ -1127,7 +1133,9 @@ static void InitializeClient() {
 
 // VERIFY: 56a0f6b5 auto
 // OFFSET: 0x004047E0
-int32_t InitializeEngineCallback(const void* data, void* param) {
+static int32_t InitializeEngineCallback(const void* data, void* param) {
+    STORM_ASSERT(EventIsContextInteractive());
+
     BaseInitializeContext();
     HeapUsageInitialize();
     AsyncFileReadRegisterCVars();
@@ -1326,7 +1334,8 @@ void ClientInitializeGame(uint32_t mapId, C3Vector position) {
 
     SI2::SetWeatherKitID(-1);
 
-    REALM_INFO* realm = ClientServices::GetSelectedRealm();
+    const REALM_INFO* realm = ClientServices::GetSelectedRealm();
+    STORM_ASSERT(realm);
 
     for (uint32_t i = 0; i < g_cfg_ConfigsDB.GetNumRecords(); i++) {
         Cfg_ConfigsRec* config = i < g_cfg_ConfigsDB.GetNumRecords() ? &g_cfg_ConfigsDB.m_records[i] : nullptr;
@@ -1686,7 +1695,9 @@ void ClientDestroyGame(int32_t charSelect, int32_t resumeGlue, int32_t worldLogi
 
 // VERIFY: e61971e0 auto
 // OFFSET: 0x004066D0
-int32_t DestroyEngineCallback(const void* data, void* param) {
+static int32_t DestroyEngineCallback(const void* data, void* param) {
+    STORM_ASSERT(EventIsContextInteractive());
+
     RemoveConsoleDeviceDefaultCallback(SetDefaults);
 
 #ifdef WOWDECOMP_TOOL_FEATURES
