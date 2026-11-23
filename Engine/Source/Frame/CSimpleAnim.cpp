@@ -24,7 +24,7 @@ int32_t CSimpleAnim::s_metatable = LUA_NOREF;
 int32_t CSimpleAnim::s_objectType;
 
 // STATIC: 0x00AC138C
-const char* CSimpleAnim::s_objectTypeName = "Animation";
+const char* const CSimpleAnim::s_objectTypeName = "Animation";
 
 // INLINED
 int32_t CSimpleAnim::GetObjectType() {
@@ -150,6 +150,7 @@ bool CSimpleAnim::GetSmoothing(float& in, float& out) {
 // VERIFY: 78802c25 auto
 // OFFSET: 0x00497AC0
 void CSimpleAnim::RunOnUpdateScript(float elapsedSec) {
+    STORM_ASSERT(!(m_flags & SIMPLEANIM_FLAG_IS_LOADING));
     if (this->m_onUpdate.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushnumber(L, elapsedSec);
@@ -217,11 +218,9 @@ void CSimpleAnim::LoadXML_Scripts(XMLNode* node, CStatus* status) {
 // VERIFY: eb02a39f manual
 // OFFSET: 0x00497E40
 void CSimpleAnim::PostLoadXML(XMLNode* node, CStatus* status) {
-    this->m_flags ^= ANIM_FLAGS::FLAG_XML_LOAD_MARKER;
+    this->m_flags ^= ANIM_FLAGS::SIMPLEANIM_FLAG_IS_LOADING;
 
-    if (this->m_onLoad.m_luaRef) {
-        this->RunScript(this->m_onLoad, 0, nullptr);
-    }
+    this->RunOnLoadScript();
 }
 
 // VERIFY: 25606c0d auto
@@ -232,6 +231,7 @@ void CSimpleAnim::Pause() {
     if (this->m_playState == CSimpleAnim::ANIM_PLAY_STATE::STATE_PLAYING) {
         this->m_playState = CSimpleAnim::ANIM_PLAY_STATE::STATE_PAUSED;
 
+        STORM_ASSERT(!(m_flags & SIMPLEANIM_FLAG_IS_LOADING));
         if (this->m_onPause.m_luaRef) {
             this->RunScript(this->m_onPause, 0, nullptr);
         }
@@ -402,6 +402,7 @@ bool CSimpleAnim::OnUpdate(float elapsedSec, float& consumed) {
         return false;
     }
 
+    STORM_ASSERT(!(m_flags & SIMPLEANIM_FLAG_IS_LOADING));
     if (this->m_onFinished.m_luaRef) {
         this->RunScript(this->m_onFinished, 0, nullptr);
     }
@@ -449,6 +450,7 @@ bool CSimpleAnim::Play() {
             this->m_loopState = ANIM_LOOPSTATE_FORWARD;
         }
 
+        STORM_ASSERT(!(m_flags & SIMPLEANIM_FLAG_IS_LOADING));
         if (this->m_onPlay.m_luaRef) {
             this->RunScript(this->m_onPlay, 0, nullptr);
         }
@@ -470,6 +472,7 @@ void CSimpleAnim::Stop(bool requested) {
     this->m_loopState = ANIM_LOOPSTATE_NONE;
     this->m_playState = CSimpleAnim::ANIM_PLAY_STATE::STATE_STOPPED;
 
+    STORM_ASSERT(!(m_flags & SIMPLEANIM_FLAG_IS_LOADING));
     if (this->m_onStop.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushboolean(L, requested);
@@ -536,7 +539,7 @@ void CSimpleAnim::SetOrder(int32_t order, bool notify, bool wrap) {
 // VERIFY: e53e8fe4 manual
 // OFFSET: 0x0049B810
 void CSimpleAnim::LoadXML(XMLNode* node, CStatus* status) {
-    this->m_flags |= ANIM_FLAGS::FLAG_XML_LOAD_MARKER;
+    this->m_flags |= ANIM_FLAGS::SIMPLEANIM_FLAG_IS_LOADING;
 
     const char* inherits = node->GetAttributeByName("inherits");
 

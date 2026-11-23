@@ -434,13 +434,11 @@ void CSimplePathAnim::LoadXML(XMLNode* node, CStatus* status) {
 // VERIFY: f10c3adc auto
 // OFFSET: 0x0049C040
 void CSimplePathAnim::PostLoadXML(XMLNode* node, CStatus* status) {
-    this->m_flags ^= 1;
+    this->m_flags ^= SIMPLEANIM_FLAG_IS_LOADING;
     this->BuildSpline();
     this->UpdateControlPointPositions();
 
-    if (this->m_onLoad.m_luaRef) {
-        this->RunScript(this->m_onLoad, 0, nullptr);
-    }
+    this->RunOnLoadScript();
 }
 
 // VERIFY: 6a79e6ce manual

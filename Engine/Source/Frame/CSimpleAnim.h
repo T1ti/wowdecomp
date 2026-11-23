@@ -3,6 +3,7 @@
 
 #include <cstddef>
 #include <cstdint>
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Frame/CScriptObject.h"
 #include "Engine/Source/Frame/Types.h"
 #include "Engine/Source/Storm/H/stpl.h"
@@ -33,9 +34,12 @@ class CSimpleAnim : public CScriptObject {
         STATE_PAUSED = 2,
     };
 
+    private:
     static int32_t s_metatable;
+
+    public:
     static int32_t s_objectType;
-    static const char* s_objectTypeName;
+    static const char* const s_objectTypeName;
 
     static int32_t GetObjectType();
     static void CreateScriptMetaTable();
@@ -44,7 +48,7 @@ class CSimpleAnim : public CScriptObject {
 
     // Same XML load marker bit as CSimpleAnimGroup: set by LoadXML, toggled off by PostLoadXML.
     enum ANIM_FLAGS : uint8_t {
-        FLAG_XML_LOAD_MARKER = 1,
+        SIMPLEANIM_FLAG_IS_LOADING = 1,
     };
 
     /* 0020 */ TSLink<CSimpleAnim> m_link;
@@ -52,7 +56,10 @@ class CSimpleAnim : public CScriptObject {
     /* 002C */ uint8_t unused_002C;
     /* 002D */ uint8_t unused_002D[3];
     /* 0030 */ int8_t m_order;
+    protected:
     /* 0031 */ uint8_t m_flags; // ANIM_FLAGS
+
+    public:
     /* 0032 */ uint8_t unused_0032[2];
     /* 0034 */ uint8_t m_playState;
     /* 0035 */ int8_t m_loopState;
@@ -89,6 +96,11 @@ class CSimpleAnim : public CScriptObject {
     virtual void Apply(float progress);
     virtual void ApplyInverse(float progress);
 
+    // INLINED
+    void BeginLoad() { // (inferred)
+        this->m_flags |= SIMPLEANIM_FLAG_IS_LOADING;
+    }
+
     CSimpleAnim(CSimpleAnimGroup* group);
     bool ChangeParent(CSimpleAnimGroup* group);
     CScriptRegion* GetRegionParent();
@@ -98,7 +110,6 @@ class CSimpleAnim : public CScriptObject {
     bool OnUpdate(float elapsedSec, float& consumed);
     void Pause();
     bool Play();
-    void RunOnUpdateScript(float elapsedSec);
     void SetDuration(float duration, bool notify);
     void SetEndDelay(float delay, bool notify);
     void SetMaxFramerate(float framerate);
@@ -108,6 +119,18 @@ class CSimpleAnim : public CScriptObject {
     void SetStartDelay(float delay, bool notify);
     void Stop(bool requested);
     float UpdateProgress(float elapsedSec);
+
+    protected:
+    // INLINED
+    void RunOnLoadScript() { // (inferred)
+        STORM_ASSERT(!(m_flags & SIMPLEANIM_FLAG_IS_LOADING));
+        if (this->m_onLoad.m_luaRef) {
+            this->RunScript(this->m_onLoad, 0, nullptr);
+        }
+    }
+
+    private:
+    void RunOnUpdateScript(float elapsedSec);
 };
 
 void ReadOrigin(lua_State* L, int32_t index, FRAMEPOINT& point, C2Vector& offset);

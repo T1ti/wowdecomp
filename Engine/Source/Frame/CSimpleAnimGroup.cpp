@@ -28,7 +28,7 @@ int32_t CSimpleAnimGroup::s_metatable = LUA_NOREF;
 int32_t CSimpleAnimGroup::s_objectType;
 
 // STATIC: 0x00AC13A8
-const char* CSimpleAnimGroup::s_objectTypeName = "AnimationGroup";
+const char* const CSimpleAnimGroup::s_objectTypeName = "AnimationGroup";
 
 // VERIFY: eed0442b auto
 // OFFSET: 0x004A4F20
@@ -43,7 +43,7 @@ int32_t CSimpleAnimGroup::GetObjectType() {
 // VERIFY: 3587a1ad auto
 // OFFSET: 0x00497770
 void CSimpleAnimGroup::PreLoadXML(XMLNode* node, CStatus* status) {
-    this->m_flags |= GROUP_FLAGS::FLAG_XML_LOAD_MARKER;
+    this->m_flags |= GROUP_FLAGS::SIMPLEANIMGROUP_FLAG_IS_LOADING;
 
     const char* name = node->GetAttributeByName("name");
 
@@ -59,7 +59,7 @@ void CSimpleAnimGroup::LoadXML_Anim(XMLNode* node, CStatus* status, CSimpleAnim*
         return;
     }
 
-    anim->m_flags |= CSimpleAnim::ANIM_FLAGS::FLAG_XML_LOAD_MARKER;
+    anim->BeginLoad();
 
     const char* name = node->GetAttributeByName("name");
 
@@ -135,6 +135,7 @@ bool CSimpleAnimGroup::IsDone() {
 // VERIFY: 6762d495 auto
 // OFFSET: 0x00497B00
 void CSimpleAnimGroup::RunOnUpdateScript(float elapsedSec) {
+    STORM_ASSERT(!(m_flags & SIMPLEANIMGROUP_FLAG_IS_LOADING));
     if (this->m_onUpdate.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushnumber(L, elapsedSec);
@@ -382,7 +383,7 @@ int32_t CSimpleAnimGroup::GetScriptMetaTable() {
 // VERIFY: aa705a15 manual
 // OFFSET: 0x0049A060
 void CSimpleAnimGroup::LoadXML(XMLNode* node, CStatus* status) {
-    this->m_flags |= GROUP_FLAGS::FLAG_XML_LOAD_MARKER;
+    this->m_flags |= GROUP_FLAGS::SIMPLEANIMGROUP_FLAG_IS_LOADING;
 
     const char* inherits = node->GetAttributeByName("inherits");
 
@@ -588,6 +589,7 @@ bool CSimpleAnimGroup::Play() {
         }
     }
 
+    STORM_ASSERT(!(m_flags & SIMPLEANIMGROUP_FLAG_IS_LOADING));
     if (this->m_onPlay.m_luaRef) {
         this->RunScript(this->m_onPlay, 0, nullptr);
     }
@@ -610,6 +612,7 @@ void CSimpleAnimGroup::Pause() {
         node->m_anim->Pause();
     }
 
+    STORM_ASSERT(!(m_flags & SIMPLEANIMGROUP_FLAG_IS_LOADING));
     if (this->m_onPause.m_luaRef) {
         this->RunScript(this->m_onPause, 0, nullptr);
     }
@@ -638,6 +641,7 @@ bool CSimpleAnimGroup::NotifyAnimStopped(CSimpleAnim* anim) {
         }
     }
 
+    STORM_ASSERT(!(m_flags & SIMPLEANIMGROUP_FLAG_IS_LOADING));
     if (this->m_onStop.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushboolean(L, false);
@@ -720,6 +724,7 @@ void CSimpleAnimGroup::Stop(bool requested) {
         node->m_anim->Stop(requested);
     }
 
+    STORM_ASSERT(!(m_flags & SIMPLEANIMGROUP_FLAG_IS_LOADING));
     if (this->m_onStop.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
         lua_pushboolean(L, requested);
@@ -838,6 +843,7 @@ void CSimpleAnimGroup::AdvanceLoopState(float elapsedSec, float remaining) {
         this->m_flags |= GROUP_FLAGS::FLAG_FINISHED_CALLBACKS;
         this->RunOnUpdateScript(elapsedSec);
 
+        STORM_ASSERT(!(m_flags & SIMPLEANIMGROUP_FLAG_IS_LOADING));
         if (this->m_onFinished.m_luaRef) {
             lua_State* L = FrameScript_GetContext();
             lua_pushboolean(L, finishing);
@@ -930,7 +936,7 @@ bool CSimpleAnimGroup::RemoveAnimListNode(TSList<SIMPLEANIMNODE, TSGetLink<SIMPL
 // VERIFY: b559c4d7 manual
 // OFFSET: 0x0049C2A0
 void CSimpleAnimGroup::PostLoadXML(XMLNode* node, CStatus* status) {
-    this->m_flags ^= GROUP_FLAGS::FLAG_XML_LOAD_MARKER;
+    this->m_flags ^= GROUP_FLAGS::SIMPLEANIMGROUP_FLAG_IS_LOADING;
 
     for (CSimpleAnim* anim = this->m_animations.Head(); anim; anim = this->m_animations.Next(anim)) {
         anim->PostLoadXML(node, status);
@@ -939,6 +945,7 @@ void CSimpleAnimGroup::PostLoadXML(XMLNode* node, CStatus* status) {
     this->SortAnimations();
     this->ComputeDuration();
 
+    STORM_ASSERT(!(m_flags & SIMPLEANIMGROUP_FLAG_IS_LOADING));
     if (this->m_onLoad.m_luaRef) {
         this->RunScript(this->m_onLoad, 0, nullptr);
     }

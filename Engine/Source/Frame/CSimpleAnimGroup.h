@@ -20,7 +20,7 @@ class CSimpleAnimGroup : public CScriptObject {
     public:
     enum GROUP_FLAGS : int32_t {
         FLAG_NONE = 0,
-        FLAG_XML_LOAD_MARKER = 1,
+        SIMPLEANIMGROUP_FLAG_IS_LOADING = 1,
         FLAG_FINISH_REQUESTED = 0x2,
         FLAG_PAUSED = 0x4,
         FLAG_LOOP_INVERSE_PENDING = 0x8,
@@ -30,9 +30,12 @@ class CSimpleAnimGroup : public CScriptObject {
         FLAG_STOP_TRANSITION_MASK = 0x28,
     };
 
+    private:
     static int32_t s_metatable;
+
+    public:
     static int32_t s_objectType;
-    static const char* s_objectTypeName;
+    static const char* const s_objectTypeName;
 
     static int32_t GetObjectType();
     static void CreateScriptMetaTable();
@@ -51,7 +54,10 @@ class CSimpleAnimGroup : public CScriptObject {
     /* 0070 */ FrameScript_Object::ScriptIx m_onFinished;
     /* 0078 */ FrameScript_Object::ScriptIx m_onUpdate;
     /* 0080 */ FrameScript_Object::ScriptIx m_onLoop;
+    private:
     /* 0088 */ uint16_t m_flags;
+
+    public:
     /* 008A */ uint8_t unused_008A[2];
     /* 008C */ int8_t m_loopType;
     /* 008D */ int8_t m_loopState;
@@ -69,6 +75,16 @@ class CSimpleAnimGroup : public CScriptObject {
     virtual CScriptObject* GetScriptObjectParent();
     virtual bool IsA(const char* typeName);
     virtual const char* GetObjectTypeName();
+
+    // INLINED
+    bool IsPaused() const { // (inferred)
+        return (this->m_flags & FLAG_PAUSED) != 0;
+    }
+
+    // INLINED
+    bool IsFinishRequested() const { // (inferred)
+        return (this->m_flags & FLAG_FINISH_REQUESTED) != 0;
+    }
 
     CSimpleAnimGroup(CScriptRegion* owner);
     bool AddAnimListNode(TSList<SIMPLEANIMNODE, TSGetLink<SIMPLEANIMNODE> >* list, CSimpleAnim* anim);
@@ -94,10 +110,12 @@ class CSimpleAnimGroup : public CScriptObject {
     void PreLoadXML(XMLNode* node, CStatus* status);
     TSList<SIMPLEANIMNODE, TSGetLink<SIMPLEANIMNODE> >* RegisterAnimList(int32_t order);
     bool RemoveAnimListNode(TSList<SIMPLEANIMNODE, TSGetLink<SIMPLEANIMNODE> >* list, CSimpleAnim* anim);
-    void RunOnUpdateScript(float elapsedSec);
     void SetInitialOffset(const C2Vector& offset);
     void SortAnimations();
     void Stop(bool requested);
+
+    private:
+    void RunOnUpdateScript(float elapsedSec);
 };
 
 #endif
