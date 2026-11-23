@@ -275,15 +275,15 @@ enum COMPONENT_VARIATIONS : int32_t {
 using CHARTEXTUREVARIATIONS = COMPONENT_VARIATIONS;
 
 struct CharColorList {
-    /* 0000 */ int32_t m_numColors;
+    /* 0000 */ int32_t colorCount;
     /* 0004 */ CharSectionsRec** m_color;
 
     CharColorList();
 };
 
 struct CharVariationList {
-    /* 0000 */ int32_t m_numVariations;
-    /* 0004 */ CharColorList* m_variation;
+    /* 0000 */ int32_t variationCount;
+    /* 0004 */ CharColorList* variationArray;
 
     CharVariationList();
 };
@@ -299,14 +299,14 @@ struct TCTEXTUREINFO {
 
 // INLINED
 inline CharColorList::CharColorList() {
-    this->m_numColors = 0;
+    this->colorCount = 0;
     this->m_color = nullptr;
 }
 
 // INLINED
 inline CharVariationList::CharVariationList() {
-    this->m_numVariations = 0;
-    this->m_variation = nullptr;
+    this->variationCount = 0;
+    this->variationArray = nullptr;
 }
 
 #endif

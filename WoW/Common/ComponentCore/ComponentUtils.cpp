@@ -77,61 +77,63 @@ COMPONENT_CONTEXT GetContextFromSelection(COMPONENT_SELECTION selection) {
 
 // VERIFY: 28ddfb49 manual
 // OFFSET: 0x004F3AE0
-int32_t ComponentGetNumVariations(st_race* lookup, int32_t raceID, int32_t sexID, CHARTEXTUREVARIATIONS variation) {
-    CharVariationList& list = lookup[raceID * 2 + sexID].m_variation[variation];
+int32_t ComponentGetNumVariations(const st_race* lookup, int32_t raceID, int32_t sexID, CHARTEXTUREVARIATIONS variation) {
+    const CharVariationList& list = lookup[raceID * 2 + sexID].sections[variation];
 
-    if (!list.m_variation) {
+    if (!list.variationArray) {
         return 0;
     }
 
-    return list.m_numVariations;
+    return list.variationCount;
 }
 
 // VERIFY: 725a4a25 auto
 // OFFSET: 0x004F3B10
-int32_t ComponentGetNumColors(st_race* lookup, int32_t raceID, int32_t sexID, CHARTEXTUREVARIATIONS variation, int32_t variationIndex) {
-    CharVariationList& list = lookup[raceID * 2 + sexID].m_variation[variation];
+int32_t ComponentGetNumColors(const st_race* lookup, int32_t raceID, int32_t sexID, CHARTEXTUREVARIATIONS variation, int32_t variationIndex) {
+    const CharVariationList& list = lookup[raceID * 2 + sexID].sections[variation];
 
-    if (!list.m_variation || variationIndex >= list.m_numVariations || list.m_numVariations <= 0 || !list.m_variation[variationIndex].m_color) {
+    if (!list.variationArray || variationIndex >= list.variationCount || list.variationCount <= 0 || !list.variationArray[variationIndex].m_color) {
         return 0;
     }
 
-    return list.m_variation[variationIndex].m_numColors;
+    return list.variationArray[variationIndex].colorCount;
 }
 
 // VERIFY: 387cd93c manual
 // OFFSET: 0x004F3B50
-bool ComponentValidateBase(st_race* lookup, int32_t raceID, int32_t sexID, CHARTEXTUREVARIATIONS variation, int32_t variationIndex, int32_t colorIndex) {
+bool ComponentValidateBase(const st_race* lookup, int32_t raceID, int32_t sexID, CHARTEXTUREVARIATIONS variation, int32_t variationIndex, int32_t colorIndex) {
     if (static_cast<uint32_t>(variation) >= CHARTEXTUREVARIATIONS_NUM || variationIndex < 0) {
         return false;
     }
 
-    CharVariationList& list = lookup[raceID * 2 + sexID].m_variation[variation];
+    const CharVariationList& list = lookup[raceID * 2 + sexID].sections[variation];
 
-    if (variationIndex >= list.m_numVariations || !list.m_numVariations || colorIndex < 0) {
+    if (variationIndex >= list.variationCount || !list.variationCount || colorIndex < 0) {
         return false;
     }
 
-    int32_t numColors = list.m_variation[variationIndex].m_numColors;
+    int32_t numColors = list.variationArray[variationIndex].colorCount;
 
     return colorIndex < numColors && numColors;
 }
 
 // VERIFY: 04a6cba3 manual
 // OFFSET: 0x004F3BA0
-CharSectionsRec* ComponentGetSectionsRecord(st_race* lookup, int32_t raceID, int32_t sexID, CHARTEXTUREVARIATIONS variation, int32_t variationIndex, int32_t colorIndex, bool* found) {
-    if (static_cast<uint32_t>(variation) < CHARTEXTUREVARIATIONS_NUM && variationIndex >= 0) {
-        CharVariationList& list = lookup[raceID * 2 + sexID].m_variation[variation];
+CharSectionsRec* ComponentGetSectionsRecord(const st_race* lookup, int32_t raceID, int32_t sexID, COMPONENT_VARIATIONS section, int32_t variationIndex, int32_t colorIndex, bool* found) {
+    STORM_ASSERT(section >= 0 && section < NUM_COMPONENT_VARIATIONS);
 
-        if (variationIndex < list.m_numVariations && list.m_numVariations && colorIndex >= 0) {
-            int32_t numColors = list.m_variation[variationIndex].m_numColors;
+    if (static_cast<uint32_t>(section) < NUM_COMPONENT_VARIATIONS && variationIndex >= 0) {
+        const CharVariationList& list = lookup[raceID * 2 + sexID].sections[section];
+
+        if (variationIndex < list.variationCount && list.variationCount && colorIndex >= 0) {
+            int32_t numColors = list.variationArray[variationIndex].colorCount;
 
             if (colorIndex < numColors && numColors) {
                 if (found) {
                     *found = true;
                 }
 
-                return list.m_variation[variationIndex].m_color[colorIndex];
+                return list.variationArray[variationIndex].m_color[colorIndex];
             }
         }
     }
@@ -145,16 +147,16 @@ CharSectionsRec* ComponentGetSectionsRecord(st_race* lookup, int32_t raceID, int
 
 // VERIFY: e6e73c05 manual
 // OFFSET: 0x004F3C10
-bool ComponentValidateSkin(st_race* lookup, int32_t raceID, int32_t sexID, int32_t classID, int32_t colorIndex, COMPONENT_CONTEXT context) {
-    CharVariationList& list = lookup[raceID * 2 + sexID].m_variation[CHARTEXTUREVAR_SKIN];
+bool ComponentValidateSkin(const st_race* lookup, int32_t raceID, int32_t sexID, int32_t classID, int32_t colorIndex, COMPONENT_CONTEXT context) {
+    const CharVariationList& list = lookup[raceID * 2 + sexID].sections[CHARTEXTUREVAR_SKIN];
 
-    if (list.m_numVariations <= 0 || colorIndex < 0) {
+    if (list.variationCount <= 0 || colorIndex < 0) {
         return false;
     }
 
-    CharColorList& colors = list.m_variation[0];
+    const CharColorList& colors = list.variationArray[0];
 
-    if (colorIndex >= colors.m_numColors || !colors.m_numColors || !colors.m_color[colorIndex]) {
+    if (colorIndex >= colors.colorCount || !colors.colorCount || !colors.m_color[colorIndex]) {
         return false;
     }
 
@@ -163,20 +165,20 @@ bool ComponentValidateSkin(st_race* lookup, int32_t raceID, int32_t sexID, int32
 
 // VERIFY: 4e4d2364 manual
 // OFFSET: 0x004F3C70
-bool ComponentValidateHair(st_race* lookup, int32_t raceID, int32_t sexID, int32_t classID, int32_t colorIndex, int32_t variationIndex, COMPONENT_CONTEXT context) {
+bool ComponentValidateHair(const st_race* lookup, int32_t raceID, int32_t sexID, int32_t classID, int32_t colorIndex, int32_t variationIndex, COMPONENT_CONTEXT context) {
     if (variationIndex < 0) {
         return false;
     }
 
-    CharVariationList& list = lookup[raceID * 2 + sexID].m_variation[CHARTEXTUREVAR_HAIR];
+    const CharVariationList& list = lookup[raceID * 2 + sexID].sections[CHARTEXTUREVAR_HAIR];
 
-    if (variationIndex >= list.m_numVariations || !list.m_numVariations || colorIndex < 0) {
+    if (variationIndex >= list.variationCount || !list.variationCount || colorIndex < 0) {
         return false;
     }
 
-    CharColorList& colors = list.m_variation[variationIndex];
+    const CharColorList& colors = list.variationArray[variationIndex];
 
-    if (colorIndex >= colors.m_numColors || !colors.m_numColors || !colors.m_color[colorIndex]) {
+    if (colorIndex >= colors.colorCount || !colors.colorCount || !colors.m_color[colorIndex]) {
         return false;
     }
 
@@ -185,20 +187,20 @@ bool ComponentValidateHair(st_race* lookup, int32_t raceID, int32_t sexID, int32
 
 // VERIFY: e3e5bf4a manual
 // OFFSET: 0x004F3CE0
-bool ComponentValidateFace(st_race* lookup, int32_t raceID, int32_t sexID, int32_t classID, int32_t colorIndex, int32_t variationIndex, COMPONENT_CONTEXT context) {
+bool ComponentValidateFace(const st_race* lookup, int32_t raceID, int32_t sexID, int32_t classID, int32_t colorIndex, int32_t variationIndex, COMPONENT_CONTEXT context) {
     if (variationIndex < 0) {
         return false;
     }
 
-    CharVariationList& list = lookup[raceID * 2 + sexID].m_variation[CHARTEXTUREVAR_FACE];
+    const CharVariationList& list = lookup[raceID * 2 + sexID].sections[CHARTEXTUREVAR_FACE];
 
-    if (variationIndex >= list.m_numVariations || !list.m_numVariations || colorIndex < 0) {
+    if (variationIndex >= list.variationCount || !list.variationCount || colorIndex < 0) {
         return false;
     }
 
-    CharColorList& colors = list.m_variation[variationIndex];
+    const CharColorList& colors = list.variationArray[variationIndex];
 
-    if (colorIndex >= colors.m_numColors || !colors.m_numColors || !colors.m_color[colorIndex]) {
+    if (colorIndex >= colors.colorCount || !colors.colorCount || !colors.m_color[colorIndex]) {
         return false;
     }
 
@@ -207,7 +209,7 @@ bool ComponentValidateFace(st_race* lookup, int32_t raceID, int32_t sexID, int32
 
 // VERIFY: 9668fbd0 auto
 // OFFSET: 0x004F3D50
-bool ComponentValidateFacialFeature(st_race* lookup, uint32_t* facialFeatures, int32_t raceID, int32_t sexID, int32_t classID, int32_t colorIndex, int32_t variationIndex, COMPONENT_CONTEXT context) {
+bool ComponentValidateFacialFeature(const st_race* lookup, const uint32_t* facialFeatures, int32_t raceID, int32_t sexID, int32_t classID, int32_t colorIndex, int32_t variationIndex, COMPONENT_CONTEXT context) {
     if (variationIndex < 0) {
         return false;
     }
@@ -218,15 +220,15 @@ bool ComponentValidateFacialFeature(st_race* lookup, uint32_t* facialFeatures, i
         return false;
     }
 
-    CharVariationList& list = lookup[index].m_variation[CHARTEXTUREVAR_FACIALHAIR];
+    const CharVariationList& list = lookup[index].sections[CHARTEXTUREVAR_FACIALHAIR];
 
-    if (variationIndex >= list.m_numVariations || !list.m_numVariations || colorIndex < 0) {
+    if (variationIndex >= list.variationCount || !list.variationCount || colorIndex < 0) {
         return true;
     }
 
-    CharColorList& colors = list.m_variation[variationIndex];
+    const CharColorList& colors = list.variationArray[variationIndex];
 
-    if (colorIndex >= colors.m_numColors || !colors.m_numColors) {
+    if (colorIndex >= colors.colorCount || !colors.colorCount) {
         return true;
     }
 
@@ -237,6 +239,8 @@ bool ComponentValidateFacialFeature(st_race* lookup, uint32_t* facialFeatures, i
     return ComponentFlagsMatch(colors.m_color[colorIndex]->m_flags, GetSelectionFromContext(context, classID));
 }
 
+static constexpr int32_t UNITSEX_NUM_SEXES = 2;
+
 // VERIFY: 432f1f55 manual
 // OFFSET: 0x004F3DD0
 int32_t BuildComponentArray(uint32_t count, st_race** lookupOut) {
@@ -244,27 +248,29 @@ int32_t BuildComponentArray(uint32_t count, st_race** lookupOut) {
         return 0;
     }
 
-    st_race* lookup = new (__FILE__, __LINE__) st_race[count];
+    st_race* varArray = new (__FILE__, __LINE__) st_race[count];
 
     int32_t variationIndex = 0;
     CharSectionsRec* first = (0 >= g_charSectionsDB.GetNumRecords()) ? nullptr : &g_charSectionsDB.m_records[0];
+    STORM_ASSERT(first); // 12213: "rec"
     int32_t raceID = first->m_raceID;
     int32_t sexID = first->m_sexID;
-    COMPONENT_VARIATIONS baseSection = first->m_baseSection;
+    COMPONENT_VARIATIONS sectionIndex = first->m_baseSection;
 
     for (int32_t i = 0; i < g_charSectionsDB.GetNumRecords(); i++) {
         CharSectionsRec* rec = (i < 0 || i >= g_charSectionsDB.GetNumRecords()) ? nullptr : &g_charSectionsDB.m_records[i];
+        STORM_ASSERT(rec);
 
-        if (rec->m_baseSection >= CHARTEXTUREVARIATIONS_NUM) {
+        if (rec->m_baseSection >= NUM_COMPONENT_VARIATIONS) {
             continue;
         }
 
-        if (raceID != rec->m_raceID || sexID != rec->m_sexID || baseSection != rec->m_baseSection) {
-            CharVariationList& list = lookup[raceID * 2 + sexID].m_variation[baseSection];
-            list.m_numVariations = variationIndex + 1;
+        if (raceID != rec->m_raceID || sexID != rec->m_sexID || sectionIndex != rec->m_baseSection) {
+            CharVariationList& list = varArray[raceID * 2 + sexID].sections[sectionIndex];
+            list.variationCount = variationIndex + 1;
 
-            if (list.m_numVariations > 0) {
-                list.m_variation = new (__FILE__, __LINE__) CharColorList[list.m_numVariations];
+            if (list.variationCount > 0) {
+                list.variationArray = new (__FILE__, __LINE__) CharColorList[list.variationCount];
             }
 
             variationIndex = 0;
@@ -276,37 +282,40 @@ int32_t BuildComponentArray(uint32_t count, st_race** lookupOut) {
 
         raceID = rec->m_raceID;
         sexID = rec->m_sexID;
-        baseSection = rec->m_baseSection;
+        sectionIndex = rec->m_baseSection;
+        STORM_ASSERT(sectionIndex < NUM_COMPONENT_VARIATIONS);
     }
 
-    CharVariationList& lastList = lookup[raceID * 2 + sexID].m_variation[baseSection];
-    lastList.m_numVariations = variationIndex + 1;
+    CharVariationList& lastList = varArray[raceID * 2 + sexID].sections[sectionIndex];
+    lastList.variationCount = variationIndex + 1;
 
-    if (lastList.m_numVariations > 0) {
-        lastList.m_variation = new (__FILE__, __LINE__) CharColorList[lastList.m_numVariations];
+    if (lastList.variationCount > 0) {
+        lastList.variationArray = new (__FILE__, __LINE__) CharColorList[lastList.variationCount];
     }
 
     sexID = 0;
     raceID = RACE_HUMAN;
-    baseSection = VARIATION_SKIN;
+    sectionIndex = VARIATION_SKIN;
     variationIndex = 0;
     int32_t colorIndex = 0;
 
     for (int32_t i = 0; i < g_charSectionsDB.GetNumRecords(); i++) {
         CharSectionsRec* rec = (i < 0 || i >= g_charSectionsDB.GetNumRecords()) ? nullptr : &g_charSectionsDB.m_records[i];
+        STORM_ASSERT(rec);
 
-        if (rec->m_baseSection >= CHARTEXTUREVARIATIONS_NUM) {
+        if (rec->m_baseSection >= NUM_COMPONENT_VARIATIONS) {
             continue;
         }
 
-        if (raceID != rec->m_raceID || sexID != rec->m_sexID || baseSection != rec->m_baseSection || variationIndex != rec->m_variationIndex) {
-            CharVariationList& list = lookup[raceID * 2 + sexID].m_variation[baseSection];
+        if (raceID != rec->m_raceID || sexID != rec->m_sexID || sectionIndex != rec->m_baseSection || variationIndex != rec->m_variationIndex) {
+            STORM_ASSERT(sectionIndex <= NUM_COMPONENT_VARIATIONS);
+            CharVariationList& list = varArray[raceID * 2 + sexID].sections[sectionIndex];
 
-            if (list.m_numVariations > 0) {
-                CharColorList& colors = list.m_variation[variationIndex];
-                colors.m_numColors = colorIndex + 1;
+            if (list.variationCount > 0) {
+                CharColorList& colors = list.variationArray[variationIndex];
+                colors.colorCount = colorIndex + 1;
 
-                if (colors.m_numColors > 0) {
+                if (colors.colorCount > 0) {
                     colors.m_color = new (__FILE__, __LINE__) CharSectionsRec*[colorIndex + 1]();
                 }
             }
@@ -320,17 +329,17 @@ int32_t BuildComponentArray(uint32_t count, st_race** lookupOut) {
 
         raceID = rec->m_raceID;
         sexID = rec->m_sexID;
-        baseSection = rec->m_baseSection;
+        sectionIndex = rec->m_baseSection;
         variationIndex = rec->m_variationIndex;
     }
 
-    CharVariationList& lastColors = lookup[raceID * 2 + sexID].m_variation[baseSection];
+    CharVariationList& lastColors = varArray[raceID * 2 + sexID].sections[sectionIndex];
 
-    if (lastColors.m_numVariations > 0) {
-        CharColorList& colors = lastColors.m_variation[variationIndex];
-        colors.m_numColors = colorIndex + 1;
+    if (lastColors.variationCount > 0) {
+        CharColorList& colors = lastColors.variationArray[variationIndex];
+        colors.colorCount = colorIndex + 1;
 
-        if (colors.m_numColors > 0) {
+        if (colors.colorCount > 0) {
             colors.m_color = new (__FILE__, __LINE__) CharSectionsRec*[colorIndex + 1]();
         }
     }
@@ -338,24 +347,27 @@ int32_t BuildComponentArray(uint32_t count, st_race** lookupOut) {
     for (int32_t i = 0; i < g_charSectionsDB.GetNumRecords(); i++) {
         CharSectionsRec* rec = (i < 0 || i >= g_charSectionsDB.GetNumRecords()) ? nullptr : &g_charSectionsDB.m_records[i];
 
-        if (rec->m_baseSection >= CHARTEXTUREVARIATIONS_NUM) {
+        if (rec->m_baseSection >= NUM_COMPONENT_VARIATIONS) {
             continue;
         }
 
-        int32_t recVariation = rec->m_variationIndex;
-        int32_t recColor = rec->m_colorIndex;
-        CharVariationList& list = lookup[rec->m_raceID * 2 + rec->m_sexID].m_variation[rec->m_baseSection];
+        sectionIndex = rec->m_baseSection;
+        variationIndex = rec->m_variationIndex;
+        colorIndex = rec->m_colorIndex;
+        CharVariationList& list = varArray[rec->m_raceID * UNITSEX_NUM_SEXES + rec->m_sexID].sections[sectionIndex];
+        STORM_ASSERT(variationIndex < varArray[(rec->m_raceID * UNITSEX_NUM_SEXES + rec->m_sexID)].sections[sectionIndex].variationCount);
 
-        if (list.m_numVariations > 0 && recVariation < list.m_numVariations) {
-            CharColorList& colors = list.m_variation[recVariation];
+        if (list.variationCount > 0 && variationIndex < list.variationCount) {
+            CharColorList& colors = list.variationArray[variationIndex];
+            STORM_ASSERT(colorIndex < varArray[(rec->m_raceID * UNITSEX_NUM_SEXES + rec->m_sexID)].sections[sectionIndex].variationArray[variationIndex].colorCount);
 
-            if (colors.m_numColors > 0 && recColor < colors.m_numColors) {
-                colors.m_color[recColor] = rec;
+            if (colors.colorCount > 0 && colorIndex < colors.colorCount) {
+                colors.m_color[colorIndex] = rec;
             }
         }
     }
 
-    *lookupOut = lookup;
+    *lookupOut = varArray;
 
     return 1;
 }

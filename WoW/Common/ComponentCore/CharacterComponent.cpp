@@ -1745,7 +1745,7 @@ void CCharacterComponent::ReplaceExtraSkinTexture(const char* debug) {
         return;
     }
 
-    const char* textureName = CCharacterComponent::s_chrVarArray[this->m_data.m_preferences.m_raceID * 2 + this->m_data.m_preferences.m_sexID].m_variation[CHARTEXTUREVAR_SKIN].m_variation[0].m_color[this->m_data.m_preferences.m_skinID]->m_textureName[CharSectionsRec::TEXTURE_INDEX::SKIN_EXTRA];
+    const char* textureName = CCharacterComponent::s_chrVarArray[this->m_data.m_preferences.m_raceID * 2 + this->m_data.m_preferences.m_sexID].sections[CHARTEXTUREVAR_SKIN].variationArray[0].m_color[this->m_data.m_preferences.m_skinID]->m_textureName[CharSectionsRec::TEXTURE_INDEX::SKIN_EXTRA];
 
     if (!*textureName) {
         return;
@@ -1767,7 +1767,7 @@ void CCharacterComponent::ReplaceHairTexture(int32_t hairStyleID, const char* de
         return;
     }
 
-    const char* textureName = CCharacterComponent::s_chrVarArray[this->m_data.m_preferences.m_raceID * 2 + this->m_data.m_preferences.m_sexID].m_variation[CHARTEXTUREVAR_HAIR].m_variation[hairStyleID].m_color[this->m_data.m_preferences.m_hairColorId]->m_textureName[CharSectionsRec::TEXTURE_INDEX::HAIR_SCALP];
+    const char* textureName = CCharacterComponent::s_chrVarArray[this->m_data.m_preferences.m_raceID * 2 + this->m_data.m_preferences.m_sexID].sections[CHARTEXTUREVAR_HAIR].variationArray[hairStyleID].m_color[this->m_data.m_preferences.m_hairColorId]->m_textureName[CharSectionsRec::TEXTURE_INDEX::HAIR_SCALP];
 
     if (!*textureName) {
         return;
@@ -1796,7 +1796,7 @@ void CCharacterComponent::LoadBaseVariation(CHARTEXTUREVARIATIONS variation, int
         return;
     }
 
-    const char* textureName = CCharacterComponent::s_chrVarArray[this->m_data.m_preferences.m_raceID * 2 + this->m_data.m_preferences.m_sexID].m_variation[variation].m_variation[variationIndex].m_color[colorIndex]->m_textureName[textureIndex];
+    const char* textureName = CCharacterComponent::s_chrVarArray[this->m_data.m_preferences.m_raceID * 2 + this->m_data.m_preferences.m_sexID].sections[variation].variationArray[variationIndex].m_color[colorIndex]->m_textureName[textureIndex];
 
     if (*textureName) {
         strcpy(s_pathEnd, textureName);
@@ -5538,13 +5538,13 @@ bool CCharacterComponent::Destroy() {
 
     for (uint32_t i = 0; i < CCharacterComponent::s_chrVarArrayLength; i++) {
         for (int32_t variation = 0; variation < CHARTEXTUREVARIATIONS_NUM; variation++) {
-            CharVariationList& list = CCharacterComponent::s_chrVarArray[i].m_variation[variation];
+            CharVariationList& list = CCharacterComponent::s_chrVarArray[i].sections[variation];
 
-            for (int32_t j = 0; j < list.m_numVariations; j++) {
-                delete[] list.m_variation[j].m_color;
+            for (int32_t j = 0; j < list.variationCount; j++) {
+                delete[] list.variationArray[j].m_color;
             }
 
-            delete[] list.m_variation;
+            delete[] list.variationArray;
         }
     }
 
