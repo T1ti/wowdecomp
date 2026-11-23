@@ -16,7 +16,7 @@ struct MD5_CTX;
 class CStatus;
 
 struct EVENTLISTENERNODE : public TSLinkedNode<EVENTLISTENERNODE> {
-    /* 0008 */ FrameScript_Object* m_listener;
+    /* 0008 */ FrameScript_Object* object;
 };
 
 struct FrameScript_EventObject : public TSHashObject<FrameScript_EventObject, HASHKEY_CONSTSTRI> {
@@ -31,7 +31,6 @@ struct FrameScript_EventObject : public TSHashObject<FrameScript_EventObject, HA
     ~FrameScript_EventObject();
 };
 
-extern lua_State* s_context;
 extern TSHashTable<FrameScript_EventObject, HASHKEY_CONSTSTRI> s_scriptEventsHash;
 extern double s_scriptTimeDivisor;
 extern int32_t s_inErrorHandler;

@@ -82,7 +82,7 @@ void FrameScript_Object::GetScriptTime(lua_State* L, const FrameScript_Object::S
 // OFFSET: 0x00819810
 FrameScript_Object::ScriptIx::~ScriptIx() {
     if (this->m_luaRef) {
-        luaL_unref(s_context, LUA_REGISTRYINDEX, this->m_luaRef);
+        luaL_unref(FrameScript_GetContext(), LUA_REGISTRYINDEX, this->m_luaRef);
     }
 }
 
@@ -101,7 +101,7 @@ FrameScript_Object::~FrameScript_Object() {
 // VERIFY: 12e14749 auto
 // OFFSET: 0x00819880
 void FrameScript_Object::RegisterScriptObject(const char* name) {
-    lua_State* L = s_context;
+    lua_State* L = FrameScript_GetContext();
 
     if (!this->m_luaRegistered) {
         const char* taint = lua_tainted;
@@ -151,7 +151,7 @@ void FrameScript_Object::RegisterScriptObject(const char* name) {
 // VERIFY: 067f37ae auto
 // OFFSET: 0x008199C0
 void FrameScript_Object::UnregisterScriptObject(const char* name) {
-    lua_State* L = s_context;
+    lua_State* L = FrameScript_GetContext();
 
     if (this->m_luaRegistered > 0 && --this->m_luaRegistered == 0) {
         lua_rawgeti(L, LUA_REGISTRYINDEX, this->m_luaObjectRef);
@@ -188,7 +188,7 @@ int32_t FrameScript_Object::IsScriptEventRegistered(const char* name) {
 
     if (event) {
         for (EVENTLISTENERNODE* node = event->m_listeners.Head(); !event->m_listeners.IsEnd(node); node = event->m_listeners.RawNext(node)) {
-            if (node->m_listener == this) {
+            if (node->object == this) {
                 return 1;
             }
         }
@@ -208,7 +208,7 @@ int32_t FrameScript_Object::RegisterScriptEvent(const char* name) {
 
     if (event->m_pendingSignalCount) {
         for (EVENTLISTENERNODE* node = event->m_unregisterListeners.Head(); !event->m_unregisterListeners.IsEnd(node); node = event->m_unregisterListeners.RawNext(node)) {
-            if (node->m_listener == this) {
+            if (node->object == this) {
                 event->m_unregisterListeners.DeleteNode(node);
                 break;
             }
@@ -216,7 +216,7 @@ int32_t FrameScript_Object::RegisterScriptEvent(const char* name) {
     }
 
     for (EVENTLISTENERNODE* node = event->m_listeners.Head(); !event->m_listeners.IsEnd(node); node = event->m_listeners.RawNext(node)) {
-        if (node->m_listener == this) {
+        if (node->object == this) {
             return 1;
         }
     }
@@ -237,7 +237,7 @@ void FrameScript_Object::UnregisterScriptEvent(const char* name) {
 
     if (event->m_pendingSignalCount) {
         for (EVENTLISTENERNODE* node = event->m_registerListeners.Head(); !event->m_registerListeners.IsEnd(node); node = event->m_registerListeners.RawNext(node)) {
-            if (node->m_listener == this) {
+            if (node->object == this) {
                 event->m_registerListeners.DeleteNode(node);
                 break;
             }

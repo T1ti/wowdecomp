@@ -250,7 +250,7 @@ static int32_t Script_GetFramesRegisteredForEvent(lua_State* L) {
     }
 
     for (EVENTLISTENERNODE* node = listeners->Head(); node; node = listeners->Next(node)) {
-        FrameScript_Object* listener = node->m_listener;
+        FrameScript_Object* listener = node->object;
 
         lua_rawgeti(L, LUA_REGISTRYINDEX, listener->GetLuaObjectRef());
     }

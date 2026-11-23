@@ -21,7 +21,7 @@ double s_scriptTimeDivisor;
 static void* s_mempool;
 
 // STATIC: 0x00D3F78C
-lua_State* s_context;
+static lua_State* s_context;
 
 // STATIC: 0x00D3F790
 static int64_t s_scriptTimeUsed;
@@ -218,6 +218,7 @@ uint32_t FrameScript_GetPluralIndex(int32_t count) {
             return 2;
 
         default:
+            STORM_ASSERT(!"Unhandled purality rule!");
             return 0;
     }
 }
@@ -807,6 +808,8 @@ int32_t FrameScript_LoadVariables(const char* filename, CStatus* status) {
 // VERIFY: d3ad0327 auto
 // OFFSET: 0x00818E50
 int32_t FrameScript_ExecuteBuffer(const char* buffer, size_t bytes, const char* bufferName, CStatus* status, const char* wrapper) {
+    STORM_ASSERT(s_context);
+
     lua_State* L = s_context;
 
     lua_rawgeti(L, LUA_REGISTRYINDEX, s_errorHandlerRef);
@@ -827,6 +830,8 @@ int32_t FrameScript_ExecuteBuffer(const char* buffer, size_t bytes, const char* 
 
     if (wrapper) {
         lua_pushstring(L, wrapper);
+        STORM_ASSERT(lua_gettop(L) >= 4);
+        STORM_ASSERT((lua_type(L, (-4)) == 5));
         lua_pushvalue(L, -4);
         args = 2;
     }
@@ -1132,6 +1137,8 @@ static int32_t FrameScript_HandleError(lua_State* L) {
 // VERIFY: 6d24b23a auto
 // OFFSET: 0x00819BB0
 int32_t FrameScript_Initialize(int32_t profile) {
+    STORM_ASSERT(!s_context);
+
     s_mempool = luaM_initPool();
     s_context = lua_newstate(luaM_reallocPool, s_mempool, profile);
     s_scriptTimeUsed = 0;
@@ -1388,16 +1395,16 @@ FrameScript_EventObject::~FrameScript_EventObject() {
 void FrameScript_RegisterScriptEvent(FrameScript_Object* object, FrameScript_EventObject* event) {
     if (event->m_pendingSignalCount) {
         for (EVENTLISTENERNODE* node = event->m_registerListeners.Head(); !event->m_registerListeners.IsEnd(node); node = event->m_registerListeners.RawNext(node)) {
-            if (node->m_listener == object) {
+            if (node->object == object) {
                 return;
             }
         }
 
         EVENTLISTENERNODE* node = event->m_registerListeners.NewNode(TSLIST_LINK_BEFORE, 0, 0);
-        node->m_listener = object;
+        node->object = object;
     } else {
         EVENTLISTENERNODE* node = event->m_listeners.NewNode(TSLIST_LINK_BEFORE, 0, 0);
-        node->m_listener = object;
+        node->object = object;
     }
 }
 
@@ -1406,16 +1413,16 @@ void FrameScript_RegisterScriptEvent(FrameScript_Object* object, FrameScript_Eve
 void FrameScript_UnregisterScriptEvent(FrameScript_Object* object, FrameScript_EventObject* event) {
     if (event->m_pendingSignalCount) {
         for (EVENTLISTENERNODE* node = event->m_unregisterListeners.Head(); !event->m_unregisterListeners.IsEnd(node); node = event->m_unregisterListeners.RawNext(node)) {
-            if (node->m_listener == object) {
+            if (node->object == object) {
                 return;
             }
         }
 
         EVENTLISTENERNODE* node = event->m_unregisterListeners.NewNode(TSLIST_LINK_BEFORE, 0, 0);
-        node->m_listener = object;
+        node->object = object;
     } else {
         for (EVENTLISTENERNODE* node = event->m_listeners.Head(); !event->m_listeners.IsEnd(node); node = event->m_listeners.RawNext(node)) {
-            if (node->m_listener == object) {
+            if (node->object == object) {
                 event->m_listeners.DeleteNode(node);
                 break;
             }
@@ -1453,42 +1460,43 @@ void FrameScript_SignalEvent(uint32_t index, lua_State* L, int32_t argCount) {
     event->m_pendingSignalCount++;
     lua_checkstack(L, argCount);
 
-    EVENTLISTENERNODE* node = event->m_listeners.Head();
+    EVENTLISTENERNODE* entry = event->m_listeners.Head();
 
-    while (!event->m_listeners.IsEnd(node)) {
-        EVENTLISTENERNODE* next = event->m_listeners.RawNext(node);
+    while (!event->m_listeners.IsEnd(entry)) {
+        EVENTLISTENERNODE* next = event->m_listeners.RawNext(entry);
         int32_t unregistered = 0;
 
         for (EVENTLISTENERNODE* other = event->m_unregisterListeners.Head(); !event->m_unregisterListeners.IsEnd(other); other = event->m_unregisterListeners.RawNext(other)) {
-            if (node->m_listener == other->m_listener) {
+            if (entry->object == other->object) {
                 unregistered = 1;
                 break;
             }
         }
 
         if (!unregistered) {
-            FrameScript_Object::ScriptIx& script = node->m_listener->m_onEvent;
+            STORM_ASSERT(entry->object);
+            FrameScript_Object::ScriptIx& script = entry->object->m_onEvent;
 
             if (script.m_luaRef) {
                 for (int32_t i = argCount; i > 0; i--) {
                     lua_pushvalue(L, -argCount);
                 }
 
-                FrameScript_Execute(script.m_luaRef, node->m_listener, argCount, script.m_tainted, event);
+                FrameScript_Execute(script.m_luaRef, entry->object, argCount, script.m_tainted, event);
             }
         }
 
-        node = next;
+        entry = next;
     }
 
     event->m_pendingSignalCount--;
 
-    for (node = event->m_unregisterListeners.Head(); !event->m_unregisterListeners.IsEnd(node); node = event->m_unregisterListeners.DeleteNode(node)) {
-        FrameScript_UnregisterScriptEvent(node->m_listener, event);
+    for (entry = event->m_unregisterListeners.Head(); !event->m_unregisterListeners.IsEnd(entry); entry = event->m_unregisterListeners.DeleteNode(entry)) {
+        FrameScript_UnregisterScriptEvent(entry->object, event);
     }
 
-    for (node = event->m_registerListeners.Head(); !event->m_registerListeners.IsEnd(node); node = event->m_registerListeners.DeleteNode(node)) {
-        FrameScript_RegisterScriptEvent(node->m_listener, event);
+    for (entry = event->m_registerListeners.Head(); !event->m_registerListeners.IsEnd(entry); entry = event->m_registerListeners.DeleteNode(entry)) {
+        FrameScript_RegisterScriptEvent(entry->object, event);
     }
 }
 
@@ -1603,6 +1611,8 @@ void FrameScript_SignalEvent(uint32_t index, const char* format, ...) {
 // VERIFY: 2207d978 manual
 // OFFSET: 0x0081B5F0
 void FrameScript_CreateEvents(const char** names, uint32_t count) {
+    STORM_ASSERT(s_scriptEvents.Count() == 0);
+
     s_scriptEvents.SetCount(count);
 
     for (uint32_t i = 0; i < count; i++) {
