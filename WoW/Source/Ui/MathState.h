@@ -173,9 +173,11 @@ enum MATHOP : uint8_t {
 };
 
 struct CFloatStack {
+    private:
     /* 0000 */ float m_values[32];
-    /* 0080 */ int32_t m_top; // Grows downward: 32 is empty, 0 is full.
+    /* 0080 */ int32_t m_top = 32; // Grows downward: 32 is empty, 0 is full.
 
+    public:
     bool IsEmpty() const {
         return this->m_top == 32;
     }
@@ -196,7 +198,7 @@ struct CFloatStack {
 };
 
 class CFormula {
-    public:
+    private:
     // m_status: compiling, failed (compile or evaluate), or ready to evaluate, as QuestTextParser drives it.
     enum STATUS : uint32_t {
         STATUS_COMPILING = 0, // (inferred)
@@ -226,6 +228,26 @@ class CFormula {
     void ExecuteFunction(uint32_t op, CFloatStack* stack);
     void ExecuteOperator(uint32_t op, CFloatStack* stack);
     void GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec* spell, int32_t spellLevel, int32_t scale, int32_t parseUnit, int32_t parsePet, int32_t noModifiers);
+    public:
+    bool Compile(const char* name, const char* text) { // (inferred)
+        this->m_text = text;
+        this->m_numOps = 0;
+        this->m_constantsCount = 0;
+        this->m_otherSpellIDCount = 0;
+        this->m_spellVariablesCount = 0;
+        this->m_name = name;
+        this->m_status = STATUS_COMPILING;
+        this->CompileSum(0);
+
+        if (this->m_status == STATUS_ERROR) {
+            return false;
+        }
+
+        this->m_status = STATUS_OK;
+        return true;
+    }
+
+    bool IsValid() const { return this->m_status == STATUS_OK; } // (inferred)
     float Evaluate(const SpellRec* spell, int32_t spellLevel, int32_t scale, int32_t parseUnit, int32_t parsePet, int32_t noModifiers);
 };
 

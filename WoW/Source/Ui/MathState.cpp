@@ -332,9 +332,8 @@ int32_t CFormula::CompileSum(int32_t pos) {
 void CFormula::ExecuteFunction(uint32_t op, CFloatStack* stack) {
     float args[3];
 
-    for (int32_t i = s_mathFunctions[op - MATHOP_ABS].m_argCount; i; stack->m_top++) {
-        i--;
-        args[i] = stack->m_values[stack->m_top];
+    for (int32_t i = s_mathFunctions[op - MATHOP_ABS].m_argCount; i;) {
+        args[--i] = stack->Pop();
     }
 
     float result;
@@ -475,6 +474,8 @@ void CFormula::GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec*
     float value = 0.0f;
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
+    STORM_ASSERT(player);
+
     if (player) {
         switch (op) {
             case MATHOP_STAT_STRENGTH:
@@ -498,7 +499,9 @@ void CFormula::GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec*
             case MATHOP_MIN_POINTS_3: {
                 float minPoints;
                 float maxPoints;
-                Spell_C_GetMinMaxPoints(spell, op - MATHOP_MIN_POINTS_1, &minPoints, &maxPoints, spellLevel, parsePet, parseUnit, noModifiers);
+                const uint32_t index = op - MATHOP_MIN_POINTS_1;
+                STORM_ASSERT(index < NUM_SPELL_EFFECTS); // 12213: "((index >= 0) && (index < 3))"
+                Spell_C_GetMinMaxPoints(spell, index, &minPoints, &maxPoints, spellLevel, parsePet, parseUnit, noModifiers);
                 value = scale * minPoints;
                 break;
             }
@@ -508,7 +511,9 @@ void CFormula::GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec*
             case MATHOP_MAX_POINTS_3: {
                 float minPoints;
                 float maxPoints;
-                Spell_C_GetMinMaxPoints(spell, op - MATHOP_MAX_POINTS_1, &minPoints, &maxPoints, spellLevel, parsePet, parseUnit, noModifiers);
+                const uint32_t index = op - MATHOP_MAX_POINTS_1;
+                STORM_ASSERT(index < NUM_SPELL_EFFECTS); // 12213: "((index >= 0) && (index < 3))"
+                Spell_C_GetMinMaxPoints(spell, index, &minPoints, &maxPoints, spellLevel, parsePet, parseUnit, noModifiers);
                 value = scale * maxPoints;
                 break;
             }
@@ -520,7 +525,8 @@ void CFormula::GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec*
             case MATHOP_RADIUS_2_UPPER:
             case MATHOP_RADIUS_3_UPPER: {
                 float radius = 0.0f;
-                uint32_t index = op < MATHOP_RADIUS_1_UPPER ? op - MATHOP_RADIUS_1 : op - MATHOP_RADIUS_1_UPPER;
+                const uint32_t index = op < MATHOP_RADIUS_1_UPPER ? op - MATHOP_RADIUS_1 : op - MATHOP_RADIUS_1_UPPER;
+                STORM_ASSERT(index < NUM_SPELL_EFFECTS); // 12213: "((index >= 0) && (index < 3))"
 
                 if (index < NUM_SPELL_EFFECTS) {
                     SpellRadiusRec* rec = g_spellRadiusDB.GetRecord(spell->m_effectRadiusIndex[index]);
@@ -579,7 +585,8 @@ void CFormula::GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec*
             case MATHOP_CHAIN_TARGETS_2_UPPER:
             case MATHOP_CHAIN_TARGETS_3_UPPER: {
                 int32_t targets = 0;
-                uint32_t index = op < MATHOP_CHAIN_TARGETS_1_UPPER ? op - MATHOP_CHAIN_TARGETS_1 : op - MATHOP_CHAIN_TARGETS_1_UPPER;
+                const uint32_t index = op < MATHOP_CHAIN_TARGETS_1_UPPER ? op - MATHOP_CHAIN_TARGETS_1 : op - MATHOP_CHAIN_TARGETS_1_UPPER;
+                STORM_ASSERT(index < NUM_SPELL_EFFECTS); // 12213: "((index >= 0) && (index < 3))"
 
                 if (index < NUM_SPELL_EFFECTS) {
                     targets = spell->m_effectChainTargets[index];
@@ -601,7 +608,8 @@ void CFormula::GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec*
                 if (spell->m_procTypeMask & SpellRec::PROC_HEARTBEAT) {
                     period = SpellRec::HEARTBEAT_PROC_PERIOD_MS;
                 } else {
-                    uint32_t index = op < MATHOP_AURA_PERIOD_1_UPPER ? op - MATHOP_AURA_PERIOD_1 : op - MATHOP_AURA_PERIOD_1_UPPER;
+                    const uint32_t index = op < MATHOP_AURA_PERIOD_1_UPPER ? op - MATHOP_AURA_PERIOD_1 : op - MATHOP_AURA_PERIOD_1_UPPER;
+                    STORM_ASSERT(index < NUM_SPELL_EFFECTS); // 12213: "((index >= 0) && (index < 3))"
 
                     if (index < NUM_SPELL_EFFECTS) {
                         period = spell->m_effectAuraPeriod[index];
@@ -635,7 +643,8 @@ void CFormula::GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec*
             case MATHOP_POINTS_PER_COMBO_1_UPPER:
             case MATHOP_POINTS_PER_COMBO_2_UPPER:
             case MATHOP_POINTS_PER_COMBO_3_UPPER: {
-                uint32_t index = op < MATHOP_POINTS_PER_COMBO_1_UPPER ? op - MATHOP_POINTS_PER_COMBO_1 : op - MATHOP_POINTS_PER_COMBO_1_UPPER;
+                const uint32_t index = op < MATHOP_POINTS_PER_COMBO_1_UPPER ? op - MATHOP_POINTS_PER_COMBO_1 : op - MATHOP_POINTS_PER_COMBO_1_UPPER;
+                STORM_ASSERT(index < NUM_SPELL_EFFECTS); // 12213: "((index >= 0) && (index < 3))"
 
                 if (index < NUM_SPELL_EFFECTS) {
                     value = spell->m_effectPointsPerCombo[index];
@@ -660,7 +669,8 @@ void CFormula::GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec*
             case MATHOP_AMPLITUDE_1_UPPER:
             case MATHOP_AMPLITUDE_2_UPPER:
             case MATHOP_AMPLITUDE_3_UPPER: {
-                uint32_t index = op < MATHOP_AMPLITUDE_1_UPPER ? op - MATHOP_AMPLITUDE_1 : op - MATHOP_AMPLITUDE_1_UPPER;
+                const uint32_t index = op < MATHOP_AMPLITUDE_1_UPPER ? op - MATHOP_AMPLITUDE_1 : op - MATHOP_AMPLITUDE_1_UPPER;
+                STORM_ASSERT(index < NUM_SPELL_EFFECTS); // 12213: "((index >= 0) && (index < 3))"
 
                 if (index < NUM_SPELL_EFFECTS) {
                     float amplitude = spell->m_effectAmplitude[index];
@@ -682,7 +692,8 @@ void CFormula::GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec*
             case MATHOP_CHAIN_AMPLITUDE_1_UPPER:
             case MATHOP_CHAIN_AMPLITUDE_2_UPPER:
             case MATHOP_CHAIN_AMPLITUDE_3_UPPER: {
-                uint32_t index = op < MATHOP_CHAIN_AMPLITUDE_1_UPPER ? op - MATHOP_CHAIN_AMPLITUDE_1 : op - MATHOP_CHAIN_AMPLITUDE_1_UPPER;
+                const uint32_t index = op < MATHOP_CHAIN_AMPLITUDE_1_UPPER ? op - MATHOP_CHAIN_AMPLITUDE_1 : op - MATHOP_CHAIN_AMPLITUDE_1_UPPER;
+                STORM_ASSERT(index < NUM_SPELL_EFFECTS); // 12213: "((index >= 0) && (index < 3))"
 
                 if (index < NUM_SPELL_EFFECTS) {
                     value = spell->m_effectChainAmplitude[index];
@@ -697,7 +708,8 @@ void CFormula::GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec*
             case MATHOP_MISC_VALUE_1_UPPER:
             case MATHOP_MISC_VALUE_2_UPPER:
             case MATHOP_MISC_VALUE_3_UPPER: {
-                uint32_t index = op < MATHOP_CHAIN_AMPLITUDE_1_UPPER ? op - MATHOP_CHAIN_AMPLITUDE_1 : op - MATHOP_CHAIN_AMPLITUDE_1_UPPER;
+                const uint32_t index = op < MATHOP_CHAIN_AMPLITUDE_1_UPPER ? op - MATHOP_CHAIN_AMPLITUDE_1 : op - MATHOP_CHAIN_AMPLITUDE_1_UPPER;
+                STORM_ASSERT(index < NUM_SPELL_EFFECTS); // 12213: "((index >= 0) && (index < 3))"
 
                 if (index < NUM_SPELL_EFFECTS) {
                     value = static_cast<float>(spell->m_effectMiscValue[index]);
@@ -889,7 +901,8 @@ void CFormula::GetVariableValue(uint32_t op, CFloatStack* stack, const SpellRec*
             case MATHOP_BONUS_COEFFICIENT_1_UPPER:
             case MATHOP_BONUS_COEFFICIENT_2_UPPER:
             case MATHOP_BONUS_COEFFICIENT_3_UPPER: {
-                uint32_t index = op < MATHOP_BONUS_COEFFICIENT_1_UPPER ? op - MATHOP_BONUS_COEFFICIENT_1 : op - MATHOP_BONUS_COEFFICIENT_1_UPPER;
+                const uint32_t index = op < MATHOP_BONUS_COEFFICIENT_1_UPPER ? op - MATHOP_BONUS_COEFFICIENT_1 : op - MATHOP_BONUS_COEFFICIENT_1_UPPER;
+                STORM_ASSERT(index < NUM_SPELL_EFFECTS); // 12213: "((index >= 0) && (index < 3))"
 
                 if (index < NUM_SPELL_EFFECTS) {
                     float coefficient = spell->m_effectBonusCoefficient[index];
@@ -916,7 +929,6 @@ float CFormula::Evaluate(const SpellRec* spell, int32_t spellLevel, int32_t scal
     STORM_ASSERT(m_status == STATUS_OK);
 
     CFloatStack stack;
-    stack.m_top = 32;
     BOOL useLoaded = 0;
     SpellRec loaded;
     const float* constant = this->m_constants;
@@ -983,7 +995,7 @@ float CFormula::Evaluate(const SpellRec* spell, int32_t spellLevel, int32_t scal
     float result = 0.0f;
 
     if (this->m_status == STATUS_OK) {
-        result = stack.m_values[stack.m_top];
+        result = stack.Pop();
     }
 
     return result;

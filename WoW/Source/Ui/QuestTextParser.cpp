@@ -446,23 +446,13 @@ static int32_t SpellParserExpression(const SpellRec* spell, char* buffer, uint32
         }
     }
 
-    s_mathState.m_text = expression;
-    s_mathState.m_numOps = 0;
-    s_mathState.m_constantsCount = 0;
-    s_mathState.m_otherSpellIDCount = 0;
-    s_mathState.m_spellVariablesCount = 0;
-    s_mathState.m_name = "TomT";
-    s_mathState.m_status = CFormula::STATUS_COMPILING;
-    s_mathState.CompileSum(0);
-
-    if (s_mathState.m_status == CFormula::STATUS_ERROR) {
+    if (!s_mathState.Compile("TomT", expression)) {
         return 0;
     }
 
-    s_mathState.m_status = CFormula::STATUS_OK;
     *value = s_mathState.Evaluate(spell, spellLevel, scale, parseUnit, parsePet, noModifiers);
 
-    if (s_mathState.m_status != CFormula::STATUS_OK) {
+    if (!s_mathState.IsValid()) {
         return 0;
     }
 
