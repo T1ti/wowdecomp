@@ -82,19 +82,28 @@ struct SpanRange {
 
 class SpanRasterizer {
     public:
+    SpanRasterizer(const C2iVector& size, SpanRange* spans);
+    void AddRing(int32_t x, int32_t y, int32_t radius);
+
+    protected:
     /* 0004 */ int32_t m_width;
+
+    private:
     /* 0008 */ int32_t m_height;
     /* 000C */ SpanRange* m_spans;
 
-    SpanRasterizer(const C2iVector& size, SpanRange* spans);
     virtual void VisitSpan(int32_t x0, int32_t x1, int32_t y) = 0;
     void VisitRange(int32_t x0, int32_t x1, int32_t y);
     void AddSpan(int32_t x0, int32_t x1, int32_t y);
-    void AddRing(int32_t x, int32_t y, int32_t radius);
 };
 
 class LiquidSoundQuery : public SpanRasterizer {
     public:
+    LiquidSoundQuery(const C2iVector& size, SpanRange* spans, const C3Vector& position, int32_t liquidType, const SMOLTile* tiles, const SMOLVert* verts, TSGrowableArray<World::LiquidQueryResult>* results);
+    bool Found() const { return m_found != 0; } // (inferred)
+    void SetRadiusSq(float radiusSq) { m_radiusSq = radiusSq; } // (inferred)
+
+    private:
     /* 0010 */ C3Vector m_position;
     /* 001C */ int32_t m_liquidType;
     /* 0020 */ const SMOLTile* m_tiles;
@@ -103,7 +112,6 @@ class LiquidSoundQuery : public SpanRasterizer {
     /* 002C */ float m_radiusSq;
     /* 0030 */ uint8_t m_found;
 
-    LiquidSoundQuery(const C2iVector& size, SpanRange* spans, const C3Vector& position, int32_t liquidType, const SMOLTile* tiles, const SMOLVert* verts, TSGrowableArray<World::LiquidQueryResult>* results);
     void VisitSpan(int32_t x0, int32_t x1, int32_t y) override;
 };
 
@@ -160,20 +168,21 @@ void SpanRasterizer::AddSpan(int32_t x0, int32_t x1, int32_t y) {
         return;
     }
 
-    int32_t start = Clamp(x0, 0, this->m_width - 1);
-    int32_t end = Clamp(x1, 0, this->m_width - 1);
+    int32_t left = Clamp(x0, 0, this->m_width - 1);
+    int32_t right = Clamp(x1, 0, this->m_width - 1);
+    STORM_ASSERT(left <= right);
     SpanRange& span = this->m_spans[y];
 
     if (span.m_max >= span.m_min) {
-        this->VisitRange(start, span.m_min - 1, y);
-        this->VisitRange(this->m_spans[y].m_max + 1, end, y);
+        this->VisitRange(left, span.m_min - 1, y);
+        this->VisitRange(this->m_spans[y].m_max + 1, right, y);
     } else {
-        this->VisitRange(start, end, y);
+        this->VisitRange(left, right, y);
     }
 
     SpanRange range;
-    range.m_min = start;
-    range.m_max = end;
+    range.m_min = left;
+    range.m_max = right;
     this->m_spans[y].Merge(range);
 }
 
@@ -267,12 +276,12 @@ void CMapObjGroup::QueryLiquidSounds(const C3Vector& pos, TSGrowableArray<World:
     LiquidSoundQuery query(this->liquidTiles, spans, local, this->m_liquidType, this->m_liquidTileList, this->m_liquidVertexList, &results);
 
     for (uint32_t i = 0; i < sizeof(s_liquidSoundRings) / sizeof(s_liquidSoundRings[0]); i++) {
-        if (query.m_found) {
+        if (query.Found()) {
             break;
         }
 
         float ring = s_liquidSoundRings[i];
-        query.m_radiusSq = SMOLTILE_SIZE * ring * (SMOLTILE_SIZE * ring);
+        query.SetRadiusSq(SMOLTILE_SIZE * ring * (SMOLTILE_SIZE * ring));
         query.AddRing(tileX, tileY, static_cast<int32_t>(ring));
     }
 }
