@@ -184,6 +184,7 @@ class CGlueMgr {
     static void ResetQueueState();
     static void SetCurrentAccount(const char* accountName);
     static void SetLoginStateAndResult(LOGIN_STATE state, LOGIN_RESULT result, const char* addressString, const char* stateString, const char* resultString, uint16_t flags);
+    static inline void InitCursor();
     static void Resume();
     static void Shutdown();
     static void ScanDLLContinueAnyway();

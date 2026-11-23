@@ -469,6 +469,8 @@ int32_t CGlueMgr::OnCharRenameResult(void* param, NETMESSAGE msgId, uint32_t tim
     if (!msg->IsRead()) {
         msg->Get(guid.m_guid);
         msg->GetString(name, sizeof(name));
+    } else {
+        STORM_ASSERT(result != RESPONSE_SUCCESS);
     }
 
     FrameScript_SignalEvent(GLUE_EVENT_CLOSE_STATUS_DIALOG, nullptr);
@@ -674,6 +676,19 @@ void CGlueMgr::HandleDisplaySizeChanged(const CSizeEvent& event) {
     CGlueMgr::m_reload = 1;
 }
 
+// INLINED
+inline void CGlueMgr::InitCursor() {
+    uint32_t width = 0;
+    uint32_t height = 0;
+    PIXEL_FORMAT format = PIXEL_ARGB8888;
+    CGlueMgr::m_cursorMipBits = TextureLoadImage("Interface\\Cursor\\Point.blp", &width, &height, &format, nullptr, nullptr, nullptr, 0);
+    STORM_ASSERT(width == 32);
+    STORM_ASSERT(height == 32);
+    STORM_ASSERT(format == PIXEL_ARGB8888);
+
+    CGlueMgr::m_simpleTop->SetCursor(CGlueMgr::m_cursorMipBits);
+}
+
 // VERIFY: e486096e manual
 // OFFSET: 0x004DA5F0
 void CGlueMgr::Resume() {
@@ -695,14 +710,11 @@ void CGlueMgr::Resume() {
     CGlueMgr::m_simpleTop = new (SMemAlloc(sizeof(CSimpleTop), __FILE__, __LINE__, 0)) CSimpleTop();
     CGlueMgr::m_simpleTop->m_displaySizeCallback = CGlueMgr::HandleDisplaySizeChanged;
 
-    uint32_t width = 0;
-    uint32_t height = 0;
-    PIXEL_FORMAT format = PIXEL_ARGB8888;
-    CGlueMgr::m_cursorMipBits = TextureLoadImage("Interface\\Cursor\\Point.blp", &width, &height, &format, nullptr, nullptr, nullptr, 0);
-    CGlueMgr::m_simpleTop->SetCursor(CGlueMgr::m_cursorMipBits);
+    CGlueMgr::InitCursor();
     CGlueMgr::m_simpleTop->SetCursor(CGlueMgr::m_cursorMipBits);
 
     CGInputControl* control = CGInputControl::GetActive();
+    STORM_ASSERT(control);
     control->m_mouseModeFlags = INPUT_MOUSE_MODE_FLAGS::INPUT_MOUSE_MODE_INITIAL_FLAGS;
     control->m_forceCursorOn = 0;
     control->UpdateMouseMode(1);
@@ -798,6 +810,8 @@ int32_t CGlueMgr::OnRealmSplitMsg(void* param, NETMESSAGE msgId, uint32_t time, 
     uint32_t state = 0;
     char date[64];
     date[0] = '\0';
+
+    STORM_ASSERT(!msg->IsRead());
 
     if (!msg->IsRead()) {
         msg->Get(realmId);
@@ -1200,7 +1214,8 @@ int32_t CGlueMgr::Idle(const void* data, void* param) {
                 uint32_t maxDigits;
                 bool flipCoords;
                 uint32_t challengeCount;
-                ClientServices::LoginConnection()->GetMatrixInfo(&width, &height, &minDigits, &maxDigits, &flipCoords, &challengeCount);
+                [[maybe_unused]] bool required = ClientServices::LoginConnection()->GetMatrixInfo(&width, &height, &minDigits, &maxDigits, &flipCoords, &challengeCount);
+                STORM_ASSERT(required);
 
                 CGlueMgr::m_matrixChallengeCount = challengeCount;
                 CGlueMgr::m_matrixRemaining = challengeCount;
@@ -1398,6 +1413,8 @@ int32_t CGlueMgr::Idle(const void* data, void* param) {
             return 1;
         }
 
+        STORM_ASSERT(op == COP_AUTHENTICATE || op == COP_WAIT_QUEUE);
+
         CGlueMgr::m_idleState = IDLE_NONE;
         CGlueMgr::m_showedDisconnect = 0;
         CCharacterSelection::ClearCharacterList();
@@ -1447,7 +1464,9 @@ int32_t CGlueMgr::Idle(const void* data, void* param) {
             return 1;
         }
 
-        Cfg_CategoriesRec* category = g_cfg_CategoriesDB.GetRecord(ClientServices::GetSelectedRealm()->m_category);
+        REALM_INFO* info = ClientServices::GetSelectedRealm();
+        STORM_ASSERT(info);
+        Cfg_CategoriesRec* category = g_cfg_CategoriesDB.GetRecord(info->m_category);
 
         if (category) {
             ValidateNameInitialize(category->m_localeMask, category->m_createCharsetMask);
@@ -1518,6 +1537,8 @@ int32_t CGlueMgr::Idle(const void* data, void* param) {
             return 1;
         }
 
+        STORM_ASSERT(op == COP_GET_REALMS);
+
         CGlueMgr::m_idleState = IDLE_NONE;
         CGlueMgr::m_showedDisconnect = 0;
         FrameScript_SignalEvent(GLUE_EVENT_CLOSE_STATUS_DIALOG, nullptr);
@@ -1549,6 +1570,8 @@ int32_t CGlueMgr::Idle(const void* data, void* param) {
             CGlueMgr::m_showedDisconnect = 0;
             return 1;
         }
+
+        STORM_ASSERT(op == COP_CREATE_CHARACTER);
 
         CGlueMgr::m_idleState = IDLE_NONE;
         CGlueMgr::m_showedDisconnect = 0;
@@ -2042,8 +2065,9 @@ void CGlueMgr::EnterWorld() {
         }
 
         if (g_gameTipsDB.m_nNumRecords > 0) {
-            GameTipsRec* tipRec = tip >= 0 && tip < g_gameTipsDB.m_nNumRecords ? &g_gameTipsDB.m_records[tip] : nullptr;
-            LoadingScreenSetTip(tipRec->m_text);
+            GameTipsRec* rec = tip >= 0 && tip < g_gameTipsDB.m_nNumRecords ? &g_gameTipsDB.m_records[tip] : nullptr;
+            STORM_ASSERT(rec);
+            LoadingScreenSetTip(rec->m_text);
 
             char tipString[40];
             SStrPrintf(tipString, sizeof(tipString), "%d", tip + 1);
@@ -2466,6 +2490,8 @@ int32_t CGlueMgr::OnCharCustomizeResult(void* param, NETMESSAGE msgId, uint32_t 
         msg->Get(hairStyleID);
         msg->Get(hairColorID);
         msg->Get(facialHairStyleID);
+    } else {
+        STORM_ASSERT(result != RESPONSE_SUCCESS);
     }
 
     if (result) {
@@ -2508,6 +2534,8 @@ int32_t CGlueMgr::OnCharFactionChangeResult(void* param, NETMESSAGE msgId, uint3
         msg->Get(hairColorID);
         msg->Get(facialHairStyleID);
         msg->Get(raceID);
+    } else {
+        STORM_ASSERT(result != RESPONSE_SUCCESS);
     }
 
     const char* text;
@@ -2573,6 +2601,8 @@ int32_t CGlueMgr::OnCharFactionChangeResult(void* param, NETMESSAGE msgId, uint3
 int32_t CGlueMgr::OnKickReasonMsg(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     uint8_t reason = 0;
     uint8_t seed[16];
+
+    STORM_ASSERT(!msg->IsRead());
 
     if (!msg->IsRead()) {
         msg->Get(reason);
