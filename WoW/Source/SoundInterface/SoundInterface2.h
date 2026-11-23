@@ -173,7 +173,10 @@ class SI2 {
     static void DestroyVSoundLookup();
     static void Detach(SE2SoundKitObject* object);
     static void DSP_AttachCustomDspChain(FMOD::Channel* pFmodChannel, char* name);
+    private:
     static void DSP_CreateDsp(const char* pszDspChainName, SI2_DSP_TYPE type, const float* afParams);
+
+    public:
     static void DSP_Init();
     static void DSP_MakeDSPsExpire(float elapsed);
     static void UpdateTaxiSounds(float elapsed);
@@ -243,7 +246,7 @@ class SI2 {
     static SI2_RESULT PlaySoundKit(const char* name, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties);
     static void PlayVocalErrorSound(VOCALUISOUNDS error);
     static void PlaySpellFizzleSound(uint32_t spellId, const void* object);
-    static void DK_GetPlayerFilterName(CGUnit_C* unit, char* name, uint32_t size);
+    static void DK_GetPlayerFilterName(const CGUnit_C* pUnit, char* pszFilterName, uint32_t size);
     static SI2_RESULT PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2SoundKitObject* object, SE2SoundKitProperties* properties, uint32_t advancedId, uint32_t* soundId, int32_t checkDistance, BOOL keepPlaying);
     static SI2_RESULT PlayUISound(int32_t soundKitId);
     static SI2_RESULT PlayWeaponSwooshSound(WEAPONSWING_SOUNDTYPES type, int32_t crit, const C3Vector* position, int32_t quiet, int32_t self);

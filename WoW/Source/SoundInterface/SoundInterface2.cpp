@@ -1506,9 +1506,12 @@ int32_t SI2::GetChunkLocation(int32_t* mapId, int32_t* chunkX, int32_t* chunkY, 
 
 // VERIFY: a83589e1 manual
 // OFFSET: 0x004CDA20
-void SI2::DK_GetPlayerFilterName(CGUnit_C* unit, char* name, uint32_t size) {
-    uint8_t race = unit->m_unit->m_raceID;
-    SStrPrintf(name, size, "Death Knight %s %s", s_raceFileNames[race], unit->m_unit->m_sex ? "Female" : "Male");
+void SI2::DK_GetPlayerFilterName(const CGUnit_C* pUnit, char* pszFilterName, uint32_t size) {
+    STORM_ASSERT(pUnit);
+    STORM_ASSERT(pszFilterName);
+
+    uint8_t race = pUnit->m_unit->m_raceID;
+    SStrPrintf(pszFilterName, size, "Death Knight %s %s", s_raceFileNames[race], pUnit->m_unit->m_sex ? "Female" : "Male");
 }
 
 // VERIFY: 8858e33e auto

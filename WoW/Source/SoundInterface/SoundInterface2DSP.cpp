@@ -94,7 +94,7 @@ void SI2::DSP_CreateDsp(const char* pszDspChainName, SI2_DSP_TYPE type, const fl
     STORM_ASSERT(pszDspChainName);
     STORM_ASSERT(afParams);
 
-    static CVar* s_enableDSPEffects = CVar::Lookup("Sound_EnableDSPEffects");
+    static const CVar* const s_enableDSPEffects = CVar::Lookup("Sound_EnableDSPEffects");
 
     if (!s_enableDSPEffects->m_intValue) {
         return;
@@ -192,8 +192,8 @@ void SI2::DSP_Init() {
             continue;
         }
 
-        const char* name = pRec->m_name;
-        DSP_CHAIN_HEAD_LOOKUP* head = s_dspChains.New(name, 0, 0);
+        const char* sChannelGroupName = pRec->m_name;
+        DSP_CHAIN_HEAD_LOOKUP* head = s_dspChains.New(sChannelGroupName, 0, 0);
 
         for (SI2DspNode* node = head->m_chain.m_nodes.Head(); node; node = head->m_chain.m_nodes.Next(node)) {
             SE2::DspDestroy(node->m_dsp);
@@ -203,10 +203,9 @@ void SI2::DSP_Init() {
         head->m_chain.m_nodes.Clear();
 
         if (!head->m_chain.m_channelGroup) {
-            // 12213: "sChannelGroupName", "sChannelGroupName[0]"
-            STORM_ASSERT(pRec->m_name);
-            STORM_ASSERT(pRec->m_name[0]);
-            head->m_chain.m_channelGroup = SE2::CreateChannelGroup(pRec->m_name);
+            STORM_ASSERT(sChannelGroupName);
+            STORM_ASSERT(sChannelGroupName[0]);
+            head->m_chain.m_channelGroup = SE2::CreateChannelGroup(sChannelGroupName);
         }
     }
 
