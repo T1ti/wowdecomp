@@ -99,24 +99,27 @@ int32_t CSimpleScriptManager::RegisterCallback(void (*callback)(uint32_t)) {
 
 // VERIFY: d4694fe9 auto
 // OFFSET: 0x007581A0
-void CSimpleScriptManager::UnregisterCallback(void (*callback)(uint32_t)) {
+void CSimpleScriptManager::UnregisterCallback(void (*pCallback)(uint32_t)) {
     for (uint32_t i = 0; i < s_callbackCount; i++) {
-        if (s_callbacks[i] == callback) {
+        if (s_callbacks[i] == pCallback) {
             uint32_t last = s_callbackCount - 1;
 
-            for (uint32_t j = i; j < last; j++) {
-                s_callbacks[j] = s_callbacks[j + 1];
+            for (; i < last; i++) {
+                STORM_ASSERT(s_callbacks[i + 1] != pCallback);
+                s_callbacks[i] = s_callbacks[i + 1];
             }
 
             s_callbackCount = last;
             return;
         }
     }
+
+    STORM_ASSERT(0);
 }
 
 // VERIFY: ef14b3e2 auto
 // OFFSET: 0x00758480
-int32_t CSimpleScriptManager::CallFunction(uint32_t handle, const SimpleScriptIO& in, SimpleScriptIO& out) {
+int32_t CSimpleScriptManager::CallFunction(uint32_t handle, const SimpleScriptIO& input, SimpleScriptIO& output) {
     if (handle == 0xFFFFFFFF) {
         return 0;
     }
@@ -130,7 +133,17 @@ int32_t CSimpleScriptManager::CallFunction(uint32_t handle, const SimpleScriptIO
 
     SimpleScriptFunction* function = &bucket.m_data[index];
 
-    if (!function || function->m_luaRef == -2) {
+    if (!function) {
+        return 0;
+    }
+
+    STORM_ASSERT(IsInited());
+    STORM_ASSERT(function->inputNumberCount <= input.numberCount);
+    STORM_ASSERT(function->inputStringCount <= input.stringCount);
+    STORM_ASSERT(function->outputNumberCount <= output.numberMaxCount);
+    STORM_ASSERT(function->outputStringCount <= output.stringMaxCount);
+
+    if (function->m_luaRef == -2) {
         return 0;
     }
 
@@ -139,38 +152,38 @@ int32_t CSimpleScriptManager::CallFunction(uint32_t handle, const SimpleScriptIO
     int32_t errorHandler = lua_gettop(L);
     lua_rawgeti(L, LUA_REGISTRYINDEX, function->m_luaRef);
 
-    for (int32_t i = 0; i < function->m_numArgs; i++) {
-        lua_pushnumber(L, in.m_numbers.m_data[i]);
+    for (int32_t i = 0; i < function->inputNumberCount; i++) {
+        lua_pushnumber(L, input.numbers[i]);
     }
 
-    for (int32_t i = 0; i < function->m_numStringArgs; i++) {
-        lua_pushstring(L, &in.m_strings[i * in.m_stringSize]);
+    for (int32_t i = 0; i < function->inputStringCount; i++) {
+        lua_pushstring(L, &input.m_strings[i * input.m_stringSize]);
     }
 
-    if (lua_pcall(L, function->m_numStringArgs + function->m_numArgs, function->m_numStringReturns + function->m_numReturns, errorHandler)) {
+    if (lua_pcall(L, function->inputStringCount + function->inputNumberCount, function->outputStringCount + function->outputNumberCount, errorHandler)) {
         lua_settop(L, -3);
         luaL_unref(L, LUA_REGISTRYINDEX, function->m_luaRef);
         function->m_luaRef = -2;
         return 0;
     }
 
-    out.m_numbers.m_count = function->m_numReturns;
-    out.m_stringCount = function->m_numStringReturns;
+    output.numberCount = function->outputNumberCount;
+    output.stringCount = function->outputStringCount;
 
-    for (int32_t i = function->m_numStringReturns - 1; i >= 0; i--) {
+    for (int32_t i = function->outputStringCount - 1; i >= 0; i--) {
         const char* string = lua_tolstring(L, -1, nullptr);
 
         if (string) {
-            SStrCopy(&out.m_strings[i * out.m_stringSize], string, out.m_stringSize);
+            SStrCopy(&output.m_strings[i * output.m_stringSize], string, output.m_stringSize);
         } else {
-            out.m_strings[i * out.m_stringSize] = '\0';
+            output.m_strings[i * output.m_stringSize] = '\0';
         }
 
         lua_settop(L, -2);
     }
 
-    for (int32_t i = function->m_numReturns - 1; i >= 0; i--) {
-        out.m_numbers.m_data[i] = lua_tonumber(L, -1);
+    for (int32_t i = function->outputNumberCount - 1; i >= 0; i--) {
+        output.numbers[i] = lua_tonumber(L, -1);
         lua_settop(L, -2);
     }
 
@@ -197,6 +210,7 @@ void CSimpleScriptManager::CopyGlobal(const char* name) {
 int32_t CSimpleScriptManager::Execute(const char* script, const char* name) {
     STORM_ASSERT(IsInited());
     STORM_ASSERT(script);
+    STORM_ASSERT(lua_gettop(FrameScript_GetContext()) == 0);
 
     lua_State* L = FrameScript_GetContext();
     lua_rawgeti(L, LUA_REGISTRYINDEX, FrameScript_GetErrorHandlerReference());
@@ -221,15 +235,21 @@ int32_t CSimpleScriptManager::Execute(const char* script, const char* name) {
     return 1;
 }
 
+static inline uint32_t MakeFunctionHandle(uint32_t bucket, uint32_t record) { // (inferred)
+    STORM_ASSERT(bucket <= 0xFFFF);
+    STORM_ASSERT(record < 0xFFFF);
+    return (bucket << 16) | record;
+}
+
 // VERIFY: 8bb0a416 auto
 // OFFSET: 0x00758340
-uint32_t CSimpleScriptManager::FindFunction(int32_t id) {
+uint32_t CSimpleScriptManager::FindFunction(int32_t id) const {
     uint32_t bucketIndex = id & this->m_hashMask;
     TSGrowableArray<SimpleScriptFunction>& bucket = this->m_buckets[bucketIndex];
 
     for (uint32_t i = 0; i < bucket.m_count; i++) {
         if (bucket.m_data[i].m_id == id) {
-            return i | (bucketIndex << 16);
+            return MakeFunctionHandle(bucketIndex, i);
         }
     }
 
@@ -238,10 +258,12 @@ uint32_t CSimpleScriptManager::FindFunction(int32_t id) {
 
 // VERIFY: c0a0927f manual
 // OFFSET: 0x00758B80
-int32_t CSimpleScriptManager::Init(uint32_t bits) {
+int32_t CSimpleScriptManager::Init(uint32_t hashMaskBitCount) {
     this->Uninit();
 
-    if (bits > 16) {
+    STORM_ASSERT(hashMaskBitCount <= 16);
+
+    if (hashMaskBitCount > 16) {
         return 0;
     }
 
@@ -249,7 +271,7 @@ int32_t CSimpleScriptManager::Init(uint32_t bits) {
     lua_createtable(L, 0, 0);
     this->m_envRef = luaL_ref(L, LUA_REGISTRYINDEX);
 
-    uint32_t count = 1 << bits;
+    uint32_t count = 1 << hashMaskBitCount;
     this->m_hashMask = count - 1;
     this->m_buckets = new (__FILE__, __LINE__) TSGrowableArray<SimpleScriptFunction>[count];
 
@@ -410,10 +432,10 @@ uint32_t CSimpleScriptManager::CreateFunction(int32_t id, const SimpleScriptFunc
     function->m_id = id;
     function->m_luaRef = luaL_ref(L, LUA_REGISTRYINDEX);
     lua_settop(L, -2);
-    function->m_numArgs = numArgs;
-    function->m_numStringArgs = numStringArgs;
-    function->m_numReturns = numReturns;
-    function->m_numStringReturns = numStringReturns;
+    function->inputNumberCount = numArgs;
+    function->inputStringCount = numStringArgs;
+    function->outputNumberCount = numReturns;
+    function->outputStringCount = numStringReturns;
 
     if (handle != 0xFFFFFFFF) {
         return handle;
@@ -422,5 +444,5 @@ uint32_t CSimpleScriptManager::CreateFunction(int32_t id, const SimpleScriptFunc
     uint32_t bucket = id & this->m_hashMask;
     TSGrowableArray<SimpleScriptFunction>* list = &this->m_buckets[bucket];
     list->Add(1, function);
-    return (bucket << 16) | (list->m_count - 1);
+    return MakeFunctionHandle(bucket, list->Count() - 1);
 }

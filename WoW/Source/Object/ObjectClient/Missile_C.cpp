@@ -50,7 +50,7 @@ CMissile* CMissile::s_missileDestroyList;
 static double s_msfNumbers[12];
 
 // STATIC: 0x00ADA828
-static SimpleScriptIO s_msfIO = { { 12, 0, s_msfNumbers, 0 }, 0, 0, nullptr };
+static SimpleScriptIO s_msfIO = { 12, 0, s_msfNumbers, 0, 0, 0, nullptr };
 
 // STATIC: 0x00ADA7C0
 static const char* s_msfArgs[] = { "progress", "time", "missileIndex", "missileCount", "distanceToFirePos", "distanceToImpactPos", "startDistance", "totalDistance", "rand1", "rand2", "rand3", "spellID", nullptr };
@@ -149,19 +149,19 @@ void CMissile::AdjustTrajectoryDuration(uint32_t duration) {
 // VERIFY: 4674cb82 manual
 // OFFSET: 0x006FEB20
 void CMissile::ApplyMotionScriptFunctionRotationAndScale(const SimpleScriptIO& io, C44Matrix& matrix) {
-    if (0.0 != io.m_numbers.m_data[5]) {
-        matrix.RotateAroundZ(io.m_numbers.m_data[5] * DEG_TO_RAD);
+    if (0.0 != io.numbers[5]) {
+        matrix.RotateAroundZ(io.numbers[5] * DEG_TO_RAD);
     }
 
-    if (0.0 != io.m_numbers.m_data[6]) {
-        matrix.RotateAroundY(io.m_numbers.m_data[6] * DEG_TO_RAD);
+    if (0.0 != io.numbers[6]) {
+        matrix.RotateAroundY(io.numbers[6] * DEG_TO_RAD);
     }
 
-    if (0.0 != io.m_numbers.m_data[7]) {
-        matrix.RotateAroundX(io.m_numbers.m_data[7] * DEG_TO_RAD);
+    if (0.0 != io.numbers[7]) {
+        matrix.RotateAroundX(io.numbers[7] * DEG_TO_RAD);
     }
 
-    const double* numbers = io.m_numbers.m_data;
+    const double* numbers = io.numbers;
 
     if (numbers[11] > 0.0) {
         double scale = numbers[11];
@@ -354,7 +354,7 @@ int32_t CMissile::ApplyMotionScriptFunctionTranslation(const SimpleScriptIO& io,
 
     C3Vector side(-dir.y, dir.x, dir.z);
     C3Vector start(matrix.d0, matrix.d1, matrix.d2);
-    const double* numbers = io.m_numbers.m_data;
+    const double* numbers = io.numbers;
 
     if (0.0 != numbers[1]) {
         double angle = numbers[0] * DEG_TO_RAD;
@@ -391,56 +391,56 @@ int32_t CMissile::ApplyMotionScriptFunctionTranslation(const SimpleScriptIO& io,
 // VERIFY: 5d1af25b manual
 // OFFSET: 0x00700350
 int32_t CMissile::CallMotionScriptFunction(SimpleScriptIO& io) {
-    io.m_numbers.m_count = 12;
-    io.m_numbers.m_data[0] = this->m_progress;
-    io.m_numbers.m_data[1] = (double)(int32_t)(OsGetAsyncTimeMs() - this->m_fireTime) * TIME_SECONDS_PER_MILLISECOND_FLOAT;
-    io.m_numbers.m_data[2] = this->m_missileIndex;
-    io.m_numbers.m_data[3] = this->m_missileCount;
+    io.numberCount = 12;
+    io.numbers[0] = this->m_progress;
+    io.numbers[1] = (double)(int32_t)(OsGetAsyncTimeMs() - this->m_fireTime) * TIME_SECONDS_PER_MILLISECOND_FLOAT;
+    io.numbers[2] = this->m_missileIndex;
+    io.numbers[3] = this->m_missileCount;
 
     float dx = this->m_launchPos.x - this->m_position.x;
     float dy = this->m_launchPos.y - this->m_position.y;
     float dz = this->m_launchPos.z - this->m_position.z;
-    io.m_numbers.m_data[4] = sqrt(dz * dz + dy * dy + dx * dx);
+    io.numbers[4] = sqrt(dz * dz + dy * dy + dx * dx);
 
     C3Vector impact = this->TransformPositionByTransport();
     dx = impact.x - this->m_position.x;
     dy = impact.y - this->m_position.y;
     dz = impact.z - this->m_position.z;
-    io.m_numbers.m_data[5] = sqrt(dz * dz + dy * dy + dx * dx);
-    io.m_numbers.m_data[6] = this->m_initialDistance;
+    io.numbers[5] = sqrt(dz * dz + dy * dy + dx * dx);
+    io.numbers[6] = this->m_initialDistance;
 
     impact = this->TransformPositionByTransport();
     dx = impact.x - this->m_launchPos.x;
     dy = impact.y - this->m_launchPos.y;
     dz = impact.z - this->m_launchPos.z;
-    io.m_numbers.m_data[7] = sqrt(dz * dz + dy * dy + dx * dx);
-    io.m_numbers.m_data[8] = this->m_random[0];
-    io.m_numbers.m_data[9] = this->m_random[1];
-    io.m_numbers.m_data[10] = this->m_random[2];
-    io.m_numbers.m_data[11] = this->m_spellID;
+    io.numbers[7] = sqrt(dz * dz + dy * dy + dx * dx);
+    io.numbers[8] = this->m_random[0];
+    io.numbers[9] = this->m_random[1];
+    io.numbers[10] = this->m_random[2];
+    io.numbers[11] = this->m_spellID;
 
-    if (!CSimpleScriptManager::s_instance->CallFunction(this->m_motionScriptFunction, io, io)) {
+    if (!CSimpleScriptManager::GetInstance()->CallFunction(this->m_motionScriptFunction, io, io)) {
         return 0;
     }
 
     for (int32_t i = 0; i < 12; i++) {
-        if (!_finite(io.m_numbers.m_data[i])) {
-            io.m_numbers.m_data[i] = 0.0;
+        if (!_finite(io.numbers[i])) {
+            io.numbers[i] = 0.0;
         }
     }
 
-    if (io.m_numbers.m_data[8] > 0.0) {
+    if (io.numbers[8] > 0.0) {
         this->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_MOTION_SCRIPT_OVERRIDES_SPEED;
-        this->m_speed = io.m_numbers.m_data[8];
+        this->m_speed = io.numbers[8];
     }
 
-    if (io.m_numbers.m_data[9] > 0.0) {
+    if (io.numbers[9] > 0.0) {
         this->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_MOTION_SCRIPT_OVERRIDES_SPEED;
-        this->m_speed = io.m_numbers.m_data[9] * this->m_baseSpeed;
+        this->m_speed = io.numbers[9] * this->m_baseSpeed;
     }
 
-    if (0.0 != io.m_numbers.m_data[10]) {
-        float scale = io.m_numbers.m_data[10] + this->m_baseSpeed;
+    if (0.0 != io.numbers[10]) {
+        float scale = io.numbers[10] + this->m_baseSpeed;
         this->m_speed = scale;
         this->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_MOTION_SCRIPT_OVERRIDES_SPEED;
         this->m_speed = 0.01f < scale ? scale : 0.01f;
@@ -2189,7 +2189,7 @@ void CMissile::UpdateStaticLists() {
 // VERIFY: 589857c0 auto
 // OFFSET: 0x006FF0A0
 void CMissile::InstallMotionScriptFunction(int32_t motionId) {
-    this->m_motionScriptFunction = CSimpleScriptManager::s_instance->FindFunction(motionId);
+    this->m_motionScriptFunction = CSimpleScriptManager::GetInstance()->FindFunction(motionId);
 
     if (this->m_motionScriptFunction != -1) {
         return;
@@ -2208,5 +2208,5 @@ void CMissile::InstallMotionScriptFunction(int32_t motionId) {
     desc.m_body = motion->m_scriptBody;
     desc.m_returns = s_msfReturns;
     desc.m_stringReturns = nullptr;
-    this->m_motionScriptFunction = CSimpleScriptManager::s_instance->CreateFunction(motionId, desc);
+    this->m_motionScriptFunction = CSimpleScriptManager::GetInstance()->CreateFunction(motionId, desc);
 }

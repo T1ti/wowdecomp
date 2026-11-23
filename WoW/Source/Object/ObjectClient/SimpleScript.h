@@ -8,10 +8,10 @@
 struct SimpleScriptFunction {
     /* 0000 */ int32_t m_id;
     /* 0004 */ int32_t m_luaRef;
-    /* 0008 */ int32_t m_numArgs;
-    /* 000C */ int32_t m_numStringArgs;
-    /* 0010 */ int32_t m_numReturns;
-    /* 0014 */ int32_t m_numStringReturns;
+    /* 0008 */ int32_t inputNumberCount;
+    /* 000C */ int32_t inputStringCount;
+    /* 0010 */ int32_t outputNumberCount;
+    /* 0014 */ int32_t outputStringCount;
 };
 
 struct SimpleScriptFunctionDesc {
@@ -23,26 +23,35 @@ struct SimpleScriptFunctionDesc {
     /* 0014 */ const char** m_stringReturns;
 };
 
-struct SimpleScriptNumbers {
-    /* 0000 */ uint32_t m_alloc;
-    /* 0004 */ uint32_t m_count;
-    /* 0008 */ double* m_data;
-    /* 000C */ uint32_t m_chunk;
-};
-
 struct SimpleScriptIO {
-    /* 0000 */ SimpleScriptNumbers m_numbers;
+    /* 0000 */ int32_t numberMaxCount;
+    /* 0004 */ int32_t numberCount;
+    /* 0008 */ double* numbers; // (inferred)
+    /* 000C */ int32_t stringMaxCount;
     /* 0010 */ uint32_t m_stringSize;
-    /* 0014 */ uint32_t m_stringCount;
+    /* 0014 */ int32_t stringCount;
     /* 0018 */ char* m_strings;
 };
 
 class CSimpleScriptManager {
-    public:
+    private:
     static void (*s_callbacks[16])(uint32_t);
     static uint32_t s_callbackCount;
     static CSimpleScriptManager* s_instance;
 
+    /* 0000 */ int32_t m_hashMask;
+    /* 0004 */ TSGrowableArray<SimpleScriptFunction>* m_buckets;
+    /* 0008 */ int32_t m_envRef;
+
+    CSimpleScriptManager();
+    void CopyGlobal(const char* name);
+    int32_t Execute(const char* script, const char* name);
+    SimpleScriptFunction* GetFunction(uint32_t handle);
+    int32_t Init(uint32_t hashMaskBitCount);
+    void Uninit();
+
+    public:
+    static CSimpleScriptManager* GetInstance() { return s_instance; } // (inferred)
     static void Create();
     static void Destroy();
     static int32_t RegisterCallback(void (*callback)(uint32_t));
@@ -53,19 +62,9 @@ class CSimpleScriptManager {
         return this->m_hashMask != -1;
     }
 
-    /* 0000 */ int32_t m_hashMask;
-    /* 0004 */ TSGrowableArray<SimpleScriptFunction>* m_buckets;
-    /* 0008 */ int32_t m_envRef;
-
-    CSimpleScriptManager();
-    int32_t CallFunction(uint32_t handle, const SimpleScriptIO& in, SimpleScriptIO& out);
-    void CopyGlobal(const char* name);
-    int32_t Execute(const char* script, const char* name);
-    uint32_t FindFunction(int32_t id);
-    SimpleScriptFunction* GetFunction(uint32_t handle);
+    int32_t CallFunction(uint32_t handle, const SimpleScriptIO& input, SimpleScriptIO& output);
+    uint32_t FindFunction(int32_t id) const;
     uint32_t CreateFunction(int32_t id, const SimpleScriptFunctionDesc& desc);
-    int32_t Init(uint32_t bits);
-    void Uninit();
 };
 
 #endif
