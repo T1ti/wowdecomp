@@ -157,7 +157,7 @@ class CParticleEmitter2 {
         /* 0030 */ float m_spin;
         /* 0034 */ float m_spinVariation;
         /* 0038 */ CParticleMat m_material; // Same blend/flag pair accepted by SetMaterial.
-        /* 0040 */ const M2PartTrack<C3Vector>* m_colorTrack;
+        /* 0040 */ const M2PartTrack<C3Vector>* colorTrack;
         /* 0044 */ const M2PartTrack<fixed16>* m_alphaTrack;
         /* 0048 */ const M2PartTrack<C2Vector>* m_scaleTrack;
         /* 004C */ float m_scaleVariationX;
@@ -197,15 +197,21 @@ class CParticleEmitter2 {
     /* 003C */ TSGrowableArray<CParticle2_Model> m_particleModels;
     /* 004C */ TSGrowableArray<uint32_t> m_liveList;
     /* 005C */ TSGrowableArray<uint32_t> m_freeList;
+    private:
+    static void RecursiveEmitterModelLoaded(CM2Model* model, void* arg);
     /* 006C */ uint32_t m_childEmitterCount;
     /* 0070 */ CParticleEmitter2* m_childEmitters [CParticleEmitter2::MAX_CHILD_EMITTERS];
+    public:
+    uint32_t GetChildEmitterCount() const { return this->m_childEmitterCount; } // (inferred)
+    CParticleEmitter2* GetChildEmitter(uint32_t index) const { return this->m_childEmitters[index]; } // (inferred)
+
     /* 0080 */ CM2Model* m_model;
     /* 0084 */ CM2Scene* m_scene;
     /* 0088 */ CM2Model* m_childModel;
     /* 008C */ uint32_t m_vertsPerParticle;
     /* 0090 */ uint32_t m_indicesPerParticle;
     /* 0094 */ uint32_t unused_0094;
-    /* 0098 */ CParticleEmitter2::Params m_params;
+    /* 0098 */ CParticleEmitter2::Params m_particle;
     /* 0120 */ uint32_t m_textureRows;
     /* 0124 */ uint32_t m_textureCols;
     /* 0128 */ CTexture* m_texture;
@@ -242,7 +248,10 @@ class CParticleEmitter2 {
     /* 0200 */ C3Vector m_burstOffset;
     /* 020C */ C3Vector m_billboardAxis;
     /* 0218 */ CAaBox m_worldBounds;
-    /* 0230 */ uint32_t unused_0230;
+    private:
+    /* 0230 */ uint32_t m_worldEmitter; // (inferred) Windows only clears this slot.
+
+    public:
 
     virtual void Sync();
     virtual void CreateParticle(CParticle2& particle, float time, const C44Matrix& transform);
@@ -273,9 +282,9 @@ class CParticleEmitter2 {
     uint32_t GetNumParticleModels();
     uint32_t GetNumPrimitives();
     CM2Model* GetParticleModelInternal(uint32_t& index);
-    void GetReplacementColors(CImVector& color0, CImVector& color1, CImVector& color2);
+    void GetReplacementColors(CImVector& color0, CImVector& color1, CImVector& color2) const;
     bool IsModelEmitter() const {
-        return this->m_params.m_particleType == PT_MODEL;
+        return this->m_particle.m_particleType == PT_MODEL;
     }
     BOOL HasLiveParticles();
     void InternalUpdate(float deltaTime, int32_t child);

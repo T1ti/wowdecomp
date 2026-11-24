@@ -913,8 +913,7 @@ void CM2Scene::SelectLights(CM2Lighting* lighting) {
 void CM2Scene::SetProjectPositionCallback(int32_t (*callback)(const C3Vector&, float&, void*), void* param) {
     this->m_projectPositionCallback = callback;
     this->m_projectPositionParam = param;
-    ParticleSystemManager::sm_projectCallback = callback;
-    ParticleSystemManager::sm_projectParam = param;
+    ParticleSystemManager::SetProjectCallback(callback, param);
 }
 
 // VERIFY: 00778290 manual
@@ -1223,8 +1222,8 @@ int32_t CM2Scene::SortOpaqueParticles(M2Element* A, M2Element* B) {
 
     CParticleEmitter2* emitterA = A->emitter;
     CParticleEmitter2* emitterB = B->emitter;
-    int32_t blendA = emitterA->m_params.m_material.m_blendMode;
-    int32_t blendB = emitterB->m_params.m_material.m_blendMode;
+    int32_t blendA = emitterA->m_particle.m_material.m_blendMode;
+    int32_t blendB = emitterB->m_particle.m_material.m_blendMode;
 
     if (blendA < blendB) {
         return -1;
@@ -1234,8 +1233,8 @@ int32_t CM2Scene::SortOpaqueParticles(M2Element* A, M2Element* B) {
         return 1;
     }
 
-    uint32_t flagsA = ParticleFlagsToM2Flags(emitterA->m_params.m_material.m_flags);
-    uint32_t flagsB = ParticleFlagsToM2Flags(emitterB->m_params.m_material.m_flags);
+    uint32_t flagsA = ParticleFlagsToM2Flags(emitterA->m_particle.m_material.m_flags);
+    uint32_t flagsB = ParticleFlagsToM2Flags(emitterB->m_particle.m_material.m_flags);
 
     if (flagsA < flagsB) {
         return -1;
@@ -1430,8 +1429,8 @@ int32_t CM2Scene::SortAdditiveParticles(uint32_t a, uint32_t b, const void* para
 
     CParticleEmitter2* emitterA = elementA->emitter;
     CParticleEmitter2* emitterB = elementB->emitter;
-    int32_t blendA = emitterA->m_params.m_material.m_blendMode;
-    int32_t blendB = emitterB->m_params.m_material.m_blendMode;
+    int32_t blendA = emitterA->m_particle.m_material.m_blendMode;
+    int32_t blendB = emitterB->m_particle.m_material.m_blendMode;
 
     if (blendA < blendB) {
         return -1;
@@ -1441,8 +1440,8 @@ int32_t CM2Scene::SortAdditiveParticles(uint32_t a, uint32_t b, const void* para
         return 1;
     }
 
-    uint32_t flagsA = ParticleFlagsToM2Flags(emitterA->m_params.m_material.m_flags);
-    uint32_t flagsB = ParticleFlagsToM2Flags(emitterB->m_params.m_material.m_flags);
+    uint32_t flagsA = ParticleFlagsToM2Flags(emitterA->m_particle.m_material.m_flags);
+    uint32_t flagsB = ParticleFlagsToM2Flags(emitterB->m_particle.m_material.m_flags);
 
     if (flagsA < flagsB) {
         return -1;
@@ -1598,7 +1597,7 @@ void CM2Scene::SortAdditiveParticleElements(uint32_t pass) {
             case M2_ELEMENT_PARTICLE: {
                 CParticleEmitter2* emitter = element->emitter;
                 STORM_ASSERT(!emitter->IsModelEmitter());
-                blend = (this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_FORCE_ADDITIVE_PARTICLE_SORT) ? M2BLEND_ADD : ParticleBlendToM2Blend(emitter->m_params.m_material.m_blendMode);
+                blend = (this->m_cache->m_flags & CM2Cache::CACHE_FLAGS::CACHE_FORCE_ADDITIVE_PARTICLE_SORT) ? M2BLEND_ADD : ParticleBlendToM2Blend(emitter->m_particle.m_material.m_blendMode);
                 break;
             }
             default:
@@ -1664,7 +1663,7 @@ CM2Scene::~CM2Scene() {
 // VERIFY: 7bb79c57 manual
 // OFFSET: 0x00821930
 M2Element* CM2Scene::AddParticleElement(CParticleEmitter2* emitter, CM2Model* model, float depth, float alpha, int32_t split, uint32_t& index, uint32_t& additiveCount) {
-    if (!emitter->HasLiveParticles() || emitter->m_params.m_particleType == CParticleEmitter2::PARTICLE_TYPE::PT_MODEL) {
+    if (!emitter->HasLiveParticles() || emitter->m_particle.m_particleType == CParticleEmitter2::PARTICLE_TYPE::PT_MODEL) {
         return nullptr;
     }
 
@@ -1687,7 +1686,7 @@ M2Element* CM2Scene::AddParticleElement(CParticleEmitter2* emitter, CM2Model* mo
     element->m_pixelPermute = 0xFFFFFFFF;
     element->m_shadowValue = 0;
 
-    int32_t blend = emitter->m_params.m_material.m_blendMode;
+    int32_t blend = emitter->m_particle.m_material.m_blendMode;
 
     if (blend == 10 || blend == 3) {
         additiveCount++;
@@ -2142,8 +2141,8 @@ int32_t CM2Scene::Animate(const C3Vector& cameraPos) {
 
             this->AddParticleElement(emitter, model, depth, alpha, split, elementIndex, additiveCount);
 
-            for (uint32_t j = 0; j < emitter->m_childEmitterCount; j++) {
-                this->AddParticleElement(emitter->m_childEmitters[j], model, depth, alpha, split, elementIndex, additiveCount);
+            for (uint32_t j = 0; j < emitter->GetChildEmitterCount(); j++) {
+                this->AddParticleElement(emitter->GetChildEmitter(j), model, depth, alpha, split, elementIndex, additiveCount);
             }
         }
     }

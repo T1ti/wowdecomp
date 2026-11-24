@@ -11,10 +11,17 @@ class CParticleEmitter2;
 class CRibbonEmitter;
 
 class ParticleSystemManager {
-    public:
+    private:
+    friend class CParticleEmitter2; // (inferred)
     static int32_t (*sm_projectCallback)(const C3Vector&, float&, void*);
     static void* sm_projectParam;
+
+    public:
     static ParticleSystemManager* s_instance;
+    static void SetProjectCallback(int32_t (*callback)(const C3Vector&, float&, void*), void* param) { // (inferred)
+        sm_projectCallback = callback;
+        sm_projectParam = param;
+    }
 
     static void Destroy();
     static ParticleSystemManager* GetInstance();
