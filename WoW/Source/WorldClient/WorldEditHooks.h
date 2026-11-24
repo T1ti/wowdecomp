@@ -11,15 +11,20 @@
 class CGCamera;
 class CMapRenderChunk;
 
-// Camera, streaming and terrain budget for the standalone editor.
+// The camera and loading range used when preparing an editor view of the map.
+struct WorldStreamingView {
+    CGCamera* m_camera;
+    float m_farClip;
+    float m_objectMinZ;
+};
+
+// Persistent view inputs for shared map streaming and terrain consumers.
 struct WorldEditView {
     CGCamera* m_camera;
     float m_minFarClip;
     float m_maxFarClip;
-    float m_streamFarClip;
     float m_horizonNearClip;
     float m_horizonFarClip;
-    float m_objectMinZ;
     CRect m_terrainBounds;
     uint32_t m_terrainBufferCount;
     bool m_useTerrainOcclusion;

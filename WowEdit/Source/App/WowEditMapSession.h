@@ -7,6 +7,7 @@
 
 class C3Vector;
 class MapRec;
+struct WorldStreamingView;
 
 // Names are borrowed from the loaded map database and remain valid until the database is closed.
 struct WowEditMapInfo {
@@ -24,7 +25,7 @@ class CWowEditMapSession {
     static const MapRec* FindAvailableMap(int32_t mapId);
 
     // Open a validated map after closing the previous map and setting up the viewport.
-    void Open(const MapRec& map, C3Vector& start);
+    void Open(const MapRec& map, C3Vector& start, const WorldStreamingView& streaming);
     void Close();
     const MapRec* GetMap() const { return this->m_map; }
 

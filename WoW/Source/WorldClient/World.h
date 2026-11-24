@@ -111,6 +111,9 @@ class CMapBaseObj;
 class CMapChunk;
 #ifdef WOWDECOMP_TOOL_FEATURES
 class CGCamera;
+#ifdef WOWDECOMP_TOOL_FEATURES
+struct WorldStreamingView;
+#endif
 #endif
 class CMapDoodadDef;
 class CMapDoodadDefMapChunkLink;
@@ -350,7 +353,11 @@ class CWorldScene {
     static void CullDoodadsInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* linkList, CWFrustum* frustum, uint16_t fadeLevel, int32_t interior);
     static void CullEntitysInterior(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* linkList, CWFrustum* frustum, BOOL force, int32_t interior);
     static void CullChunks(CSortEntry* entry, int32_t index);
-    static void Render(const C3Vector& cameraPos, float time);
+    static void Render(const C3Vector& cameraPos, float time
+#ifdef WOWDECOMP_TOOL_FEATURES
+    , CGCamera* toolCamera = nullptr
+#endif
+);
     static void RenderChunks();
     static void RenderMapObjDefGroups();
     static void RenderDetailDoodads();
@@ -483,7 +490,11 @@ namespace World {
     extern C3Vector s_currentWorldPos;
 
     void GetFrustumCorners(C3Vector* corners);
-    void PrepareAreaOfInterest(const C3Vector& position);
+    void PrepareAreaOfInterest(const C3Vector& position
+#ifdef WOWDECOMP_TOOL_FEATURES
+    , const WorldStreamingView* streaming = nullptr
+#endif
+);
     void SetLoadProgressCallback(CALLBACK_FUNC callback, void* param);
     void UnloadMap();
 
@@ -657,10 +668,18 @@ class CWorld {
     static int32_t ConsoleCommand_WaterRipples(const char* command, const char* arguments);
     static void Destroy();
     static void Initialize();
-    static void LoadMap(const char* mapName, C3Vector* position, int32_t zoneID, int32_t unused4);
+    static void LoadMap(const char* mapName, C3Vector* position, int32_t zoneID, int32_t unused4
+#ifdef WOWDECOMP_TOOL_FEATURES
+    , const WorldStreamingView* streaming = nullptr
+#endif
+);
     static void ObjectDestroy(CMapBaseObj* object);
     static CMapBaseObj* ObjectCreate(const char* name, const C3Vector& position, float facing, BOOL waitLoad, int32_t snap, uint64_t guid, uint32_t doodadSetCount, const int16_t* doodadSets, float* radius, uint32_t id);
-    static void Update(C3Vector* camPos, C3Vector* camTarget, C3Vector* position);
+    static void Update(C3Vector* camPos, C3Vector* camTarget, C3Vector* position
+#ifdef WOWDECOMP_TOOL_FEATURES
+    , const WorldStreamingView* streaming = nullptr
+#endif
+);
 
 #ifdef WOWDECOMP_DEBUG_FEATURES
     // Debug features (World_Debug.cpp): 0.5.3 console commands and render modes, stripped from the 3.3.5 release build.

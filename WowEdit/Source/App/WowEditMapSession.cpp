@@ -48,8 +48,8 @@ const MapRec* CWowEditMapSession::FindAvailableMap(int32_t mapId) {
     return map;
 }
 
-void CWowEditMapSession::Open(const MapRec& map, C3Vector& start) {
-    CWorld::LoadMap(map.m_directory, &start, map.m_id, 1);
+void CWowEditMapSession::Open(const MapRec& map, C3Vector& start, const WorldStreamingView& streaming) {
+    CWorld::LoadMap(map.m_directory, &start, map.m_id, 1, &streaming);
     this->m_map = &map;
 }
 

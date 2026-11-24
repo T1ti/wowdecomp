@@ -1233,11 +1233,15 @@ void World::ObjectDestroy(CMapEntity* baseObj) {
 
 // VERIFY: a4bfc150 manual
 // OFFSET: 0x00780860
-void World::PrepareAreaOfInterest(const C3Vector& position) {
+void World::PrepareAreaOfInterest(const C3Vector& position
+#ifdef WOWDECOMP_TOOL_FEATURES
+    , const WorldStreamingView* streaming
+#endif
+) {
     World::s_currentWorldPos = position;
 
 #ifdef WOWDECOMP_TOOL_FEATURES
-    CGCamera* camera = World::GetViewCamera();
+    CGCamera* camera = streaming ? streaming->m_camera : CGWorldFrame::GetActiveCamera();
 #else
     CGCamera* camera = CGWorldFrame::GetActiveCamera();
 #endif
@@ -1247,9 +1251,8 @@ void World::PrepareAreaOfInterest(const C3Vector& position) {
 
     C44Matrix projection;
 #ifdef WOWDECOMP_TOOL_FEATURES
-    const WorldEditView* editorView = WorldEditGetView();
-    if (editorView) {
-        farZ = editorView->m_streamFarClip;
+    if (streaming) {
+        farZ = streaming->m_farClip;
     }
 #endif
     GxuXformCreateProjection_Exact(fov * 0.6f, camera->m_aspect, nearZ, farZ, projection);
@@ -1277,8 +1280,8 @@ void World::PrepareAreaOfInterest(const C3Vector& position) {
     CWorld::s_objectAreaOfInterest.b = C3Vector(position.x - farClip, position.y - farClip, position.z - farClip);
     CWorld::s_objectAreaOfInterest.t = C3Vector(position.x + farClip, position.y + farClip, position.z + farClip);
 #ifdef WOWDECOMP_TOOL_FEATURES
-    if (editorView) {
-        CWorld::s_objectAreaOfInterest.b.z = fminf(CWorld::s_objectAreaOfInterest.b.z, editorView->m_objectMinZ);
+    if (streaming) {
+        CWorld::s_objectAreaOfInterest.b.z = fminf(CWorld::s_objectAreaOfInterest.b.z, streaming->m_objectMinZ);
     }
 #endif
 
@@ -1453,7 +1456,11 @@ void World::SetFarClip(float farClip) {
 
 // VERIFY: 833d137a auto
 // OFFSET: 0x00781430
-void CWorld::LoadMap(const char* mapName, C3Vector* position, int32_t zoneID, int32_t unused4) {
+void CWorld::LoadMap(const char* mapName, C3Vector* position, int32_t zoneID, int32_t unused4
+#ifdef WOWDECOMP_TOOL_FEATURES
+    , const WorldStreamingView* streaming
+#endif
+) {
     STORM_ASSERT(mapName);
 
     World::farClip = World::ValidateFarClip(CWorldParam::cvar_farClip->m_floatValue, zoneID);
@@ -1464,7 +1471,11 @@ void CWorld::LoadMap(const char* mapName, C3Vector* position, int32_t zoneID, in
         StreamingSetMapId(zoneID);
     }
 
+#ifdef WOWDECOMP_TOOL_FEATURES
+    World::PrepareAreaOfInterest(*position, streaming);
+#else
     World::PrepareAreaOfInterest(*position);
+#endif
     CWorld::gbChunkRectOld = CWorld::gbChunkRect;
     CMap::Load(mapName, zoneID);
 
@@ -1581,7 +1592,11 @@ void World::UnloadMap() {
 
 // VERIFY: 940255f7 manual
 // OFFSET: 0x007831A0
-void CWorld::Update(C3Vector* camPos, C3Vector* camTarget, C3Vector* position) {
+void CWorld::Update(C3Vector* camPos, C3Vector* camTarget, C3Vector* position
+#ifdef WOWDECOMP_TOOL_FEATURES
+    , const WorldStreamingView* streaming
+#endif
+) {
     CWorld::UpdateTextureCacheBudget();
 
     profTimes[profIdx] = FrameTime::s_tickTimeSec;
@@ -1591,7 +1606,11 @@ void CWorld::Update(C3Vector* camPos, C3Vector* camTarget, C3Vector* position) {
     }
 
     CWorld::gbChunkRectOld = CWorld::gbChunkRect;
+#ifdef WOWDECOMP_TOOL_FEATURES
+    World::PrepareAreaOfInterest(*position, streaming);
+#else
     World::PrepareAreaOfInterest(*position);
+#endif
 
     int32_t maxX = CWorld::gbChunkRectOld.maxX < CWorld::gbChunkRect.maxX ? CWorld::gbChunkRectOld.maxX : CWorld::gbChunkRect.maxX;
     int32_t maxY = CWorld::gbChunkRectOld.maxY < CWorld::gbChunkRect.maxY ? CWorld::gbChunkRectOld.maxY : CWorld::gbChunkRect.maxY;
@@ -1629,7 +1648,11 @@ void CWorld::Update(C3Vector* camPos, C3Vector* camTarget, C3Vector* position) {
     bool prepareAll = true;
     bool preload = false;
 
-    if (World::farClip - World::s_prevFarClip > 10.0f) {
+    if (World::farClip - World::s_prevFarClip > 10.0f
+#ifdef WOWDECOMP_TOOL_FEATURES
+        && !streaming
+#endif
+    ) {
         prepareAll = false;
         preload = true;
     }

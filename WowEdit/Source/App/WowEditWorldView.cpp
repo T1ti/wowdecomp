@@ -346,14 +346,13 @@ bool WowEditWorldGetBrushRay(C3Vector& start, C3Vector& end) {
     return true;
 }
 
-static void UpdateViewInputs(const C3Vector& forward) {
-    const CGCamera& camera = *Camera();
+static WorldStreamingView UpdateViewInputs(const C3Vector& forward) {
+    CGCamera& camera = *Camera();
     const C3Vector& position = camera.m_position;
     const float base = World::farClip;
     const float farZ = camera.m_clipRange.m_h;
-    s_view.m_streamFarClip = base;
+    WorldStreamingView streaming = { &camera, base, position.z - base };
     s_view.m_horizonFarClip = World::s_horizonFarClipScale * base + fmaxf(farZ - base, 0.0f);
-    s_view.m_objectMinZ = position.z - base;
     s_view.m_terrainBounds.minX = position.x - base;
     s_view.m_terrainBounds.minY = position.y - base;
     s_view.m_terrainBounds.maxX = position.x + base;
@@ -373,7 +372,7 @@ static void UpdateViewInputs(const C3Vector& forward) {
     if (farZ > base) {
         // The free camera has no roll. Project the bottom of its far plane onto world Z for WMO queries.
         float bottomZ = position.z + farZ * (forward.z - halfHeight * fabsf(up.z));
-        s_view.m_objectMinZ = fminf(s_view.m_objectMinZ, bottomZ);
+        streaming.m_objectMinZ = fminf(streaming.m_objectMinZ, bottomZ);
     }
 
     // Budget for the whole draw square and a paired chunk at each edge.
@@ -382,6 +381,7 @@ static void UpdateViewInputs(const C3Vector& forward) {
     s_view.m_terrainBufferCount = diameter * diameter;
     // The horizontal occlusion buffer is inactive at steep pitches.
     s_view.m_useTerrainOcclusion = fabsf(forward.z) <= 0.9f;
+    return streaming;
 }
 
 // CGWorldFrame::OnWorldUpdate, the world part.
@@ -404,13 +404,11 @@ static void UpdateWorld(const CRect& window, float elapsedSec) {
     }
 
     camera->SetupWorldProjection(window);
-    UpdateViewInputs(forward);
+    const WorldStreamingView streaming = UpdateViewInputs(forward);
     UpdateDayNight(forward, elapsedSec);
 
     C3Vector target = position + forward;
-    // Stream in tiles as the editor view grows, including changes made through the console.
-    World::s_prevFarClip = World::farClip;
-    CWorld::Update(&position, &target, &position);
+    CWorld::Update(&position, &target, &position, &streaming);
 }
 
 // CGWorldFrame::OnWorldRender, the world part: no units, name plates, spells or chat bubbles.
@@ -435,7 +433,7 @@ static void RenderWorld(float elapsedSec) {
 
     TextureCacheResetLoadCount();
     CShaderEffect::UpdateProjMatrix();
-    CWorld::Render(camera->m_position, elapsedSec);
+    CWorldScene::Render(camera->m_position, elapsedSec, camera);
 
     CM2Scene* scene = World::s_m2Scene;
 
@@ -592,8 +590,8 @@ bool WowEditWorldLoadMap(int32_t mapId, const C3Vector* position) {
     ApplyFacing();
     camera->m_clipRange.m_l = World::s_nearClip;
     camera->m_clipRange.m_h = World::farClip;
-    UpdateViewInputs(ForwardVector());
-    s_map.Open(*map, start);
+    const WorldStreamingView streaming = UpdateViewInputs(ForwardVector());
+    s_map.Open(*map, start, streaming);
     s_dropToGround = false;
 
     // No position on a map other than Azeroth: the middle of the terrain the map's WDT lists, then the ground.

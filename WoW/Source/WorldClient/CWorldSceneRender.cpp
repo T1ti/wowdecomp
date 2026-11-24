@@ -31,7 +31,6 @@
 #include "WoW/Source/DebugFeatures.h"
 #ifdef WOWDECOMP_TOOL_FEATURES
 #include "Engine/Source/Gxu/Gxu.h"
-#include "WoW/Source/WorldClient/WorldEditHooks.h"
 #endif
 
 // VERIFY: 78b69e1a manual
@@ -73,7 +72,11 @@ void CWorldScene::RenderCollisionDebug() {
 
 // VERIFY: cd492c82 manual
 // OFFSET: 0x0079A870
-void CWorldScene::Render(const C3Vector& cameraPos, float time) {
+void CWorldScene::Render(const C3Vector& cameraPos, float time
+#ifdef WOWDECOMP_TOOL_FEATURES
+    , CGCamera* toolCamera
+#endif
+) {
     if (!CWorldScene::s_viewerMapObjDef) {
         CWorldScene::ComputeExteriorSortDistances();
     }
@@ -91,7 +94,7 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
     CWorldScene::s_hasPendingExteriorGroups = CWorldScene::sortTable.moveableMapObjDefGroupList.Head() != nullptr;
 
 #ifdef WOWDECOMP_TOOL_FEATURES
-    CGCamera* camera = World::GetViewCamera();
+    CGCamera* camera = toolCamera ? toolCamera : CGWorldFrame::GetActiveCamera();
 #else
     CGCamera* camera = CGWorldFrame::GetActiveCamera();
 #endif
@@ -215,7 +218,13 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
         scene->m_flags &= ~CM2Scene::SCENE_FLAGS::WORLD_ANIMATION_ACTIVE;
     }
 
+#ifdef WOWDECOMP_TOOL_FEATURES
+    if (!toolCamera) {
+        CGUnit_C::UpdateMissileTrajectoryTargeting();
+    }
+#else
     CGUnit_C::UpdateMissileTrajectoryTargeting();
+#endif
     CShadowQuery::Update();
     CShaderEffect::UpdateProjMatrix();
     CWorldScene::ApplyFogState();
@@ -240,7 +249,7 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
 
         if (!s_liquidTypeId) {
 #ifdef WOWDECOMP_TOOL_FEATURES
-            const bool useSkyProjection = WorldEditGetView() && camera->m_clipRange.m_l > World::s_nearClip;
+            const bool useSkyProjection = toolCamera && camera->m_clipRange.m_l > World::s_nearClip;
             C44Matrix worldProjection;
             if (useSkyProjection) {
                 // The sky meshes are camera-relative and only a few yards across.
