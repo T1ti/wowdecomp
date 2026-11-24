@@ -28,20 +28,9 @@ struct LocalLights {
 
 class CShaderEffect : public TSHashObject<CShaderEffect, HASHKEY_STRI> {
     public:
-    static CShaderEffect* s_curEffect;
     static BOOL s_enableShaders;
-    static C4Vector s_fogColorAlphaRef;
     static float s_fogMul;
-    static C4Vector s_fogParams;
-    static int32_t s_lightEnabled;
-    static uint32_t s_localLightCount;
-    static LocalLights s_localLights;
     static uint32_t s_shadowValue;
-    static C3Vector s_sunAmbient;
-    static C3Vector s_sunDiffuse;
-    static C3Vector s_sunDir;
-    static C3Vector s_sunSpec;
-    static BOOL s_useAlphaRef;
     static uint32_t s_usePcfFiltering;
 
     static void ComputeLocalLights(LocalLights* localLights, uint32_t lightCount, CM2Light** lights, const C3Vector* origin);
@@ -57,7 +46,7 @@ class CShaderEffect : public TSHashObject<CShaderEffect, HASHKEY_STRI> {
     static void SetGlobalLighting(CM2Light* light);
     static void SetLightingEnabled(BOOL enabled);
     static void SetLocalLighting(CM2Lighting* lighting, BOOL enabled, const C3Vector* origin);
-    static void SetShaders(uint32_t vertexPermute, uint32_t pixelPermute);
+    static void SetShaders(uint32_t vsIndex, uint32_t psIndex);
     static void SetTexMtx(const C44Matrix& matrix, uint32_t stage);
     static void SetTexMtx_Identity(uint32_t stage);
     static void SetTexMtx_SphereMap(uint32_t stage);
@@ -66,17 +55,39 @@ class CShaderEffect : public TSHashObject<CShaderEffect, HASHKEY_STRI> {
     static void UpdateProjMatrix();
     static void UpdateWorldViewMatrix();
 
-    /* 0018 */ uint32_t m_fixedFuncPassCount;
-    /* 001C */ EGxTexOp m_colorOps[2];
-    /* 0024 */ EGxTexOp m_alphaOps[2];
-    /* 002C */ CGxShader* m_vertexShaders[90];
-    /* 0194 */ CGxShader* m_pixelShaders[16];
-
     CShaderEffect();
     ~CShaderEffect();
     void InitEffect(const char* vertexShader, const char* pixelShader);
     void InitFixedFuncPass(const EGxTexOp* colorOps, const EGxTexOp* alphaOps, uint32_t count);
     void SetCurrent();
+
+    CGxShader* GetVertexShader(uint32_t vsIndex) const { // (inferred)
+        return this->m_vertexShaders[vsIndex];
+    }
+    CGxShader* GetPixelShader(uint32_t psIndex) const { // (inferred)
+        return this->m_pixelShaders[psIndex];
+    }
+
+    private:
+    static constexpr uint32_t VTX_SHADER_PERM_CNT = 90;
+    static constexpr uint32_t PIX_SHADER_PERM_CNT = 16;
+    static CShaderEffect* s_curEffect;
+    static C4Vector s_fogColorAlphaRef;
+    static C4Vector s_fogParams;
+    static int32_t s_lightEnabled;
+    static uint32_t s_localLightCount;
+    static LocalLights s_localLights;
+    static C3Vector s_sunAmbient;
+    static C3Vector s_sunDiffuse;
+    static C3Vector s_sunDir;
+    static C3Vector s_sunSpec;
+    static BOOL s_useAlphaRef;
+
+    /* 0018 */ uint32_t m_fixedFuncPassCount;
+    /* 001C */ EGxTexOp m_colorOps[2];
+    /* 0024 */ EGxTexOp m_alphaOps[2];
+    /* 002C */ CGxShader* m_vertexShaders[VTX_SHADER_PERM_CNT];
+    /* 0194 */ CGxShader* m_pixelShaders[PIX_SHADER_PERM_CNT];
 };
 
 #endif

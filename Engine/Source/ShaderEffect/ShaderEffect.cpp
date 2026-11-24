@@ -129,6 +129,7 @@ void CShaderEffect::SetUsePcfFiltering(uint32_t usePcfFiltering) {
         CShaderEffect::s_usePcfFiltering = 1;
 
         if (CShaderEffect::s_enableShaders) {
+            STORM_ASSERT(GxCaps().m_rttFormat[GxTex_D24X8]);
             return;
         }
     }
@@ -184,7 +185,7 @@ void CShaderEffect::InitShaderSystem(BOOL enableShaders, BOOL usePcfFiltering) {
     CShaderEffect::s_enableShaders = enableShaders;
     CShaderEffect::SetUsePcfFiltering(usePcfFiltering);
     CShaderEffect::s_fogMul = 1.0f;
-    CShaderEffect::s_useAlphaRef = g_theGxDevicePtr->Caps().m_shaderAlphaRef;
+    CShaderEffect::s_useAlphaRef = GxCaps().m_shaderAlphaRef;
 }
 
 // VERIFY: fd7f8aba manual
@@ -205,7 +206,7 @@ void CShaderEffect::InitEffect(const char* vertexShader, const char* pixelShader
 // VERIFY: 9b6a2325 manual
 // OFFSET: 0x00872DE0
 uint32_t CShaderEffect::SelectShadowShader() {
-    if (!(CShaderEffect::s_fogColorAlphaRef.w > 0.0f) || (g_theGxDevicePtr->Caps().m_shaderAlphaRef && !CShaderEffect::s_shadowValue)) {
+    if (!(CShaderEffect::s_fogColorAlphaRef.w > 0.0f) || (GxCaps().m_shaderAlphaRef && !CShaderEffect::s_shadowValue)) {
         return CShaderEffect::s_shadowValue + 4 * CShaderEffect::s_usePcfFiltering;
     }
 
@@ -262,13 +263,16 @@ void CShaderEffect::SetCurrent() {
 
 // VERIFY: 0344992e manual
 // OFFSET: 0x00873060
-void CShaderEffect::SetShaders(uint32_t vertexPermute, uint32_t pixelPermute) {
+void CShaderEffect::SetShaders(uint32_t vsIndex, uint32_t psIndex) {
     BOOL useAlphaRef = 1;
 
     if (CShaderEffect::s_enableShaders) {
-        g_theGxDevicePtr->RsSet(GxRs_VertexShader, CShaderEffect::s_curEffect->m_vertexShaders[vertexPermute]);
-        g_theGxDevicePtr->RsSet(GxRs_PixelShader, CShaderEffect::s_curEffect->m_pixelShaders[pixelPermute]);
-        useAlphaRef = (pixelPermute & 8) == 0;
+        STORM_ASSERT(s_curEffect);
+        STORM_ASSERT(vsIndex < VTX_SHADER_PERM_CNT); // 12213: "vsIndex >= 0 && vsIndex < VTX_SHADER_PERM_CNT"
+        STORM_ASSERT(psIndex < PIX_SHADER_PERM_CNT); // 12213: "psIndex >= 0 && psIndex < PIX_SHADER_PERM_CNT"
+        g_theGxDevicePtr->RsSet(GxRs_VertexShader, CShaderEffect::s_curEffect->m_vertexShaders[vsIndex]);
+        g_theGxDevicePtr->RsSet(GxRs_PixelShader, CShaderEffect::s_curEffect->m_pixelShaders[psIndex]);
+        useAlphaRef = (psIndex & 8) == 0;
     }
 
     if (useAlphaRef == CShaderEffect::s_useAlphaRef) {
@@ -325,7 +329,7 @@ void CShaderEffect::SetFogParams(float start, float end, float density, const CI
         CShaderEffect::s_fogParams.z = density;
         CShaderEffect::s_fogParams.w = 0.0f;
 
-        if (!g_theGxDevicePtr->Caps().unk_0134) {
+        if (!GxCaps().unk_0134) {
             GxShaderConstantsSet(GxSh_Pixel, 2, &CShaderEffect::s_fogColorAlphaRef.x, 1);
             return;
         }
@@ -344,7 +348,7 @@ void CShaderEffect::SetFogEnabled(BOOL enabled) {
         if (CShaderEffect::s_enableShaders) {
             GxShaderConstantsSet(GxSh_Vertex, 30, &CShaderEffect::s_fogParams.x, 1);
 
-            if (!g_theGxDevicePtr->Caps().unk_0138) {
+            if (!GxCaps().unk_0138) {
                 return;
             }
         }
@@ -353,7 +357,7 @@ void CShaderEffect::SetFogEnabled(BOOL enabled) {
         return;
     }
 
-    if (!CShaderEffect::s_enableShaders || g_theGxDevicePtr->Caps().unk_0138) {
+    if (!CShaderEffect::s_enableShaders || GxCaps().unk_0138) {
         GxRsSet(GxRs_Fog, 0);
     } else {
         float fogParams[4] = { 0.0f, 1.0f, 1.0f, 0.0f };
@@ -408,6 +412,8 @@ void CShaderEffect::SetTexMtx(const C44Matrix& matrix, uint32_t stage) {
 // VERIFY: 571cb58b manual
 // OFFSET: 0x00873730
 void CShaderEffect::SetTexMtx_TexGen(EGxTexGen texGen, const C44Matrix& matrix, uint32_t stage) {
+    STORM_ASSERT(texGen == GxTexGen_World);
+
     if (CShaderEffect::s_enableShaders) {
         C44Matrix view;
         GxXformView(view);

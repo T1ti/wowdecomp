@@ -1066,10 +1066,10 @@ int32_t CM2Scene::SortOpaqueGeoBatches(M2Element* a, M2Element* b) {
         }
 
         if (a->m_effect && b->m_effect) {
-            CGxShader* vertexA = a->m_effect->m_vertexShaders[a->m_vertexPermute];
-            CGxShader* pixelA = a->m_effect->m_pixelShaders[a->m_pixelPermute];
-            CGxShader* vertexB = b->m_effect->m_vertexShaders[b->m_vertexPermute];
-            CGxShader* pixelB = b->m_effect->m_pixelShaders[b->m_pixelPermute];
+            CGxShader* vertexA = a->m_effect->GetVertexShader(a->m_vertexPermute);
+            CGxShader* pixelA = a->m_effect->GetPixelShader(a->m_pixelPermute);
+            CGxShader* vertexB = b->m_effect->GetVertexShader(b->m_vertexPermute);
+            CGxShader* pixelB = b->m_effect->GetPixelShader(b->m_pixelPermute);
 
             if (vertexA < vertexB) {
                 return -1;
@@ -1321,10 +1321,10 @@ int32_t CM2Scene::SortTransparent(uint32_t a, uint32_t b, const void* param) {
     uint32_t shaderSort = CM2Scene::s_optFlags & CM2Cache::CACHE_FLAGS::CACHE_OPT_SHADER_SORT;
 
     if (shaderSort && (elementA->m_type != elementB->m_type || elementA->m_model != elementB->m_model) && elementA->m_effect && elementB->m_effect) {
-        CGxShader* vertexA = elementA->m_effect->m_vertexShaders[elementA->m_vertexPermute];
-        CGxShader* vertexB = elementB->m_effect->m_vertexShaders[elementB->m_vertexPermute];
-        CGxShader* pixelA = elementA->m_effect->m_pixelShaders[elementA->m_pixelPermute];
-        CGxShader* pixelB = elementB->m_effect->m_pixelShaders[elementB->m_pixelPermute];
+        CGxShader* vertexA = elementA->m_effect->GetVertexShader(elementA->m_vertexPermute);
+        CGxShader* vertexB = elementB->m_effect->GetVertexShader(elementB->m_vertexPermute);
+        CGxShader* pixelA = elementA->m_effect->GetPixelShader(elementA->m_pixelPermute);
+        CGxShader* pixelB = elementB->m_effect->GetPixelShader(elementB->m_pixelPermute);
 
         if (vertexA < vertexB) {
             return -1;
@@ -1375,10 +1375,10 @@ int32_t CM2Scene::SortTransparent(uint32_t a, uint32_t b, const void* param) {
         return CM2Scene::SortOpaque(a, b, param);
     }
 
-    CGxShader* vertexA = elementA->m_effect->m_vertexShaders[elementA->m_vertexPermute];
-    CGxShader* vertexB = elementB->m_effect->m_vertexShaders[elementB->m_vertexPermute];
-    CGxShader* pixelA = elementA->m_effect->m_pixelShaders[elementA->m_pixelPermute];
-    CGxShader* pixelB = elementB->m_effect->m_pixelShaders[elementB->m_pixelPermute];
+    CGxShader* vertexA = elementA->m_effect->GetVertexShader(elementA->m_vertexPermute);
+    CGxShader* vertexB = elementB->m_effect->GetVertexShader(elementB->m_vertexPermute);
+    CGxShader* pixelA = elementA->m_effect->GetPixelShader(elementA->m_pixelPermute);
+    CGxShader* pixelB = elementB->m_effect->GetPixelShader(elementB->m_pixelPermute);
 
     if (vertexA < vertexB) {
         return -1;
