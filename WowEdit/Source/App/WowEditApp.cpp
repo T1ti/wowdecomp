@@ -7,7 +7,6 @@
 #include "Engine/Source/Os/Gui.h"
 #include "Engine/Source/Os/Input.h"
 #include "Engine/Source/Tempest/C3Vector.h"
-#include "WoW/Source/ClientTool.h"
 #include "WowEdit/Source/App/WowEditCommands.h"
 #include "WowEdit/Source/App/WowEditModule.h"
 #include "WowEdit/Source/App/WowEditRenderDistance.h"
@@ -32,7 +31,6 @@ struct WowEditAppMenus {
     COsMenu* menus[WOWEDITMENU_LAST];
 };
 
-// The client runs as a tool (WoW/Source/ClientTool.h): the editor's world view instead of the game.
 void CWowEditApp::InitializeWorld() {
     const WowEditSettings& settings = WowEditGetSettings();
     WowEditWorldInitialize();
@@ -55,7 +53,7 @@ void CWowEditApp::InitializeWorld() {
     }
 }
 
-static void ShutdownWorld() {
+void CWowEditApp::ShutdownWorld() {
     // The next run starts where this one ended.
     if (WowEditWorldGetMapId() >= 0) {
         float position[3];
@@ -66,18 +64,16 @@ static void ShutdownWorld() {
     WowEditRenderDistanceSave();
 
     WowEditWorldShutdown();
-}
 
-static CLIENT_TOOL s_clientTool;
-
-void WowEditAppEnable() {
-    // Before the client starts: the game folder comes from WowEdit.ini.
-    WowEditLoadSettings();
-    s_clientTool.m_basePath = WowEditGetSettings().m_basePath;
-    s_clientTool.m_configFile = WOWEDIT_CONFIG_FILE;
-    s_clientTool.m_initialize = CWowEditApp::InitializeWorld;
-    s_clientTool.m_shutdown = ShutdownWorld;
-    ClientSetTool(&s_clientTool);
+    s_app->Detach();
+    OsSetWindowProc(nullptr);
+    OsGuiSetMenuCommandCallback(nullptr, nullptr);
+    OsGuiDestroy();
+    OsGuiSetApplicationInfo(nullptr);
+    delete s_app->m_commander;
+    delete s_app->m_undoer;
+    delete s_app;
+    s_app = nullptr;
 }
 
 // ---- Cursor

@@ -88,27 +88,13 @@ static void WriteDefaults(const char* iniPath) {
     fclose(file);
 }
 
-// The editor's cvar file (WTF\WowEdit.wtf, ClientTool.h), so it keeps its own video settings apart from the game's
+// The editor's cvar file (WTF\WowEdit.wtf), so it keeps its own video settings apart from the game's
 // Config.wtf. On the first run: a 1600 x 900 window, since the menu bar and the palettes need a windowed device.
-static void WriteDefaultConfig(const char* basePath) {
-    char exePath[260];
-    const char* folder = basePath;
-
-    if (!folder[0]) {
-        GetModuleFileNameA(nullptr, exePath, sizeof(exePath));
-        char* slash = strrchr(exePath, '\\');
-
-        if (slash) {
-            slash[1] = '\0';
-        }
-
-        folder = exePath;
-    }
-
+void WowEditEnsureDefaultConfig() {
+    // Startup has selected the working directory, including any command-line data path.
+    CreateDirectoryA("WTF", nullptr);
     char path[300];
-    snprintf(path, sizeof(path), "%sWTF", folder);
-    CreateDirectoryA(path, nullptr);
-    snprintf(path, sizeof(path), "%sWTF\\%s", folder, WOWEDIT_CONFIG_FILE);
+    snprintf(path, sizeof(path), "WTF\\%s", WOWEDIT_CONFIG_FILE);
 
     if (GetFileAttributesA(path) != INVALID_FILE_ATTRIBUTES) {
         return;
@@ -145,8 +131,6 @@ void WowEditLoadSettings() {
     char value[260];
     GetPrivateProfileStringA(SECTION, "DataPath", "", value, sizeof(value), s_settings.m_iniPath);
     ResolveBasePath(value, s_settings.m_basePath, sizeof(s_settings.m_basePath));
-
-    WriteDefaultConfig(s_settings.m_basePath);
 
     s_settings.m_mapId = GetPrivateProfileIntA(SECTION, "MapId", 0, s_settings.m_iniPath);
 

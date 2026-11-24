@@ -116,7 +116,7 @@ Open the console with the `~` key (`²` on AZERTY keyboards).
 
 The standalone editor uses 8.1 terrain overlay and brush shaders rewritten for Shader Model 3. It compiles them at runtime and requires a Direct3D 9 or 9Ex device and d3dcompiler_47.dll. Shader build errors appear in the editor console.
 
-The tool build makes `WowEdit64.exe` (`Tools/WowEditApp`, `WowEdit/Source/App/WowEditApp.h`). It is the client engine run as a tool (`WoW/Source/ClientTool.h`): no login screen, no network, no player or game objects. It renders the world around a free camera, and its window chrome is built with OsGui, the engine's tool interface layer.
+The tool build makes `WowEdit64.exe` (`Tools/WowEditApp`, `WowEdit/Source/App/WowEditApp.h`). The editor owns startup and the event loop and shares the client engine’s archive, graphics, and world services. It renders the world around a free camera, and its window chrome is built with OsGui, the engine's tool interface layer.
 
 - **Settings:** `WowEdit.ini` next to the exe, written with defaults on the first run. `DataPath` is the game's `Data` folder (or the folder holding it; empty means the exe's folder). `MapId` and `StartX/Y/Z` set the map and camera position at start, and are saved on exit. The editor keeps its own cvars in `WTF\WowEdit.wtf` in the game folder (a 1600x900 window by default), apart from the game's `Config.wtf`.
 - **Camera:** hold the right mouse button to look (the cursor hides meanwhile), W/A/S/D (or the arrow keys) to move, E/Q up and down, Shift for four times the speed, mouse wheel to change the speed. With View > AZERTY Movement Keys (or `Keyboard=AZERTY` in WowEdit.ini; empty detects the layout) the keys are Z/Q/S/D, E up and A down.

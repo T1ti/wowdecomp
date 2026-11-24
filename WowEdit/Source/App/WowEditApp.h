@@ -10,8 +10,7 @@
 // follows its layout (War3\Tools\WorldEdit\Source: CWorldEditApp, CWorldEditFrame, CCommander, CWEModule,
 // CUndoable, CToolPalette):
 //
-//   WowEdit64.exe (Tools/WowEditApp)    the client executable plus WowEditAppMain.cpp, which calls
-//                                       WowEditAppEnable before main; the plain client never enables the app.
+//   WowEdit64.exe (Tools/WowEditApp)    the editor entry point, with startup and shutdown in WowEditAppStartup.cpp.
 //   WowEditWorldView                    the world drawn without the game, the free camera, map loading.
 //   CWowEditApp (this file)             attaches the editor to the Gx window: OsGui setup, the window procedure
 //                                       hook, the menu bar, the palettes. The Gx window is the main window, as
@@ -23,17 +22,15 @@
 //                                       CWowEditUndoable.
 //   CWowEditToolPalette (WowEditToolPalette.h)  the floating terrain tool palette (brush), a COsDialog.
 //
-// Hookup with the client, which knows nothing of the app:
+// Window integration:
 //   - The editor initialization callback calls OsSetWindowProc to receive messages forwarded by the Gx window.
 //   - The app posts an attach message to the window registered by ConsoleDevice, and reattaches if the device
 //     makes a new window.
 //   - OsInputGet already passes every message to OsGuiProcessMessage (menu hotkeys, dialog keyboard navigation).
 //   - Menu commands arrive as WM_COMMAND through OsGuiWindowProc and the OsGui menu command callback.
 //
-// The client runs as a tool (WoW/Source/ClientTool.h): WowEditAppEnable reads WowEdit.ini (WowEditSettings.h: the
-// game folder, the start map and position) and hands the client its tool description, so no login screen, network,
-// interface or game objects are started; the editor draws the world itself around a free camera
-// (WowEditWorldView.h), with WoWEdit's view toggles (WowEditViewToggles.h) and a map list (WowEditMapDialog.h).
+// The editor reads the data folder and start position from WowEdit.ini (WowEditSettings.h) and draws a free-camera
+// viewport (WowEditWorldView.h), with view toggles (WowEditViewToggles.h) and a map list (WowEditMapDialog.h).
 // The editor keeps its own cvars, a windowed device by default: a fullscreen device would cover the menu bar.
 
 #ifdef WOWDECOMP_TOOL_FEATURES
@@ -43,15 +40,13 @@
 class CWowEditCommander;
 class CWowEditUndoer;
 
-// From the WowEdit executable, before main: this run is the editor.
-void WowEditAppEnable();
-
 // The mouse cursor over the 3D view: the Windows arrow, or none while the mouse turns the camera
 // (WowEditWorldIsLooking). For a change of state the cursor would only see at the next WM_SETCURSOR.
 void WowEditAppUpdateCursor();
 
 class CWowEditApp {
     public:
+    static int32_t Run();
     static CWowEditApp* Get(); // nullptr until the app starts
 
     CWowEditCommander* GetCommander();
@@ -62,8 +57,10 @@ class CWowEditApp {
     static intptr_t WindowProc(void* window, uint32_t message, uintptr_t wparam, intptr_t lparam);
 
     private:
-    friend void WowEditAppEnable();
+    static int32_t InitializeContext(const void* data, void* param);
+    static int32_t DestroyContext(const void* data, void* param);
     static void InitializeWorld();
+    static void ShutdownWorld();
     CWowEditApp();
 
     void Attach(void* window);

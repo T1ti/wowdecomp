@@ -21,7 +21,7 @@
 
 class C3Vector;
 
-// From the client tool start-up (ClientTool.h): the camera, screen layer and input handlers.
+// From the editor startup (WowEditAppStartup.cpp): the camera, screen layer and input handlers.
 void WowEditWorldInitialize();
 void WowEditWorldShutdown();
 

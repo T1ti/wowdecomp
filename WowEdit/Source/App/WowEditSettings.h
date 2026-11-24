@@ -37,6 +37,7 @@ struct WowEditSettings {
 
 // Reads WowEdit.ini (writing it first if missing).
 void WowEditLoadSettings();
+void WowEditEnsureDefaultConfig();
 const WowEditSettings& WowEditGetSettings();
 // Saves the map and camera position, for the next run.
 void WowEditSaveStart(int32_t mapId, const float* position);

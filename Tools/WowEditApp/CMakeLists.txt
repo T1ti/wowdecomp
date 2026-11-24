@@ -1,13 +1,12 @@
 # WowEdit64 / WowEdit32: the world editor application (WowEdit/Source/App/WowEditApp.h). Built only with
-# WOWDECOMP_TOOL_FEATURES: the client sources and libraries of WowClient (Tools/WowClient) plus WowEditAppMain.cpp,
-# which turns the editor on before the client starts.
+# WOWDECOMP_TOOL_FEATURES. The executable provides its own entry point and links the client sources for
+# services and symbols still required by the shared libraries.
 file(GLOB CLIENT_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/WoW/Source/*.cpp")
 
 if (WOWDECOMP_ARCH_64)
-    file(GLOB CLIENT_PLATFORM_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/WoW/Source/Win64/*.cpp")
+    set(CLIENT_PLATFORM_SOURCES "${CMAKE_SOURCE_DIR}/WoW/Source/Win64/BotCheck.cpp")
     set(WOWEDITAPP_OUTPUT_NAME WowEdit64)
 else ()
-    file(GLOB CLIENT_PLATFORM_SOURCES CONFIGURE_DEPENDS "${CMAKE_SOURCE_DIR}/WoW/Source/Win32/*.cpp")
     set(WOWEDITAPP_OUTPUT_NAME WowEdit32)
 endif ()
 

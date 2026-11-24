@@ -329,18 +329,6 @@ volatile long s_additionalCheckArmed;
 // STATIC: 0x00B2FA1C
 static C3Vector s_spawnPosition;
 
-#ifdef WOWDECOMP_TOOL_FEATURES
-// Tool features: the tool this run is (ClientTool.h), or nullptr for the game.
-static const CLIENT_TOOL* s_tool;
-
-void ClientSetTool(const CLIENT_TOOL* tool) {
-    s_tool = tool;
-}
-
-bool ClientIsTool() {
-    return s_tool != nullptr;
-}
-#endif
 
 // STATIC: 0x00B2FE50
 template <>
@@ -591,9 +579,13 @@ uint8_t GetClientExpansionLevel() {
     return s_expansionLevel;
 }
 
+#ifdef WOWDECOMP_TOOL_FEATURES
+static void SetDataPaths(const char* defaultPath) {
+#else
 // VERIFY: 45dcce86 auto
 // OFFSET: 0x00402B20
 void SetPaths() {
+#endif
     SFile::DisableSFileCheckDisk();
     SFile::EnableDirectAccess(0);
 
@@ -601,9 +593,8 @@ void SetPaths() {
     char buffer[260];
 
 #ifdef WOWDECOMP_TOOL_FEATURES
-    // Tool features: the tool's game folder (ClientTool.h).
-    if (!*path && s_tool && s_tool->m_basePath && *s_tool->m_basePath) {
-        path = s_tool->m_basePath;
+    if (!*path && defaultPath) {
+        path = defaultPath;
     }
 #endif
 
@@ -617,6 +608,20 @@ void SetPaths() {
     s_unk_B2FA10 = 0;
     SFile::SetDataPath(s_dataDirectories[0]);
 }
+
+#ifdef WOWDECOMP_TOOL_FEATURES
+// VERIFY: 45dcce86 auto
+// OFFSET: 0x00402B20
+void SetPaths() {
+    SetDataPaths(nullptr);
+}
+
+void ClientToolSetDataPath(const char* basePath) {
+    SCmdRegisterArgList(s_wowArgList, sizeof(s_wowArgList) / sizeof(s_wowArgList[0]));
+    CmdLineProcess();
+    SetDataPaths(basePath);
+}
+#endif
 
 // VERIFY: fb9a1306 auto
 // OFFSET: 0x00402A50
@@ -1035,37 +1040,7 @@ static int32_t Packet_SMSG_LOGIN_VERIFY_WORLD(void* param, NETMESSAGE msgId, uin
 
 // VERIFY: 2ecb4537 auto
 // OFFSET: 0x00404130
-#ifdef WOWDECOMP_TOOL_FEATURES
-// Tool features: InitializeClient for a tool (ClientTool.h): the databases, the world and sound, without the glue
-// screens, the realm connection, the interface (FrameXML, addons) or the game objects.
-static void InitializeToolClient() {
-    EventRegister(EVENT_ID_UPDATE, EnableCallback);
-    SysMsgInitialize();
-    WowSysMessageOutput::Initialize();
-    ClientRegisterConsoleCommands();
-    ClientDBInitialize();
-    FrameScript_Initialize(0);
-    SI2::Init(0);
-    CWorldParam::Initialize();
-    CWorld::Initialize();
-    ShadowInit();
-    GxuLightInitialize();
-    GxuLightSetGridSize(16.665f);
-
-    if (s_tool->m_initialize) {
-        s_tool->m_initialize();
-    }
-}
-#endif
-
 static void InitializeClient() {
-#ifdef WOWDECOMP_TOOL_FEATURES
-    if (s_tool) {
-        InitializeToolClient();
-        return;
-    }
-#endif
-
     EventRegister(EVENT_ID_UPDATE, EnableCallback);
     SysMsgInitialize();
     WowSysMessageOutput::Initialize();
@@ -1131,10 +1106,15 @@ static void InitializeClient() {
     EventRegister(EVENT_ID_POLL, PollNet);
 }
 
+#ifdef WOWDECOMP_TOOL_FEATURES
+void ClientToolInitializeRenderServices() {
+    STORM_ASSERT(EventIsContextInteractive());
+#else
 // VERIFY: 56a0f6b5 auto
 // OFFSET: 0x004047E0
 static int32_t InitializeEngineCallback(const void* data, void* param) {
     STORM_ASSERT(EventIsContextInteractive());
+#endif
 
     BaseInitializeContext();
     HeapUsageInitialize();
@@ -1168,6 +1148,16 @@ static int32_t InitializeEngineCallback(const void* data, void* param) {
     int32_t mode = s_cvTextureFilteringMode->m_intValue;
     TextureSetFilterMode(s_textureFilterModes[mode]);
     TextureSetMaxAnisotropy(s_textureMaxAnisotropy[mode]);
+
+#ifdef WOWDECOMP_TOOL_FEATURES
+}
+
+// VERIFY: 56a0f6b5 auto
+// OFFSET: 0x004047E0
+static int32_t InitializeEngineCallback(const void* data, void* param) {
+    STORM_ASSERT(EventIsContextInteractive());
+    ClientToolInitializeRenderServices();
+#endif
 
     InitializeClient();
 
@@ -1601,6 +1591,36 @@ static void OpenArchives() {
     ClientServices::InitLoginServerCVars(1, locale);
     LoadMopaqFileSigningData(locale);
 }
+
+#ifdef WOWDECOMP_TOOL_FEATURES
+void ClientToolOpenData() {
+    LoadMFIL("WoW.mfil");
+
+    CVar::Register("dbCompress", "Database compression", CVAR_FLAGS::CVAR_NONE, "-1", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+    CVar* locale = CVar::Register("locale", "Set the game locale", CVAR_FLAGS::CVAR_NONE, "enUS", LocaleCallback, CATEGORY_DEFAULT, false, nullptr, false);
+    CVar::Register("useEnglishAudio", "override the locale and use English audio", CVAR_FLAGS::CVAR_NONE, "0", nullptr, CATEGORY_DEFAULT, false, nullptr, false);
+
+    char localeName[5];
+    SStrCopy(localeName, locale->m_stringValue.m_str, sizeof(localeName));
+    if (!SStrCmp(localeName, "****", sizeof(localeName))) {
+        SStrCopy(localeName, "enUS", sizeof(localeName));
+    }
+    CheckAvailableLocales(localeName);
+    locale->Set(localeName, true, false, false, true);
+
+    char dataPath[260];
+    SStrPrintf(dataPath, sizeof(dataPath), "%s%s", s_dataDirectories[0], locale->m_stringValue.m_str);
+    SFile::SetDataPathAlternate(dataPath);
+    SFile::RebuildHash();
+    OpenArchives();
+}
+
+void ClientToolCloseData() {
+    CloseAllArchives();
+    ShutdownStreamingIfTrial();
+    StopStreaming();
+}
+#endif
 // VERIFY: 18427c91 manual
 // OFFSET: 0x004064A0
 int32_t ForEveryRunOnceWTF::AppendFileName(OS_FILE_DATA& data, void* param) {
@@ -1693,6 +1713,10 @@ void ClientDestroyGame(int32_t charSelect, int32_t resumeGlue, int32_t worldLogi
     }
 }
 
+#ifdef WOWDECOMP_TOOL_FEATURES
+static void DestroyRenderServices();
+#endif
+
 // VERIFY: e61971e0 auto
 // OFFSET: 0x004066D0
 static int32_t DestroyEngineCallback(const void* data, void* param) {
@@ -1700,26 +1724,20 @@ static int32_t DestroyEngineCallback(const void* data, void* param) {
 
     RemoveConsoleDeviceDefaultCallback(SetDefaults);
 
-#ifdef WOWDECOMP_TOOL_FEATURES
-    // Tool features: only what InitializeToolClient made.
-    if (s_tool) {
-        if (s_tool->m_shutdown) {
-            s_tool->m_shutdown();
-        }
-
-        SI2::ShutDown(0);
-        FrameScript_Destroy();
-        WowSysMessageOutput::Shutdown();
-        ClientDBShutdown();
-        SysMsgShutdown();
-    } else
-#endif
     {
         ClientDestroyGame(0, 0, 0);
         WowClientDestroy();
         ClientServices::ClearMessageHandler(SMSG_TUTORIAL_FLAGS);
         ClientServices::Destroy();
     }
+
+#ifdef WOWDECOMP_TOOL_FEATURES
+    DestroyRenderServices();
+    return 1;
+}
+
+static void DestroyRenderServices() {
+#endif
 
     ShadowDestroy();
     CWorld::Destroy();
@@ -1734,8 +1752,18 @@ static int32_t DestroyEngineCallback(const void* data, void* param) {
     ObjectAllocDestroy();
     BaseDestroyContext();
 
+#ifdef WOWDECOMP_TOOL_FEATURES
+}
+
+void ClientToolDestroyRenderServices() {
+    STORM_ASSERT(EventIsContextInteractive());
+    RemoveConsoleDeviceDefaultCallback(SetDefaults);
+    DestroyRenderServices();
+}
+#else
     return 1;
 }
+#endif
 
 // VERIFY: 84c3b1d6 manual
 // OFFSET: 0x00406740
@@ -1775,12 +1803,7 @@ bool InitializeGlobal() {
 
     ClientServices::LoadCDKey();
     ConsoleInitializeClientCommand();
-#ifdef WOWDECOMP_TOOL_FEATURES
-    // Tool features: the tool's own cvar file (ClientTool.h).
-    CVar::Initialize(s_tool && s_tool->m_configFile ? s_tool->m_configFile : "Config.wtf");
-#else
     CVar::Initialize("Config.wtf");
-#endif
     CVar::ArchiveCodeRegisteredOnly();
 
     {
