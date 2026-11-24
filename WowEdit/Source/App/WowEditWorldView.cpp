@@ -31,7 +31,6 @@
 #include "WoW/Source/WorldClient/World.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include "WoW/Source/WorldClient/WorldEditHooks.h"
-#include "WowEdit/Source/App/WowEditApp.h"
 #include "WowEdit/Source/App/WowEditMapSession.h"
 #include "WowEdit/Source/App/WowEditRenderDistance.h"
 #include "WowEdit/Source/WowEdit.h"
@@ -49,6 +48,7 @@ static float s_yaw;
 static float s_pitch;
 static float s_speed = 30.0f; // yards per second
 static bool s_looking;
+static void (*s_setViewportCursor)(bool looking);
 // Movement keys for an AZERTY keyboard (the keys arrive as the layout names them, not by position).
 static bool s_azerty;
 // Drop the camera onto the ground once the terrain under it has loaded (a map opened without a position).
@@ -162,7 +162,9 @@ static void StopLooking() {
     if (s_looking) {
         s_looking = false;
         EventSetMouseMode(MOUSE_MODE_NORMAL, 0);
-        WowEditAppUpdateCursor();
+        if (s_setViewportCursor) {
+            s_setViewportCursor(s_looking);
+        }
     }
 }
 
@@ -187,7 +189,9 @@ static int32_t OnMouseDown(const void* data, void* param) {
         s_looking = true;
         EventSetMouseMode(MOUSE_MODE_RELATIVE, MOUSE_BUTTON_RIGHT);
         // As the game turning its camera (InputControl): no cursor while the mouse turns the view.
-        WowEditAppUpdateCursor();
+        if (s_setViewportCursor) {
+            s_setViewportCursor(s_looking);
+        }
         return 0;
     }
 
@@ -523,7 +527,9 @@ static void PaintWorld(void* param, const RECTF* rect, const RECTF* visible, flo
 
 // ---- Set-up
 
-void WowEditWorldInitialize() {
+void WowEditWorldInitialize(void (*setViewportCursor)(bool looking)) {
+    s_setViewportCursor = setViewportCursor;
+
     // CGCamera reads the camera cvars (cameraView...) normally registered by the game interface.
     CameraRegisterCVars();
 
@@ -553,6 +559,7 @@ void WowEditWorldInitialize() {
 
 void WowEditWorldShutdown() {
     StopLooking();
+    s_setViewportCursor = nullptr;
 
     s_map.Close();
 

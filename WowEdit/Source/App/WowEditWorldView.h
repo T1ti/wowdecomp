@@ -21,8 +21,8 @@
 
 class C3Vector;
 
-// From the editor startup (WowEditAppStartup.cpp): the camera, screen layer and input handlers.
-void WowEditWorldInitialize();
+// The session owns the camera, screen layer and input handlers. The host can supply a cursor update callback.
+void WowEditWorldInitialize(void (*setViewportCursor)(bool looking));
 void WowEditWorldShutdown();
 
 // Opens a map (Map.dbc ID); position nullptr picks a default (Northshire on map 0, the middle of the map's terrain on

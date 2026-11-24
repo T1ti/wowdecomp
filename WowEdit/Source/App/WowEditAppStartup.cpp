@@ -27,7 +27,10 @@
 #include "WoW/Source/WorldClient/WorldParam.h"
 #include "WoW/Source/WorldClient/shadow.h"
 #include "WoW/Source/WowSysMessageOutput.h"
+#include "WowEdit/Source/App/WowEditSession.h"
 #include "WowEdit/Source/App/WowEditSettings.h"
+
+static CWowEditSession* s_session;
 
 static int32_t UpdateFrameTime(const void* data, void* param) {
     const auto* update = static_cast<const EVENT_DATA_UPDATE*>(data);
@@ -50,12 +53,15 @@ int32_t CWowEditApp::InitializeContext(const void* data, void* param) {
     GxuLightInitialize();
     GxuLightSetGridSize(16.665f);
 
-    InitializeWorld();
+    s_session = new CWowEditSession(SetViewportCursor);
+    OpenShell(*s_session);
     return 1;
 }
 
 int32_t CWowEditApp::DestroyContext(const void* data, void* param) {
-    ShutdownWorld();
+    CloseShell();
+    delete s_session;
+    s_session = nullptr;
 
     SI2::ShutDown(0);
     FrameScript_Destroy();

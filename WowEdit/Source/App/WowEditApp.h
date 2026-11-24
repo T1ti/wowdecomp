@@ -11,6 +11,7 @@
 // CUndoable, CToolPalette):
 //
 //   WowEdit64.exe (Tools/WowEditApp)    the editor entry point, with startup and shutdown in WowEditAppStartup.cpp.
+//   CWowEditSession                     owns the viewport and command/undo state independently of OsGui.
 //   WowEditWorldView                    the world drawn without the game, the free camera, map loading.
 //   CWowEditApp (this file)             attaches the editor to the Gx window: OsGui setup, the window procedure
 //                                       hook, the menu bar, the palettes. The Gx window is the main window, as
@@ -37,12 +38,7 @@
 
 #include <cstdint>
 
-class CWowEditCommander;
-class CWowEditUndoer;
-
-// The mouse cursor over the 3D view: the Windows arrow, or none while the mouse turns the camera
-// (WowEditWorldIsLooking). For a change of state the cursor would only see at the next WM_SETCURSOR.
-void WowEditAppUpdateCursor();
+class CWowEditSession;
 
 class CWowEditApp {
     public:
@@ -53,9 +49,10 @@ class CWowEditApp {
     private:
     static int32_t InitializeContext(const void* data, void* param);
     static int32_t DestroyContext(const void* data, void* param);
-    static void InitializeWorld();
-    static void ShutdownWorld();
-    CWowEditApp();
+    static void OpenShell(CWowEditSession& session);
+    static void CloseShell();
+    static void SetViewportCursor(bool looking);
+    explicit CWowEditApp(CWowEditSession& session);
 
     void Attach(void* window);
     void Detach();
@@ -69,8 +66,7 @@ class CWowEditApp {
     void* m_window;
     bool m_attachPending;
     struct WowEditAppUi* m_ui;
-    CWowEditCommander* m_commander;
-    CWowEditUndoer* m_undoer;
+    CWowEditSession& m_session;
 };
 
 #endif

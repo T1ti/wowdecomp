@@ -6,18 +6,13 @@
 #include "Engine/Source/Event/Types.h"
 #include "Engine/Source/Os/Gui.h"
 #include "Engine/Source/Os/Input.h"
-#include "Engine/Source/Tempest/C3Vector.h"
 #include "WowEdit/Source/App/WowEditCommands.h"
 #include "WowEdit/Source/App/WowEditDistancePalette.h"
 #include "WowEdit/Source/App/WowEditMapDialog.h"
 #include "WowEdit/Source/App/WowEditMenus.h"
-#include "WowEdit/Source/App/WowEditModule.h"
-#include "WowEdit/Source/App/WowEditRenderDistance.h"
-#include "WowEdit/Source/App/WowEditSettings.h"
+#include "WowEdit/Source/App/WowEditSession.h"
 #include "WowEdit/Source/App/WowEditToolPalette.h"
-#include "WowEdit/Source/App/WowEditUndo.h"
 #include "WowEdit/Source/App/WowEditViewPalette.h"
-#include "WowEdit/Source/App/WowEditViewToggles.h"
 #include "WowEdit/Source/App/WowEditWorldView.h"
 
 // See WowEditApp.h.
@@ -40,21 +35,9 @@ struct WowEditAppUi {
     CWowEditDistancePalette* distancePalette;
 };
 
-void CWowEditApp::InitializeWorld() {
-    const WowEditSettings& settings = WowEditGetSettings();
-    WowEditWorldInitialize();
-    WowEditWorldSetAzerty(settings.m_azerty);
-    WowEditViewTogglesInitialize();
-    WowEditRenderDistanceInitialize();
-
-    C3Vector start(settings.m_start[0], settings.m_start[1], settings.m_start[2]);
-
-    if (!WowEditWorldLoadMap(settings.m_mapId, settings.m_hasStart ? &start : nullptr) && settings.m_mapId != 0) {
-        WowEditWorldLoadMap(0, nullptr);
-    }
-
+void CWowEditApp::OpenShell(CWowEditSession& session) {
     s_attachMessage = RegisterWindowMessageA("WowEditAttach");
-    s_app = new CWowEditApp();
+    s_app = new CWowEditApp(session);
     OsSetWindowProc(CWowEditApp::WindowProc);
 
     if (void* window = OsGuiGetWindow(OSGUI_WINDOW_TYPE_GX); window && s_attachMessage) {
@@ -62,34 +45,17 @@ void CWowEditApp::InitializeWorld() {
     }
 }
 
-void CWowEditApp::ShutdownWorld() {
-    // The next run starts where this one ended.
-    if (WowEditWorldGetMapId() >= 0) {
-        float position[3];
-        WowEditWorldGetCameraPosition(position);
-        WowEditSaveStart(WowEditWorldGetMapId(), position);
-    }
-
-    WowEditRenderDistanceSave();
-
-    WowEditWorldShutdown();
-
+void CWowEditApp::CloseShell() {
     s_app->Detach();
     OsSetWindowProc(nullptr);
     OsGuiSetMenuCommandCallback(nullptr, nullptr);
     OsGuiDestroy();
     OsGuiSetApplicationInfo(nullptr);
-    delete s_app->m_commander;
-    delete s_app->m_undoer;
     delete s_app;
     s_app = nullptr;
 }
 
 // ---- Cursor
-
-void WowEditAppUpdateCursor() {
-    SetCursor(WowEditWorldIsLooking() ? nullptr : LoadCursorA(nullptr, IDC_ARROW));
-}
 
 // The Gx window procedure answers WM_SETCURSOR over its client area itself, before OsWindowProc and the chained
 // procedure: it clears the Windows cursor and shows the device's hardware cursor, the game's cursor image, which the
@@ -97,7 +63,7 @@ void WowEditAppUpdateCursor() {
 // is subclassed for that one message.
 static LRESULT CALLBACK CursorWindowProc(HWND hwnd, UINT message, WPARAM wparam, LPARAM lparam) {
     if (message == WM_SETCURSOR && LOWORD(lparam) == HTCLIENT) {
-        WowEditAppUpdateCursor();
+        SetCursor(WowEditWorldIsLooking() ? nullptr : LoadCursorA(nullptr, IDC_ARROW));
         return TRUE;
     }
 
@@ -124,15 +90,14 @@ static void UnsubclassCursor(HWND hwnd) {
 
 // ---- CWowEditApp
 
-CWowEditApp::CWowEditApp() {
+void CWowEditApp::SetViewportCursor(bool looking) {
+    SetCursor(looking ? nullptr : LoadCursorA(nullptr, IDC_ARROW));
+}
+
+CWowEditApp::CWowEditApp(CWowEditSession& session) : m_session(session) {
     this->m_window = nullptr;
     this->m_attachPending = false;
     this->m_ui = nullptr;
-    this->m_undoer = new CWowEditUndoer();
-    this->m_commander = new CWowEditCommander(this->m_undoer);
-
-    this->m_commander->AddModule(WowEditCreateViewModule());
-    this->m_commander->AddModule(WowEditCreateTerrainModule());
 }
 
 intptr_t CWowEditApp::WindowProc(void* window, uint32_t message, uintptr_t wparam, intptr_t lparam) {
@@ -315,7 +280,7 @@ void CWowEditApp::GetMenuCommandStatus(int32_t command, bool* enabled, bool* che
             return;
 
         default:
-            this->m_commander->GetCommandStatus(command, enabled, checked);
+            this->m_session.Commands().GetCommandStatus(command, enabled, checked);
             return;
     }
 }
@@ -358,7 +323,7 @@ void CWowEditApp::DoMenuCommand(int32_t command) {
             return;
 
         default:
-            if (this->m_commander->DoCommand(command)) {
+            if (this->m_session.Commands().DoCommand(command)) {
                 this->RefreshPalettes();
             }
             return;
