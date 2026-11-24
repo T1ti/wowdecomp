@@ -13,21 +13,6 @@ class CImVector;
 struct CGxFont;
 struct CGxString;
 
-class TEXTBLOCK : public CHandleObject {
-    public:
-    /* 0008 */ CGxString* m_string;
-
-    TEXTBLOCK();
-    virtual ~TEXTBLOCK();
-};
-
-struct FONTHASHOBJ : public CHandleObject, public TSHashObject<FONTHASHOBJ, HASHKEY_STR> {
-    /* 0020 */ CGxFont* m_font;
-
-    FONTHASHOBJ();
-    virtual ~FONTHASHOBJ();
-};
-
 void TextBlockAddShadow(HTEXTBLOCK string, CImVector color, const C2Vector& offset);
 HTEXTBLOCK TextBlockCreate(HTEXTFONT font, const char* text, const CImVector& color, const C3Vector& position, float fontHeight, float blockWidth, float blockHeight, uint32_t flags, float charSpacing, float lineSpacing, float scale);
 HTEXTFONT TextBlockGenerateFont(const char* fontName, uint32_t fontFlags, float fontHeight);
@@ -42,7 +27,7 @@ CGxString* TextBlockGetStringPtr(HTEXTBLOCK string);
 void TextBlockGetTextExtent(HTEXTFONT font, const char* text, uint32_t numBytes, float fontHeight, float* extent, float shadowWidth, float scale, float unused, uint32_t flags);
 float TextBlockGetWrappedTextHeight(HTEXTFONT font, const char* text, float fontHeight, float blockWidth, const C2Vector& shadowOffset, float scale, float spacing, uint32_t flags);
 void TextBlockRemoveShadow(HTEXTBLOCK string);
-int32_t TextBlockSetGradient(HTEXTBLOCK string, int32_t start, int32_t length);
+int32_t TextBlockSetGradient(HTEXTBLOCK text, int32_t start, int32_t length);
 void TextBlockSetStringPos(HTEXTBLOCK string, const C3Vector& position);
 void TextBlockUpdateColor(HTEXTBLOCK string, const CImVector& color);
 uint32_t TextBlockWrapText(HTEXTFONT font, const char* text, float fontHeight, float blockWidth, uint32_t* lineStarts, uint32_t maxLines, float shadowWidth, float scale, float unused, uint32_t flags);
