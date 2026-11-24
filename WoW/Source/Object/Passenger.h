@@ -41,6 +41,26 @@ class CPassenger {
     CPassenger(const WOWGUID& transportGuid, const C3Vector& position, const WOWGUID& ownerGuid);
     void PostInit(const C3Vector& position);
     void Reenable();
+    void SetRawFacing(float facing) { // (inferred)
+        STORM_ASSERT(!UsesQuat());
+        this->m_facing = facing;
+    }
+
+    float GetFacing() const { // (inferred)
+        STORM_ASSERT(!UsesQuat());
+        return this->GetFacing(this->m_facing);
+    }
+
+    float GetRawFacing() const { // (inferred)
+        STORM_ASSERT(!UsesQuat());
+        return this->m_facing;
+    }
+
+    float GetPitch() const { // (inferred)
+        STORM_ASSERT(!UsesQuat());
+        return this->m_pitch;
+    }
+
     float GetFacing(float facing) const;
     float GetRawFacing(float facing) const;
     C3Vector GetPosition(const C3Vector& position) const;

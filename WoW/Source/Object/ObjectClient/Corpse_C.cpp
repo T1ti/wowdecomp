@@ -51,7 +51,7 @@ void CGCorpse_C::SetStorage(uint32_t* storage, uint32_t* saved) {
 // VERIFY: 9d2370ce manual
 // OFFSET: 0x00706430
 CGCorpse_C::CGCorpse_C(uint32_t time, const CClientObjCreate& create) : CGObject_C(time, create), m_passenger(create.m_move.m_status.m_transportGuid, create.m_move.m_status.m_transportPosition, this->m_obj->m_guid), m_component(nullptr), m_groundNormal(0.0f, 0.0f, 1.0f), m_corpseFlags(CGCorpse_C::RUNTIME_FLAGS::NONE), m_selectionRadius(0.0f), m_lootEffect(nullptr) {
-    this->m_passenger.m_facing = create.m_move.m_status.m_transportFacing;
+    this->m_passenger.SetRawFacing(create.m_move.m_status.m_transportFacing);
 }
 
 // VERIFY: 02b25264 manual
@@ -81,7 +81,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool re
     this->m_passenger.PostInit(create.m_move.m_status.m_position);
 
     if (!this->GetTransportGUID()) {
-        this->m_passenger.m_facing = create.m_move.m_status.m_facing;
+        this->m_passenger.SetRawFacing(create.m_move.m_status.m_facing);
     }
 
     this->CGObject_C::PostInit(time, create, reenable);
@@ -377,7 +377,7 @@ int32_t CorpseDynamicFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint3
 // VERIFY: 12175e66 auto
 // OFFSET: 0x00706530
 float CGCorpse_C::GetFacing() const {
-    return this->m_passenger.GetFacing(this->m_passenger.m_facing);
+    return this->m_passenger.GetFacing();
 }
 
 // VERIFY: 63ae9671 manual

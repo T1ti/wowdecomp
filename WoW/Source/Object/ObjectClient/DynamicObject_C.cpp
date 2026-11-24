@@ -49,7 +49,7 @@ static void AnimFinishedCallback(CM2Model* model, uint32_t boneId, uint32_t sequ
 // OFFSET: 0x007053A0
 CGDynamicObject_C::CGDynamicObject_C(uint32_t time, const CClientObjCreate& create) : CGObject_C(time, create), m_passenger(create.m_move.m_status.m_transportGuid, create.m_move.m_status.m_transportPosition, this->m_obj->m_guid), m_scale(1.0f), m_blizzardVisual(nullptr) {
     this->m_stateFlags &= ~CGDynamicObject_C::STATE_FLAGS::STATE_BITS;
-    this->m_passenger.m_facing = create.m_move.m_status.m_transportFacing;
+    this->m_passenger.SetRawFacing(create.m_move.m_status.m_transportFacing);
 }
 
 // VERIFY: b6793ae9 manual
@@ -68,7 +68,7 @@ void CGDynamicObject_C::PostInit(uint32_t time, const CClientObjCreate& create, 
     this->m_passenger.PostInit(create.m_move.m_status.m_position);
 
     if (!this->GetTransportGUID()) {
-        this->m_passenger.m_facing = create.m_move.m_status.m_facing;
+        this->m_passenger.SetRawFacing(create.m_move.m_status.m_facing);
     }
 
     this->CGObject_C::PostInit(time, create, reenable);
@@ -144,7 +144,7 @@ void CGDynamicObject_C::ShouldRender(uint32_t flags, int32_t& render, int32_t& h
 // VERIFY: 4e1858a9 auto
 // OFFSET: 0x00706530
 float CGDynamicObject_C::GetFacing() const {
-    return this->m_passenger.GetFacing(this->m_passenger.m_facing);
+    return this->m_passenger.GetFacing();
 }
 
 // VERIFY: 909c3474 auto
@@ -156,7 +156,7 @@ float CGDynamicObject_C::GetScale() const {
 // VERIFY: 71b7b31f auto
 // OFFSET: 0x00706550
 float CGDynamicObject_C::GetRawFacing() const {
-    return this->m_passenger.m_facing;
+    return this->m_passenger.GetRawFacing();
 }
 
 // VERIFY: 7501382d manual

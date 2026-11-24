@@ -1694,13 +1694,14 @@ void CMovementShared::GetMoveStatus(NETMESSAGE msgId, uint32_t gameTime, CMoveme
     }
 
     status->m_transportPosition = this->m_position;
-    status->m_transportFacing = this->m_facing;
+    status->m_transportFacing = this->GetRawFacing();
     status->m_position = CPassenger::GetPosition(this->m_position);
-    status->m_facing = this->GetFacing(this->m_facing);
-    status->m_pitch = this->m_pitch;
+    status->m_facing = this->GetFacing();
+    status->m_pitch = this->GetPitch();
     status->m_fallTime = this->m_fallTimeMs;
 
     if (status->m_moveFlags & MOVEMENTFLAG_FALLING) {
+        STORM_ASSERT(static_cast<int32_t>(status->m_fallTime) >= 0); // 12213: "int(status->timeFallen) >= 0"
         status->m_zSpeed = this->m_fallVelocity;
         status->m_sinAngle = this->m_moveDir2D.x;
         status->m_cosAngle = this->m_moveDir2D.y;

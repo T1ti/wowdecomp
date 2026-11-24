@@ -3437,7 +3437,7 @@ void CSmoothAngle::Chase(const float* target, float rate, float elapsed) {
 // VERIFY: c4ca4109 manual
 // OFFSET: 0x00735F60
 void CGUnit_C::UpdateSmoothFacing(float* facingOffset) {
-    float facing = this->m_movementData.m_facing;
+    float facing = this->m_movementData.GetRawFacing();
 
     if (this->m_obj->m_guid == CGUnit_C::s_activeMover) {
         this->m_smoothTarget.m_value = facing;
@@ -5754,7 +5754,7 @@ CM2Model* CGUnit_C::GetObjectModel() const {
 // VERIFY: 6cda1b12 auto
 // OFFSET: 0x006E6FC0
 float CGUnit_C::GetPitch() const {
-    return this->m_movementData.m_pitch;
+    return this->m_movementData.GetPitch();
 }
 
 // VERIFY: c74ca830 auto
@@ -7665,7 +7665,7 @@ bool __stdcall CGUnit_C::IsSpellAllowedInArena(const SpellRec* spell) {
 // OFFSET: 0x00719A90
 void CGUnit_C::GetSwimMatrix(C44Matrix& matrix) const {
     C33Matrix rotation(1.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f);
-    rotation.FromEulerAnglesZYX(-(TWO_PI - this->GetRenderFacing()), TWO_PI - this->m_movementData.m_pitch, 0.0f);
+    rotation.FromEulerAnglesZYX(-(TWO_PI - this->GetRenderFacing()), TWO_PI - this->m_movementData.GetPitch(), 0.0f);
 
     matrix.a0 = rotation.a0;
     matrix.a1 = rotation.a1;
@@ -9695,7 +9695,7 @@ CGUnit_C::CGUnit_C(uint32_t time, const CClientObjCreate& create)
       m_channelEndTime(0),
       m_pendingModelAuraSpellId(0),
       m_scriptRegistration(0),
-      m_renderFacing(m_movementData.m_facing),
+      m_renderFacing(m_movementData.GetRawFacing()),
       m_facingVelocity(0.0f),
       m_facingBlend(1.0f),
       m_lootableTime(0),
@@ -10208,7 +10208,7 @@ void CGUnit_C::Reenable() {
 
     this->RecreateNamePlate();
 
-    float facing = this->m_movementData.m_facing;
+    float facing = this->m_movementData.GetRawFacing();
     this->m_smoothTarget.m_value = CMath::normalizeangle0to2pi_(facing);
     this->m_smoothTarget.m_velocity = 0.0f;
     for (uint32_t i = 0; i < NUM_SAVED_FACING_DELTAS; i++) {
@@ -22006,7 +22006,7 @@ void CGUnit_C::ComputeSmoothedSwimMatrix(C44Matrix* matrix, float elapsed, int32
         } else if (flags & MOVEMENTFLAG_DESCENDING) {
             pitch = -0.78539819f;
         } else {
-            pitch = this->m_movementData.m_pitch;
+            pitch = this->m_movementData.GetPitch();
         }
     } else {
         pitch = 0.0f;
@@ -22949,7 +22949,7 @@ bool CGUnit_C::HandleTrackingPitch(float targetZ, float z, float pitch, float ma
 
     CGInputControl::GetActive()->ToggleControlBit(INPUT_TRACKING_PITCH, 1, time, 0);
 
-    float current = this->m_movementData.m_pitch;
+    float current = this->m_movementData.GetPitch();
 
     if (fabs(pitch - current) < 0.001f) {
         return false;
