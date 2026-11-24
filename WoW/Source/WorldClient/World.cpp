@@ -2654,7 +2654,7 @@ void CWorldScene::CullLiquid(CSortEntry* entry) {
 
         while (liquid) {
             CChunkLiquid* next = entry->liquidList.Next(liquid);
-            CMap::s_mapChunkLiquidUpdateList.LinkToTail(liquid);
+            CMap::mapChunkLiquidUpdateList.LinkToTail(liquid);
             liquid = next;
         }
     } else {
@@ -2662,7 +2662,7 @@ void CWorldScene::CullLiquid(CSortEntry* entry) {
 
         while (liquid) {
             CChunkLiquid* next = entry->liquidList.Next(liquid);
-            CMap::s_mapChunkLiquidUpdateList.LinkToTail(liquid);
+            CMap::mapChunkLiquidUpdateList.LinkToTail(liquid);
 
             CAaBox box;
             liquid->GetAaBox(box);
@@ -2771,7 +2771,7 @@ void CWorldScene::RenderChunksSolid() {
 #endif
 
         renderChunk->m_renderChunkLink.Unlink();
-        CMap::s_mapRenderChunkUpdateList.LinkToTail(renderChunk);
+        CMap::mapRenderChunkUpdateList.LinkToTail(renderChunk);
         renderChunk = next;
     }
 }
@@ -2793,7 +2793,7 @@ void CWorldScene::RenderChunksZoneDebug() {
         }
 
         renderChunk->m_renderChunkLink.Unlink();
-        CMap::s_mapRenderChunkUpdateList.LinkToTail(renderChunk);
+        CMap::mapRenderChunkUpdateList.LinkToTail(renderChunk);
         renderChunk = next;
     }
 }
@@ -2890,7 +2890,7 @@ void CSortTable::Clear() {
 
         while (liquid) {
             CChunkLiquid* next = sortEntry.liquidList.Next(liquid);
-            CMap::s_mapChunkLiquidUpdateList.LinkToTail(liquid);
+            CMap::mapChunkLiquidUpdateList.LinkToTail(liquid);
             liquid = next;
         }
 
@@ -3746,7 +3746,7 @@ void CWorldScene::RenderDetailDoodads() {
 
         inst->DrawBatches();
         inst->m_link.Unlink();
-        CMap::s_detailDoodadUpdateList.LinkToTail(inst);
+        CMap::mapDetailDoodadUpdateList.LinkToTail(inst);
     }
 
     GxXformPop(GxXform_Tex1);
@@ -3867,7 +3867,7 @@ void CWorldScene::RenderChunksSinglePass() {
                 if (CWorld::enables & Enables::Enable_ShowNormals) {
                     renderChunkNormalList.LinkToTail(renderChunk);
                 } else {
-                    CMap::s_mapRenderChunkUpdateList.LinkToTail(renderChunk);
+                    CMap::mapRenderChunkUpdateList.LinkToTail(renderChunk);
                 }
 
                 renderChunk = next;
@@ -3888,7 +3888,7 @@ void CWorldScene::RenderChunksSinglePass() {
         while (!renderChunkNormalList.IsEnd(renderChunk)) {
             CMapRenderChunk* next = renderChunkNormalList.RawNext(renderChunk);
             renderChunk->RenderSinglePass();
-            CMap::s_mapRenderChunkUpdateList.LinkToTail(renderChunk);
+            CMap::mapRenderChunkUpdateList.LinkToTail(renderChunk);
             renderChunk = next;
         }
     }

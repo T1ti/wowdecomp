@@ -259,14 +259,14 @@ class CMap {
     static TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> s_mapRenderChunkFreeList;
     static TSExplicitList<CMapChunkBuf, offsetof(CMapChunkBuf, m_link)> s_chunkBufFreeList;
     static TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > chunkList;
-    static TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > s_mapChunkSortList;
+    static TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > mapChunkUpdateList;
     static TSList<CMapObjDefGroup, TSGetExplicitLink<CMapObjDefGroup> > mapObjDefGroupList;
     static TSList<CMapEntity, TSGetExplicitLink<CMapEntity> > entityList;
     static TSList<CMapLight, TSGetExplicitLink<CMapLight> > lightList;
     // Every prepared ADT area (PrepareArea links, PurgeMaps frees).
     static TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > areaLinkList;
-    static TSList<CDetailDoodadInst, TSGetExplicitLink<CDetailDoodadInst> > s_detailDoodadUpdateList;
-    static TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> s_mapRenderChunkUpdateList;
+    static TSList<CDetailDoodadInst, TSGetExplicitLink<CDetailDoodadInst> > mapDetailDoodadUpdateList;
+    static TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> mapRenderChunkUpdateList;
     static bool enableSpecularTerrain;
     static char wdtFilename[256];
     static char mapName[256];
@@ -282,7 +282,7 @@ class CMap {
     static TSExplicitList<CDestructibleProxy, offsetof(CDestructibleProxy, m_link)> destructibleProxies;
     static HASHKEY_NONE s_mapObjDefHashKey;
     static int32_t enableChunkBatching;
-    static TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > s_mapChunkLiquidUpdateList;
+    static TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > mapChunkLiquidUpdateList;
 
     static void ClearAllRenderChunks();
     static void ClearChunkDetailDoodads();

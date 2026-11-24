@@ -139,7 +139,7 @@ TSList<CMapLight, TSGetExplicitLink<CMapLight> > CMap::lightList = TSExplicitLis
 TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > CMap::areaLinkList = TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_refLink)>();
 
 // STATIC: 0x00ADFC28
-TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> CMap::s_mapRenderChunkUpdateList;
+TSExplicitList<CMapRenderChunk, offsetof(CMapRenderChunk, m_renderChunkLink)> CMap::mapRenderChunkUpdateList;
 
 // STATIC: 0x00CE049D
 bool CMap::enableSpecularTerrain;
@@ -322,7 +322,7 @@ const DepthCoordTable* const CMap::s_depthCoordTables[DEPTH_TABLE_CNT] = { &CMap
 TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > CMap::chunkLiquidList = TSExplicitList<CChunkLiquid, offsetof(CChunkLiquid, m_link)>();
 
 // STATIC: 0x00ADFC34
-TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > CMap::s_mapChunkLiquidUpdateList = TSExplicitList<CChunkLiquid, offsetof(CChunkLiquid, m_updateLink)>();
+TSList<CChunkLiquid, TSGetExplicitLink<CChunkLiquid> > CMap::mapChunkLiquidUpdateList = TSExplicitList<CChunkLiquid, offsetof(CChunkLiquid, m_updateLink)>();
 
 // STATIC: 0x00CF0900
 CMapLowDetail CMap::s_lowDetail;
@@ -370,7 +370,7 @@ TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > CMap::mapObjDefLink
 TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> > CMap::s_globalLightList = TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_refLink)>();
 
 // STATIC: 0x00ADFC1C
-TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > CMap::s_mapChunkSortList = TSExplicitList<CMapChunk, offsetof(CMapChunk, m_sortListLink)>();
+TSList<CMapChunk, TSGetExplicitLink<CMapChunk> > CMap::mapChunkUpdateList = TSExplicitList<CMapChunk, offsetof(CMapChunk, m_sortListLink)>();
 
 // STATIC: 0x00D2545C
 TSHashTable<CMapDoodadDef, HASHKEY_DWORD> CMap::doodadDefHash;
@@ -385,7 +385,7 @@ int32_t CMap::mapGetFacetsCount;
 int32_t CMap::bspRecurseCount;
 
 // STATIC: 0x00ADFC40
-TSList<CDetailDoodadInst, TSGetExplicitLink<CDetailDoodadInst> > CMap::s_detailDoodadUpdateList = TSExplicitList<CDetailDoodadInst, offsetof(CDetailDoodadInst, m_link)>();
+TSList<CDetailDoodadInst, TSGetExplicitLink<CDetailDoodadInst> > CMap::mapDetailDoodadUpdateList = TSExplicitList<CDetailDoodadInst, offsetof(CDetailDoodadInst, m_link)>();
 
 // STATIC: 0x00ADFD90
 static const int32_t s_flightBoundsTriangles[24] = { 3, 0, 4, 0, 1, 4, 1, 2, 4, 2, 5, 4, 5, 8, 4, 8, 7, 4, 7, 6, 4, 6, 3, 4 };
@@ -1915,10 +1915,10 @@ uint32_t CMap::ComputeMapObjLoadProgress(CMapChunk* chunk, float* progress, uint
 // VERIFY: f7ac6b15 manual
 // OFFSET: 0x007B53B0
 void CMap::ClearChunkSortList() {
-    CMapChunk* chunk = CMap::s_mapChunkSortList.Head();
+    CMapChunk* chunk = CMap::mapChunkUpdateList.Head();
 
     while (chunk) {
-        CMapChunk* next = CMap::s_mapChunkSortList.Next(chunk);
+        CMapChunk* next = CMap::mapChunkUpdateList.Next(chunk);
         chunk->m_sortListLink.Unlink();
         chunk = next;
     }
@@ -1927,10 +1927,10 @@ void CMap::ClearChunkSortList() {
 // VERIFY: fa65766b manual
 // OFFSET: 0x007B5420
 void CMap::ProcessChunkLiquidUpdateList() {
-    CChunkLiquid* liquid = CMap::s_mapChunkLiquidUpdateList.Head();
+    CChunkLiquid* liquid = CMap::mapChunkLiquidUpdateList.Head();
 
     while (liquid) {
-        CChunkLiquid* next = CMap::s_mapChunkLiquidUpdateList.Next(liquid);
+        CChunkLiquid* next = CMap::mapChunkLiquidUpdateList.Next(liquid);
         liquid->UpdateResourcePurging();
 
         if (liquid->m_resPurgeTimer < 0.0f) {
@@ -1944,10 +1944,10 @@ void CMap::ProcessChunkLiquidUpdateList() {
 // VERIFY: cd78794a manual
 // OFFSET: 0x007B54A0
 void CMap::ProcessDetailDoodadUpdateList() {
-    CDetailDoodadInst* inst = CMap::s_detailDoodadUpdateList.Head();
+    CDetailDoodadInst* inst = CMap::mapDetailDoodadUpdateList.Head();
 
     while (inst) {
-        CDetailDoodadInst* next = CMap::s_detailDoodadUpdateList.Next(inst);
+        CDetailDoodadInst* next = CMap::mapDetailDoodadUpdateList.Next(inst);
 
         if (++inst->m_age > 10) {
             if (inst->HasBatches()) {
@@ -1966,14 +1966,14 @@ void CMap::ProcessDetailDoodadUpdateList() {
 // VERIFY: 21d0bf10 auto
 // OFFSET: 0x007B5500
 void CMap::ProcessRenderChunkUpdateList() {
-    CMapRenderChunk* renderChunk = CMap::s_mapRenderChunkUpdateList.Head();
+    CMapRenderChunk* renderChunk = CMap::mapRenderChunkUpdateList.Head();
 #ifdef WOWDECOMP_TOOL_FEATURES
     const WorldEditView* editorView = WorldEditGetView();
 #endif
 
     while (renderChunk) {
         renderChunk->m_lastUpdateTime = FrameTime::s_tickTimeSec + renderChunk->m_lastUpdateTime;
-        CMapRenderChunk* next = CMap::s_mapRenderChunkUpdateList.Next(renderChunk);
+        CMapRenderChunk* next = CMap::mapRenderChunkUpdateList.Next(renderChunk);
 
 #ifdef WOWDECOMP_TOOL_FEATURES
         bool expired = renderChunk->m_lastUpdateTime > 2.0f;
@@ -5928,6 +5928,16 @@ void CMap::Unload() {
     }
 
     CMap::destructibleProxies.Clear();
+
+    STORM_ASSERT(mapChunkUpdateList.Head() == nullptr); // 12213: "mapChunkUpdateList.Head() == __null"
+    STORM_ASSERT(mapRenderChunkUpdateList.Head() == nullptr); // 12213: "mapRenderChunkUpdateList.Head() == __null"
+    STORM_ASSERT(mapChunkLiquidUpdateList.Head() == nullptr); // 12213: "mapChunkLiquidUpdateList.Head() == __null"
+    STORM_ASSERT(mapDetailDoodadUpdateList.Head() == nullptr); // 12213: "mapDetailDoodadUpdateList.Head() == __null"
+    STORM_ASSERT(doodadDefLinkList.Head() == nullptr); // 12213: "doodadDefLinkList.Head() == __null"
+    STORM_ASSERT(mapObjDefLinkList.Head() == nullptr); // 12213: "mapObjDefLinkList.Head() == __null"
+    STORM_ASSERT(doodadDefHash.Head() == nullptr); // 12213: "doodadDefHash.Head() == __null"
+    STORM_ASSERT(mapObjDefHash.Head() == nullptr); // 12213: "mapObjDefHash.Head() == __null"
+
     CMapObj::ClearCache(1);
     World::s_m2Scene->PurgeModelCache();
     CMap::ClearAllFootprints();
@@ -5944,7 +5954,9 @@ void CMap::Unload() {
     CMap::enableChunkBatching = 0;
     char path[260];
     SStrCopy(path, CMap::wdtFilename, STORM_MAX_STR);
-    SStrCopy(strrchr(path, '.'), ".tex", STORM_MAX_STR);
+    char* ext = strrchr(path, '.');
+    STORM_ASSERT(ext);
+    SStrCopy(ext, ".tex", STORM_MAX_STR);
     TextureUnloadBlob(path);
 }
 
