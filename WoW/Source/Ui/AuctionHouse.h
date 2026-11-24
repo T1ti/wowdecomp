@@ -234,6 +234,11 @@ class CGAuctionHouse {
     static void SetAuctioneer(WOWGUID auctioneer, int32_t auctionHouseID);
     static void AddOutbidID(int32_t auctionHouseID, int32_t auctionID);
     static void AuctionItemExpired(int32_t auctionID);
+
+    private:
+    static int32_t OnBidderNotification(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
+    static int32_t OnOwnerNotification(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
+    static int32_t OnAuctionRemovedNotification(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 };
 
 void AuctionHouseRegisterScriptFunctions();
@@ -244,9 +249,6 @@ int32_t Packet_SMSG_AUCTION_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32
 int32_t Packet_SMSG_AUCTION_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 int32_t Packet_SMSG_AUCTION_OWNER_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 int32_t Packet_SMSG_AUCTION_BIDDER_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
-int32_t Packet_SMSG_AUCTION_BIDDER_NOTIFICATION(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
-int32_t Packet_SMSG_AUCTION_OWNER_NOTIFICATION(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
-int32_t Packet_SMSG_AUCTION_REMOVED_NOTIFICATION(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 int32_t Packet_SMSG_AUCTION_LIST_PENDING_SALES(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 
 AuctionItemInfo* GetListAuction(uint32_t index);

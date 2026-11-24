@@ -969,36 +969,37 @@ void CGAuctionHouse::SellNextItem() {
     msg.Put(CGAuctionHouse::m_multisellAuctioneer.m_guid);
 
     uint32_t remaining = CGAuctionHouse::m_multisellStackSize;
-    int32_t last = CGAuctionHouse::m_numSellItems - 1;
+    int32_t itemIndex = CGAuctionHouse::m_numSellItems - 1;
 
-    while (remaining > CGAuctionHouse::m_sellItems[last].m_count) {
-        remaining -= CGAuctionHouse::m_sellItems[last].m_count;
-        last--;
+    while (remaining > CGAuctionHouse::m_sellItems[itemIndex].m_count) {
+        remaining -= CGAuctionHouse::m_sellItems[itemIndex].m_count;
+        itemIndex--;
 
-        if (last < 0) {
+        if (itemIndex < 0) {
+            STORM_ASSERT_RECOVERABLE(itemIndex >= 0);
             CGAuctionHouse::OnMultisellFailure(false);
             return;
         }
     }
 
-    msg.Put(static_cast<uint32_t>(CGAuctionHouse::m_numSellItems - last));
+    msg.Put(static_cast<uint32_t>(CGAuctionHouse::m_numSellItems - itemIndex));
 
-    for (int32_t i = CGAuctionHouse::m_numSellItems - 1; i > last; i--) {
+    for (int32_t i = CGAuctionHouse::m_numSellItems - 1; i > itemIndex; i--) {
         msg.Put(CGAuctionHouse::m_sellItems[i].m_guid.m_guid);
         msg.Put(CGAuctionHouse::m_sellItems[i].m_count);
     }
 
-    msg.Put(CGAuctionHouse::m_sellItems[last].m_guid.m_guid);
+    msg.Put(CGAuctionHouse::m_sellItems[itemIndex].m_guid.m_guid);
     msg.Put(remaining);
 
-    bool emptied = CGAuctionHouse::m_sellItems[last].m_count == remaining;
-    CGAuctionHouse::m_sellItems[last].m_count -= remaining;
+    bool emptied = CGAuctionHouse::m_sellItems[itemIndex].m_count == remaining;
+    CGAuctionHouse::m_sellItems[itemIndex].m_count -= remaining;
 
     if (!emptied) {
-        last++;
+        itemIndex++;
     }
 
-    CGAuctionHouse::m_numSellItems = last;
+    CGAuctionHouse::m_numSellItems = itemIndex;
 
     msg.Put(CGAuctionHouse::m_multisellBid);
     msg.Put(CGAuctionHouse::m_multisellBuyout);
@@ -1946,7 +1947,7 @@ int32_t Packet_SMSG_AUCTION_COMMAND_RESULT(void* param, NETMESSAGE msgId, uint32
 
 // VERIFY: ed9ac24c manual
 // OFFSET: 0x005A0480
-int32_t Packet_SMSG_AUCTION_BIDDER_NOTIFICATION(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+int32_t CGAuctionHouse::OnBidderNotification(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     uint32_t auctionHouseID;
     uint32_t auctionID;
     WOWGUID bidder;
@@ -1971,6 +1972,7 @@ int32_t Packet_SMSG_AUCTION_BIDDER_NOTIFICATION(void* param, NETMESSAGE msgId, u
         info->m_error = bid ? ERR_AUCTION_OUTBID_S : ERR_AUCTION_WON_S;
         none = WOWGUID();
         stats = g_itemDBCache.GetRecord(itemID, none, AucNotifyCallback, info, false);
+        STORM_ASSERT(!stats);
     }
 
     char name[256];
@@ -2034,7 +2036,7 @@ int32_t Packet_SMSG_AUCTION_BIDDER_NOTIFICATION(void* param, NETMESSAGE msgId, u
 
 // VERIFY: 664618d2 manual
 // OFFSET: 0x005A0790
-int32_t Packet_SMSG_AUCTION_OWNER_NOTIFICATION(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+int32_t CGAuctionHouse::OnOwnerNotification(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     uint32_t auctionID;
     uint32_t bid;
     uint32_t minIncrement;
@@ -2094,7 +2096,8 @@ int32_t Packet_SMSG_AUCTION_OWNER_NOTIFICATION(void* param, NETMESSAGE msgId, ui
 
     WOWGUID none = WOWGUID();
 
-    if (g_itemDBCache.GetRecord(itemID, none, nullptr, nullptr, false)) {
+    ItemStats_C* stats = g_itemDBCache.GetRecord(itemID, none, nullptr, nullptr, false);
+    if (stats) {
         char name[256];
         CGItem_C::BuildItemName(name, sizeof(name), itemID, randomPropertyID);
 
@@ -2110,7 +2113,8 @@ int32_t Packet_SMSG_AUCTION_OWNER_NOTIFICATION(void* param, NETMESSAGE msgId, ui
         info->m_randomPropertyID = randomPropertyID;
         info->m_error = bid ? ERR_AUCTION_SOLD_S : ERR_AUCTION_EXPIRED_S;
         none = WOWGUID();
-        g_itemDBCache.GetRecord(itemID, none, AucNotifyCallback, info, false);
+        stats = g_itemDBCache.GetRecord(itemID, none, AucNotifyCallback, info, false);
+        STORM_ASSERT(!stats);
     }
 
     CGMailInfo::ReceivedMail(bid ? mailDelay : 0.0f);
@@ -2120,7 +2124,7 @@ int32_t Packet_SMSG_AUCTION_OWNER_NOTIFICATION(void* param, NETMESSAGE msgId, ui
 
 // VERIFY: bb5f4e66 manual
 // OFFSET: 0x005A0AC0
-int32_t Packet_SMSG_AUCTION_REMOVED_NOTIFICATION(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+int32_t CGAuctionHouse::OnAuctionRemovedNotification(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     uint32_t auctionID;
     uint32_t itemID;
     uint32_t randomPropertyID;
@@ -2130,7 +2134,8 @@ int32_t Packet_SMSG_AUCTION_REMOVED_NOTIFICATION(void* param, NETMESSAGE msgId, 
 
     WOWGUID none = WOWGUID();
 
-    if (g_itemDBCache.GetRecord(itemID, none, nullptr, nullptr, false)) {
+    ItemStats_C* stats = g_itemDBCache.GetRecord(itemID, none, nullptr, nullptr, false);
+    if (stats) {
         char name[256];
         CGItem_C::BuildItemName(name, sizeof(name), itemID, randomPropertyID);
         CGGameUI::DisplayError(ERR_AUCTION_REMOVED_S, name);
@@ -2139,7 +2144,8 @@ int32_t Packet_SMSG_AUCTION_REMOVED_NOTIFICATION(void* param, NETMESSAGE msgId, 
         info->m_randomPropertyID = randomPropertyID;
         info->m_error = ERR_AUCTION_REMOVED_S;
         none = WOWGUID();
-        g_itemDBCache.GetRecord(itemID, none, AucNotifyCallback, info, false);
+        stats = g_itemDBCache.GetRecord(itemID, none, AucNotifyCallback, info, false);
+        STORM_ASSERT(!stats);
     }
 
     CGAuctionHouse::AuctionItemExpired(auctionID);
@@ -2154,9 +2160,9 @@ void CGAuctionHouse::InitializeGame() {
     ClientServices::SetMessageHandler(SMSG_AUCTION_LIST_RESULT, Packet_SMSG_AUCTION_LIST_RESULT, nullptr);
     ClientServices::SetMessageHandler(SMSG_AUCTION_LIST_OWNER_ITEMS_RESULT, Packet_SMSG_AUCTION_OWNER_LIST_RESULT, nullptr);
     ClientServices::SetMessageHandler(SMSG_AUCTION_LIST_BIDDER_ITEMS_RESULT, Packet_SMSG_AUCTION_BIDDER_LIST_RESULT, nullptr);
-    ClientServices::SetMessageHandler(SMSG_AUCTION_BIDDER_NOTIFICATION, Packet_SMSG_AUCTION_BIDDER_NOTIFICATION, nullptr);
-    ClientServices::SetMessageHandler(SMSG_AUCTION_OWNER_NOTIFICATION, Packet_SMSG_AUCTION_OWNER_NOTIFICATION, nullptr);
-    ClientServices::SetMessageHandler(SMSG_AUCTION_REMOVED_NOTIFICATION, Packet_SMSG_AUCTION_REMOVED_NOTIFICATION, nullptr);
+    ClientServices::SetMessageHandler(SMSG_AUCTION_BIDDER_NOTIFICATION, CGAuctionHouse::OnBidderNotification, nullptr);
+    ClientServices::SetMessageHandler(SMSG_AUCTION_OWNER_NOTIFICATION, CGAuctionHouse::OnOwnerNotification, nullptr);
+    ClientServices::SetMessageHandler(SMSG_AUCTION_REMOVED_NOTIFICATION, CGAuctionHouse::OnAuctionRemovedNotification, nullptr);
     ClientServices::SetMessageHandler(SMSG_AUCTION_LIST_PENDING_SALES, Packet_SMSG_AUCTION_LIST_PENDING_SALES, nullptr);
 
     CGAuctionHouse::m_ownerList.SetCount(0);
