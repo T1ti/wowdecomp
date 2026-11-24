@@ -3,7 +3,11 @@
 #ifdef WOWDECOMP_TOOL_FEATURES
 
 #include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
+#include "Engine/Source/ShaderEffect/ShadowCache.h"
 #include "WoW/Source/WorldClient/DayNight__DNInfo.h"
+#include "WoW/Source/WorldClient/Map.h"
+#include "WoW/Source/WorldClient/MapChunk.h"
+#include "WoW/Source/WorldClient/MapRenderChunk.h"
 #include "WoW/Source/WorldClient/Types.h"
 #include "WoW/Source/WorldClient/World.h"
 #include "WowEdit/Source/App/WowEditCommands.h"
@@ -14,6 +18,8 @@
 
 // CWorld::enables as the game left it after start-up (cvars applied).
 static uint32_t s_gameEnables;
+static EShadowMode s_gameShadowMode;
+static EShadowMode s_shadowModeBeforeToggle;
 static bool s_fog;
 
 // ---- CWorld::enables switches
@@ -30,6 +36,35 @@ static void SetEnable(bool on) {
     } else {
         CWorld::enables &= ~FLAG;
     }
+}
+
+static bool GetShadows() {
+    return GetEnable<Enables::Enable_Shadow>() || CShadowCache::s_shadowMode != SHADOW_LOWEST;
+}
+
+static void ApplyShadows(bool baked, EShadowMode dynamicMode) {
+    const bool refreshTerrain = baked != GetEnable<Enables::Enable_Shadow>();
+    SetEnable<Enables::Enable_Shadow>(baked);
+    if (CShadowCache::s_shadowMode != dynamicMode) {
+        CShadowCache::SetShadowMode(dynamicMode);
+    }
+
+    if (refreshTerrain) {
+        // The terrain shader texture packs the baked shadow mask with the layer weights.
+        for (CMapChunk* chunk = CMap::chunkList.Head(); chunk; chunk = CMap::chunkList.Next(chunk)) {
+            if (chunk->m_renderChunk) {
+                chunk->m_renderChunk->m_layerFlags |= CMapRenderChunk::RENDER_FLAGS::FLAG_LAYER_TEXTURES_DIRTY;
+            }
+        }
+    }
+}
+
+static void SetShadows(bool on) {
+    if (!on) {
+        s_shadowModeBeforeToggle = CShadowCache::s_shadowMode;
+    }
+
+    ApplyShadows(on, on ? s_shadowModeBeforeToggle : SHADOW_LOWEST);
 }
 
 // ---- Other switches
@@ -131,7 +166,7 @@ static const WowEditViewToggle s_toggles[] = {
     { WOWEDITCMD_VIEW_AREAS, "Area IDs", "Each terrain chunk in a color of its area ID", GetAreas, SetAreas },
     { WOWEDITCMD_VIEW_SLOPES, "Impassable", "View impathable polygons based on angle", GetSlopes, SetSlopes },
     { WOWEDITCMD_VIEW_TERRAIN, "Terrain", "Turn on/off terrain", GetEnable<Enables::Enable_Chunks>, SetEnable<Enables::Enable_Chunks> },
-    { WOWEDITCMD_VIEW_SHADOWS, "Shadows", "Turn the display of Shadows on/off (terrain shadow maps)", GetEnable<Enables::Enable_Shadow>, SetEnable<Enables::Enable_Shadow> },
+    { WOWEDITCMD_VIEW_SHADOWS, "Shadows", "Show baked terrain shadows and dynamic shadows", GetShadows, SetShadows },
     { WOWEDITCMD_VIEW_FOG, "Fog", "Turn Distance Fog on/off", GetFog, SetFog },
     { WOWEDITCMD_VIEW_DOODADS, "Doodads", "Turn Doodads on/off", GetEnable<Enables::Enable_Doodads>, SetEnable<Enables::Enable_Doodads> },
     { WOWEDITCMD_VIEW_DETAIL_DOODADS, "Detail Doodads", "View Detail Doodads", GetEnable<Enables::Enable_DetailDoodads>, SetEnable<Enables::Enable_DetailDoodads> },
@@ -164,12 +199,16 @@ const WowEditViewToggle* WowEditFindViewToggle(int32_t command) {
 
 void WowEditViewTogglesInitialize() {
     s_gameEnables = static_cast<uint32_t>(CWorld::enables);
+    s_gameShadowMode = CShadowCache::s_shadowMode;
+    s_shadowModeBeforeToggle = s_gameShadowMode;
     // The editor starts without the distance fog (and so without the WDL horizon), to see the terrain as it is;
     // Fog or Game View brings both back as the game draws them.
     SetFog(false);
 }
 
 void WowEditMatchGameView() {
+    s_shadowModeBeforeToggle = s_gameShadowMode;
+    ApplyShadows((s_gameEnables & Enables::Enable_Shadow) != 0, s_gameShadowMode);
     CWorld::enables = s_gameEnables;
     SetFog(true);
     SetSky(true);

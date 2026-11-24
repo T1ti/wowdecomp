@@ -29,6 +29,10 @@
 #include "Engine/Source/ShaderEffect/ShadowCache.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "WoW/Source/DebugFeatures.h"
+#ifdef WOWDECOMP_TOOL_FEATURES
+#include "Engine/Source/Gxu/Gxu.h"
+#include "WoW/Source/WorldClient/WorldEditHooks.h"
+#endif
 
 // VERIFY: 78b69e1a manual
 // OFFSET: 0x007D5610
@@ -235,7 +239,26 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
         }
 
         if (!s_liquidTypeId) {
+#ifdef WOWDECOMP_TOOL_FEATURES
+            const bool useSkyProjection = WorldEditGetView() && camera->m_clipRange.m_l > World::s_nearClip;
+            C44Matrix worldProjection;
+            if (useSkyProjection) {
+                // The sky meshes are camera-relative and only a few yards across.
+                worldProjection = g_theGxDevicePtr->m_projection;
+                C44Matrix skyProjection;
+                GxuXformCreateProjection_Exact(camera->FOV() * 0.6f, camera->m_aspect, World::s_nearClip,
+                                               camera->m_clipRange.m_h, skyProjection);
+                GxXformSetProjection(skyProjection);
+                CShaderEffect::UpdateProjMatrix();
+            }
+#endif
             DayNight::RenderSky(&CWorldScene::s_worldPortalView);
+#ifdef WOWDECOMP_TOOL_FEATURES
+            if (useSkyProjection) {
+                GxXformSetProjection(worldProjection);
+                CShaderEffect::UpdateProjMatrix();
+            }
+#endif
         }
     }
 
