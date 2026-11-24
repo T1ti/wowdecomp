@@ -91,7 +91,11 @@ class WowConnection {
     /* 00F8 */ int32_t m_serviceFlags;
     /* 00FC */ TSList<WowConnection::SENDNODE> m_lagTestRecvList;
     /* 0108 */ SCritSect m_lock;
+    private:
+    friend class WowConnectionNet; // (inferred)
     /* 0130 */ int32_t m_serviceCount;
+
+    public:
     /* 0134 */ int32_t unused_0134;
     /* 0138 */ void* m_event;
     /* 013C */ WOWC_TYPE m_type;

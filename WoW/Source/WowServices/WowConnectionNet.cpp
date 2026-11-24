@@ -5,7 +5,7 @@
 
 // VERIFY: 1491f4aa auto
 // OFFSET: 0x00469060
-static uint32_t STORMAPI NetworkThreadProc(void* param) {
+uint32_t STORMAPI WowConnectionNet::NetworkThreadProc(void* param) {
     WowConnectionNet* network = static_cast<WowConnectionNet*>(param);
     network->PlatformRun();
     network->m_stopEvent.Set();
@@ -15,7 +15,7 @@ static uint32_t STORMAPI NetworkThreadProc(void* param) {
 
 // VERIFY: d0e3b08a auto
 // OFFSET: 0x00469300
-static uint32_t STORMAPI WorkerThreadProc(void* param) {
+uint32_t STORMAPI WowConnectionNet::WorkerThreadProc(void* param) {
     WowConnectionNet::WORKER* worker = static_cast<WowConnectionNet::WORKER*>(param);
     worker->m_owner->RunWorker(worker->m_index);
 
@@ -35,7 +35,7 @@ void WowConnectionNet::Start() {
     for (; static_cast<int32_t>(i) < this->m_numWorkers; i++) {
         WowConnectionNet::WORKER& worker = this->m_workers[i];
         worker.m_index = i;
-        worker.m_connection = nullptr;
+        worker.serviceConn = nullptr;
         worker.m_quit = false;
         worker.m_owner = this;
         worker.m_lastTime = OsGetAsyncTimeMs();
@@ -46,7 +46,7 @@ void WowConnectionNet::Start() {
     for (; i < sizeof(this->m_workers) / sizeof(this->m_workers[0]); i++) {
         WowConnectionNet::WORKER& worker = this->m_workers[i];
         worker.m_index = 0;
-        worker.m_connection = nullptr;
+        worker.serviceConn = nullptr;
         worker.m_quit = true;
         worker.m_owner = this;
     }
@@ -89,14 +89,14 @@ void WowConnectionNet::Service(WowConnection* connection, uint32_t flags) {
 
 // VERIFY: 3c6bf49d auto
 // OFFSET: 0x00469160
-void WowConnectionNet::RunWorker(int32_t index) {
+void WowConnectionNet::RunWorker(int32_t id) {
     if (this->m_threadInit) {
         this->m_threadInit();
     }
 
     this->m_workerSemaphore.Signal(1);
 
-    WowConnectionNet::WORKER& worker = this->m_workers[index];
+    WowConnectionNet::WORKER& worker = this->m_workers[id];
 
     while (true) {
         do {
@@ -107,14 +107,16 @@ void WowConnectionNet::RunWorker(int32_t index) {
             break;
         }
 
-        uint32_t serviceFlags = worker.m_connection->m_serviceFlags;
-        worker.m_connection->m_serviceFlags = 0;
-        this->Service(worker.m_connection, serviceFlags);
+        STORM_ASSERT(m_workers[id].serviceConn);
+        uint32_t serviceFlags = worker.serviceConn->m_serviceFlags;
+        worker.serviceConn->m_serviceFlags = 0;
+        this->Service(worker.serviceConn, serviceFlags);
+        STORM_ASSERT(m_workers[id].serviceConn->m_serviceCount == 1);
 
         worker.m_lock.Enter();
-        InterlockedExchangeAdd(reinterpret_cast<volatile LONG*>(&worker.m_connection->m_serviceCount), -1);
-        worker.m_connection->Release();
-        worker.m_connection = nullptr;
+        InterlockedExchangeAdd(reinterpret_cast<volatile LONG*>(&worker.serviceConn->m_serviceCount), -1);
+        worker.serviceConn->Release();
+        worker.serviceConn = nullptr;
         worker.m_lock.Leave();
 
         this->m_workerSemaphore.Signal(1);
@@ -124,28 +126,33 @@ void WowConnectionNet::RunWorker(int32_t index) {
 
 // VERIFY: d5522788 manual
 // OFFSET: 0x00469220
-void WowConnectionNet::SignalWorker(WowConnection* connection, uint32_t flags) {
+void WowConnectionNet::SignalWorker(WowConnection* conn, uint32_t flags) {
     if (this->m_workerSemaphore.Wait(500)) {
         return;
     }
 
-    connection->m_refCount.Increment();
-    connection->m_serviceFlags = flags;
-    InterlockedExchangeAdd(reinterpret_cast<volatile LONG*>(&connection->m_serviceCount), 1);
+    conn->m_refCount.Increment();
+    conn->m_serviceFlags = flags;
+    STORM_ASSERT(conn->m_serviceCount == 0);
+    InterlockedExchangeAdd(reinterpret_cast<volatile LONG*>(&conn->m_serviceCount), 1);
 
-    for (int32_t i = 0; i < this->m_numWorkers; i++) {
+    int32_t i = 0;
+    for (; i < this->m_numWorkers; i++) {
         WowConnectionNet::WORKER& worker = this->m_workers[i];
         worker.m_lock.Enter();
 
-        if (!worker.m_connection) {
-            worker.m_connection = connection;
+        if (!worker.serviceConn) {
+            worker.serviceConn = conn;
             worker.m_lock.Leave();
             worker.m_event.Set();
             return;
         }
 
+        STORM_ASSERT(m_workers[i].serviceConn != conn);
         worker.m_lock.Leave();
     }
+
+    STORM_ASSERT(i < m_numWorkers);
 }
 
 // VERIFY: e172a3d8 manual
@@ -217,10 +224,10 @@ void WowConnectionNet::Stop() {
 
         if (worker.m_thread.Wait(10000)) {
             ConsolePrintf("Network thread %d did not exit normally", i);
-        } else if (worker.m_connection) {
-            InterlockedExchangeAdd(reinterpret_cast<volatile LONG*>(&worker.m_connection->m_serviceCount), -1);
-            worker.m_connection->Release();
-            worker.m_connection = nullptr;
+        } else if (worker.serviceConn) {
+            InterlockedExchangeAdd(reinterpret_cast<volatile LONG*>(&worker.serviceConn->m_serviceCount), -1);
+            worker.serviceConn->Release();
+            worker.serviceConn = nullptr;
         }
     }
 }

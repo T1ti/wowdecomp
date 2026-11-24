@@ -19,12 +19,13 @@ class WowConnectionNet {
         SERVICE_DISCONNECT = 0x8,
     };
 
+    private:
 #pragma pack(push, 1)
     struct WORKER {
         /* 0000 */ WowConnectionNet* m_owner;
         /* 0004 */ SThread m_thread;
         /* 0008 */ int32_t m_index;
-        /* 000C */ WowConnection* m_connection;
+        /* 000C */ WowConnection* serviceConn;
         /* 0010 */ SEvent m_event;
         /* 0014 */ bool m_quit;
         /* 0015 */ SCritSect m_lock;
@@ -53,25 +54,30 @@ class WowConnectionNet {
     /* 08ED */ bool m_networkStarted;
     /* 08EE */ uint8_t unused_08EE[2];
 
+    public:
     WowConnectionNet(int32_t numThreads, void (*threadInit)());
     ~WowConnectionNet();
     void Add(WowConnection* connection);
     void Delete(WowConnection* connection);
-    void PlatformAdd(WowConnection* connection);
     void PlatformChangeState(WowConnection* connection, WOW_CONN_STATE state);
     void PlatformDestroy();
     void PlatformDestruct(WowConnection* connection);
     void PlatformInit(bool useEngine);
+    void Remove(WowConnection* connection);
+    void Stop();
+    void Start();
+
+    private:
+    static uint32_t STORMAPI NetworkThreadProc(void* param);
+    static uint32_t STORMAPI WorkerThreadProc(void* param);
+    void PlatformAdd(WowConnection* connection);
     void PlatformRun();
     void PlatformStop();
     void PlatformRemove(WowConnection* connection);
     void PlatformWorkerReady();
-    void Remove(WowConnection* connection);
-    void RunWorker(int32_t index);
+    void RunWorker(int32_t id);
     void Service(WowConnection* connection, uint32_t flags);
-    void Stop();
-    void SignalWorker(WowConnection* connection, uint32_t flags);
-    void Start();
+    void SignalWorker(WowConnection* conn, uint32_t flags);
 };
 
 #endif
