@@ -1108,7 +1108,7 @@ bool CGPlayer_C::VehicleAllowsInteraction() const {
         return true;
     }
 
-    CGUnit_C* transport = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_movementData.m_transportGuid, TYPE_UNIT, __FILE__, __LINE__));
+    CGUnit_C* transport = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_movementData.GetTransportGUID(), TYPE_UNIT, __FILE__, __LINE__));
 
     if (!transport) {
         return true;

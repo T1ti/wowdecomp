@@ -190,9 +190,18 @@ void CPlayerMoveQueue::UnlinkEventById(MoveEventId eventId) {
     }
 }
 
+struct CClippedTriangle {
+    /* 0000 */ C3Vector m_v [15];
+    /* 00B4 */ int32_t m_flags [15];
+    /* 00F0 */ int32_t m_count;
+
+    CClippedTriangle() = default;
+    CClippedTriangle(const CClippedTriangle& source);
+};
+
 // VERIFY: 216c2ed6 manual
 // OFFSET: 0x0075B610
-ClipPolygon::ClipPolygon(const ClipPolygon& source) {
+CClippedTriangle::CClippedTriangle(const CClippedTriangle& source) {
     this->m_count = source.m_count;
     memcpy(this->m_v, source.m_v, sizeof(C3Vector) * source.m_count);
     memcpy(this->m_flags, source.m_flags, sizeof(int32_t) * source.m_count);
@@ -695,7 +704,7 @@ void CMovement_C::SetInterpolation(uint32_t time) {
         return;
     }
 
-    if (this->m_transportGuid != next->m_transportGuid) {
+    if (this->m_transportGUID != next->m_transportGuid) {
         return;
     }
 
@@ -826,41 +835,41 @@ void CMovement_C::OnDismissControlledVehicleLocal(uint32_t eventTime) {
 // VERIFY: f73677d3 manual
 // OFFSET: 0x006EA1D0
 int32_t CMovement_C::UpdateTransportStatus(WOWGUID transport, uint8_t seat) {
-    if (this->m_transportGuid == transport && this->m_transportSeat == seat) {
+    if (this->m_transportGUID == transport && this->m_transportSeat == seat) {
         return 1;
     }
 
 
-    if (this->m_transportGuid.IsVehicle() || this->m_transportGuid.IsPlayer() || transport.IsVehicle() || transport.IsPlayer()) {
+    if (this->m_transportGUID.IsVehicle() || this->m_transportGUID.IsPlayer() || transport.IsVehicle() || transport.IsPlayer()) {
         this->m_unit->VehiclePassengerOnUpdateTransport(transport, seat, 0);
     }
 
     this->m_transportSeat = seat;
 
-    if (this->m_transportGuid == transport) {
+    if (this->m_transportGUID == transport) {
         return 1;
     }
 
-    if (this->m_transportGuid) {
+    if (this->m_transportGUID) {
         if (this->m_flags & MOVEMENTFLAG_FALLING) {
             C44Matrix matrix;
-            MovementGetTransportMtxX(this->m_transportGuid, &matrix, *this->m_ownerGuid, __FILE__, __LINE__);
+            MovementGetTransportMtxX(this->m_transportGUID, &matrix, *this->m_ownerGuid, __FILE__, __LINE__);
             this->m_moveDir = TransformDirection(this->m_moveDir, matrix.AffineInverse());
         }
 
-        float facing = MovementGetTransportFacing(this->m_transportGuid);
+        float facing = MovementGetTransportFacing(this->m_transportGUID);
         this->m_link.Unlink();
 
 
-        if (this->m_transportGuid.IsVehicle() || this->m_transportGuid.IsPlayer()) {
-            CGUnit_C* vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_transportGuid, TYPE_UNIT, __FILE__, __LINE__));
+        if (this->m_transportGUID.IsVehicle() || this->m_transportGUID.IsPlayer()) {
+            CGUnit_C* vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_transportGUID, TYPE_UNIT, __FILE__, __LINE__));
 
             if (vehicle && vehicle->m_vehicle) {
                 vehicle->m_vehicle->UpdateFreeSeatMask();
             }
         }
 
-        this->m_transportGuid = WOWGUID();
+        this->m_transportGUID = WOWGUID();
         this->ClearSplineEnabled();
 
         if (this->m_unit->GetObjectModel() && (this->m_unit->GetObjectModel()->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
@@ -877,7 +886,7 @@ int32_t CMovement_C::UpdateTransportStatus(WOWGUID transport, uint8_t seat) {
             return 0;
         }
 
-        this->m_transportGuid = transport;
+        this->m_transportGUID = transport;
         float facing = -MovementGetTransportFacing(transport);
 
         C44Matrix matrix;
@@ -1744,7 +1753,7 @@ void CMovement_C::Launch(const C2Vector& direction, float speed, float verticalS
     this->m_moveDir2D = direction;
     this->m_moveDir = C3Vector(direction.x, direction.y, 0.0f);
 
-    WOWGUID transport = *(const WOWGUID*)&this->m_transportGuid;
+    WOWGUID transport = *(const WOWGUID*)&this->m_transportGUID;
 
     if (transport && this->m_unit->m_obj->m_guid == CGUnit_C::s_activeMover) {
         C44Matrix matrix;
@@ -1931,14 +1940,17 @@ static BOOL IsTooSteepForUnit(const CGUnit_C* unit, uint32_t facet) {
 
 // VERIFY: 83e9ad0d manual
 // OFFSET: 0x0075B710
-static void ClipPolygonToPlane(ClipPolygon& polygon, int32_t planeIndex, const C4Plane& plane) {
+static void ClipPolygonToPlane(CClippedTriangle* poly, int32_t planeIndex, const C4Plane& plane) {
+    STORM_ASSERT(poly);
+
     float minDist = FLT_MAX;
     float maxDist = -FLT_MAX;
-    int32_t count = polygon.m_count;
-    float dist[15];
+    int32_t vertexCount = poly->m_count;
+    float vertexDist[15];
+    STORM_ASSERT(vertexCount <= ARRSIZE(vertexDist));
 
-    for (int32_t i = 0; i < count; i++) {
-        float d = -(polygon.m_v[i].x * plane.n.x + polygon.m_v[i].z * plane.n.z + polygon.m_v[i].y * plane.n.y + plane.d);
+    for (int32_t i = 0; i < vertexCount; i++) {
+        float d = -(poly->m_v[i].x * plane.n.x + poly->m_v[i].z * plane.n.z + poly->m_v[i].y * plane.n.y + plane.d);
 
         if (d < minDist) {
             minDist = d;
@@ -1948,7 +1960,7 @@ static void ClipPolygonToPlane(ClipPolygon& polygon, int32_t planeIndex, const C
             maxDist = d;
         }
 
-        dist[i] = d;
+        vertexDist[i] = d;
     }
 
     if (minDist > -0.0013888889f) {
@@ -1956,24 +1968,24 @@ static void ClipPolygonToPlane(ClipPolygon& polygon, int32_t planeIndex, const C
     }
 
     if (maxDist < 0.0013888889f) {
-        polygon.m_count = 0;
+        poly->m_count = 0;
         return;
     }
 
-    ClipPolygon source(polygon);
-    polygon.m_count = 0;
+    CClippedTriangle source(*poly);
+    poly->m_count = 0;
 
-    for (int32_t i = 0, prev = count - 1; i < count; prev = i, i++) {
-        float cur = dist[i];
-        float prv = dist[prev];
+    for (int32_t i = 0, prev = vertexCount - 1; i < vertexCount; prev = i, i++) {
+        float cur = vertexDist[i];
+        float prv = vertexDist[prev];
 
         if (prv >= 0.0f) {
             if (cur < 0.0f) {
                 if (prv > 0.0013888889f) {
                     float t = prv / (cur - prv);
-                    polygon.m_flags[polygon.m_count] = planeIndex;
-                    polygon.m_v[polygon.m_count] = C3Vector(source.m_v[prev].x - (source.m_v[i].x - source.m_v[prev].x) * t, source.m_v[prev].y - (source.m_v[i].y - source.m_v[prev].y) * t, source.m_v[prev].z - (source.m_v[i].z - source.m_v[prev].z) * t);
-                    polygon.m_count++;
+                    poly->m_flags[poly->m_count] = planeIndex;
+                    poly->m_v[poly->m_count] = C3Vector(source.m_v[prev].x - (source.m_v[i].x - source.m_v[prev].x) * t, source.m_v[prev].y - (source.m_v[i].y - source.m_v[prev].y) * t, source.m_v[prev].z - (source.m_v[i].z - source.m_v[prev].z) * t);
+                    poly->m_count++;
                 }
 
                 continue;
@@ -1985,19 +1997,19 @@ static void ClipPolygonToPlane(ClipPolygon& polygon, int32_t planeIndex, const C
 
             if (cur > 0.0013888889f) {
                 float t = prv / (cur - prv);
-                polygon.m_flags[polygon.m_count] = planeIndex;
-                polygon.m_v[polygon.m_count] = C3Vector(source.m_v[prev].x - (source.m_v[i].x - source.m_v[prev].x) * t, source.m_v[prev].y - (source.m_v[i].y - source.m_v[prev].y) * t, source.m_v[prev].z - (source.m_v[i].z - source.m_v[prev].z) * t);
-                polygon.m_count++;
+                poly->m_flags[poly->m_count] = planeIndex;
+                poly->m_v[poly->m_count] = C3Vector(source.m_v[prev].x - (source.m_v[i].x - source.m_v[prev].x) * t, source.m_v[prev].y - (source.m_v[i].y - source.m_v[prev].y) * t, source.m_v[prev].z - (source.m_v[i].z - source.m_v[prev].z) * t);
+                poly->m_count++;
             }
         }
 
-        polygon.m_flags[polygon.m_count] = source.m_flags[i];
-        polygon.m_v[polygon.m_count] = source.m_v[i];
-        polygon.m_count++;
+        poly->m_flags[poly->m_count] = source.m_flags[i];
+        poly->m_v[poly->m_count] = source.m_v[i];
+        poly->m_count++;
     }
 
-    if (static_cast<uint32_t>(polygon.m_count) < 3) {
-        polygon.m_count = 0;
+    if (static_cast<uint32_t>(poly->m_count) < 3) {
+        poly->m_count = 0;
     }
 }
 
@@ -2100,7 +2112,7 @@ static int32_t ComputeDistanceToMoveImpl(const C3Vector* vertices, const C3Vecto
 
 // VERIFY: 17a4a601 manual
 // OFFSET: 0x0075C0B0
-static int32_t ClipGenericPolygon(ClipPolygon& polygon, const C4Plane* planes, uint32_t planeIndex, float* distance, const C3Vector& direction) {
+static int32_t ClipGenericPolygon(CClippedTriangle& polygon, const C4Plane* planes, uint32_t planeIndex, float* distance, const C3Vector& direction) {
     float best = *distance;
     int32_t behind = 1;
     const C4Plane& plane = planes[planeIndex];
@@ -2125,7 +2137,7 @@ static int32_t ClipGenericPolygon(ClipPolygon& polygon, const C4Plane* planes, u
     if (behind) {
         for (uint32_t i = 0; i < 9; i++) {
             if (i != planeIndex) {
-                ClipPolygonToPlane(polygon, i, planes[i]);
+                ClipPolygonToPlane(&polygon, i, planes[i]);
 
                 if (!polygon.m_count) {
                     return 0;
@@ -2160,12 +2172,12 @@ static int32_t ClipGenericPolygon(ClipPolygon& polygon, const C4Plane* planes, u
 
 // VERIFY: 8a756579 auto
 // OFFSET: 0x0075BB00
-static int32_t ClipPolygonToFrustum(ClipPolygon& polygon, const CAaBox& box) {
+static int32_t ClipPolygonToFrustum(CClippedTriangle& polygon, const CAaBox& box) {
     C4Plane plane;
 
     plane.n = C3Vector(-1.0f, 0.0f, 0.0f);
     plane.d = box.b.x;
-    ClipPolygonToPlane(polygon, -1, plane);
+    ClipPolygonToPlane(&polygon, -1, plane);
 
     if (!polygon.m_count) {
         return 0;
@@ -2173,7 +2185,7 @@ static int32_t ClipPolygonToFrustum(ClipPolygon& polygon, const CAaBox& box) {
 
     plane.n = C3Vector(1.0f, 0.0f, 0.0f);
     plane.d = -box.t.x;
-    ClipPolygonToPlane(polygon, -1, plane);
+    ClipPolygonToPlane(&polygon, -1, plane);
 
     if (!polygon.m_count) {
         return 0;
@@ -2181,7 +2193,7 @@ static int32_t ClipPolygonToFrustum(ClipPolygon& polygon, const CAaBox& box) {
 
     plane.n = C3Vector(0.0f, -1.0f, 0.0f);
     plane.d = box.b.y;
-    ClipPolygonToPlane(polygon, -1, plane);
+    ClipPolygonToPlane(&polygon, -1, plane);
 
     if (!polygon.m_count) {
         return 0;
@@ -2189,7 +2201,7 @@ static int32_t ClipPolygonToFrustum(ClipPolygon& polygon, const CAaBox& box) {
 
     plane.n = C3Vector(0.0f, 1.0f, 0.0f);
     plane.d = -box.t.y;
-    ClipPolygonToPlane(polygon, -1, plane);
+    ClipPolygonToPlane(&polygon, -1, plane);
 
     if (!polygon.m_count) {
         return 0;
@@ -2197,7 +2209,7 @@ static int32_t ClipPolygonToFrustum(ClipPolygon& polygon, const CAaBox& box) {
 
     plane.n = C3Vector(0.0f, 0.0f, -1.0f);
     plane.d = box.b.z;
-    ClipPolygonToPlane(polygon, -1, plane);
+    ClipPolygonToPlane(&polygon, -1, plane);
 
     if (!polygon.m_count) {
         return 0;
@@ -2205,14 +2217,14 @@ static int32_t ClipPolygonToFrustum(ClipPolygon& polygon, const CAaBox& box) {
 
     plane.n = C3Vector(0.0f, 0.0f, 1.0f);
     plane.d = -box.t.z;
-    ClipPolygonToPlane(polygon, -1, plane);
+    ClipPolygonToPlane(&polygon, -1, plane);
 
     return polygon.m_count != 0;
 }
 
 // VERIFY: 87ab8510 auto
 // OFFSET: 0x0075C6F0
-static int32_t PolygonAtPoint(const ClipPolygon& polygon, const C3Vector& point) {
+static int32_t PolygonAtPoint(const CClippedTriangle& polygon, const C3Vector& point) {
     for (uint32_t i = 0; i < static_cast<uint32_t>(polygon.m_count); i++) {
         float dy = point.y - polygon.m_v[i].y;
         float dz = point.z - polygon.m_v[i].z;
@@ -2229,7 +2241,7 @@ static int32_t PolygonAtPoint(const ClipPolygon& polygon, const C3Vector& point)
 // VERIFY: 31d8651a manual
 // OFFSET: 0x0075C750
 static int32_t ClipCollisionBox(const CAaBox& box) {
-    ClipPolygon polygon;
+    CClippedTriangle polygon;
     polygon.m_count = 3;
 
     for (uint32_t i = 0; i < s_moveFacets.facets.m_count; i++) {
@@ -2248,7 +2260,7 @@ static int32_t ClipCollisionBox(const CAaBox& box) {
 // VERIFY: dd41383e manual
 // OFFSET: 0x0075C800
 static int32_t ClipBoxAgainstPlanes(const C3Vector& position, const C4Plane* planes, uint32_t count) {
-    ClipPolygon polygon;
+    CClippedTriangle polygon;
     polygon.m_count = 3;
 
     for (uint32_t i = 0; i < s_moveFacets.facets.m_count; i++) {
@@ -2257,7 +2269,7 @@ static int32_t ClipBoxAgainstPlanes(const C3Vector& position, const C4Plane* pla
         memset(polygon.m_flags, 0xFF, sizeof(int32_t) * 3);
 
         for (uint32_t j = 0; j < count; j++) {
-            ClipPolygonToPlane(polygon, j, planes[j]);
+            ClipPolygonToPlane(&polygon, j, planes[j]);
 
             if (!polygon.m_count) {
                 break;
@@ -2324,7 +2336,7 @@ int32_t CMovement_C::CollisionBoxDoesntFit(float width, float height, float scal
 // OFFSET: 0x0075C5A0
 static int32_t ClipMovementPyramid(World::FacetData* facets, const C3Vector& direction, const C4Plane* clipPlanes, uint32_t clipCount, const C4Plane* planes, uint32_t planeIndex, float* distance, uint32_t* facetIndex) {
     BOOL found = 0;
-    ClipPolygon polygon;
+    CClippedTriangle polygon;
     polygon.m_count = 3;
 
     for (uint32_t i = 0; i < facets->facets.m_count; i++) {
@@ -2339,7 +2351,7 @@ static int32_t ClipMovementPyramid(World::FacetData* facets, const C3Vector& dir
         memset(polygon.m_flags, 0xFF, sizeof(int32_t) * 3);
 
         for (uint32_t j = 0; j < clipCount; j++) {
-            ClipPolygonToPlane(polygon, j, clipPlanes[j]);
+            ClipPolygonToPlane(&polygon, j, clipPlanes[j]);
 
             if (!polygon.m_count) {
                 break;
@@ -2706,7 +2718,7 @@ void CMovement_C::MoveSplineMoverWithoutCollision(const C3Vector& position, uint
 // VERIFY: d19c5dcd manual
 // OFFSET: 0x0075EC10
 static C3Vector __stdcall GetGroundNormal(const C4Plane* planes, uint32_t count) {
-    ClipPolygon polygon;
+    CClippedTriangle polygon;
     polygon.m_count = 3;
     C3Vector sum;
     uint32_t hits = 0;
@@ -2723,7 +2735,7 @@ static C3Vector __stdcall GetGroundNormal(const C4Plane* planes, uint32_t count)
         memset(polygon.m_flags, 0xFF, sizeof(int32_t) * 3);
 
         for (uint32_t j = 0; j < count; j++) {
-            ClipPolygonToPlane(polygon, j, planes[j]);
+            ClipPolygonToPlane(&polygon, j, planes[j]);
 
             if (!polygon.m_count) {
                 break;
@@ -2777,8 +2789,8 @@ int32_t CMovement_C::ValidateTestVsFacetQuery(C3Vector move) const {
     C44Matrix transform;
     C3Vector position = this->m_position;
 
-    if (this->m_transportGuid) {
-        MovementGetTransportMtxX(this->m_transportGuid, &transform, *this->m_ownerGuid, __FILE__, __LINE__);
+    if (this->m_transportGUID) {
+        MovementGetTransportMtxX(this->m_transportGUID, &transform, *this->m_ownerGuid, __FILE__, __LINE__);
         position *= transform;
         C3Vector rotated;
         rotated.x = transform.c0 * move.z + transform.b0 * move.y + transform.a0 * move.x;
@@ -2819,7 +2831,7 @@ int32_t CMovement_C::ValidateTestVsFacetQuery(C3Vector move) const {
 
     s_queryBox = query;
 
-    if (this->m_transportGuid) {
+    if (this->m_transportGUID) {
         C44Matrix inverse = transform.AffineInverse();
 
         for (uint32_t i = 0; i < s_moveFacets.facets.m_count; i++) {
@@ -3001,14 +3013,21 @@ int32_t CMovement_C::DistanceToMove(World::FacetData* facets, const C3Vector& di
     return 1;
 }
 
+// INLINED
+static inline void ValidateCollisionPosition(const C3Vector& position) { // (inferred)
+    const bool valid = World::IsValidPosition(position.x, position.y, position.z, 0.0f);
+    STORM_ASSERT(valid); // 12213: "CWorld::IsValidPosition(position)"
+    (void)valid;
+}
+
 // VERIFY: 802c4c4c manual
 // OFFSET: 0x0075FF90
 int32_t CMovement_C::GetMoveFacets(float distance, uint32_t elapsed, C3Vector direction) {
     C44Matrix transform;
     C3Vector position = this->m_position;
 
-    if (this->m_transportGuid) {
-        MovementGetTransportMtxX(this->m_transportGuid, &transform, *this->m_ownerGuid, __FILE__, __LINE__);
+    if (this->m_transportGUID) {
+        MovementGetTransportMtxX(this->m_transportGUID, &transform, *this->m_ownerGuid, __FILE__, __LINE__);
         position *= transform;
         C3Vector rotated;
         rotated.x = transform.c0 * direction.z + transform.b0 * direction.y + transform.a0 * direction.x;
@@ -3017,7 +3036,7 @@ int32_t CMovement_C::GetMoveFacets(float distance, uint32_t elapsed, C3Vector di
         direction = rotated;
     }
 
-    World::IsValidPosition(position.x, position.y, position.z, 0.0f);
+    ValidateCollisionPosition(position);
     CAaBox box;
     this->BuildCollisionBox(position, box);
     s_queryBox = box;
@@ -3121,7 +3140,7 @@ int32_t CMovement_C::GetMoveFacets(float distance, uint32_t elapsed, C3Vector di
         s_liquidFacets.facetIds.m_count = 0;
     }
 
-    if (this->m_transportGuid) {
+    if (this->m_transportGUID) {
         C44Matrix inverse = transform.AffineInverse();
 
         for (uint32_t i = 0; i < s_moveFacets.facets.m_count; i++) {
@@ -3153,7 +3172,7 @@ int32_t CMovement_C::SetTransport(WOWGUID transport) {
         return 0;
     }
 
-    if (!transport && this->m_transportGuid && MovementInsideTransport(this->m_transportGuid, this->m_position)) {
+    if (!transport && this->m_transportGUID && MovementInsideTransport(this->m_transportGUID, this->m_position)) {
         return 0;
     }
 
@@ -3163,7 +3182,7 @@ int32_t CMovement_C::SetTransport(WOWGUID transport) {
 // VERIFY: 394468db manual
 // OFFSET: 0x00760B40
 uint32_t CMovement_C::Swim(uint32_t time, uint32_t elapsed, float distance, C3Vector direction) {
-    if (this->m_transportGuid && this->m_link.IsLinked() && this->SetTransport(WOWGUID())) {
+    if (this->m_transportGUID && this->m_link.IsLinked() && this->SetTransport(WOWGUID())) {
         return 0;
     }
 
@@ -3540,34 +3559,35 @@ finish:
 
 // VERIFY: 730a0c34 auto
 // OFFSET: 0x007618B0
-uint32_t CMovement_C::Fall(uint32_t time, uint32_t elapsed, float distance, const C2Vector& direction) {
-    if ((this->m_transportGuid && this->m_link.IsLinked() && this->SetTransport(WOWGUID())) || !elapsed) {
+uint32_t CMovement_C::Fall(uint32_t time, uint32_t timeIncrement, float distance, const C2Vector& direction) {
+    if ((this->m_transportGUID && this->m_link.IsLinked() && this->SetTransport(WOWGUID())) || !timeIncrement) {
         return 0;
     }
 
-    float fallen = this->RelDistanceFallen(elapsed + this->m_fallTimeMs);
+    float fallen = this->RelDistanceFallen(timeIncrement + this->m_fallTimeMs);
     C3Vector move(direction.x * distance, distance * direction.y, -fallen);
 
     if (fabs(sqrt(move.y * move.y + move.z * move.z + move.x * move.x)) < 0.00000023841858f) {
-        this->m_fallTimeMs += elapsed;
-        return elapsed;
+        this->m_fallTimeMs += timeIncrement;
+        return timeIncrement;
     }
 
-    uint32_t result;
+    uint32_t timeUsed;
 
     if (s_moveFacets.facets.m_count) {
-        result = this->FallDown(time, elapsed, move, 1);
+        timeUsed = this->FallDown(time, timeIncrement, move, 1);
+        STORM_ASSERT(timeUsed <= timeIncrement);
     } else {
         this->m_position.x = move.x + this->m_position.x;
         this->m_position.y = move.y + this->m_position.y;
         this->m_position.z = move.z + this->m_position.z;
-        this->m_fallTimeMs += elapsed;
+        this->m_fallTimeMs += timeIncrement;
         this->UpdateFallingFar();
-        result = elapsed;
+        timeUsed = timeIncrement;
     }
 
     this->m_groundNormal = C3Vector(0.0f, 0.0f, 1.0f);
-    return result;
+    return timeUsed;
 }
 
 // VERIFY: 1467b615 auto
@@ -4128,20 +4148,20 @@ transport:
 
 // VERIFY: 9ba90a88 manual
 // OFFSET: 0x00762E00
-uint32_t CMovement_C::CollideRequestMove(uint32_t time, uint32_t elapsed, C3Vector move) {
-    if (!elapsed) {
+uint32_t CMovement_C::CollideRequestMove(uint32_t time, uint32_t timeElapsed, C3Vector move) {
+    if (!timeElapsed) {
         return 0;
     }
 
     C3Vector target(this->m_position.x + move.x, this->m_position.y + move.y, this->m_position.z + move.z);
 
     if (!World::IsValidPosition(target.x, target.y, target.z, this->m_collisionRadius + 71.375595f)) {
-        return elapsed;
+        return timeElapsed;
     }
 
     float vertical = this->CanCollideWhileFlying() ? move.z : 0.0f;
     float length = sqrt(move.y * move.y + move.x * move.x + vertical * vertical);
-    float speed = length / (elapsed * 0.001f);
+    float speed = length / (timeElapsed * 0.001f);
     C3Vector direction;
 
     if (fabs(length) >= 0.00000095367432f) {
@@ -4150,7 +4170,7 @@ uint32_t CMovement_C::CollideRequestMove(uint32_t time, uint32_t elapsed, C3Vect
         direction.z = 1.0f / length * vertical;
     }
 
-    uint32_t consumed = 0;
+    uint32_t timeUsed = 0;
     int32_t onSpline = 0;
     uint32_t step;
 
@@ -4161,8 +4181,8 @@ uint32_t CMovement_C::CollideRequestMove(uint32_t time, uint32_t elapsed, C3Vect
             goto groundNormal;
         }
 
-        step = elapsed - consumed;
-        uint32_t stepTime = time + consumed;
+        step = timeElapsed - timeUsed;
+        uint32_t stepTime = time + timeUsed;
         float stepDist = step * 0.001f * speed;
 
         if (!this->GetMoveFacets(stepDist, step, direction)) {
@@ -4172,7 +4192,7 @@ uint32_t CMovement_C::CollideRequestMove(uint32_t time, uint32_t elapsed, C3Vect
         uint32_t oldFlags2 = this->m_moveFlags2;
         uint32_t oldFlags = this->m_flags;
         int32_t jumping = this->IsJumping();
-        WOWGUID oldTransport = this->m_transportGuid;
+        WOWGUID oldTransport = this->m_transportGUID;
         float oldSpeed = this->m_currentSpeed;
         uint32_t used;
 
@@ -4186,9 +4206,9 @@ uint32_t CMovement_C::CollideRequestMove(uint32_t time, uint32_t elapsed, C3Vect
             used = this->TraceSurface(stepTime, step, stepDist, C2Vector(direction));
         }
 
-        consumed += used;
-        int32_t transportChanged = oldTransport != this->m_transportGuid;
-        this->CallMoveEventHandlers(time + consumed, elapsed - consumed, oldFlags, oldFlags2, jumping, transportChanged);
+        timeUsed += used;
+        int32_t transportChanged = oldTransport != this->m_transportGUID;
+        this->CallMoveEventHandlers(time + timeUsed, timeElapsed - timeUsed, oldFlags, oldFlags2, jumping, transportChanged);
 
         if (transportChanged || (!(this->m_flags & MOVEMENTFLAG_FALLING) && (oldFlags & MOVEMENTFLAG_FALLING))) {
             uint32_t unused = step - used;
@@ -4208,23 +4228,24 @@ uint32_t CMovement_C::CollideRequestMove(uint32_t time, uint32_t elapsed, C3Vect
         }
 
         if (!this->m_anchorElapsedMs && (this->m_flags & MOVEMENTFLAG_HORIZONTAL_MOVE_MASK)) {
-            this->m_anchorElapsedMs = elapsed - consumed;
+            STORM_ASSERT(timeUsed <= timeElapsed);
+            this->m_anchorElapsedMs = timeElapsed - timeUsed;
         }
 
-        if (consumed >= elapsed) {
+        if (timeUsed >= timeElapsed) {
             goto groundNormal;
         }
     }
 
     if (this->IsSplineMover()) {
-        this->MoveSplineMoverWithoutCollision(target, time, elapsed);
+        this->MoveSplineMoverWithoutCollision(target, time, timeElapsed);
         onSpline = 1;
     } else {
         this->SkipTime(step);
         this->m_anchorElapsedMs -= step;
     }
 
-    consumed = elapsed;
+    timeUsed = timeElapsed;
 
     if (onSpline) {
         goto done;
@@ -4237,7 +4258,7 @@ groundNormal:
 
 done:
     this->ValidateWorldPosition(CPassenger::GetPosition(this->m_position));
-    return consumed;
+    return timeUsed;
 }
 
 // VERIFY: 1038edbb auto
@@ -5340,30 +5361,30 @@ int32_t CMovement_C::PlotUnitSplineMovement(uint32_t time, uint32_t elapsed, C3V
 // VERIFY: 1b35a700 manual
 // OFFSET: 0x006EC400
 int32_t CMovement_C::ForceSetTransportInt(WOWGUID transport, uint8_t seat, BOOL force) {
-    if ((transport == this->m_transportGuid && seat == this->m_transportSeat) || (!force && this->m_spline) || (transport && !MovementObjIsTransport(transport))) {
+    if ((transport == this->m_transportGUID && seat == this->m_transportSeat) || (!force && this->m_spline) || (transport && !MovementObjIsTransport(transport))) {
         return 0;
     }
 
-    if (this->m_transportGuid && !ClntObjMgrObjectPtr(this->m_transportGuid, TYPE_OBJECT, __FILE__, __LINE__)) {
-        DebugLog("CMovementData_C::ForceSetTransportInt() was called with an invalid m_transportGUID: (m_transportGUID: %016I64X) (guid: %016I64X)", this->m_transportGuid, transport);
-        this->m_transportGuid = WOWGUID();
+    if (this->m_transportGUID && !ClntObjMgrObjectPtr(this->m_transportGUID, TYPE_OBJECT, __FILE__, __LINE__)) {
+        DebugLog("CMovementData_C::ForceSetTransportInt() was called with an invalid m_transportGUID: (m_transportGUID: %016I64X) (guid: %016I64X)", this->m_transportGUID, transport);
+        this->m_transportGUID = WOWGUID();
         return 0;
     }
 
 
-    if (this->m_transportGuid.IsVehicle() || this->m_transportGuid.IsPlayer() || transport.IsVehicle() || transport.IsPlayer()) {
+    if (this->m_transportGUID.IsVehicle() || this->m_transportGUID.IsPlayer() || transport.IsVehicle() || transport.IsPlayer()) {
         this->m_unit->VehiclePassengerOnUpdateTransport(transport, seat, 0);
     }
 
     this->m_transportSeat = seat;
 
-    if (transport == this->m_transportGuid) {
+    if (transport == this->m_transportGUID) {
         return 1;
     }
 
     C44Matrix transportMatrix(1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 0.0f, 1.0f);
 
-    if (this->m_transportGuid) {
+    if (this->m_transportGUID) {
         float facing = this->RemoveFromTransport(&transportMatrix);
 
         if (this->m_unit->GetObjectModel()) {
@@ -5378,8 +5399,8 @@ int32_t CMovement_C::ForceSetTransportInt(WOWGUID transport, uint8_t seat, BOOL 
         this->m_unit->TrackingMakeRelativeTo(&transportMatrix, facing);
 
 
-        if (this->m_transportGuid.IsVehicle() || this->m_transportGuid.IsPlayer()) {
-            CGUnit_C* vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_transportGuid, TYPE_UNIT, __FILE__, __LINE__));
+        if (this->m_transportGUID.IsVehicle() || this->m_transportGUID.IsPlayer()) {
+            CGUnit_C* vehicle = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_transportGUID, TYPE_UNIT, __FILE__, __LINE__));
 
             if (vehicle && vehicle->m_vehicle) {
                 vehicle->m_vehicle->UpdateFreeSeatMask();
@@ -5413,7 +5434,7 @@ int32_t CMovement_C::ForceSetTransportInt(WOWGUID transport, uint8_t seat, BOOL 
             this->StopSwim();
         }
 
-        if (this->m_transportGuid && this->m_unit->IsActiveMover()) {
+        if (this->m_transportGUID && this->m_unit->IsActiveMover()) {
             CMovementGlobals* globals = MovementGetGlobals();
             globals->m_hasTransportTime2 = globals->m_transportTime != globals->m_transportTime2;
         }
@@ -5423,7 +5444,7 @@ int32_t CMovement_C::ForceSetTransportInt(WOWGUID transport, uint8_t seat, BOOL 
         this->UpdateAnchors(0);
     }
 
-    this->m_transportGuid = transport;
+    this->m_transportGUID = transport;
     MovementUpdateCameraYaw(*this->m_ownerGuid, WOWGUID{ this->m_unit->GetCameraRelativeTo() });
     return 1;
 }
@@ -5440,7 +5461,7 @@ void CMovement_C::Teleport(WOWGUID transport, const C3Vector& position, float fa
     this->ForceSetTransportInt(transport, seat, 1);
     this->m_unit->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
 
-    if (!(this->m_transportGuid == transport)) {
+    if (!(this->m_transportGUID == transport)) {
         return;
     }
 
@@ -6595,8 +6616,8 @@ void CMovement_C::OnSetActiveMover() {
     CMovementGlobals* globals = MovementGetGlobals();
     STORM_ASSERT(globals);
 
-    if (this->m_transportGuid.m_guid) {
-        CGGameObject_C* transport = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(this->m_transportGuid, TYPE_GAMEOBJECT, __FILE__, __LINE__));
+    if (this->m_transportGUID.m_guid) {
+        CGGameObject_C* transport = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(this->m_transportGUID, TYPE_GAMEOBJECT, __FILE__, __LINE__));
 
         if (transport) {
             uint32_t transportTime = transport->GetBaseObject()->GetTransportUpdateTime();
@@ -6642,7 +6663,7 @@ int32_t CMovement_C::OnLaunch(uint32_t time, const CMovementStatus& status, cons
 // VERIFY: a537acac manual
 // OFFSET: 0x0075EFE0
 void CMovement_C::SnapToGroundIfCloseEnough() {
-    if (!(this->m_flags & MOVEMENTFLAG_ROOT) || this->m_transportGuid.m_guid) {
+    if (!(this->m_flags & MOVEMENTFLAG_ROOT) || this->m_transportGUID.m_guid) {
         return;
     }
 
@@ -6695,9 +6716,11 @@ void CMovement_C::Disable() {
 
 // VERIFY: 4286b6ab manual
 // OFFSET: 0x00760720
-void CMovement_C::CollideWithTransport(uint32_t time, uint32_t elapsed, float distance, const C3Vector& direction, const C44Matrix& transportMatrix) {
+void CMovement_C::PassengerMove(uint32_t time, uint32_t elapsed, float distance, const C3Vector& direction, const C44Matrix& transportMatrix) {
+    STORM_ASSERT(m_transportGUID);
+
     C3Vector position = this->m_position * transportMatrix;
-    World::IsValidPosition(position.x, position.y, position.z, 0.0f);
+    ValidateCollisionPosition(position);
     CAaBox box;
     box.b = C3Vector(0.0f, 0.0f, 0.0f);
     box.t = C3Vector(0.0f, 0.0f, 0.0f);
@@ -6742,7 +6765,7 @@ void CMovement_C::CollideWithTransport(uint32_t time, uint32_t elapsed, float di
         return;
     }
 
-    CGGameObject_C* transport = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(this->m_transportGuid, TYPE_GAMEOBJECT, __FILE__, __LINE__));
+    CGGameObject_C* transport = static_cast<CGGameObject_C*>(ClntObjMgrObjectPtr(this->m_transportGUID, TYPE_GAMEOBJECT, __FILE__, __LINE__));
     uint32_t eventTime = static_cast<uint32_t>(static_cast<int64_t>(moveDist / distance * static_cast<float>(elapsed) + 0.5f)) + transport->m_transportTimeOffset - elapsed + time;
     uint32_t transportTime = transport->GetBaseObject()->GetSequenceTimeFromRealTime(eventTime);
     CMovementGlobals* globals = MovementGetGlobals();

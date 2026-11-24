@@ -1446,7 +1446,7 @@ float CMovementShared::RelDistanceFallen(uint32_t time) const {
 // VERIFY: fe244ccd auto
 // OFFSET: 0x0098C480
 void CMovementShared::SetFacing(float facing) {
-    WOWGUID transport = *(const WOWGUID*)&this->m_transportGuid;
+    WOWGUID transport = *(const WOWGUID*)&this->m_transportGUID;
     float transportFacing = transport ? MovementGetTransportFacing(transport) : 0.0f;
     float rawFacing = CMath::normalizeangle0to2pi_(facing - transportFacing);
 
@@ -1626,7 +1626,7 @@ int32_t CMovementShared::StartStrafe(int32_t left) {
 // VERIFY: ffa99d8e manual
 // OFFSET: 0x009880F0
 C3Vector CMovementShared::GetDirection() const {
-    WOWGUID transport = *(const WOWGUID*)&this->m_transportGuid;
+    WOWGUID transport = *(const WOWGUID*)&this->m_transportGUID;
 
     if (!transport) {
         return this->m_moveDir;
@@ -1644,7 +1644,7 @@ C3Vector CMovementShared::GetDirection() const {
 // VERIFY: 64bfd6f8 manual
 // OFFSET: 0x00987490
 C3Vector CMovementShared::GetGroundNormal() const {
-    WOWGUID transport = *(const WOWGUID*)&this->m_transportGuid;
+    WOWGUID transport = *(const WOWGUID*)&this->m_transportGUID;
 
     if (!transport) {
         return this->m_groundNormal;
@@ -1665,8 +1665,8 @@ void CMovementShared::GetMoveStatus(NETMESSAGE msgId, uint32_t gameTime, CMoveme
     status->m_gameTime = gameTime;
     status->m_moveExtraFlags = this->m_moveFlags2;
 
-    if (this->m_transportGuid || msgId == CMSG_MOVE_CHANGE_TRANSPORT) {
-        status->m_transportGuid = this->m_transportGuid;
+    if (this->m_transportGUID || msgId == CMSG_MOVE_CHANGE_TRANSPORT) {
+        status->m_transportGuid = this->m_transportGUID;
         status->m_transportTime = MovementGetGlobals()->m_transportTime;
 
         if (MovementGetGlobals()->m_hasTransportTime2) {
@@ -2045,7 +2045,7 @@ void CMovementShared::TransportTransform(const C44Matrix& matrix, float facing, 
 float CMovementShared::RemoveFromTransportFinish(const C44Matrix& matrix, float facing, const C3Vector& oldPosition) {
     this->TransportTransform(matrix, facing, oldPosition);
     this->m_link.Unlink();
-    MovementNotifyTransportUnitRemoved(*this->m_ownerGuid, this->m_transportGuid, this->m_transportSeat);
+    MovementNotifyTransportUnitRemoved(*this->m_ownerGuid, this->m_transportGUID, this->m_transportSeat);
     this->m_flags &= ~MOVEMENTFLAG_SPLINE_ENABLED;
     return facing;
 }
@@ -2308,9 +2308,9 @@ void CMovementShared::Disable() {
     }
 
     this->m_globalUnitsLink.Unlink();
-    WOWGUID transport = this->m_link.m_next ? this->m_transportGuid : WOWGUID();
+    WOWGUID transport = this->m_link.m_next ? this->m_transportGUID : WOWGUID();
     this->m_link.Unlink();
-    this->m_transportGuid = WOWGUID();
+    this->m_transportGUID = WOWGUID();
 
     if (transport != WOWGUID()) {
         MovementNotifyTransportUnitRemoved(*this->m_ownerGuid, transport, this->m_transportSeat);

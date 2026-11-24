@@ -462,7 +462,7 @@ void CGGameObject_C_Type_Transport::UpdateMovement(uint32_t time, uint32_t elaps
 
                 for (CPassenger* passenger = this->m_passengers.Head(); passenger; passenger = this->m_passengers.Next(passenger)) {
                     if (passenger->m_passengerFlags & CPassenger::PASSENGER_MOVEMENT) {
-                        static_cast<CMovement_C*>(passenger)->CollideWithTransport(time, step, speed, direction, matrix);
+                        static_cast<CMovement_C*>(passenger)->PassengerMove(time, step, speed, direction, matrix);
                     }
                 }
             }

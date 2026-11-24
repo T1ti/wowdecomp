@@ -503,7 +503,7 @@ void CGUnit_C::RenderDebugPathing() {
     bool moving = spline && !(spline->flags & SPLINEFLAG_DONE) && spline->m_spline.pointCount;
 
     if (moving) {
-        RememberDebugPath(guid, spline, this->m_movementData.m_transportGuid);
+        RememberDebugPath(guid, spline, this->m_movementData.GetTransportGUID());
     }
 
     if (!moving || spline->m_spline.GetSplineMode() != MODE_CATMULLROM) {
@@ -551,7 +551,7 @@ void CGUnit_C::RenderDebugPathing() {
     C3Spline_CatmullRom& path = spline->m_spline;
     uint32_t count = path.pointCount;
     C44Matrix transport;
-    bool onTransport = this->m_movementData.m_transportGuid && MovementGetTransportMtxSafe(this->m_movementData.m_transportGuid, &transport);
+    bool onTransport = this->m_movementData.GetTransportGUID() && MovementGetTransportMtxSafe(this->m_movementData.GetTransportGUID(), &transport);
 
     for (uint32_t i = 0; i < count; i++) {
         C3Vector point = path.Point(i);
@@ -609,8 +609,8 @@ void CGUnit_C::DebugPathingPreAnimate() {
     }
 
     // Port addition: the path of the transport the active player rides.
-    if (guid == ClntObjMgrGetActivePlayer() && this->m_movementData.m_transportGuid) {
-        RenderDebugShipPath(this->m_movementData.m_transportGuid);
+    if (guid == ClntObjMgrGetActivePlayer() && this->m_movementData.GetTransportGUID()) {
+        RenderDebugShipPath(this->m_movementData.GetTransportGUID());
     }
 }
 

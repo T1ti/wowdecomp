@@ -26,7 +26,11 @@ class CPassenger {
     }
 
     /* 0000 */ TSLink<void> m_link;
-    /* 0008 */ WOWGUID m_transportGuid;
+    protected:
+    /* 0008 */ WOWGUID m_transportGUID;
+
+    public:
+    const WOWGUID& GetTransportGUID() const { return this->m_transportGUID; } // (inferred)
     /* 0010 */ C3Vector m_position;
     /* 001C */ uint32_t unknown_001C;
     /* 0020 */ float m_facing;

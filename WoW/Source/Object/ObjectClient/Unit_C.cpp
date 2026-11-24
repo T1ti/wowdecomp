@@ -5738,7 +5738,7 @@ float CGUnit_C::GetRawFacing() const {
 // VERIFY: 4aabb319 auto
 // OFFSET: 0x006E6F70
 uint64_t CGUnit_C::GetTransportGUID() const {
-    return this->m_movementData.m_transportGuid.m_guid;
+    return this->m_movementData.GetTransportGUID().m_guid;
 }
 
 // VERIFY: 38a0654c auto
@@ -7483,7 +7483,7 @@ void CGUnit_C::VehiclePassengerOnUninit() {
 // VERIFY: 014f995c auto
 // OFFSET: 0x0074B8B0
 BOOL CGUnit_C::HasVehicleTransport() const {
-    return this->m_movementData.m_transportGuid.IsVehicle() || this->m_movementData.m_transportGuid.IsPlayer();
+    return this->m_movementData.GetTransportGUID().IsVehicle() || this->m_movementData.GetTransportGUID().IsPlayer();
 }
 
 // VERIFY: 5a947930 auto
@@ -9954,7 +9954,7 @@ void CGUnit_C::PostInit(uint32_t time, const CClientObjCreate& create, bool reen
     this->UpdateEffectAttachments();
     CGObject_C::PostInit(time, create, reenable);
     this->VehiclePassengerInit();
-    MovementUpdateCameraYaw(this->m_obj->m_guid, this->m_movementData.m_transportGuid);
+    MovementUpdateCameraYaw(this->m_obj->m_guid, this->m_movementData.GetTransportGUID());
 
     STORM_ASSERT(GetCharacterModel());
 
@@ -13000,7 +13000,7 @@ void CGUnit_C::OnMonsterMove(CDataStore* msg, NETMESSAGE msgId, uint64_t transpo
     this->m_movementData.ForceSetTransport(WOWGUID{ transport }, seat, 1);
     this->m_clientFlags &= ~UNIT_CLIENT_FLAGS::UNIT_CLIENT_FLAG_ALLOW_VEHICLE_TRANSITION;
 
-    if (this->m_movementData.m_transportGuid.m_guid != transport) {
+    if (this->m_movementData.GetTransportGUID().m_guid != transport) {
         STORM_ASSERT(!IsActiveMover());
         return;
     }

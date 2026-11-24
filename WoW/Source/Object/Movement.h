@@ -20,15 +20,6 @@ class CDataStore;
 class CClientObjCreate;
 namespace World { class FacetData; }
 
-struct ClipPolygon {
-    /* 0000 */ C3Vector m_v [15];
-    /* 00B4 */ int32_t m_flags [15];
-    /* 00F0 */ int32_t m_count;
-
-    ClipPolygon() = default;
-    ClipPolygon(const ClipPolygon& source);
-};
-
 struct MoveState {
     /* 0000 */ C3Vector m_anchorPos;
     /* 000C */ float m_anchorFacing;
@@ -264,7 +255,7 @@ class CMovement_C : public CMovementShared {
     void MoveSplineMoverWithoutCollision(const C3Vector& position, uint32_t time, uint32_t elapsed);
     int32_t ValidateTestVsFacetQuery(C3Vector move) const;
     int32_t GetCurrentHoverHeight(float* height, int32_t* noGround, uint64_t* facetId) const;
-    void CollideWithTransport(uint32_t time, uint32_t elapsed, float distance, const C3Vector& direction, const C44Matrix& transportMatrix);
+    void PassengerMove(uint32_t time, uint32_t elapsed, float distance, const C3Vector& direction, const C44Matrix& transportMatrix);
     int32_t DistanceToMove(World::FacetData* facets, const C3Vector& direction, float distance, uint32_t* facetIndex, C4Plane* planes, uint32_t* planeCount, float* moveDistance, const C3Vector* position) const;
     void CallMoveEventHandlers(uint32_t time, uint32_t remaining, uint32_t oldFlags, uint32_t oldFlags2, int32_t jumping, int32_t transportChanged);
     int32_t GetMoveFacets(float distance, uint32_t elapsed, C3Vector direction);
@@ -280,12 +271,12 @@ class CMovement_C : public CMovementShared {
 
     FALL_RESULT TryFallingDown(float timeFallen, C3Vector* move, float* distance, C2Vector* push, uint64_t* facetId, int32_t* onSlope, int32_t* landed);
     uint32_t FallDown(uint32_t time, uint32_t elapsed, C3Vector move, BOOL notify);
-    uint32_t Fall(uint32_t time, uint32_t elapsed, float distance, const C2Vector& direction);
+    uint32_t Fall(uint32_t time, uint32_t timeIncrement, float distance, const C2Vector& direction);
     int32_t WillPassObstacle(const C2Vector& direction, const C3Vector& position, float height);
     int32_t AttemptStepUp(const C2Vector& direction, C3Vector normal);
     uint32_t TraceSurface(uint32_t time, uint32_t elapsed, float distance, const C2Vector& direction);
     uint32_t HoverMove(uint32_t time, uint32_t elapsed, float distance, C3Vector direction);
-    uint32_t CollideRequestMove(uint32_t time, uint32_t elapsed, C3Vector move);
+    uint32_t CollideRequestMove(uint32_t time, uint32_t timeElapsed, C3Vector move);
     void OnSplineStop(uint32_t eventTime);
     void SkipTime(uint32_t time);
     int32_t UpdatePlayerMovement(uint32_t time);

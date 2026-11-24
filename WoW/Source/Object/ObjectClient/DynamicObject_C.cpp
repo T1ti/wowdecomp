@@ -101,7 +101,7 @@ void CGDynamicObject_C::PostInit(uint32_t time, const CClientObjCreate& create, 
 
 // OFFSET: 0x00706560
 uint64_t CGDynamicObject_C::GetTransportGUID() const {
-    return this->m_passenger.m_transportGuid.m_guid;
+    return this->m_passenger.GetTransportGUID().m_guid;
 }
 
 // VERIFY: fe375946 manual

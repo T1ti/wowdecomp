@@ -107,7 +107,7 @@ bool CGUnit_C::IsVehiclePreventingTurning() const {
         return false;
     }
 
-    CGUnit_C* transport = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_movementData.m_transportGuid, TYPE_UNIT, __FILE__, __LINE__));
+    CGUnit_C* transport = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_movementData.GetTransportGUID(), TYPE_UNIT, __FILE__, __LINE__));
 
     if (!transport || !transport->m_vehicle) {
         return false;

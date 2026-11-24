@@ -636,7 +636,7 @@ float CGGameObject_C::GetSpeed() const {
 // VERIFY: e90da76c auto
 // OFFSET: 0x00706560
 uint64_t CGGameObject_C::GetTransportGUID() const {
-    return this->m_passenger.m_transportGuid.m_guid;
+    return this->m_passenger.GetTransportGUID().m_guid;
 }
 
 // VERIFY: 551dd805 manual
