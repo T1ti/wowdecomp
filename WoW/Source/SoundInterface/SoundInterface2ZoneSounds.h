@@ -20,30 +20,27 @@ struct SI2ZoneSoundInfo {
     ~SI2ZoneSoundInfo();
 };
 
-struct SI2ZoneMusicTimer {
-    /* 0000 */ int32_t m_soundKitId;
-    /* 0004 */ int32_t m_silenceMin; // Normal music: minimum delay in ms; intro music: repeat delay in minutes.
-    /* 0008 */ int32_t m_silenceMax; // Normal music: maximum delay in ms; zero for intro music.
-};
-
 class SI2ZoneSound {
-    public:
+    private:
+    friend class SI2ZoneSoundPair; // (inferred)
     /* 0000 */ int32_t m_soundKitId;
     /* 0004 */ SI2::ZONE_SOUND_TYPE m_type;
     /* 0008 */ SE2SoundKitObject m_object;
 
+    public:
     SI2ZoneSound();
 };
 
 class SI2ZoneSoundPair {
-    public:
+    private:
     /* 0000 */ SI2ZoneSound m_sounds[2];
     /* 0038 */ uint32_t m_current;
     /* 003C */ uint32_t m_next;
 
+    public:
     SI2ZoneSoundPair();
     ~SI2ZoneSoundPair();
-    SI2::ZONE_SOUND_TYPE GetCurrentType();
+    SI2::ZONE_SOUND_TYPE GetCurrentType() const;
     int32_t GetPlayingSoundKitId();
     bool IsPlaying();
     void SetFinishedCallback(void (*callback)(SESound*, void*), void* param);

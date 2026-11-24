@@ -262,7 +262,7 @@ int32_t SI2::UpdateZoneSoundsForWorldState(int32_t areaId, int32_t zoneId, int32
                 if (GetWorldState(entry->m_worldStateId) == entry->m_worldStateValue) {
                     SI2::SetZoneReverb(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE, s_worldStateZoneSoundOverrides[i]->m_soundProviderPreferencesId);
                     SI2::SetZoneAmbienceID(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE, s_worldStateZoneSoundOverrides[i]->m_soundAmbienceId);
-                    SI2::SetZoneIntroMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE_INTRO, s_worldStateZoneSoundOverrides[i]->m_zoneIntroMusicId);
+                    SI2::SetZoneIntroMusicID(SI2::ZONE_SOUND_TYPE::SI2ZONESOUNDTYPE_INTRO_WORLDSTATEOVERRIDE, s_worldStateZoneSoundOverrides[i]->m_zoneIntroMusicId);
                     SI2::SetZoneMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE, s_worldStateZoneSoundOverrides[i]->m_zoneMusicId);
                     found = 1;
 
@@ -298,7 +298,7 @@ int32_t SI2::UpdateZoneSoundsForWorldState(int32_t areaId, int32_t zoneId, int32
             if (rank < best && GetWorldState(entry->m_worldStateId) == entry->m_worldStateValue) {
                 SI2::SetZoneReverb(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE, s_worldStateZoneSoundOverrides[i]->m_soundProviderPreferencesId);
                 SI2::SetZoneAmbienceID(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE, s_worldStateZoneSoundOverrides[i]->m_soundAmbienceId);
-                SI2::SetZoneIntroMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE_INTRO, s_worldStateZoneSoundOverrides[i]->m_zoneIntroMusicId);
+                SI2::SetZoneIntroMusicID(SI2::ZONE_SOUND_TYPE::SI2ZONESOUNDTYPE_INTRO_WORLDSTATEOVERRIDE, s_worldStateZoneSoundOverrides[i]->m_zoneIntroMusicId);
                 SI2::SetZoneMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE, s_worldStateZoneSoundOverrides[i]->m_zoneMusicId);
                 found = 1;
                 best = rank;
@@ -320,7 +320,7 @@ int32_t SI2::UpdateZoneSoundsForWorldState(int32_t areaId, int32_t zoneId, int32
                 if (GetWorldState(entry->m_worldStateId) == entry->m_worldStateValue) {
                     SI2::SetZoneReverb(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE, s_worldStateZoneSoundOverrides[i]->m_soundProviderPreferencesId);
                     SI2::SetZoneAmbienceID(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE, s_worldStateZoneSoundOverrides[i]->m_soundAmbienceId);
-                    SI2::SetZoneIntroMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE_INTRO, s_worldStateZoneSoundOverrides[i]->m_zoneIntroMusicId);
+                    SI2::SetZoneIntroMusicID(SI2::ZONE_SOUND_TYPE::SI2ZONESOUNDTYPE_INTRO_WORLDSTATEOVERRIDE, s_worldStateZoneSoundOverrides[i]->m_zoneIntroMusicId);
                     SI2::SetZoneMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE, s_worldStateZoneSoundOverrides[i]->m_zoneMusicId);
                     found = 1;
 
@@ -338,7 +338,7 @@ int32_t SI2::UpdateZoneSoundsForWorldState(int32_t areaId, int32_t zoneId, int32
 
     SI2::SetZoneReverb(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE, -1);
     SI2::SetZoneAmbienceID(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE, -1);
-    SI2::SetZoneIntroMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE_INTRO, -1);
+    SI2::SetZoneIntroMusicID(SI2::ZONE_SOUND_TYPE::SI2ZONESOUNDTYPE_INTRO_WORLDSTATEOVERRIDE, -1);
     SI2::SetZoneMusicID(SI2::ZONE_SOUND_TYPE::SOURCE_WORLD_STATE, -1);
     return 0;
 }

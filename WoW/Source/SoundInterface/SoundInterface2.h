@@ -118,9 +118,9 @@ class SI2 {
         SOURCE_CHUNK_OVERRIDE = 2,
         SOURCE_AI = 3,
         SOURCE_UNKNOWN_4 = 4,
-        SOURCE_AREA_INTRO = 5,
-        SOURCE_WORLD_STATE_INTRO = 6,
-        SOURCE_CHUNK_INTRO = 7,
+        SI2ZONESOUNDTYPE_INTRO = 5,
+        SI2ZONESOUNDTYPE_INTRO_WORLDSTATEOVERRIDE = 6,
+        SI2ZONESOUNDTYPE_INTRO_OVERRIDE = 7,
         SOURCE_WEATHER = 8,
         SOURCE_UNDERWATER = 9,
         SOURCE_OVERRIDE = 10,
@@ -153,15 +153,8 @@ class SI2 {
     static const int32_t s_channelGroupMaxSounds[SI2_SOUND_GROUP_COUNT];
     static int32_t s_channelGroupNumSounds[SI2_SOUND_GROUP_COUNT];
     static TSGrowableArray<uint32_t> s_suppressors;
-    static int32_t sm_bPlayerInside;
-    static int32_t sm_bCameraIsUnderwater;
-    static int32_t sm_bUnderwaterChanged;
-    static uint32_t sm_nextZoneMusicTime;
-    static int32_t sm_bLuaMusicPlaying;
-    static TSGrowableArray<uint32_t> sm_aIntroMusicNextValidPlayTime;
 
     static SI2_RESULT AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitId, const C3Vector* position, const C3Vector* orientation, SE2SoundKitObject* object, int32_t quickFade, int32_t unknown7, int32_t checkDistance, BOOL forceLoop);
-    static void AIMusicFinished(SESound* sound, void* param);
     static void ApplyReverbSettings();
     static SI2_RESULT AttachToObject(SE2SoundKitObject* object, WOWGUID guid);
     static int32_t ChaosModeUpdate(const void* data, void* param);
@@ -174,6 +167,16 @@ class SI2 {
     static void Detach(SE2SoundKitObject* object);
     static void DSP_AttachCustomDspChain(FMOD::Channel* pFmodChannel, char* name);
     private:
+    static void AIMusicFinished(SESound* sound, void* param);
+    static void IntroMusicFinished(SESound* sound, void* param);
+    static void ZoneMusicFinished(SESound* sound, void* param);
+    static int32_t sm_bPlayerInside;
+    static int32_t sm_bCameraIsUnderwater;
+    static int32_t sm_bUnderwaterChanged;
+    static uint32_t sm_nextZoneMusicTime;
+    static int32_t sm_bLuaMusicPlaying;
+    static TSGrowableArray<uint32_t> sm_aIntroMusicNextValidPlayTime;
+
     static void DSP_CreateDsp(const char* pszDspChainName, SI2_DSP_TYPE type, const float* afParams);
 
     public:
@@ -223,7 +226,6 @@ class SI2 {
     static void InitZoneIntros();
     static void InitZoneSoundOverrides();
     static void InitZoneSoundsHandler();
-    static void IntroMusicFinished(SESound* sound, void* param);
     static int32_t IntroMusicOkToPlay(int32_t soundKitId, ZONE_SOUND_TYPE type);
     static BOOL IsAdvancedSoundNear(int32_t soundKitId, const C3Vector* position);
     static bool IsLooping(SE2SoundKitObject* object);
@@ -269,8 +271,8 @@ class SI2 {
     static void SetWeatherKitID(int32_t soundKitId);
     static void ForceUpdateZoneSounds();
     static void SetZoneAmbienceID(ZONE_SOUND_TYPE type, int32_t soundAmbienceId);
-    static void SetZoneIntroMusicID(ZONE_SOUND_TYPE type, int32_t zoneIntroMusicId);
-    static void SetZoneMusicID(ZONE_SOUND_TYPE type, int32_t zoneMusicId);
+    static void SetZoneIntroMusicID(ZONE_SOUND_TYPE eType, int32_t zoneIntroMusicId);
+    static void SetZoneMusicID(ZONE_SOUND_TYPE eType, int32_t zoneMusicId);
     static void SetZoneReverb(ZONE_SOUND_TYPE type, int32_t reverb);
     static void SetZoneUnderwaterReverb(int32_t reverb);
     static int32_t ShutDown(int32_t restart);
@@ -322,7 +324,6 @@ class SI2 {
     static void VoiceChat_StopRecordingLoopbackSound();
     static void WaterShutdown();
     static int32_t ZoneMusicDelayElapsed(ZONE_SOUND_TYPE type);
-    static void ZoneMusicFinished(SESound* sound, void* param);
     static int32_t ZoneSoundsUpdate(const void* data, void* param);
 };
 

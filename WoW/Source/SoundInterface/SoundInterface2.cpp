@@ -352,7 +352,7 @@ void SI2::StopAllSounds(float fadeOutTime) {
 
 // VERIFY: 218e92b2 auto
 // OFFSET: 0x004C5CE0
-SI2::ZONE_SOUND_TYPE SI2ZoneSoundPair::GetCurrentType() {
+SI2::ZONE_SOUND_TYPE SI2ZoneSoundPair::GetCurrentType() const {
     return this->m_sounds[this->m_current].m_type;
 }
 
