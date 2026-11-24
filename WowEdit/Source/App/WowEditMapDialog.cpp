@@ -5,6 +5,7 @@
 #include <cstdio>
 #include "Engine/Source/Os/Gui.h"
 #include "WowEdit/Source/App/WowEditMapSession.h"
+#include "WowEdit/Source/App/WowEditSession.h"
 #include "WowEdit/Source/App/WowEditWorldView.h"
 
 // See WowEditMapDialog.h.
@@ -20,7 +21,7 @@ static const int32_t EVENT_CLICK = 0;
 static const int32_t EVENT_DOUBLE_CLICK = 1;
 static const int32_t EVENT_CLOSE = 6;
 
-CWowEditMapDialog::CWowEditMapDialog(void* parentWindow) {
+CWowEditMapDialog::CWowEditMapDialog(void* parentWindow, CWowEditSession& session) : m_session(session) {
     // Flag 8: the close box. Not modal: the world keeps drawing behind it.
     this->m_dialog = new COsDialog(parentWindow, 8);
     this->m_dialog->SetTitle("Open Map");
@@ -86,8 +87,14 @@ void CWowEditMapDialog::LoadSelected() {
         return;
     }
 
+    if (this->m_session.AreaEdits().HasUnsavedChanges() || this->m_session.AreaEdits().HasPendingActions()) {
+        OsGuiMessageBox(this->m_dialog->m_handle, OSGUI_MESSAGE_STYLE_OK,
+            "Save the current map's area edits before opening another map.", "Open Map");
+        return;
+    }
+
     this->m_dialog->Show(0);
-    if (!WowEditWorldLoadMap(this->m_mapIds[row], nullptr)) {
+    if (!this->m_session.OpenMap(this->m_mapIds[row], nullptr)) {
         this->m_dialog->Show(1);
         OsGuiMessageBox(this->m_dialog->m_handle, OSGUI_MESSAGE_STYLE_OK,
             "The selected map could not be opened from the configured game data. See the console for details.",

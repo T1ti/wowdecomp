@@ -248,7 +248,8 @@ static bool SetAreaOverlayConstants(CMapRenderChunk* renderChunk) {
     for (uint32_t i = 0; i < MAP_CHUNKS_PER_RENDER_BATCH; i++) {
         CMapChunk* chunk = renderChunk->m_chunks[i];
 
-        if (!chunk || !chunk->m_areaId) {
+        const int32_t areaId = chunk ? WowEditWorldGetAreaId(*chunk) : 0;
+        if (!areaId) {
             continue;
         }
 
@@ -260,7 +261,7 @@ static bool SetAreaOverlayConstants(CMapRenderChunk* renderChunk) {
             continue;
         }
 
-        AreaColor(chunk->m_areaId, constants[WOWEDITCONST_OVERLAY_CHUNK_COLOR + blockX + 2 * blockY]);
+        AreaColor(areaId, constants[WOWEDITCONST_OVERLAY_CHUNK_COLOR + blockX + 2 * blockY]);
         any = true;
     }
 
@@ -277,7 +278,9 @@ static void DrawAreaLabel() {
         return;
     }
 
-    int32_t areaId = CMap::QueryAreaIdTerrain(&s_brushPoint);
+    const C2Vector xy(s_brushPoint.x, s_brushPoint.y);
+    const CMapChunk* chunk = CMap::GetChunkAtPosition(&xy);
+    const int32_t areaId = chunk ? WowEditWorldGetAreaId(*chunk) : 0;
 
     if (!areaId) {
         return;

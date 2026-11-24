@@ -6,7 +6,7 @@
 // After the War3 World Editor's CUndoable / CUndoableGroup: a command that changes map data hands back one undoable
 // object holding what it needs to revert and reapply the change; a brush drag collects one per stroke step in a
 // group, so the whole drag undoes at once. View state (overlays, the brush size) is not undoable, as in War3.
-// Nothing edits map data yet, so the stacks stay empty until the first editing tool lands.
+// The session applies edits and undo/redo in the viewport update before scene preparation.
 
 #ifdef WOWDECOMP_TOOL_FEATURES
 

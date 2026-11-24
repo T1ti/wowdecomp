@@ -61,6 +61,7 @@ class CWowEditApp {
     void DoMenuCommand(int32_t command);
     void GetMenuCommandStatus(int32_t command, bool* enabled, bool* checked);
 
+    static int32_t ConfirmClose(void* param);
     static void OnMenuCommand(const struct OsGuiCallbackParams& params);
 
     void* m_window;

@@ -13,11 +13,12 @@
 
 class COsDialog;
 class COsListBox;
+class CWowEditSession;
 struct OsGuiCallbackParams;
 
 class CWowEditMapDialog {
     public:
-    explicit CWowEditMapDialog(void* parentWindow);
+    CWowEditMapDialog(void* parentWindow, CWowEditSession& session);
     ~CWowEditMapDialog();
 
     // Shows the dialog with the current map selected.
@@ -28,6 +29,7 @@ class CWowEditMapDialog {
     void HandleEvent(int32_t controlId, int32_t event);
     void LoadSelected();
 
+    CWowEditSession& m_session;
     COsDialog* m_dialog;
     COsListBox* m_list;
     TSGrowableArray<int32_t> m_mapIds; // per list row

@@ -10,6 +10,7 @@ static const int32_t MOD_CTRL = 2;
 
 static const WowEditCommandData s_commandTable[] = {
     { WOWEDITCMD_OPEN_MAP, WOWEDITMENU_FILE, "&Open Map...", KEY_O, MOD_CTRL },
+    { WOWEDITCMD_SAVE_AREA_EDITS, WOWEDITMENU_FILE, "&Save Area Edits", KEY_S, MOD_CTRL },
     { WOWEDITCMD_NONE, WOWEDITMENU_FILE, nullptr, KEY_NONE, 0 },
     { WOWEDITCMD_EXIT, WOWEDITMENU_FILE, "E&xit", KEY_NONE, 0 },
 
@@ -45,6 +46,7 @@ static const WowEditCommandData s_commandTable[] = {
     { WOWEDITCMD_VIEW_AZERTY, WOWEDITMENU_VIEW, "A&ZERTY Movement Keys (Z Q S D)", KEY_NONE, 0 },
 
     { WOWEDITCMD_TOOL_BRUSH, WOWEDITMENU_TOOLS, "Terrain &Brush", KEY_B, MOD_CTRL },
+    { WOWEDITCMD_AREA_PAINT, WOWEDITMENU_TOOLS, "Paint &Area IDs", KEY_NONE, 0 },
 
     { WOWEDITCMD_WINDOW_TOOL_PALETTE, WOWEDITMENU_WINDOW, "&Tool Palette", KEY_NONE, 0 },
     { WOWEDITCMD_WINDOW_VIEW_PALETTE, WOWEDITMENU_WINDOW, "&View Palette", KEY_NONE, 0 },

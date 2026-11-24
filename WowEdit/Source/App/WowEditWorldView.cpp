@@ -31,6 +31,7 @@
 #include "WoW/Source/WorldClient/World.h"
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include "WoW/Source/WorldClient/WorldEditHooks.h"
+#include "WowEdit/Source/App/WowEditAreaEdits.h"
 #include "WowEdit/Source/App/WowEditMapSession.h"
 #include "WowEdit/Source/App/WowEditRenderDistance.h"
 #include "WowEdit/Source/WowEdit.h"
@@ -41,6 +42,7 @@ static WorldEditView s_view;
 static bool s_hasFocus = true;
 static HLAYER s_layer;
 static CWowEditMapSession s_map;
+static CWowEditAreaEdits* s_areaEdits;
 static int32_t s_timeOfDay = 12 * 60;
 
 // Camera state: yaw around Z from +X (north), pitch up from the horizon, in radians.
@@ -172,6 +174,7 @@ static void StopLooking() {
 static int32_t OnFocus(const void* data, void* param) {
     s_hasFocus = static_cast<const EVENT_DATA_FOCUS*>(data)->m_focus != 0;
     if (!s_hasFocus) {
+        s_areaEdits->CancelPicks();
         for (bool& held : s_moveKeys) {
             held = false;
         }
@@ -185,7 +188,13 @@ static int32_t OnFocus(const void* data, void* param) {
 static int32_t OnMouseDown(const void* data, void* param) {
     const EVENT_DATA_MOUSE* mouse = static_cast<const EVENT_DATA_MOUSE*>(data);
 
+    if (mouse->m_button == MOUSE_BUTTON_LEFT && s_hasFocus && !s_looking && s_areaEdits->IsPainting()) {
+        s_areaEdits->QueuePick(mouse->m_x, mouse->m_y, (mouse->m_metaKeyState & META_KEY_CONTROL) != 0);
+        return 0;
+    }
+
     if (mouse->m_button == MOUSE_BUTTON_RIGHT) {
+        s_areaEdits->CancelPicks();
         s_looking = true;
         EventSetMouseMode(MOUSE_MODE_RELATIVE, MOUSE_BUTTON_RIGHT);
         // As the game turning its camera (InputControl): no cursor while the mouse turns the view.
@@ -404,6 +413,7 @@ static void UpdateWorld(const CRect& window, float elapsedSec) {
     }
 
     camera->SetupWorldProjection(window);
+    s_areaEdits->ApplyPending(position);
     const WorldStreamingView streaming = UpdateViewInputs(forward);
     UpdateDayNight(forward, elapsedSec);
 
@@ -472,6 +482,16 @@ static void RenderWorld(float elapsedSec) {
             }
         }
 
+        if (s_areaEdits->IsPainting()) {
+            const int32_t selectedArea = s_areaEdits->SelectedArea();
+            char status[112];
+            if (selectedArea) {
+                SStrPrintf(status, sizeof(status), "Area %d: Click to paint a chunk. Ctrl-click to sample.", selectedArea);
+            } else {
+                SStrCopy(status, "Area paint: Ctrl-click terrain to sample an area.", sizeof(status));
+            }
+            GxuDebugDrawText(status, 0.02f, 0.14f, CImVector(0xFF, 0xFF, 0xFF, 0xFF));
+        }
         GxuDebugDrawRender(CWorldScene::s_activeWorldView);
     }
 
@@ -525,7 +545,8 @@ static void PaintWorld(void* param, const RECTF* rect, const RECTF* visible, flo
 
 // ---- Set-up
 
-void WowEditWorldInitialize(void (*setViewportCursor)(bool looking)) {
+void WowEditWorldInitialize(CWowEditAreaEdits& areaEdits, void (*setViewportCursor)(bool looking)) {
+    s_areaEdits = &areaEdits;
     s_setViewportCursor = setViewportCursor;
 
     // CGCamera reads the camera cvars (cameraView...) normally registered by the game interface.
@@ -558,12 +579,17 @@ void WowEditWorldInitialize(void (*setViewportCursor)(bool looking)) {
 void WowEditWorldShutdown() {
     StopLooking();
     s_setViewportCursor = nullptr;
+    s_areaEdits = nullptr;
 
     s_map.Close();
 
     WorldEditSetView(nullptr);
     delete s_view.m_camera;
     s_view.m_camera = nullptr;
+}
+
+int32_t WowEditWorldGetAreaId(const CMapChunk& chunk) {
+    return s_areaEdits->AreaId(chunk);
 }
 
 bool WowEditWorldLoadMap(int32_t mapId, const C3Vector* position) {

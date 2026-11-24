@@ -4,6 +4,7 @@
 
 #include <windows.h>
 #include "Engine/Source/Event/Types.h"
+#include "Engine/Source/Event/Event.h"
 #include "Engine/Source/Os/Gui.h"
 #include "Engine/Source/Os/Input.h"
 #include "WowEdit/Source/App/WowEditCommands.h"
@@ -38,6 +39,7 @@ struct WowEditAppUi {
 void CWowEditApp::OpenShell(CWowEditSession& session) {
     s_attachMessage = RegisterWindowMessageA("WowEditAttach");
     s_app = new CWowEditApp(session);
+    EventSetConfirmCloseCallback(ConfirmClose, s_app);
     OsSetWindowProc(CWowEditApp::WindowProc);
 
     if (void* window = OsGuiGetWindow(OSGUI_WINDOW_TYPE_GX); window && s_attachMessage) {
@@ -46,6 +48,7 @@ void CWowEditApp::OpenShell(CWowEditSession& session) {
 }
 
 void CWowEditApp::CloseShell() {
+    EventSetConfirmCloseCallback(nullptr, nullptr);
     s_app->Detach();
     OsSetWindowProc(nullptr);
     OsGuiSetMenuCommandCallback(nullptr, nullptr);
@@ -184,7 +187,7 @@ void CWowEditApp::Attach(void* window) {
         menu->AddTextItem(position, data.text, data.key != KEY_NONE ? &hotkey : nullptr);
     }
 
-    this->m_ui->mapDialog = new CWowEditMapDialog(window);
+    this->m_ui->mapDialog = new CWowEditMapDialog(window, this->m_session);
     this->m_ui->viewPalette = new CWowEditViewPalette(window);
     this->m_ui->viewPalette->Show(true);
     // Hidden until Window > Render Distance.
@@ -267,6 +270,10 @@ void CWowEditApp::GetMenuCommandStatus(int32_t command, bool* enabled, bool* che
         case WOWEDITCMD_ABOUT:
             return;
 
+        case WOWEDITCMD_SAVE_AREA_EDITS:
+            *enabled = this->m_session.AreaEdits().HasUnsavedChanges();
+            return;
+
         case WOWEDITCMD_WINDOW_VIEW_PALETTE:
             *checked = this->m_ui->viewPalette->IsShowing();
             return;
@@ -280,7 +287,7 @@ void CWowEditApp::GetMenuCommandStatus(int32_t command, bool* enabled, bool* che
             return;
 
         default:
-            this->m_session.Commands().GetCommandStatus(command, enabled, checked);
+            this->m_session.GetCommandStatus(command, enabled, checked);
             return;
     }
 }
@@ -293,6 +300,13 @@ void CWowEditApp::DoMenuCommand(int32_t command) {
     switch (command) {
         case WOWEDITCMD_OPEN_MAP:
             this->m_ui->mapDialog->Open();
+            return;
+
+        case WOWEDITCMD_SAVE_AREA_EDITS:
+            if (!this->m_session.AreaEdits().Save()) {
+                OsGuiMessageBox(this->m_window, OSGUI_MESSAGE_STYLE_OK,
+                    "Area edits could not be saved. Check the console for details and try again.", "Save Area Edits");
+            }
             return;
 
         case WOWEDITCMD_EXIT:
@@ -323,11 +337,34 @@ void CWowEditApp::DoMenuCommand(int32_t command) {
             return;
 
         default:
-            if (this->m_session.Commands().DoCommand(command)) {
+            if (this->m_session.DoCommand(command)) {
                 this->RefreshPalettes();
             }
             return;
     }
+}
+
+int32_t CWowEditApp::ConfirmClose(void* param) {
+    auto* app = static_cast<CWowEditApp*>(param);
+    CWowEditAreaEdits& edits = app->m_session.AreaEdits();
+    if (edits.HasPendingActions()) {
+        return 0;
+    }
+    if (!edits.HasUnsavedChanges()) {
+        return 1;
+    }
+
+    const int32_t choice = OsGuiMessageBox(app->m_window, OSGUI_MESSAGE_STYLE_YESNOCANCEL,
+        "Save the current map's area edits before closing?", "World of Warcraft Editor");
+    if (choice == OSGUI_MESSAGE_RESULT_YESOK) {
+        if (edits.Save()) {
+            return 1;
+        }
+
+        OsGuiMessageBox(app->m_window, OSGUI_MESSAGE_STYLE_OK,
+            "Area edits could not be saved. Check the console for details.", "Save Area Edits");
+    }
+    return choice == OSGUI_MESSAGE_RESULT_NO;
 }
 
 // OsGui menu command callback: type is the menu id, subType the item position.
