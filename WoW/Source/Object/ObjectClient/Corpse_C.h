@@ -16,22 +16,9 @@ class CM2Model;
 
 class CGCorpse_C : public CGObject_C, public CGCorpse {
     public:
-    // Local normal-cache/pose word;replicated CORPSE_FIELD_FLAGS is separate.
-    enum RUNTIME_FLAGS : uint32_t {
-        NONE = 0,
-        GROUND_NORMAL_CACHED = 0x1,
-        DROWNED_POSE = 0x2,
-    };
-
     static void Initialize();
     /* 00D8 */ CPassenger m_passenger;
     /* 0108 */ TSList<void> m_corpseMirrorLists [CGCorpseData::NUM_FIELDS];
-    /* 0270 */ CCharacterComponent* m_component;
-    /* 0274 */ C3Vector m_groundNormal;
-    /* 0280 */ uint32_t m_corpseFlags;
-    /* 0284 */ float m_selectionRadius;
-    /* 0288 */ CM2Model* m_lootEffect;
-    /* 028C */ uint8_t unknown_028C [4];
 
     ~CGCorpse_C() override;
     BOOL ShouldFadeout() override;
@@ -56,13 +43,33 @@ class CGCorpse_C : public CGObject_C, public CGCorpse {
     uint32_t GetFactionTemplate() const;
     const char* GetPortraitTexture() const;
     void PostInit(uint32_t time, const CClientObjCreate& create, bool reenable);
+    C3Vector GetGroundNormal();
+
+    private:
+    // Local normal-cache/pose word;replicated CORPSE_FIELD_FLAGS is separate.
+    enum RUNTIME_FLAGS : uint32_t {
+        NONE = 0,
+        GROUND_NORMAL_CACHED = 0x1,
+        DROWNED_POSE = 0x2,
+    };
+
+    /* 0270 */ CCharacterComponent* m_component;
+    /* 0274 */ C3Vector m_groundNormal;
+    /* 0280 */ uint32_t m_corpseFlags;
+    /* 0284 */ float m_selectionRadius;
+    /* 0288 */ CM2Model* m_lootEffect;
+    /* 028C */ uint8_t unknown_028C [4];
+
+    bool IsClaimed() const {
+        return (this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) != 0;
+    }
+
     void ShowLootEffect();
     void OnFlagChanged(uint32_t oldFlags);
     void OnDynamicFlagChanged(uint32_t oldFlags);
-    C3Vector GetGroundNormal();
+    // Private static callback declarations (inferred).
+    static int32_t CorpseDynamicFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param);
+    static int32_t CorpseFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param);
 };
-
-int32_t CorpseDynamicFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param);
-int32_t CorpseFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param);
 
 #endif

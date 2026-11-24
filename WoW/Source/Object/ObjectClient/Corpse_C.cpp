@@ -88,18 +88,18 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool re
 
     CM2Model* model = this->m_worldModel;
     BOOL useComponent = 1;
-    CreatureDisplayInfoRec* displayRec = g_creatureDisplayInfoDB.GetRecord(this->m_corpse->m_corpseFieldDisplayId);
-    CreatureModelDataRec* modelRec = nullptr;
+    CreatureDisplayInfoRec* displayInfo = g_creatureDisplayInfoDB.GetRecord(this->m_corpse->m_corpseFieldDisplayId);
+    CreatureModelDataRec* modelData = nullptr;
 
-    if (displayRec) {
-        modelRec = g_creatureModelDataDB.GetRecord(displayRec->m_modelID);
+    if (displayInfo) {
+        modelData = g_creatureModelDataDB.GetRecord(displayInfo->m_modelID);
 
-        if (modelRec && !(modelRec->m_flags & CreatureModelDataRec::MODEL_FLAGS::IS_PLAYER_MODEL)) {
+        if (modelData && !(modelData->m_flags & CreatureModelDataRec::MODEL_FLAGS::IS_PLAYER_MODEL)) {
             useComponent = 0;
         }
     }
 
-    if (!(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES)) {
+    if (!this->IsClaimed()) {
         if (useComponent) {
             this->m_component = CCharacterComponent::AllocComponent();
 
@@ -119,7 +119,8 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool re
 
             this->m_component->Init(&data, nullptr);
         } else {
-            CCharacterComponent::ReplaceMonsterSkin(model, displayRec, modelRec);
+            STORM_ASSERT(displayInfo && modelData);
+            CCharacterComponent::ReplaceMonsterSkin(model, displayInfo, modelData);
         }
     }
 
@@ -182,7 +183,7 @@ void CGCorpse_C::PostInit(uint32_t time, const CClientObjCreate& create, bool re
         }
     }
 
-    if (!(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer()) {
+    if (!this->IsClaimed() && this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer()) {
         CGGameUI::SetActiveCorpse(this->m_obj->m_guid);
     }
 }
@@ -263,7 +264,7 @@ float CGCorpse_C::GetTrueScale() const {
 // VERIFY: e46b7590 manual
 // OFFSET: 0x00706590
 BOOL CGCorpse_C::CanHighlight() const {
-    return !(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) || (this->CanBeLooted());
+    return !this->IsClaimed() || (this->CanBeLooted());
 }
 
 // VERIFY: 5ae4217a auto
@@ -301,6 +302,7 @@ void CGCorpse_C::OnFlagChanged(uint32_t oldFlags) {
     }
 
     this->Fadeout();
+    STORM_ASSERT(IsClaimed());
 
     if (this->m_component) {
         CCharacterComponent::FreeComponent(this->m_component);
@@ -352,11 +354,13 @@ void CGCorpse_C::OnDynamicFlagChanged(uint32_t oldFlags) {
 
 // VERIFY: bab5ab7f manual
 // OFFSET: 0x00706240
-int32_t CorpseFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGCorpse_C* corpse = static_cast<CGCorpse_C*>(ClntObjMgrObjectPtr(guid, TYPE_CORPSE, __FILE__, __LINE__));
+int32_t CGCorpse_C::CorpseFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
+    STORM_ASSERT(oldValue);
+    CGCorpse_C* corpsePtr = static_cast<CGCorpse_C*>(ClntObjMgrObjectPtr(guid, TYPE_CORPSE, __FILE__, __LINE__));
+    STORM_ASSERT(corpsePtr);
 
-    if (corpse) {
-        corpse->OnFlagChanged(*static_cast<const uint32_t*>(oldValue));
+    if (corpsePtr) {
+        corpsePtr->OnFlagChanged(*static_cast<const uint32_t*>(oldValue));
     }
 
     return 1;
@@ -364,11 +368,13 @@ int32_t CorpseFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fie
 
 // VERIFY: c5f353fa manual
 // OFFSET: 0x00706280
-int32_t CorpseDynamicFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
-    CGCorpse_C* corpse = static_cast<CGCorpse_C*>(ClntObjMgrObjectPtr(guid, TYPE_CORPSE, __FILE__, __LINE__));
+int32_t CGCorpse_C::CorpseDynamicFlagUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fieldSize, const void* oldValue, void* param) {
+    STORM_ASSERT(oldValue);
+    CGCorpse_C* corpsePtr = static_cast<CGCorpse_C*>(ClntObjMgrObjectPtr(guid, TYPE_CORPSE, __FILE__, __LINE__));
+    STORM_ASSERT(corpsePtr);
 
-    if (corpse) {
-        corpse->OnDynamicFlagChanged(*static_cast<const uint32_t*>(oldValue));
+    if (corpsePtr) {
+        corpsePtr->OnDynamicFlagChanged(*static_cast<const uint32_t*>(oldValue));
     }
 
     return 1;
@@ -408,7 +414,7 @@ void CGCorpse_C::PostReenable() {
 int32_t CGCorpse_C::GetModelFileName(const char** name) const {
     static char s_modelName[260];
 
-    if (this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) {
+    if (this->IsClaimed()) {
         ChrRacesRec* race = g_chrRacesDB.GetRecord(this->m_corpse->m_corpseFieldBytes1[1]);
 
         if (!race) {
@@ -448,7 +454,7 @@ void CGCorpse_C::ShouldRender(uint32_t flags, int32_t& render, int32_t& hidden) 
         if (this->m_component) {
             this->m_component->Prep();
         }
-    } else if (((this->m_corpseFlags & CGCorpse_C::RUNTIME_FLAGS::DROWNED_POSE) && (this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES)) || (this->m_component && !this->m_component->RenderPrep(0))) {
+    } else if (((this->m_corpseFlags & CGCorpse_C::RUNTIME_FLAGS::DROWNED_POSE) && this->IsClaimed()) || (this->m_component && !this->m_component->RenderPrep(0))) {
         hidden = 1;
     }
 }
@@ -459,7 +465,7 @@ void CGCorpse_C::Disable() {
     CGObject_C::Disable();
     this->m_passenger.m_link.Unlink();
 
-    if (!(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer()) {
+    if (!this->IsClaimed() && this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer()) {
         CGGameUI::SetActiveCorpse(WOWGUID());
     }
 
@@ -487,7 +493,7 @@ void CGCorpse_C::Reenable() {
         this->AddWorldObject();
     }
 
-    if (!(this->m_corpse->m_corpseFieldFlags & CORPSE_FIELD_FLAGS::CORPSE_FIELD_FLAG_BONES) && this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer()) {
+    if (!this->IsClaimed() && this->m_corpse->m_corpseFieldOwner == ClntObjMgrGetActivePlayer()) {
         CGGameUI::SetActiveCorpse(this->m_obj->m_guid);
     }
 }
