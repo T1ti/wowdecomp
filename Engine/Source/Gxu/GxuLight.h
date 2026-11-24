@@ -6,7 +6,7 @@
 #include "Engine/Source/Gx/CGxLight.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C3Vector.h"
-#include "Engine/Source/Tempest/CMemBlock.h"
+#include "Engine/Source/Tempest/cpriorityq.h"
 
 struct CGxuLight;
 struct CLightList;
@@ -42,12 +42,8 @@ struct CLightList : public TSHashObject<CLightList, HASHKEY_DWORD> {
     ~CLightList();
 };
 
-class CGxuLightQueue : public CMemBlock {
+class CGxuLightQueue : public CPriorityQ<CGxuLight*> {
     public:
-    /* 0014 */ uint32_t m_chunk;
-    /* 0018 */ uint32_t m_capacity;
-    /* 001C */ uint32_t m_count;
-
     CGxuLightQueue(const uint32_t (&params)[2]);
 };
 

@@ -6,7 +6,7 @@
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "Engine/Source/Tempest/CImVector.h"
 #include "Engine/Source/Storm/H/stpl.h"
-#include "Engine/Source/Tempest/CMemBlock.h"
+#include "Engine/Source/Tempest/cpriorityq.h"
 #include "WoW/Source/WorldClient/DayNight.h"
 #include "WoW/Source/WorldClient/MapLoad.h"
 
@@ -19,14 +19,9 @@ struct FogQ {
     /* 0004 */ uint32_t m_fogIndex;
 };
 
-class FogQueue : public CMemBlock {
+class FogQueue : public CPriorityQ<FogQ> {
     public:
-    /* 0014 */ uint32_t m_chunk;
-    /* 0018 */ uint32_t m_capacity;
-    /* 001C */ uint32_t m_count;
-
     FogQueue(const uint32_t* params);
-    void Erase(uint32_t index, uint32_t count);
     FogQ Pop();
     void Push(float distance, uint32_t fogIndex);
 };

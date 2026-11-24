@@ -47,26 +47,6 @@ CMapStaticEntity::CMapStaticEntity() {
     this->m_culled = CULL_UNTESTED;
 }
 
-// VERIFY: cd4cc195 auto
-// OFFSET: 0x007A0C70
-void FogQueue::Erase(uint32_t index, uint32_t count) {
-    if (index >= this->m_count) {
-        return;
-    }
-
-    if (index + count > this->m_count) {
-        count = this->m_count - index;
-    }
-
-    uint32_t tail = this->m_count - index - count;
-
-    if (tail) {
-        memmove(this->m_data + sizeof(FogQ) * index, this->m_data + sizeof(FogQ) * (index + count), sizeof(FogQ) * tail);
-    }
-
-    this->m_count -= count;
-}
-
 // VERIFY: 67998dc9 manual
 // OFFSET: 0x007A0CD0
 void SMOFog::Fogs::Blend(const Fogs& fogs, float t) {
@@ -79,75 +59,31 @@ void SMOFog::Fogs::Blend(const Fogs& fogs, float t) {
 
 // VERIFY: a41b0f80 manual
 // OFFSET: 0x007A0ED0
-FogQueue::FogQueue(const uint32_t* params) : CMemBlock(sizeof(FogQ) * params[0], 0, typeid(FogQ).raw_name(), SLOG_OBJECT) {
-    uint32_t count = params[0];
-    uint32_t chunk = params[1];
-
-    this->m_chunk = chunk;
-    this->m_capacity = count;
-    this->m_count = 0;
-
-    if (count) {
-        this->m_count++;
-        return;
-    }
-
-    if (!chunk) {
-        return;
-    }
-
-    uint32_t grow = chunk;
-
-    if (grow <= 1 - count) {
-        grow = 1 - count;
-    }
-
-    if (this->Resize(sizeof(FogQ) * (grow + count), true)) {
-        this->m_capacity += grow;
-        this->m_count++;
-    }
+FogQueue::FogQueue(const uint32_t* params) : CPriorityQ<FogQ>(params) {
 }
 
 // VERIFY: 307e1c8c manual
 // OFFSET: 0x007A0F50
 void FogQueue::Push(float distance, uint32_t fogIndex) {
-    if (this->m_count + 1 <= this->m_capacity) {
-        this->m_count++;
-    } else if (this->m_chunk) {
-        uint32_t grow = this->m_chunk;
+    this->Grow();
+    uint32_t index = this->Used() - 1;
 
-        if (grow <= this->m_count - this->m_capacity + 1) {
-            grow = this->m_count - this->m_capacity + 1;
-        }
-
-        if (this->Resize(sizeof(FogQ) * (grow + this->m_capacity), true)) {
-            this->m_capacity += grow;
-            this->m_count++;
-        }
-    }
-
-    FogQ* data = reinterpret_cast<FogQ*>(this->m_data);
-    uint32_t index = this->m_count - 1;
-
-    if (this->m_count != 1 && index != 1) {
+    if (this->Used() != 1 && index != 1) {
         uint32_t parent;
 
         do {
-            data = reinterpret_cast<FogQ*>(this->m_data);
             parent = index >> 1;
 
-            if (distance < data[parent].m_distance) {
+            if (distance < (*this)[parent].m_distance) {
                 break;
             }
 
-            data[index] = data[parent];
+            (*this)[index] = (*this)[parent];
             index >>= 1;
         } while (parent > 1);
     }
-
-    data = reinterpret_cast<FogQ*>(this->m_data);
-    data[index].m_distance = distance;
-    data[index].m_fogIndex = fogIndex;
+    (*this)[index].m_distance = distance;
+    (*this)[index].m_fogIndex = fogIndex;
 }
 
 // VERIFY: eeb1ad46 manual
@@ -234,7 +170,7 @@ int32_t CMapEntity::QueryCameraFog(SMOFog* fog, CMapObjDef** mapObjDef, uint8_t*
         }
     }
 
-    while (s_fogQueue.m_count > 1) {
+    while (!s_fogQueue.Empty()) {
         FogQ entry = s_fogQueue.Pop();
         const SMOFog& groupFog = owner->m_fogList[entry.m_fogIndex];
         float clamped = entry.m_distance;
@@ -255,7 +191,7 @@ int32_t CMapEntity::QueryCameraFog(SMOFog* fog, CMapObjDef** mapObjDef, uint8_t*
 
         fog->m_fogs.Blend(groupFog.m_fogs, weight);
 
-        if (s_fogQueue.m_count == 1) {
+        if (s_fogQueue.Used() == 1) {
             fog->m_flags = groupFog.m_flags;
         }
     }
@@ -341,36 +277,34 @@ void CMapStaticEntity::SelectLights(CM2Lighting* lighting) {
 // VERIFY: feea4d8f manual
 // OFFSET: 0x0097E080
 FogQ FogQueue::Pop() {
-    FogQ* data = reinterpret_cast<FogQ*>(this->m_data);
-    FogQ top = data[1];
-    FogQ last = data[this->m_count - 1];
+    FogQ top = (*this)[1];
+    FogQ last = (*this)[this->Used() - 1];
 
-    if (this->m_count) {
-        this->Erase(this->m_count - 1, 1);
+    if (this->Used()) {
+        this->Erase(this->Used() - 1, 1);
     }
 
-    if (this->m_count < 2) {
+    if (this->Used() < 2) {
         return top;
     }
 
-    uint32_t limit = this->m_count - 1;
+    uint32_t limit = this->Used() - 1;
     uint32_t half = limit >> 1;
     uint32_t index = 1;
 
     if (half) {
         while (1) {
             uint32_t child = 2 * index;
-            data = reinterpret_cast<FogQ*>(this->m_data);
 
-            if (child < limit && data[child].m_distance <= data[child + 1].m_distance) {
+            if (child < limit && (*this)[child].m_distance <= (*this)[child + 1].m_distance) {
                 child++;
             }
 
-            if (last.m_distance >= data[child].m_distance) {
+            if (last.m_distance >= (*this)[child].m_distance) {
                 break;
             }
 
-            data[index] = data[child];
+            (*this)[index] = (*this)[child];
             index = child;
 
             if (child > half) {
@@ -379,7 +313,7 @@ FogQ FogQueue::Pop() {
         }
     }
 
-    reinterpret_cast<FogQ*>(this->m_data)[index] = last;
+    (*this)[index] = last;
 
     return top;
 }

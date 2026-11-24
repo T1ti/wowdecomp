@@ -1843,33 +1843,7 @@ void CParticleEmitter2::DetermineIfSimple() {
 
 // VERIFY: 4fbdf517 manual
 // OFFSET: 0x0097D730
-CSortableParticleQueue::CSortableParticleQueue(const uint32_t* params) : CMemBlock(sizeof(CSortableParticleRecord) * params[0], 0, typeid(CSortableParticleRecord).raw_name(), SLOG_OBJECT) {
-    uint32_t count = params[0];
-    uint32_t chunk = params[1];
-
-    this->m_chunk = chunk;
-    this->m_capacity = count;
-    this->m_count = 0;
-
-    if (count) {
-        this->m_count++;
-        return;
-    }
-
-    if (!chunk) {
-        return;
-    }
-
-    uint32_t grow = chunk;
-
-    if (grow <= 1 - count) {
-        grow = 1 - count;
-    }
-
-    if (this->Resize(sizeof(CSortableParticleRecord) * (grow + count), true)) {
-        this->m_capacity += grow;
-        this->m_count++;
-    }
+CSortableParticleQueue::CSortableParticleQueue(const uint32_t* params) : CPriorityQ<CSortableParticleRecord>(params) {
 }
 
 // VERIFY: 8e4b7bac manual
@@ -2085,36 +2059,34 @@ void CParticleEmitter2::StepUpdate(float deltaTime, int32_t child) {
 // VERIFY: c7e311d7 manual
 // OFFSET: 0x0097E080
 CSortableParticleRecord CSortableParticleQueue::Pop() {
-    CSortableParticleRecord* data = reinterpret_cast<CSortableParticleRecord*>(this->m_data);
-    CSortableParticleRecord top = data[1];
-    CSortableParticleRecord last = data[this->m_count - 1];
+    CSortableParticleRecord top = (*this)[1];
+    CSortableParticleRecord last = (*this)[this->Used() - 1];
 
-    if (this->m_count) {
-        this->Erase(this->m_count - 1, 1);
+    if (this->Used()) {
+        this->Erase(this->Used() - 1, 1);
     }
 
-    if (this->m_count < 2) {
+    if (this->Used() < 2) {
         return top;
     }
 
-    uint32_t limit = this->m_count - 1;
+    uint32_t limit = this->Used() - 1;
     uint32_t half = limit >> 1;
     uint32_t index = 1;
 
     if (half) {
         while (1) {
             uint32_t child = 2 * index;
-            data = reinterpret_cast<CSortableParticleRecord*>(this->m_data);
 
-            if (child < limit && data[child].m_depth <= data[child + 1].m_depth) {
+            if (child < limit && (*this)[child].m_depth <= (*this)[child + 1].m_depth) {
                 child++;
             }
 
-            if (last.m_depth >= data[child].m_depth) {
+            if (last.m_depth >= (*this)[child].m_depth) {
                 break;
             }
 
-            data[index] = data[child];
+            (*this)[index] = (*this)[child];
             index = child;
 
             if (child > half) {
@@ -2123,7 +2095,7 @@ CSortableParticleRecord CSortableParticleQueue::Pop() {
         }
     }
 
-    reinterpret_cast<CSortableParticleRecord*>(this->m_data)[index] = last;
+    (*this)[index] = last;
 
     return top;
 }
@@ -2701,66 +2673,28 @@ CParticle2_Model::~CParticle2_Model() {
     }
 }
 
-// VERIFY: 378fed4b auto
-// OFFSET: 0x007A0C70
-void CSortableParticleQueue::Erase(uint32_t index, uint32_t count) {
-    if (index >= this->m_count) {
-        return;
-    }
-
-    if (index + count > this->m_count) {
-        count = this->m_count - index;
-    }
-
-    uint32_t tail = this->m_count - index - count;
-
-    if (tail) {
-        memmove(this->m_data + sizeof(CSortableParticleRecord) * index, this->m_data + sizeof(CSortableParticleRecord) * (index + count), sizeof(CSortableParticleRecord) * tail);
-    }
-
-    this->m_count -= count;
-}
-
 // VERIFY: 4f99cb2d manual
 // OFFSET: 0x007A0F50
 void CSortableParticleQueue::Push(float depth, CParticle2* particle) {
-    if (this->m_count + 1 <= this->m_capacity) {
-        this->m_count++;
-    } else if (this->m_chunk) {
-        uint32_t grow = this->m_chunk;
+    this->Grow();
+    uint32_t index = this->Used() - 1;
 
-        if (grow <= this->m_count - this->m_capacity + 1) {
-            grow = this->m_count - this->m_capacity + 1;
-        }
-
-        if (this->Resize(sizeof(CSortableParticleRecord) * (grow + this->m_capacity), true)) {
-            this->m_capacity += grow;
-            this->m_count++;
-        }
-    }
-
-    CSortableParticleRecord* data = reinterpret_cast<CSortableParticleRecord*>(this->m_data);
-    uint32_t index = this->m_count - 1;
-
-    if (this->m_count != 1 && index != 1) {
+    if (this->Used() != 1 && index != 1) {
         uint32_t parent;
 
         do {
-            data = reinterpret_cast<CSortableParticleRecord*>(this->m_data);
             parent = index >> 1;
 
-            if (depth < data[parent].m_depth) {
+            if (depth < (*this)[parent].m_depth) {
                 break;
             }
 
-            data[index] = data[parent];
+            (*this)[index] = (*this)[parent];
             index >>= 1;
         } while (parent > 1);
     }
-
-    data = reinterpret_cast<CSortableParticleRecord*>(this->m_data);
-    data[index].m_depth = depth;
-    data[index].m_particle = particle;
+    (*this)[index].m_depth = depth;
+    (*this)[index].m_particle = particle;
 }
 
 // VERIFY: 15566d0e auto

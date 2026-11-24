@@ -261,26 +261,6 @@ static const uint8_t s_cloudAlphaTable[12] = { 255, 255, 255, 255, 255, 255, 255
 // STATIC: 0x00AF4BE0
 static C2Vector s_cloudLightCurve[8] = { C2Vector(0.16666667f, 1.0f), C2Vector(0.19444445f, 1.0f), C2Vector(0.2013889f, 1.0f), C2Vector(0.22916667f, 1.0f), C2Vector(0.89583331f, 1.0f), C2Vector(0.9236111f, 1.0f), C2Vector(0.88888890f, 1.0f), C2Vector(0.91666669f, 1.0f) };
 
-// VERIFY: 5ec68a40 auto
-// OFFSET: 0x007A0C70
-void DayNight::LightQueue::Erase(uint32_t index, uint32_t count) {
-    if (index >= this->m_count) {
-        return;
-    }
-
-    if (index + count > this->m_count) {
-        count = this->m_count - index;
-    }
-
-    uint32_t tail = this->m_count - index - count;
-
-    if (tail) {
-        memmove(this->m_data + sizeof(LightQE) * index, this->m_data + sizeof(LightQE) * (index + count), sizeof(LightQE) * tail);
-    }
-
-    this->m_count -= count;
-}
-
 // VERIFY: bd10d666 manual
 // OFFSET: 0x007EB160
 static C3Vector GetLightPosition(const LightRec* const* light) {
@@ -1874,68 +1854,28 @@ void DayNight::RenderSky(CPortalView* view) {
 
 // VERIFY: 9ccd52e0 manual
 // OFFSET: 0x007F0D40
-DayNight::LightQueue::LightQueue(const uint32_t* params) : CMemBlock(sizeof(LightQE) * params[0], 0, typeid(LightQE).raw_name(), SLOG_OBJECT) {
-    uint32_t count = params[0];
-    uint32_t chunk = params[1];
-
-    this->m_chunk = chunk;
-    this->m_capacity = count;
-    this->m_count = 0;
-
-    if (count) {
-        this->m_count++;
-        return;
-    }
-
-    if (!chunk) {
-        return;
-    }
-
-    uint32_t grow = chunk;
-
-    if (grow <= 1 - count) {
-        grow = 1 - count;
-    }
-
-    if (this->Resize(sizeof(LightQE) * (grow + count), true)) {
-        this->m_capacity += grow;
-        this->m_count++;
-    }
+DayNight::LightQueue::LightQueue(const uint32_t* params) : CPriorityQ<LightQE>(params) {
 }
 
 // VERIFY: 2cb38e62 manual
 // OFFSET: 0x007F0DC0
 void DayNight::LightQueue::Push(LightQE entry) {
-    if (this->m_count + 1 <= this->m_capacity) {
-        this->m_count++;
-    } else if (this->m_chunk) {
-        uint32_t grow = this->m_chunk;
+    this->Grow();
 
-        if (grow <= this->m_count - this->m_capacity + 1) {
-            grow = this->m_count - this->m_capacity + 1;
-        }
-
-        if (this->Resize(sizeof(LightQE) * (grow + this->m_capacity), true)) {
-            this->m_capacity += grow;
-            this->m_count++;
-        }
-    }
-
-    uint32_t index = this->m_count - 1;
+    uint32_t index = this->Used() - 1;
 
     while (index > 1) {
         uint32_t parent = index >> 1;
-        LightQE* data = reinterpret_cast<LightQE*>(this->m_data);
 
-        if (!LightQE::HasHigherPriority(entry, data[parent])) {
+        if (!LightQE::HasHigherPriority(entry, (*this)[parent])) {
             break;
         }
 
-        data[index] = data[parent];
+        (*this)[index] = (*this)[parent];
         index = parent;
     }
 
-    reinterpret_cast<LightQE*>(this->m_data)[index] = entry;
+    (*this)[index] = entry;
 }
 
 // VERIFY: e8928dc7 auto
@@ -1995,39 +1935,37 @@ void DayNight::ResetFogAccumulators(bool updateClouds) {
 // VERIFY: 75e3ef0e manual
 // OFFSET: 0x007F1280
 DayNight::LightQE DayNight::LightQueue::Pop() {
-    LightQE* data = reinterpret_cast<LightQE*>(this->m_data);
-    LightQE top = data[1];
-    LightQE last = data[this->m_count - 1];
+    LightQE top = (*this)[1];
+    LightQE last = (*this)[this->Used() - 1];
 
-    if (this->m_count) {
-        this->Erase(this->m_count - 1, 1);
+    if (this->Used()) {
+        this->Erase(this->Used() - 1, 1);
     }
 
-    if (this->m_count < 2) {
+    if (this->Used() < 2) {
         return top;
     }
 
-    uint32_t limit = this->m_count - 1;
+    uint32_t limit = this->Used() - 1;
     uint32_t half = limit >> 1;
     uint32_t index = 1;
 
     while (index <= half) {
         uint32_t child = 2 * index;
-        data = reinterpret_cast<LightQE*>(this->m_data);
 
-        if (child < limit && LightQE::HasHigherPriority(data[child + 1], data[child])) {
+        if (child < limit && LightQE::HasHigherPriority((*this)[child + 1], (*this)[child])) {
             child++;
         }
 
-        if (LightQE::HasHigherPriority(last, data[child])) {
+        if (LightQE::HasHigherPriority(last, (*this)[child])) {
             break;
         }
 
-        data[index] = data[child];
+        (*this)[index] = (*this)[child];
         index = child;
     }
 
-    reinterpret_cast<LightQE*>(this->m_data)[index] = last;
+    (*this)[index] = last;
 
     return top;
 }
@@ -2076,7 +2014,7 @@ void DayNight::DoAreaLights(CurrentLight* light, int32_t underwater) {
         }
     }
 
-    while (queue.m_count > 1) {
+    while (!queue.Empty()) {
         LightQE entry = queue.Pop();
         DayNight::BlendAreaLight(light, *entry.m_light, underwater, 1.0f);
     }

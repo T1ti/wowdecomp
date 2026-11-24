@@ -11,7 +11,7 @@
 #include "Engine/Source/Tempest/CMath.h"
 #include "Engine/Source/Tempest/CRange.h"
 #include "Engine/Source/Tempest/CImVector.h"
-#include "Engine/Source/Tempest/CMemBlock.h"
+#include "Engine/Source/Tempest/cpriorityq.h"
 #include "Engine/Source/Storm/H/stpl.h"
 
 class LightFloatBandRec;
@@ -353,14 +353,9 @@ class LightQE {
     /* 0004 */ const LightRec** m_light;
 };
 
-class LightQueue : public CMemBlock {
+class LightQueue : public CPriorityQ<LightQE> {
     public:
-    /* 0014 */ uint32_t m_chunk;
-    /* 0018 */ uint32_t m_capacity;
-    /* 001C */ uint32_t m_count;
-
     LightQueue(const uint32_t* params);
-    void Erase(uint32_t index, uint32_t count);
     LightQE Pop();
     void Push(LightQE entry);
 };

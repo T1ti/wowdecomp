@@ -13,7 +13,7 @@
 #include "Engine/Source/Tempest/C4Quaternion.h"
 #include "Engine/Source/Tempest/CAaBox.h"
 #include "Engine/Source/Tempest/CImVector.h"
-#include "Engine/Source/Tempest/CMemBlock.h"
+#include "Engine/Source/Tempest/cpriorityq.h"
 #include "Engine/Source/Tempest/CRandom.h"
 
 class C2Vector;
@@ -65,14 +65,9 @@ struct CSortableParticleRecord {
     /* 0004 */ CParticle2* m_particle;
 };
 
-class CSortableParticleQueue : public CMemBlock {
+class CSortableParticleQueue : public CPriorityQ<CSortableParticleRecord> {
     public:
-    /* 0014 */ uint32_t m_chunk;
-    /* 0018 */ uint32_t m_capacity;
-    /* 001C */ uint32_t m_count;
-
     CSortableParticleQueue(const uint32_t* params);
-    void Erase(uint32_t index, uint32_t count);
     CSortableParticleRecord Pop();
     void Push(float depth, CParticle2* particle);
 };
