@@ -457,63 +457,63 @@ void DBCache_RegisterHandlers() {
 // VERIFY: 4b275620 auto
 // OFFSET: 0x00635C70
 void DBCache_ClearTemporaryCaches() {
-    if (!g_creatureDBCache.m_enabled) {
+    if (!g_creatureDBCache.IsEnabled()) {
         g_creatureDBCache.Clear();
     }
 
-    if (!g_gameObjectDBCache.m_enabled) {
+    if (!g_gameObjectDBCache.IsEnabled()) {
         g_gameObjectDBCache.Clear();
     }
 
-    if (!g_itemDBCache.m_enabled) {
+    if (!g_itemDBCache.IsEnabled()) {
         g_itemDBCache.Clear();
     }
 
-    if (!g_itemNameDBCache.m_enabled) {
+    if (!g_itemNameDBCache.IsEnabled()) {
         g_itemNameDBCache.Clear();
     }
 
-    if (!g_npcTextDBCache.m_enabled) {
+    if (!g_npcTextDBCache.IsEnabled()) {
         g_npcTextDBCache.Clear();
     }
 
-    if (!g_nameDBCache.m_enabled) {
+    if (!g_nameDBCache.IsEnabled()) {
         g_nameDBCache.Clear();
     }
 
-    if (!g_guildInfoCache.m_enabled) {
+    if (!g_guildInfoCache.IsEnabled()) {
         g_guildInfoCache.Clear();
     }
 
-    if (!g_questDBCache.m_enabled) {
+    if (!g_questDBCache.IsEnabled()) {
         g_questDBCache.Clear();
     }
 
-    if (!g_pageTextCache.m_enabled) {
+    if (!g_pageTextCache.IsEnabled()) {
         g_pageTextCache.Clear();
     }
 
-    if (!g_petNameCache.m_enabled) {
+    if (!g_petNameCache.IsEnabled()) {
         g_petNameCache.Clear();
     }
 
-    if (!g_petitionCache.m_enabled) {
+    if (!g_petitionCache.IsEnabled()) {
         g_petitionCache.Clear();
     }
 
-    if (!g_itemTextDBCache.m_enabled) {
+    if (!g_itemTextDBCache.IsEnabled()) {
         g_itemTextDBCache.Clear();
     }
 
-    if (!g_wardenCache.m_enabled) {
+    if (!g_wardenCache.IsEnabled()) {
         g_wardenCache.Clear();
     }
 
-    if (!g_arenaTeamCache.m_enabled) {
+    if (!g_arenaTeamCache.IsEnabled()) {
         g_arenaTeamCache.Clear();
     }
 
-    if (!g_danceCache.m_enabled) {
+    if (!g_danceCache.IsEnabled()) {
         g_danceCache.Clear();
     }
 }
@@ -616,7 +616,7 @@ void DBCache<NameCache, uint64_t, CHashKeyGUID>::Invalidate(uint64_t key) {
 
     if (!hash->m_loaded) {
         this->DenyItem(key);
-    } else if (hash->m_dispatching) {
+    } else if (hash->m_cbInUse) {
         hash->m_invalidatePending = true;
     } else {
         this->RemoveReverseEntry(hash->m_record.m_name);
@@ -634,7 +634,7 @@ void DBCache<NameCache, uint64_t, CHashKeyGUID>::AddItem(NameCache* item, uint64
         hash = this->m_entries.New(DBCacheHashKey(key), key, 0, 0);
     }
 
-    hash->m_dispatching = true;
+    hash->m_cbInUse = true;
     hash->m_record.Copy(*item);
     hash->m_loaded = true;
     hash->m_id = key;
@@ -648,7 +648,7 @@ void DBCache<NameCache, uint64_t, CHashKeyGUID>::AddItem(NameCache* item, uint64
 
     hash->m_callbacks.Clear();
     bool invalidate = hash->m_invalidatePending;
-    hash->m_dispatching = false;
+    hash->m_cbInUse = false;
 
     if (invalidate) {
         this->Invalidate(key);

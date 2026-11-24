@@ -34,24 +34,26 @@ struct DBCACHECALLBACK : public TSLinkedNode<DBCACHECALLBACK> {
 
 template <class T, class TKey, class THashKey>
 class DBCache : public Blizzard::Using::GlobalUse {
-    public:
+    private:
     struct DBCACHEHASH : public TSHashObject<DBCACHEHASH, THashKey> {
         T m_record;
         TKey m_id;
         bool m_loaded;
         TSList<DBCACHECALLBACK> m_callbacks;
         bool m_noSave;
-        bool m_dispatching;
+        bool m_cbInUse;
         bool m_invalidatePending;
         TSLink<DBCACHEHASH> m_pendingLink;
 
         ~DBCACHEHASH();
     };
 
+    public:
     struct REVERSEENTRY : public TSHashObject<REVERSEENTRY, HASHKEY_CONSTSTR> {
         T* m_record;
     };
 
+    private:
     /* 0008 */ TSHashTable<DBCACHEHASH, THashKey> m_entries;
     /* 0030 */ uint32_t m_signature;
     /* 0034 */ const char* m_fileName;
@@ -67,6 +69,7 @@ class DBCache : public Blizzard::Using::GlobalUse {
     /* 0054 */ TSExplicitList<DBCACHEHASH, offsetof(DBCACHEHASH, m_pendingLink)> m_pending;
     /* 0060 */ TSHashTable<REVERSEENTRY, HASHKEY_CONSTSTR> m_reverse;
 
+    public:
     virtual void InvalidateIntKey(int32_t key);
 
     DBCache(uint32_t signature, const char* fileName, uint32_t queryOpcode, uint32_t multipleQueryOpcode, bool sendRequester, bool enabled, uint32_t queriesPerMinute);
@@ -76,6 +79,7 @@ class DBCache : public Blizzard::Using::GlobalUse {
     void CancelCallback(TKey key, void (*callback)(int32_t id, const WOWGUID& guid, void* param, bool success), void* param);
     void Clear();
     void ClearPending();
+    bool IsEnabled() const { return this->m_enabled; } // (inferred)
     void DenyItem(TKey key);
     T* GetRecord(TKey key, const WOWGUID& guid, void (*callback)(int32_t id, const WOWGUID& guid, void* param, bool success), void* param, bool unique);
     void Destroy();
@@ -89,9 +93,11 @@ class DBCache : public Blizzard::Using::GlobalUse {
     bool QueryLimitReached();
     void RetryItem(TKey key);
     void Save();
-    void SendSingleQuery(DBCACHEHASH* hash);
     void SetTemporary(TKey key);
     void VerifyAndUpdateVersion(uint32_t version);
+
+    private:
+    void SendSingleQuery(DBCACHEHASH* hash);
 };
 
 void DBCacheReadKey(CDataStore& msg, int32_t& key);
@@ -356,7 +362,7 @@ void DBCache<T, TKey, THashKey>::CancelCallback(TKey key, void (*callback)(int32
         return;
     }
 
-    if (hash->m_dispatching) {
+    if (hash->m_cbInUse) {
         ConsolePrintf("DBCache::CancelCallback ignored for id %016I64X.", static_cast<int64_t>(key));
         return;
     }
@@ -408,15 +414,17 @@ template <class T, class TKey, class THashKey>
 void DBCache<T, TKey, THashKey>::ClearPending() {
     STORM_ASSERT(this->m_created);
 
-    DBCACHEHASH* hash = this->m_entries.m_fulllist.Head();
+    DBCACHEHASH* obj = this->m_entries.m_fulllist.Head();
 
-    while (hash) {
-        if (hash->m_loaded) {
-            hash = this->m_entries.Next(hash);
+    while (obj) {
+        STORM_ASSERT(!obj->m_cbInUse);
+
+        if (obj->m_loaded) {
+            obj = this->m_entries.Next(obj);
         } else {
-            DBCACHEHASH* next = this->m_entries.Next(hash);
-            this->m_entries.Delete(hash);
-            hash = next;
+            DBCACHEHASH* next = this->m_entries.Next(obj);
+            this->m_entries.Delete(obj);
+            obj = next;
         }
     }
 }
@@ -443,41 +451,45 @@ void DBCache<T, TKey, THashKey>::Save() {
     }
 
     void* data;
-    uint32_t written;
+    uint32_t bytesWritten;
 
-    CDataStore header;
-    header.Put(this->m_signature);
-    header.Put(static_cast<uint32_t>(GAME_BUILD));
-    header.Put(SFile::s_locale);
-    header.Put(static_cast<uint32_t>(sizeof(T)));
-    header.Put(T::s_cacheVersion);
-    header.Put(this->m_version);
-    header.Finalize();
-    header.GetDataInSitu(data, header.m_size);
-    OsWriteFile(file, data, header.m_size, &written);
+    CDataStore store;
+    store.Put(this->m_signature);
+    store.Put(static_cast<uint32_t>(GAME_BUILD));
+    store.Put(SFile::s_locale);
+    store.Put(static_cast<uint32_t>(sizeof(T)));
+    store.Put(T::s_cacheVersion);
+    store.Put(this->m_version);
+    store.Finalize();
+    store.GetDataInSitu(data, store.Size());
+    OsWriteFile(file, data, store.Size(), &bytesWritten);
+    STORM_ASSERT(bytesWritten == store.Size());
 
-    CDataStore entry;
+    CDataStore r;
 
     for (DBCACHEHASH* hash = this->m_entries.m_fulllist.Head(); hash; hash = this->m_entries.Next(hash)) {
         if (!hash->m_loaded || hash->m_noSave) {
             continue;
         }
 
-        entry.Reset();
-        DBCacheWriteKey(entry, hash->m_id);
-        uint32_t sizePos = entry.m_size;
-        entry.Put(static_cast<uint32_t>(0));
-        hash->m_record.Pack(&entry);
-        entry.Set(sizePos, static_cast<uint32_t>(entry.m_size - sizeof(TKey) - sizeof(uint32_t)));
-        entry.Finalize();
-        entry.GetDataInSitu(data, entry.m_size);
-        OsWriteFile(file, data, entry.m_size, &written);
+        r.Reset();
+        DBCacheWriteKey(r, hash->m_id);
+        uint32_t sizePos = r.Size();
+        r.Put(static_cast<uint32_t>(0));
+        hash->m_record.Pack(&r);
+        r.Set(sizePos, static_cast<uint32_t>(r.Size() - sizeof(TKey) - sizeof(uint32_t)));
+        r.Finalize();
+        r.GetDataInSitu(data, r.Size());
+        OsWriteFile(file, data, r.Size(), &bytesWritten);
+        STORM_ASSERT(bytesWritten == r.Size());
     }
 
-    TKey nullKey = TKey();
-    uint32_t nullSize = 0;
-    OsWriteFile(file, &nullKey, sizeof(nullKey), &written);
-    OsWriteFile(file, &nullSize, sizeof(nullSize), &written);
+    TKey endMarkerKey = TKey();
+    uint32_t endMarker = 0;
+    OsWriteFile(file, &endMarkerKey, sizeof(endMarkerKey), &bytesWritten);
+    STORM_ASSERT(bytesWritten == sizeof(endMarkerKey));
+    OsWriteFile(file, &endMarker, sizeof(endMarker), &bytesWritten);
+    STORM_ASSERT(bytesWritten == sizeof(endMarker));
     OsCloseFile(file);
 }
 
@@ -542,7 +554,7 @@ void DBCache<T, TKey, THashKey>::AddItems(CDataStore* msg, bool single) {
 
         if (denied) {
             if (hash) {
-                hash->m_dispatching = true;
+                hash->m_cbInUse = true;
 
                 for (DBCACHECALLBACK* node = hash->m_callbacks.Head(); node;) {
                     DBCACHECALLBACK* next = hash->m_callbacks.Next(node);
@@ -550,7 +562,7 @@ void DBCache<T, TKey, THashKey>::AddItems(CDataStore* msg, bool single) {
                     node = next;
                 }
 
-                hash->m_dispatching = false;
+                hash->m_cbInUse = false;
                 this->m_entries.Delete(hash);
             }
         } else {
@@ -558,7 +570,7 @@ void DBCache<T, TKey, THashKey>::AddItems(CDataStore* msg, bool single) {
                 hash = this->m_entries.New(DBCacheHashKey(key), key, 0, 0);
             }
 
-            hash->m_dispatching = true;
+            hash->m_cbInUse = true;
             hash->m_record.Unpack(msg);
             hash->m_loaded = true;
             hash->m_id = key;
@@ -571,7 +583,7 @@ void DBCache<T, TKey, THashKey>::AddItems(CDataStore* msg, bool single) {
 
             hash->m_callbacks.Clear();
             bool invalidate = hash->m_invalidatePending;
-            hash->m_dispatching = false;
+            hash->m_cbInUse = false;
 
             if (invalidate) {
                 this->Invalidate(key);
@@ -592,7 +604,7 @@ void DBCache<T, TKey, THashKey>::AddItem(T* item, TKey key) {
         hash = this->m_entries.New(DBCacheHashKey(key), key, 0, 0);
     }
 
-    hash->m_dispatching = true;
+    hash->m_cbInUse = true;
     hash->m_record = *item;
     hash->m_loaded = true;
     hash->m_id = key;
@@ -605,7 +617,7 @@ void DBCache<T, TKey, THashKey>::AddItem(T* item, TKey key) {
 
     hash->m_callbacks.Clear();
     bool invalidate = hash->m_invalidatePending;
-    hash->m_dispatching = false;
+    hash->m_cbInUse = false;
 
     if (invalidate) {
         this->Invalidate(key);
@@ -624,7 +636,7 @@ void DBCache<T, TKey, THashKey>::DenyItem(TKey key) {
         return;
     }
 
-    hash->m_dispatching = true;
+    hash->m_cbInUse = true;
 
     for (DBCACHECALLBACK* node = hash->m_callbacks.Head(); node;) {
         DBCACHECALLBACK* next = hash->m_callbacks.Next(node);
@@ -632,7 +644,7 @@ void DBCache<T, TKey, THashKey>::DenyItem(TKey key) {
         node = next;
     }
 
-    hash->m_dispatching = false;
+    hash->m_cbInUse = false;
     this->m_entries.Delete(hash);
 }
 
@@ -650,7 +662,7 @@ void DBCache<T, TKey, THashKey>::Invalidate(TKey key) {
 
     if (!hash->m_loaded) {
         this->DenyItem(key);
-    } else if (hash->m_dispatching) {
+    } else if (hash->m_cbInUse) {
         hash->m_invalidatePending = true;
     } else {
         this->m_entries.Delete(hash);

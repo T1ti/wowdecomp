@@ -11,7 +11,7 @@ struct DBCACHETRAILER_GUID {
     /* 0009 */ uint8_t unused_0009 [3];
     /* 000C */ TSList<void> m_callbacks;
     /* 0018 */ uint8_t m_noSave;
-    /* 0019 */ uint8_t m_dispatching;
+    /* 0019 */ uint8_t m_cbInUse;
     /* 001A */ uint8_t m_invalidatePending;
     /* 001B */ uint8_t unused_001B;
     /* 001C */ TSLink<void> m_pendingLink;
