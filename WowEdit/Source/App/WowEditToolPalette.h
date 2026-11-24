@@ -5,7 +5,7 @@
 //
 // A floating COsDialog owned by the Gx window, after the War3 World Editor's tool palette (CToolPalette: brush shape
 // and size beside the tool buttons). For now it holds the brush cursor of the WowEdit library
-// (WowEditTerrainSetBrush, the "wowEditBrush" console command): on/off, radius in yards, inner (falloff) circle as a
+// (WowEditTerrainSetBrush): on/off, radius in yards, inner (falloff) circle as a
 // share of the radius. Tool buttons (raise, lower, flatten, smooth, paint) come with the first editing tool.
 //
 // OsGui reports a dialog's control events to the dialog callback (COsDialog::SetCallback): type is the control id,
@@ -24,7 +24,7 @@ struct OsGuiCallbackParams;
 
 class CWowEditToolPalette {
     public:
-    static const float DEFAULT_RADIUS; // yards, as "wowEditBrush" with no argument
+    static const float DEFAULT_RADIUS; // yards
     static const float DEFAULT_INNER; // of the radius
 
     explicit CWowEditToolPalette(void* parentWindow);

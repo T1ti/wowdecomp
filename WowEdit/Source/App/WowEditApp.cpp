@@ -20,7 +20,6 @@
 
 static const char* const WOWEDIT_WINDOW_TITLE = "World of Warcraft Editor";
 
-static bool s_enabled;
 static CWowEditApp* s_app;
 // Posted to the Gx window to attach outside whatever message revealed it (creation, a format change...).
 static UINT s_attachMessage;
@@ -34,7 +33,7 @@ struct WowEditAppMenus {
 };
 
 // The client runs as a tool (WoW/Source/ClientTool.h): the editor's world view instead of the game.
-static void InitializeWorld() {
+void CWowEditApp::InitializeWorld() {
     const WowEditSettings& settings = WowEditGetSettings();
     WowEditWorldInitialize();
     WowEditWorldSetAzerty(settings.m_azerty);
@@ -45,6 +44,14 @@ static void InitializeWorld() {
 
     if (!WowEditWorldLoadMap(settings.m_mapId, settings.m_hasStart ? &start : nullptr) && settings.m_mapId != 0) {
         WowEditWorldLoadMap(0, nullptr);
+    }
+
+    s_attachMessage = RegisterWindowMessageA("WowEditAttach");
+    s_app = new CWowEditApp();
+    OsSetWindowProc(CWowEditApp::WindowProc);
+
+    if (void* window = OsGuiGetWindow(OSGUI_WINDOW_TYPE_GX); window && s_attachMessage) {
+        s_app->m_attachPending = PostMessageA(static_cast<HWND>(window), s_attachMessage, 0, 0) != 0;
     }
 }
 
@@ -64,29 +71,13 @@ static void ShutdownWorld() {
 static CLIENT_TOOL s_clientTool;
 
 void WowEditAppEnable() {
-    s_enabled = true;
-
     // Before the client starts: the game folder comes from WowEdit.ini.
     WowEditLoadSettings();
     s_clientTool.m_basePath = WowEditGetSettings().m_basePath;
     s_clientTool.m_configFile = WOWEDIT_CONFIG_FILE;
-    s_clientTool.m_initialize = InitializeWorld;
+    s_clientTool.m_initialize = CWowEditApp::InitializeWorld;
     s_clientTool.m_shutdown = ShutdownWorld;
     ClientSetTool(&s_clientTool);
-}
-
-bool WowEditAppEnabled() {
-    return s_enabled;
-}
-
-void WowEditAppStartup() {
-    if (!s_enabled || s_app) {
-        return;
-    }
-
-    s_attachMessage = RegisterWindowMessageA("WowEditAttach");
-    s_app = new CWowEditApp();
-    OsSetWindowProc(CWowEditApp::WindowProc);
 }
 
 // ---- Cursor
@@ -172,9 +163,8 @@ intptr_t CWowEditApp::WindowProc(void* window, uint32_t message, uintptr_t wpara
             return 0;
         }
 
-        if (!app->m_attachPending && window == gxWindow && window != app->m_window) {
-            app->m_attachPending = true;
-            PostMessageA(static_cast<HWND>(window), s_attachMessage, 0, 0);
+        if (s_attachMessage && !app->m_attachPending && window == gxWindow && window != app->m_window) {
+            app->m_attachPending = PostMessageA(static_cast<HWND>(window), s_attachMessage, 0, 0) != 0;
         }
 
         if (window == app->m_window) {

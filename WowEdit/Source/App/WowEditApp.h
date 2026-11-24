@@ -24,10 +24,9 @@
 //   CWowEditToolPalette (WowEditToolPalette.h)  the floating terrain tool palette (brush), a COsDialog.
 //
 // Hookup with the client, which knows nothing of the app:
-//   - WowEditRegisterConsoleCommands (from ClientRegisterConsoleCommands) calls WowEditAppStartup, which sets
-//     OsSetWindowProc: OsWindowProc, the Gx window procedure, hands the messages it does not keep to the app.
-//   - The app attaches on the first message to the window OsGui knows as the Gx window (ConsoleDevice sets it with
-//     OsGuiSetGxWindow after creating the device), and again if the device makes a new window.
+//   - The editor initialization callback calls OsSetWindowProc to receive messages forwarded by the Gx window.
+//   - The app posts an attach message to the window registered by ConsoleDevice, and reattaches if the device
+//     makes a new window.
 //   - OsInputGet already passes every message to OsGuiProcessMessage (menu hotkeys, dialog keyboard navigation).
 //   - Menu commands arrive as WM_COMMAND through OsGuiWindowProc and the OsGui menu command callback.
 //
@@ -46,10 +45,6 @@ class CWowEditUndoer;
 
 // From the WowEdit executable, before main: this run is the editor.
 void WowEditAppEnable();
-bool WowEditAppEnabled();
-
-// From WowEditRegisterConsoleCommands: hooks the Gx window procedure when the app is enabled.
-void WowEditAppStartup();
 
 // The mouse cursor over the 3D view: the Windows arrow, or none while the mouse turns the camera
 // (WowEditWorldIsLooking). For a change of state the cursor would only see at the next WM_SETCURSOR.
@@ -67,7 +62,8 @@ class CWowEditApp {
     static intptr_t WindowProc(void* window, uint32_t message, uintptr_t wparam, intptr_t lparam);
 
     private:
-    friend void WowEditAppStartup();
+    friend void WowEditAppEnable();
+    static void InitializeWorld();
     CWowEditApp();
 
     void Attach(void* window);

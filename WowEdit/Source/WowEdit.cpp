@@ -3,14 +3,8 @@
 #ifdef WOWDECOMP_TOOL_FEATURES
 
 #include <cmath>
-#include "Engine/Source/ConsoleBase/ConsoleCommand.h"
 #include "Engine/Source/ConsoleBase/IConsole.h"
 #include "Engine/Source/Gxu/GxuDebugDraw.h"
-#include "Engine/Source/Storm/H/storm.h"
-#include "WoW/Source/Object/ObjectClient/Player_C.h"
-#include "WoW/Source/ObjectMgrClient/ObjectMgrClient.h"
-#include "WoW/Source/WorldClient/WorldEditHooks.h"
-#include "WowEdit/Source/App/WowEditApp.h"
 #include "WowEdit/Source/WowEditDraw.h"
 #include "WowEdit/Source/WowEditShaders.h"
 #include "WowEdit/Source/WowEditTerrain.h"
@@ -25,27 +19,18 @@ static C3Vector Along(const C3Vector& from, const C3Vector& forward, const C3Vec
     return C3Vector(from.x + forward.x * ahead + right.x * side, from.y + forward.y * ahead + right.y * side, from.z + up);
 }
 
-// The wowEditMarkers overlay (WowEditDraw.h), registered while the command is on: the world editor's markers ahead and to the
-// right of the player, the way screenshots of Blizzard's editor show them, placed on the ground under each position
+// Sample markers near the editor camera, based on screenshots of Blizzard's editor, placed on the ground
 // and tilted to its slope:
 //   - spawn points: cyan directional spheres, spike along each spawn's facing, inside an orientation ring with a red
 //     facing line (the editor also shows a green line, meaning unknown, left out);
 //   - the early editor's look: green half spheres at spawns, and orange half spheres on a red path;
 //   - a flying path: points in an arc a few yards up, joined by lines, with a red directional diamond at each point
 //     pointing to the next one (in the air, so not placed on the ground).
-static void MarkersOverlay(void* param) {
-    CGPlayer_C* player = ClntObjMgrGetActivePlayer() ? static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__)) : nullptr;
-
-    if (!player) {
-        return;
-    }
-
-    C3Vector origin = player->GetPosition();
-    float facing = player->GetFacing();
+void WowEditDrawSampleMarkers(const C3Vector& origin, float facing) {
     C3Vector forward(cosf(facing), sinf(facing), 0.0f);
     C3Vector right(sinf(facing), -cosf(facing), 0.0f);
 
-    // Spawn points, facing forward, left and back-right of the player's facing.
+    // Spawn points, facing forward, left and back-right of the camera heading.
     const float spawnTurns[3] = { 0.0f, 1.5707964f, 3.6651914f };
 
     for (uint32_t i = 0; i < 3; i++) {
@@ -96,25 +81,6 @@ static void MarkersOverlay(void* param) {
     GxuDebugDrawText3D("flying path", C3Vector(middle.x, middle.y, middle.z + 1.5f), WOWEDIT_COLOR_FLY_POINT);
 }
 
-// ---- Console commands
-
-// "1", "on" and "0", "off"; anything else (or nothing) toggles.
-static bool ParseSwitch(const char* arguments, bool current) {
-    if (!arguments || !*arguments) {
-        return !current;
-    }
-
-    if (!SStrCmpI(arguments, "on", STORM_MAX_STR) || !SStrCmpI(arguments, "1", STORM_MAX_STR)) {
-        return true;
-    }
-
-    if (!SStrCmpI(arguments, "off", STORM_MAX_STR) || !SStrCmpI(arguments, "0", STORM_MAX_STR)) {
-        return false;
-    }
-
-    return !current;
-}
-
 // See WowEdit.h.
 void WowEditPrepareTerrainOverlays() {
     const char* reason = nullptr;
@@ -129,222 +95,12 @@ void WowEditPrepareTerrainOverlays() {
     }
 }
 
-static int32_t CCommand_WowEdit(const char* command, const char* arguments) {
-    // "wowEdit test [0-4]": the diagnostic passes (WOWEDITTEST); no number toggles mode 1.
-    if (arguments && !SStrCmpI(arguments, "test", 4)) {
-        const char* value = arguments + 4;
-
-        while (*value == ' ') {
-            value++;
-        }
-
-        int32_t mode;
-
-        if (*value >= '0' && *value <= '9') {
-            mode = *value - '0';
-        } else {
-            mode = ParseSwitch(value, WowEditTerrainGetTest() != WOWEDITTEST_OFF) ? WOWEDITTEST_SHADER : WOWEDITTEST_OFF;
-        }
-
-        WowEditTerrainSetTest(mode);
-
-        static const char* const s_testNames[NUM_WOWEDITTESTS] = {
-            "off",
-            "1: editor shaders, flat magenta, depth tested",
-            "2: editor shaders, flat magenta, no depth test",
-            "3: fixed function, no shaders, opaque",
-            "4: editor shaders, flat magenta, depth tested, drawn late (after the scene)",
-        };
-
-        ConsoleWriteA("WowEdit: test overlay %s", DEFAULT_COLOR, s_testNames[WowEditTerrainGetTest()]);
-
-        if (WowEditTerrainGetTest() != WOWEDITTEST_OFF) {
-            WowEditPrepareTerrainOverlays();
-        }
-
-        return 1;
-    }
-
-    // "wowEdit probe": the next terrain pass prints the Direct3D state of its first draw.
-    if (arguments && !SStrCmpI(arguments, "probe", 5)) {
-        WowEditTerrainProbe();
-        ConsoleWrite("WowEdit: probing the next terrain pass (an overlay or a test mode must be on)", DEFAULT_COLOR);
-        return 1;
-    }
-
-    const char* reason = nullptr;
-    bool supported = WowEditShadersSupported(&reason);
-    ConsoleWriteA("WowEdit: terrain shaders %s%s%s", DEFAULT_COLOR, supported ? "available" : "unavailable (", supported ? "" : reason, supported ? "" : ")");
-
-    for (uint32_t i = 0; i < NUM_WOWEDITSHADERS; i++) {
-        WOWEDITSHADER id = static_cast<WOWEDITSHADER>(i);
-        ConsoleWriteA("  shader %s: %s", DEFAULT_COLOR, WowEditShaderName(id), WowEditShaderState(id));
-    }
-
-    uint32_t passes;
-    uint32_t chunks;
-    WowEditTerrainGetStats(&passes, &chunks);
-    ConsoleWriteA("  terrain pass: %u frames drawn, %u chunks in the last", DEFAULT_COLOR, passes, chunks);
-
-    int32_t grid = WowEditTerrainGetGrid();
-
-    if (grid >= 0) {
-        ConsoleWriteA("  grid: permutation %d", DEFAULT_COLOR, grid);
-    } else {
-        ConsoleWrite("  grid: off", DEFAULT_COLOR);
-    }
-
-    ConsoleWriteA("  slopes: %s", DEFAULT_COLOR, WowEditTerrainGetSlopes() ? "on" : "off");
-    ConsoleWriteA("  overlay: %s", DEFAULT_COLOR, WowEditTerrainGetOverlay() == WOWEDITOVERLAY_AREAS ? "area IDs" : "off");
-
-    if (WowEditTerrainGetBrush() > 0.0f) {
-        float x;
-        float y;
-        float z;
-
-        if (WowEditTerrainGetBrushPoint(&x, &y, &z)) {
-            ConsoleWriteA("  brush: %.2f yards (inner %.2f), at %.2f %.2f %.2f", DEFAULT_COLOR, WowEditTerrainGetBrush(), WowEditTerrainGetBrushInner(), x, y, z);
-        } else {
-            ConsoleWriteA("  brush: %.2f yards, cursor not over terrain", DEFAULT_COLOR, WowEditTerrainGetBrush());
-        }
-    } else {
-        ConsoleWrite("  brush: off", DEFAULT_COLOR);
-    }
-
-    ConsoleWriteA("  test: mode %d", DEFAULT_COLOR, WowEditTerrainGetTest());
-    ConsoleWriteA("  markers: %s", DEFAULT_COLOR, s_markers ? "on" : "off");
-    return 1;
-}
-
-static int32_t CCommand_WowEditGrid(const char* command, const char* arguments) {
-    int32_t grid;
-
-    if (!arguments || !*arguments) {
-        grid = WowEditTerrainGetGrid() >= 0 ? WOWEDITGRID_OFF : 3;
-    } else if (!SStrCmpI(arguments, "off", STORM_MAX_STR)) {
-        grid = WOWEDITGRID_OFF;
-    } else {
-        grid = SStrToInt(arguments);
-
-        if (grid < 0 || grid >= WOWEDITGRID_PERMUTATIONS) {
-            ConsoleWrite("Usage: wowEditGrid [0-3|off]", ERROR_COLOR);
-            return 1;
-        }
-    }
-
-    WowEditTerrainSetGrid(grid);
-
-    if (grid >= 0) {
-        ConsoleWriteA("WowEdit: grid permutation %d", DEFAULT_COLOR, grid);
-        WowEditPrepareTerrainOverlays();
-    } else {
-        ConsoleWrite("WowEdit: grid off", DEFAULT_COLOR);
-    }
-
-    return 1;
-}
-
-static int32_t CCommand_WowEditSlopes(const char* command, const char* arguments) {
-    bool show = ParseSwitch(arguments, WowEditTerrainGetSlopes());
-    WowEditTerrainSetSlopes(show);
-    ConsoleWrite(show ? "WowEdit: impassable slopes on" : "WowEdit: impassable slopes off", DEFAULT_COLOR);
-
-    if (show) {
-        WowEditPrepareTerrainOverlays();
-    }
-
-    return 1;
-}
-
-static int32_t CCommand_WowEditAreas(const char* command, const char* arguments) {
-    bool show = ParseSwitch(arguments, WowEditTerrainGetOverlay() == WOWEDITOVERLAY_AREAS);
-    WowEditTerrainSetOverlay(show ? WOWEDITOVERLAY_AREAS : WOWEDITOVERLAY_OFF);
-    ConsoleWrite(show ? "WowEdit: area overlay on" : "WowEdit: area overlay off", DEFAULT_COLOR);
-
-    if (show) {
-        WowEditPrepareTerrainOverlays();
-    }
-
-    return 1;
-}
-
-// "wowEditBrush [radius [inner]|off]": the brush cursor; no argument toggles a 10-yard brush. The inner (falloff)
-// circle defaults to half the radius; 0 hides it.
-static const float DEFAULT_BRUSH_RADIUS = 10.0f;
-static const float DEFAULT_BRUSH_INNER = 0.5f; // of the radius
-
-static int32_t CCommand_WowEditBrush(const char* command, const char* arguments) {
-    float radius;
-    float inner;
-
-    if (!arguments || !*arguments) {
-        radius = WowEditTerrainGetBrush() > 0.0f ? 0.0f : DEFAULT_BRUSH_RADIUS;
-        inner = radius * DEFAULT_BRUSH_INNER;
-    } else if (!SStrCmpI(arguments, "off", STORM_MAX_STR)) {
-        radius = 0.0f;
-        inner = 0.0f;
-    } else {
-        radius = SStrToFloat(arguments);
-        const char* second = arguments;
-
-        while (*second && *second != ' ') {
-            second++;
-        }
-
-        while (*second == ' ') {
-            second++;
-        }
-
-        inner = *second ? SStrToFloat(second) : radius * DEFAULT_BRUSH_INNER;
-
-        if (!(radius >= 0.0f) || !(inner >= 0.0f)) {
-            ConsoleWrite("Usage: wowEditBrush [radius [inner radius]|off] (yards)", ERROR_COLOR);
-            return 1;
-        }
-    }
-
-    WowEditTerrainSetBrush(radius, inner);
-
-    if (WowEditTerrainGetBrush() > 0.0f) {
-        ConsoleWriteA("WowEdit: brush, %.2f yards, inner circle %.2f", DEFAULT_COLOR, WowEditTerrainGetBrush(), WowEditTerrainGetBrushInner());
-        WowEditPrepareTerrainOverlays();
-    } else {
-        ConsoleWrite("WowEdit: brush off", DEFAULT_COLOR);
-    }
-
-    return 1;
-}
-
 void WowEditSetMarkers(bool show) {
     s_markers = show;
-
-    if (s_markers) {
-        WorldEditRegisterOverlay(MarkersOverlay, nullptr);
-    } else {
-        WorldEditUnregisterOverlay(MarkersOverlay, nullptr);
-    }
 }
 
 bool WowEditGetMarkers() {
     return s_markers;
-}
-
-static int32_t CCommand_WowEditMarkers(const char* command, const char* arguments) {
-    WowEditSetMarkers(ParseSwitch(arguments, s_markers));
-    ConsoleWrite(s_markers ? "WowEdit: markers on" : "WowEdit: markers off", DEFAULT_COLOR);
-    return 1;
-}
-
-void WowEditRegisterConsoleCommands() {
-    // The editor application (WowEdit64.exe) hooks the Gx window here; the plain client does nothing.
-    WowEditAppStartup();
-
-    ConsoleCommandRegister("wowEdit", CCommand_WowEdit, CATEGORY_DEBUG, "WowEdit: shader support and overlays in use");
-    ConsoleCommandRegister("wowEditGrid", CCommand_WowEditGrid, CATEGORY_DEBUG, "WowEdit: terrain grid [0-3|off]");
-    ConsoleCommandRegister("wowEditSlopes", CCommand_WowEditSlopes, CATEGORY_DEBUG, "WowEdit: impassable slopes [0|1]");
-    ConsoleCommandRegister("wowEditAreas", CCommand_WowEditAreas, CATEGORY_DEBUG, "WowEdit: area ID overlay [0|1]");
-    ConsoleCommandRegister("wowEditBrush", CCommand_WowEditBrush, CATEGORY_DEBUG, "WowEdit: terrain brush cursor [radius [inner]|off]");
-    ConsoleCommandRegister("wowEditMarkers", CCommand_WowEditMarkers, CATEGORY_DEBUG, "WowEdit: sample editor markers [0|1]");
 }
 
 #endif

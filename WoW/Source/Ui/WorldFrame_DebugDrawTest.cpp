@@ -21,7 +21,7 @@
 //   - a 3D label above each shape, and a line of screen text and an icon texture under the player frame;
 //   - lines: a red/green/blue axis tripod at the player's feet (world X, Y, Z), a white wire box around the shape
 //     row, and an always-on-top cyan line from the player to each LOD sphere.
-// The editor shapes (directional sphere, rotation ring, directional diamond) are shown by WowEdit's wowEditMarkers.
+// WowEdit's Markers view toggle draws the editor shapes (directional sphere, rotation ring, directional diamond).
 // Without an argument the command toggles.
 
 static bool s_debugDrawTest;

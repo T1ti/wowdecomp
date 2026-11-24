@@ -1,24 +1,13 @@
 #ifndef WOW_SOURCE_WORLDCLIENT_WORLDEDITHOOKS_H
 #define WOW_SOURCE_WORLDCLIENT_WORLDEDITHOOKS_H
 
-// Tool features: the hook points the world editor attaches to (port; no client keeps any editor code).
-//
-// The editor itself lives in WowEdit/ at the repository root, outside the client sources; the client only offers
-// these hooks and calls them when something is attached. Nothing here draws anything.
-//   - overlays: callbacks run once per frame by CGWorldFrame::OnWorldRender, after the scene and before the Gxu
-//     debug-draw queue is drawn, while the world view is set (markers: spawn points, paths, ...);
-//   - the terrain pass: one callback run twice per frame with every terrain render chunk drawn this frame, so the
-//     editor can draw the terrain mesh again with its own shaders (grid, slopes, ...): by CWorldScene::RenderChunks
-//     after the terrain passes, and by CGWorldFrame::OnWorldRender with the overlays, after the rest of the scene. This is an editor pass of its own, apart from the debug-feature zone pass
-//     (CWorldScene::RenderChunksZoneDebug, render list 20).
-
 #ifdef WOWDECOMP_TOOL_FEATURES
 
 #include <cstdint>
 #include "Engine/Source/Tempest/CAaBox.h"
 #include "Engine/Source/Tempest/CRect.h"
 
-class C3Vector;
+// World renderer inputs and terrain geometry callback for WowEdit (port).
 class CGCamera;
 class CMapRenderChunk;
 
@@ -46,36 +35,15 @@ struct WorldEditView {
 void WorldEditSetView(const WorldEditView* view);
 const WorldEditView* WorldEditGetView();
 
-// Overlay callbacks. Registering the same callback and parameter twice keeps one entry.
-typedef void (*WORLDEDITOVERLAY)(void* param);
-void WorldEditRegisterOverlay(WORLDEDITOVERLAY overlay, void* param);
-void WorldEditUnregisterOverlay(WORLDEDITOVERLAY overlay, void* param);
-// From CGWorldFrame::OnWorldRender, before GxuDebugDrawRender.
-void WorldEditRenderOverlays();
-
-// Terrain pass callback (nullptr detaches it). late is false for the call inside CWorldScene::RenderChunks' render-state
-// push, true for the call from CGWorldFrame::OnWorldRender; the world view is set for both, and the pass sets and
-// restores every state it uses. The chunks' vertices are world positions when the terrain vertex shaders are on
-// (CMap::enableTerrainShaderVertex), local to CMapRenderChunk::m_vec1 otherwise (CMapChunk::CreateVertices).
-typedef void (*WORLDEDITTERRAINPASS)(CMapRenderChunk* const* chunks, uint32_t count, bool late);
+// After the terrain draws, the callback can redraw its chunks with the same view and projection.
+typedef void (*WORLDEDITTERRAINPASS)(CMapRenderChunk* const* chunks, uint32_t count);
 void WorldEditSetTerrainPass(WORLDEDITTERRAINPASS pass);
-bool WorldEditTerrainPassActive();
 // Start of terrain rendering, or before releasing the current map.
 void WorldEditClearTerrainChunks();
 // From the terrain passes: records a chunk drawn this frame (only while a terrain pass is attached).
 void WorldEditCollectTerrainChunk(CMapRenderChunk* chunk);
 // From CWorldScene::RenderChunks after the terrain passes, including frames with no visible chunks.
 void WorldEditRenderTerrainPass();
-// With the overlays: runs the late pass and releases the frame's chunk references.
-void WorldEditRenderTerrainPassLate();
-
-// The cursor: the world segment under the mouse, the one CGWorldFrame::OnLayerUpdate picks objects and ground along
-// each frame (CGWorldFrame::HitTestPoint, HITTESTRESULT::m_segment: from the near to the far plane, in world
-// coordinates). From OnLayerUpdate; nullptr, or a segment of zero length, when the cursor is not over the world (the
-// mouse is over another frame, the camera is being turned with the cursor hidden, or a nameplate took the pick).
-void WorldEditSetCursorSegment(const C3Vector* start, const C3Vector* end);
-// The segment of the last update; false when there is none.
-bool WorldEditGetCursorSegment(C3Vector* start, C3Vector* end);
 
 #endif
 

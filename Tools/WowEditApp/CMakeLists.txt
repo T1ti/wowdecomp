@@ -36,6 +36,6 @@ target_include_directories(WowEditApp
 
 target_link_options(WowEditApp PRIVATE "/INCREMENTAL:NO" "/ENTRY:start" "/MAP")
 
-# The same libraries as WowClient (WowEdit among them).
+# Share the client libraries and link the editor implementation here.
 get_target_property(WOWCLIENT_LIBRARIES WowClient LINK_LIBRARIES)
-target_link_libraries(WowEditApp PRIVATE ${WOWCLIENT_LIBRARIES})
+target_link_libraries(WowEditApp PRIVATE WowEdit ${WOWCLIENT_LIBRARIES})

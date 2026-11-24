@@ -34,6 +34,7 @@
 #include "WowEdit/Source/App/WowEditApp.h"
 #include "WowEdit/Source/App/WowEditMapSession.h"
 #include "WowEdit/Source/App/WowEditRenderDistance.h"
+#include "WowEdit/Source/WowEdit.h"
 
 // See WowEditWorldView.h.
 
@@ -266,15 +267,19 @@ static void MoveCamera(float elapsedSec) {
     camera->m_position += move * step;
 }
 
+static bool FindGroundBelow(const C3Vector& position, C3Vector& hit) {
+    C3Vector start(position.x, position.y, 5000.0f);
+    C3Vector end(position.x, position.y, -5000.0f);
+    float distance = 1.0f;
+    return World::Intersect(start, end, &hit, &distance, WORLD_QUERY_TERRAIN, nullptr) != 0;
+}
+
 // A map opened without a position: once the terrain under the camera has loaded, set the camera above it.
 static void DropToGround() {
     CGCamera* camera = Camera();
-    C3Vector start(camera->m_position.x, camera->m_position.y, 5000.0f);
-    C3Vector end(camera->m_position.x, camera->m_position.y, -5000.0f);
     C3Vector hit;
-    float distance = 1.0f;
 
-    if (World::Intersect(start, end, &hit, &distance, WORLD_QUERY_TERRAIN, nullptr)) {
+    if (FindGroundBelow(camera->m_position, hit)) {
         camera->m_position.z = hit.z + DROP_HEIGHT;
         s_dropToGround = false;
     }
@@ -458,9 +463,13 @@ static void RenderWorld(float elapsedSec) {
         GxuFlushDrawList(GxuCat_1, *World::GetCamPos());
         DayNight::RenderGlares();
 
-        // The editor overlays (WorldEditHooks.h) and the Gxu debug-draw queue, as CGWorldFrame::OnWorldRender draws them.
-        WorldEditRenderOverlays();
-        WorldEditRenderTerrainPassLate();
+        if (WowEditGetMarkers()) {
+            C3Vector ground;
+            if (FindGroundBelow(camera->m_position, ground)) {
+                WowEditDrawSampleMarkers(ground, s_yaw);
+            }
+        }
+
         GxuDebugDrawRender(CWorldScene::s_activeWorldView);
     }
 

@@ -85,7 +85,3 @@ target_link_libraries(WowClient
         WowSvcs
         dbghelp
 )
-
-if (WOWDECOMP_TOOL_FEATURES)
-    target_link_libraries(WowClient PRIVATE WowEdit)
-endif ()

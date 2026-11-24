@@ -33,10 +33,9 @@ enum WOWEDITSHADER : uint32_t {
     WOWEDITSHADER_GRID2 = 3, // permutation 2: chunk border band only, chunk (c5) and tile (c6) lines
     WOWEDITSHADER_GRID3 = 4, // permutation 3: cell grid with diagonals (c7), chunk (c5) and tile (c6) lines
     WOWEDITSHADER_SLOPES = 5, // 8.1 woweditimpassableslopes_internal: red at 25% where steeper than 50 degrees
-    WOWEDITSHADER_TEST = 6, // port diagnostic: flat magenta at 40%, to tell the pass from the overlay shaders
-    WOWEDITSHADER_BRUSH = 7, // 8.1 woweditterrainbrush_internal: the brush texture (s0) around c4.xy, radius c6.x, tint c5
-    WOWEDITSHADER_OVERLAYS = 8, // 8.1 woweditoverlays_internal: per-chunk colors c5..c8 plus per-cell colors (s0)
-    NUM_WOWEDITSHADERS = 9,
+    WOWEDITSHADER_BRUSH = 6, // 8.1 woweditterrainbrush_internal: the brush texture (s0) around c4.xy, radius c6.x, tint c5
+    WOWEDITSHADER_OVERLAYS = 7, // 8.1 woweditoverlays_internal: per-chunk colors c5..c8 plus per-cell colors (s0)
+    NUM_WOWEDITSHADERS = 8,
 };
 
 // Pixel shader constant registers, after 8.1 cb11.
