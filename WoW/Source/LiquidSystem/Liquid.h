@@ -49,29 +49,10 @@ namespace Liquid {
         /* 0250 */ VSLight m_lights[3];
     };
 
-    struct VSWaveConstants {
-        /* 0000 */ float m_directionalPhase[4];
-        /* 0010 */ float m_circularPhase[4];
-        /* 0020 */ C4Vector m_directionalWaves[3];
-        /* 0050 */ float unk_0050[4];
-        /* 0060 */ float unk_0060[4];
-        /* 0070 */ C4Vector m_circularWaves[3];
-        /* 00A0 */ float unk_00A0[4];
-        /* 00B0 */ float unk_00B0[4];
-    };
-
     struct PSConstants {
         /* 0000 */ C44Matrix m_modelViewProj;
         /* 0040 */ C4Vector m_fogColor;
         /* 0050 */ C4Vector m_cameraPos;
-    };
-
-    struct PSProcWaterConstants {
-        /* 0000 */ C4Vector m_sunDir;
-        /* 0010 */ C4Vector m_sunAmbient;
-        /* 0020 */ C4Vector m_sunDiffuse;
-        /* 0030 */ C4Vector m_sunSpecular;
-        /* 0040 */ float m_params[8];
     };
 
     class IEnvironment {
@@ -109,15 +90,15 @@ namespace Liquid {
 
     class CMaterialProcWater : public IMaterial {
         public:
-        static int32_t s_refCount;
-        static CGxShader* s_vertexShaders[4];
-        static CGxShader* s_pixelShader;
-
         static CMaterialProcWater* Create();
 
         virtual ~CMaterialProcWater();
         virtual void Release();
         virtual void Render(IEnvironment* environment, IGeomFactory* geomFactory, IWaveManager* waveManager, const C3Vector& cameraPos, const C44Matrix* transform, const CAaSphere* bounds, CMaterialSettings* settings);
+
+        private:
+        static CGxShader* s_vertexShaders[4];
+        static CGxShader* s_pixelShader;
 
         CMaterialProcWater();
     };
@@ -132,30 +113,30 @@ namespace Liquid {
 
     class CMaterialWater : public IMaterial {
         public:
-        static int32_t s_refCount;
-        static CGxShader* s_vertexShaders[4];
-        static CGxShader* s_pixelShader;
-
         static CMaterialWater* Create();
 
         virtual ~CMaterialWater();
         virtual void Release();
         virtual void Render(IEnvironment* environment, IGeomFactory* geomFactory, IWaveManager* waveManager, const C3Vector& cameraPos, const C44Matrix* transform, const CAaSphere* bounds, CMaterialSettings* settings);
 
+        private:
+        static CGxShader* s_vertexShaders[4];
+        static CGxShader* s_pixelShader;
+
         CMaterialWater();
     };
 
     class CMaterialWaterNoSpec : public IMaterial {
         public:
-        static int32_t s_refCount;
-        static CGxShader* s_vertexShaders[4];
-        static CGxShader* s_pixelShader;
-
         static CMaterialWaterNoSpec* Create();
 
         virtual ~CMaterialWaterNoSpec();
         virtual void Release();
         virtual void Render(IEnvironment* environment, IGeomFactory* geomFactory, IWaveManager* waveManager, const C3Vector& cameraPos, const C44Matrix* transform, const CAaSphere* bounds, CMaterialSettings* settings);
+
+        private:
+        static CGxShader* s_vertexShaders[4];
+        static CGxShader* s_pixelShader;
 
         CMaterialWaterNoSpec();
     };
@@ -368,9 +349,7 @@ namespace Liquid {
     extern CTexture* s_oceanDepthTex;
     extern CTexture* s_riverDepthTex;
     extern VSConstants s_vsConstants;
-    extern VSWaveConstants s_vsWaveConstants;
     extern PSConstants s_psConstants;
-    extern PSProcWaterConstants s_psProcWaterConstants;
 
     void CacheProceduralTextures();
     void ClearMaterials();
@@ -381,8 +360,6 @@ namespace Liquid {
     C44Matrix* GetTexScrollMtx(const C2Vector& speed);
     int32_t Initialize(BOOL useCameraRelativeCoords, float worldCoordScale, int32_t shadersEnabled, const char* shaderPostfix, IDatabase<LiquidTypeRec>* liquidTypeDB, IDatabase<LiquidMaterialRec>* liquidMaterialDB);
     void InvalidateProceduralTextures();
-    void SetCircularWave(uint32_t index, const C2Vector& unknown2, const C2Vector& unknown3, float unknown4, float unknown5, float unknown6, float speed);
-    void SetDirectionalWave(uint32_t index, const C2Vector& direction, float unknown3, float unknown4, float unknown5, float speed);
     void SetProcWaterLighting(const CM2Lighting& lighting);
     // Parameters are LiquidType.dbc m_float[11..17] (the first scaled to world coordinates).
     void SetProcWaterParams(float liquidFloat11, float liquidFloat12, float liquidFloat13, float liquidFloat14, float liquidFloat15, float liquidFloat16, float liquidFloat17);

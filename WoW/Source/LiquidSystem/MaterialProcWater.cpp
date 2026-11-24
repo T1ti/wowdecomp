@@ -7,14 +7,36 @@
 #include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/ShaderEffect/Types.h"
 
+static constexpr uint32_t MAX_DIR_WAVES = 3;
+static constexpr uint32_t MAX_RAD_WAVES = 3;
+
+struct VSWaveConstants {
+    /* 0000 */ float m_directionalPhase[4];
+    /* 0010 */ float m_circularPhase[4];
+    /* 0020 */ C4Vector m_directionalWaves[MAX_DIR_WAVES];
+    /* 0050 */ float unk_0050[4];
+    /* 0060 */ float unk_0060[4];
+    /* 0070 */ C4Vector m_circularWaves[MAX_RAD_WAVES];
+    /* 00A0 */ float unk_00A0[4];
+    /* 00B0 */ float unk_00B0[4];
+};
+
+struct PSProcWaterConstants {
+    /* 0000 */ C4Vector m_sunDir;
+    /* 0010 */ C4Vector m_sunAmbient;
+    /* 0020 */ C4Vector m_sunDiffuse;
+    /* 0030 */ C4Vector m_sunSpecular;
+    /* 0040 */ float m_params[8];
+};
+
+// STATIC: 0x00D44C34
+static int32_t s_materialProcWaterRefCnt;
+
 // STATIC: 0x00D4505C
 CDataAllocator Liquid::s_procWaterFFPAllocator(sizeof(Liquid::CMaterialProcWaterFFP), 8);
 
 // STATIC: 0x00D45048
 CDataAllocator Liquid::s_procWaterAllocator(sizeof(Liquid::CMaterialProcWater), 8);
-
-// STATIC: 0x00D44C34
-int32_t Liquid::CMaterialProcWater::s_refCount;
 
 // STATIC: 0x00D44C24
 CGxShader* Liquid::CMaterialProcWater::s_vertexShaders[4];
@@ -23,48 +45,53 @@ CGxShader* Liquid::CMaterialProcWater::s_vertexShaders[4];
 CGxShader* Liquid::CMaterialProcWater::s_pixelShader;
 
 // STATIC: 0x00D44C48
-Liquid::PSProcWaterConstants Liquid::s_psProcWaterConstants;
+static PSProcWaterConstants s_psProcWaterConstants;
 
 // STATIC: 0x00D44F88
-Liquid::VSWaveConstants Liquid::s_vsWaveConstants;
+static VSWaveConstants s_vsWaveConstants;
 
 // VERIFY: 241af1fe manual
 // OFFSET: 0x008A3620
-void Liquid::SetDirectionalWave(uint32_t index, const C2Vector& direction, float unknown3, float unknown4, float unknown5, float speed) {
-    Liquid::s_vsWaveConstants.m_directionalPhase[index] = static_cast<float>(static_cast<uint32_t>(OsGetAsyncTimeMs() * speed) & 0x1FFF) / 1024.0f * TWO_PI;
+static void SetDirectionalWave(uint32_t idx, const C2Vector& direction, float unknown3, float unknown4, float unknown5, float speed) {
+    STORM_ASSERT(idx < MAX_DIR_WAVES);
+
+    s_vsWaveConstants.m_directionalPhase[idx] = static_cast<float>(static_cast<uint32_t>(OsGetAsyncTimeMs() * speed) & 0x1FFF) / 1024.0f * TWO_PI;
 
     float clampedUnknown3 = unknown3 < 0.001f ? 0.001f : unknown3;
-    C4Vector& wave = Liquid::s_vsWaveConstants.m_directionalWaves[index];
+    C4Vector& wave = s_vsWaveConstants.m_directionalWaves[idx];
     wave.x = direction.x;
     wave.y = direction.y;
     wave.z = 1.0f / clampedUnknown3;
     wave.w = unknown5;
 
-    Liquid::s_vsWaveConstants.unk_0050[index] = 1.0f / (unknown4 < 0.001f ? 0.001f : unknown4);
+    s_vsWaveConstants.unk_0050[idx] = 1.0f / (unknown4 < 0.001f ? 0.001f : unknown4);
 }
 
 // VERIFY: ffbfd269 manual
 // OFFSET: 0x008A3710
-void Liquid::SetCircularWave(uint32_t index, const C2Vector& unknown2, const C2Vector& unknown3, float unknown4, float unknown5, float unknown6, float speed) {
-    Liquid::s_vsWaveConstants.m_circularPhase[index] = static_cast<float>(static_cast<uint32_t>(OsGetAsyncTimeMs() * speed) & 0x1FFF) / 1024.0f * TWO_PI;
+// SetRadialWave (inferred)
+static void SetRadialWave(uint32_t idx, const C2Vector& unknown2, const C2Vector& unknown3, float unknown4, float unknown5, float unknown6, float speed) {
+    STORM_ASSERT(idx < MAX_RAD_WAVES);
+
+    s_vsWaveConstants.m_circularPhase[idx] = static_cast<float>(static_cast<uint32_t>(OsGetAsyncTimeMs() * speed) & 0x1FFF) / 1024.0f * TWO_PI;
 
     float invUnknown4 = 1.0f / (unknown4 < 0.001f ? 0.001f : unknown4);
-    Liquid::s_vsWaveConstants.unk_0060[index] = 1.0f / (unknown5 < 0.001f ? 0.001f : unknown5);
+    s_vsWaveConstants.unk_0060[idx] = 1.0f / (unknown5 < 0.001f ? 0.001f : unknown5);
 
-    C4Vector& wave = Liquid::s_vsWaveConstants.m_circularWaves[index];
+    C4Vector& wave = s_vsWaveConstants.m_circularWaves[idx];
     wave.x = unknown2.x;
     wave.y = unknown2.y;
     wave.z = unknown3.x;
     wave.w = unknown3.y;
 
-    Liquid::s_vsWaveConstants.unk_00A0[index] = invUnknown4;
-    Liquid::s_vsWaveConstants.unk_00B0[index] = unknown6;
+    s_vsWaveConstants.unk_00A0[idx] = invUnknown4;
+    s_vsWaveConstants.unk_00B0[idx] = unknown6;
 }
 
 // VERIFY: e47f29d4 manual
 // OFFSET: 0x008A3810
 void Liquid::SetProcWaterParams(float liquidFloat11, float liquidFloat12, float liquidFloat13, float liquidFloat14, float liquidFloat15, float liquidFloat16, float liquidFloat17) {
-    float* params = Liquid::s_psProcWaterConstants.m_params;
+    float* params = s_psProcWaterConstants.m_params;
     params[0] = 1.0f / (liquidFloat11 < 0.001f ? 0.001f : liquidFloat11);
     params[1] = liquidFloat12;
     params[2] = liquidFloat13;
@@ -78,25 +105,25 @@ void Liquid::SetProcWaterParams(float liquidFloat11, float liquidFloat12, float 
 // VERIFY: e928fbf9 auto
 // OFFSET: 0x008A3C90
 void Liquid::SetProcWaterLighting(const CM2Lighting& lighting) {
-    Liquid::s_psProcWaterConstants.m_sunDir.x = -lighting.m_sunDir.x;
-    Liquid::s_psProcWaterConstants.m_sunDir.y = -lighting.m_sunDir.y;
-    Liquid::s_psProcWaterConstants.m_sunDir.z = -lighting.m_sunDir.z;
-    Liquid::s_psProcWaterConstants.m_sunDir.w = 0.0f;
+    s_psProcWaterConstants.m_sunDir.x = -lighting.m_sunDir.x;
+    s_psProcWaterConstants.m_sunDir.y = -lighting.m_sunDir.y;
+    s_psProcWaterConstants.m_sunDir.z = -lighting.m_sunDir.z;
+    s_psProcWaterConstants.m_sunDir.w = 0.0f;
 
-    Liquid::s_psProcWaterConstants.m_sunAmbient.x = lighting.m_sunAmbient.x;
-    Liquid::s_psProcWaterConstants.m_sunAmbient.y = lighting.m_sunAmbient.y;
-    Liquid::s_psProcWaterConstants.m_sunAmbient.z = lighting.m_sunAmbient.z;
-    Liquid::s_psProcWaterConstants.m_sunAmbient.w = 0.0f;
+    s_psProcWaterConstants.m_sunAmbient.x = lighting.m_sunAmbient.x;
+    s_psProcWaterConstants.m_sunAmbient.y = lighting.m_sunAmbient.y;
+    s_psProcWaterConstants.m_sunAmbient.z = lighting.m_sunAmbient.z;
+    s_psProcWaterConstants.m_sunAmbient.w = 0.0f;
 
-    Liquid::s_psProcWaterConstants.m_sunDiffuse.x = lighting.m_sunDiffuse.x;
-    Liquid::s_psProcWaterConstants.m_sunDiffuse.y = lighting.m_sunDiffuse.y;
-    Liquid::s_psProcWaterConstants.m_sunDiffuse.z = lighting.m_sunDiffuse.z;
-    Liquid::s_psProcWaterConstants.m_sunDiffuse.w = 0.0f;
+    s_psProcWaterConstants.m_sunDiffuse.x = lighting.m_sunDiffuse.x;
+    s_psProcWaterConstants.m_sunDiffuse.y = lighting.m_sunDiffuse.y;
+    s_psProcWaterConstants.m_sunDiffuse.z = lighting.m_sunDiffuse.z;
+    s_psProcWaterConstants.m_sunDiffuse.w = 0.0f;
 
-    Liquid::s_psProcWaterConstants.m_sunSpecular.x = lighting.m_sunSpecular.x;
-    Liquid::s_psProcWaterConstants.m_sunSpecular.y = lighting.m_sunSpecular.y;
-    Liquid::s_psProcWaterConstants.m_sunSpecular.z = lighting.m_sunSpecular.z;
-    Liquid::s_psProcWaterConstants.m_sunSpecular.w = 50.0f;
+    s_psProcWaterConstants.m_sunSpecular.x = lighting.m_sunSpecular.x;
+    s_psProcWaterConstants.m_sunSpecular.y = lighting.m_sunSpecular.y;
+    s_psProcWaterConstants.m_sunSpecular.z = lighting.m_sunSpecular.z;
+    s_psProcWaterConstants.m_sunSpecular.w = 50.0f;
 }
 
 // VERIFY: 4d2354fa auto
@@ -109,7 +136,7 @@ void Liquid::CMaterialProcWater::Release() {
 // VERIFY: 624c4ea8 auto
 // OFFSET: 0x008A3E00
 Liquid::CMaterialProcWater::CMaterialProcWater() {
-    if (Liquid::CMaterialProcWater::s_refCount++ == 0) {
+    if (s_materialProcWaterRefCnt++ == 0) {
         char name[256];
         SStrPrintf(name, sizeof(name), "vsLiquidProcWater%s", Liquid::GetShaderSuffix());
         g_theGxDevicePtr->ShaderCreate(Liquid::CMaterialProcWater::s_vertexShaders, GxSh_Vertex, "Shaders\\Vertex", name, 4);
@@ -121,7 +148,9 @@ Liquid::CMaterialProcWater::CMaterialProcWater() {
 // VERIFY: 0b2449de manual
 // OFFSET: [0x008A3EC0, 0x008A4740]
 Liquid::CMaterialProcWater::~CMaterialProcWater() {
-    if (Liquid::CMaterialProcWater::s_refCount-- == 1) {
+    STORM_ASSERT(s_materialProcWaterRefCnt > 0);
+
+    if (s_materialProcWaterRefCnt-- == 1) {
         for (uint32_t i = 0; i < 4; i++) {
             if (Liquid::CMaterialProcWater::s_vertexShaders[i]) {
                 g_theGxDevicePtr->ShaderDestroy(Liquid::CMaterialProcWater::s_vertexShaders[i]);
@@ -269,27 +298,27 @@ void Liquid::CMaterialProcWater::Render(Liquid::IEnvironment* environment, Liqui
         wavesEnd = waves;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_DIR_WAVES; i++) {
         if (waves + 6 > wavesEnd) {
             C2Vector direction;
-            Liquid::SetDirectionalWave(i, direction, 0.0f, 0.0f, 0.0f, 0.0f);
+            SetDirectionalWave(i, direction, 0.0f, 0.0f, 0.0f, 0.0f);
         } else {
             C2Vector direction(waves[0], waves[1]);
-            Liquid::SetDirectionalWave(i, direction, waves[2], waves[3], waves[4], waves[5]);
+            SetDirectionalWave(i, direction, waves[2], waves[3], waves[4], waves[5]);
         }
 
         waves += 6;
     }
 
-    for (uint32_t i = 0; i < 3; i++) {
+    for (uint32_t i = 0; i < MAX_RAD_WAVES; i++) {
         if (waves + 8 > wavesEnd) {
             C2Vector unknown2;
             C2Vector unknown3;
-            Liquid::SetCircularWave(i, unknown2, unknown3, 0.0f, 0.0f, 0.0f, 0.0f);
+            SetRadialWave(i, unknown2, unknown3, 0.0f, 0.0f, 0.0f, 0.0f);
         } else {
             C2Vector unknown3(waves[2], waves[3]);
             C2Vector unknown2(waves[0], waves[1]);
-            Liquid::SetCircularWave(i, unknown2, unknown3, waves[4], waves[5], waves[6], waves[7]);
+            SetRadialWave(i, unknown2, unknown3, waves[4], waves[5], waves[6], waves[7]);
         }
 
         waves += 8;
@@ -305,8 +334,8 @@ void Liquid::CMaterialProcWater::Render(Liquid::IEnvironment* environment, Liqui
     Liquid::SetProcWaterParams(liquidFloat11, liquidFloat12, liquidFloat13, liquidFloat14, liquidFloat15, liquidFloat16, liquidFloat17);
 
     Liquid::SetShaderConstants();
-    g_theGxDevicePtr->ShaderConstantsSet(GxSh_Vertex, 46, reinterpret_cast<const float*>(&Liquid::s_vsWaveConstants), 12);
-    g_theGxDevicePtr->ShaderConstantsSet(GxSh_Pixel, 6, reinterpret_cast<const float*>(&Liquid::s_psProcWaterConstants), 6);
+    g_theGxDevicePtr->ShaderConstantsSet(GxSh_Vertex, 46, reinterpret_cast<const float*>(&s_vsWaveConstants), 12);
+    g_theGxDevicePtr->ShaderConstantsSet(GxSh_Pixel, 6, reinterpret_cast<const float*>(&s_psProcWaterConstants), 6);
 
     uint32_t lightCount = lighting.m_lightCount;
 

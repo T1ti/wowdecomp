@@ -6,6 +6,12 @@
 #include "Engine/Source/ShaderEffect/Types.h"
 #include "Engine/Source/Tempest/CMath.h"
 
+// STATIC: 0x00D44C38
+static int32_t s_materialWaterRefCnt;
+
+// STATIC: 0x00D44C3C
+static int32_t s_materialWaterNoSpecRefCnt;
+
 // STATIC: 0x00D45098
 CDataAllocator Liquid::s_waterFFPAllocator(sizeof(Liquid::CMaterialWaterFFP), 8);
 
@@ -15,17 +21,11 @@ CDataAllocator Liquid::s_waterNoSpecAllocator(sizeof(Liquid::CMaterialWaterNoSpe
 // STATIC: 0x00D45070
 CDataAllocator Liquid::s_waterAllocator(sizeof(Liquid::CMaterialWater), 8);
 
-// STATIC: 0x00D44C38
-int32_t Liquid::CMaterialWater::s_refCount;
-
 // STATIC: 0x00D44C10
 CGxShader* Liquid::CMaterialWater::s_vertexShaders[4];
 
 // STATIC: 0x00D44C0C
 CGxShader* Liquid::CMaterialWater::s_pixelShader;
-
-// STATIC: 0x00D44C3C
-int32_t Liquid::CMaterialWaterNoSpec::s_refCount;
 
 // STATIC: 0x00D44BFC
 CGxShader* Liquid::CMaterialWaterNoSpec::s_vertexShaders[4];
@@ -43,7 +43,7 @@ void Liquid::CMaterialWater::Release() {
 // VERIFY: 05103905 auto
 // OFFSET: 0x008A3F70
 Liquid::CMaterialWater::CMaterialWater() {
-    if (Liquid::CMaterialWater::s_refCount++ == 0) {
+    if (s_materialWaterRefCnt++ == 0) {
         g_theGxDevicePtr->ShaderCreate(Liquid::CMaterialWater::s_vertexShaders, GxSh_Vertex, "Shaders\\Vertex", "vsLiquidWater", 4);
         g_theGxDevicePtr->ShaderCreate(&Liquid::CMaterialWater::s_pixelShader, GxSh_Pixel, "Shaders\\Pixel", "psLiquidWater", 1);
     }
@@ -52,7 +52,9 @@ Liquid::CMaterialWater::CMaterialWater() {
 // VERIFY: 181045ab manual
 // OFFSET: [0x008A3FE0, 0x008A47C0]
 Liquid::CMaterialWater::~CMaterialWater() {
-    if (Liquid::CMaterialWater::s_refCount-- == 1) {
+    STORM_ASSERT(s_materialWaterRefCnt > 0);
+
+    if (s_materialWaterRefCnt-- == 1) {
         for (uint32_t i = 0; i < 4; i++) {
             if (Liquid::CMaterialWater::s_vertexShaders[i]) {
                 g_theGxDevicePtr->ShaderDestroy(Liquid::CMaterialWater::s_vertexShaders[i]);
@@ -75,7 +77,7 @@ void Liquid::CMaterialWaterNoSpec::Release() {
 // VERIFY: 4a9ff4b4 auto
 // OFFSET: 0x008A4070
 Liquid::CMaterialWaterNoSpec::CMaterialWaterNoSpec() {
-    if (Liquid::CMaterialWaterNoSpec::s_refCount++ == 0) {
+    if (s_materialWaterNoSpecRefCnt++ == 0) {
         g_theGxDevicePtr->ShaderCreate(Liquid::CMaterialWaterNoSpec::s_vertexShaders, GxSh_Vertex, "Shaders\\Vertex", "vsLiquidWaterNoSpec", 4);
         g_theGxDevicePtr->ShaderCreate(&Liquid::CMaterialWaterNoSpec::s_pixelShader, GxSh_Pixel, "Shaders\\Pixel", "psLiquidWaterNoSpec", 1);
     }
@@ -84,7 +86,9 @@ Liquid::CMaterialWaterNoSpec::CMaterialWaterNoSpec() {
 // VERIFY: eafe186b manual
 // OFFSET: [0x008A40E0, 0x008A4820]
 Liquid::CMaterialWaterNoSpec::~CMaterialWaterNoSpec() {
-    if (Liquid::CMaterialWaterNoSpec::s_refCount-- == 1) {
+    STORM_ASSERT(s_materialWaterNoSpecRefCnt > 0);
+
+    if (s_materialWaterNoSpecRefCnt-- == 1) {
         for (uint32_t i = 0; i < 4; i++) {
             if (Liquid::CMaterialWaterNoSpec::s_vertexShaders[i]) {
                 g_theGxDevicePtr->ShaderDestroy(Liquid::CMaterialWaterNoSpec::s_vertexShaders[i]);
