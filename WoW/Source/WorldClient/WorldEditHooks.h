@@ -28,11 +28,13 @@ struct WorldEditView {
     float m_minFarClip;
     float m_maxFarClip;
     float m_streamFarClip;
+    float m_horizonNearClip;
     float m_horizonFarClip;
     float m_objectMinZ;
     CRect m_terrainBounds;
     uint32_t m_terrainBufferCount;
     bool m_useTerrainOcclusion;
+    bool m_allowPendingMapAssets;
 
     bool IncludesTerrain(const CAaBox& chunk) const {
         return chunk.t.x >= m_terrainBounds.minX && chunk.b.x <= m_terrainBounds.maxX &&
@@ -58,12 +60,13 @@ void WorldEditRenderOverlays();
 typedef void (*WORLDEDITTERRAINPASS)(CMapRenderChunk* const* chunks, uint32_t count, bool late);
 void WorldEditSetTerrainPass(WORLDEDITTERRAINPASS pass);
 bool WorldEditTerrainPassActive();
+// Start of terrain rendering, or before releasing the current map.
+void WorldEditClearTerrainChunks();
 // From the terrain passes: records a chunk drawn this frame (only while a terrain pass is attached).
 void WorldEditCollectTerrainChunk(CMapRenderChunk* chunk);
-// From CWorldScene::RenderChunks after the terrain passes: runs the terrain pass. The chunks are kept for the late call
-// and forgotten when the next frame collects its first chunk.
+// From CWorldScene::RenderChunks after the terrain passes, including frames with no visible chunks.
 void WorldEditRenderTerrainPass();
-// From CGWorldFrame::OnWorldRender, with the overlays: runs the terrain pass again, late.
+// With the overlays: runs the late pass and releases the frame's chunk references.
 void WorldEditRenderTerrainPassLate();
 
 // The cursor: the world segment under the mouse, the one CGWorldFrame::OnLayerUpdate picks objects and ground along

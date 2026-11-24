@@ -26,7 +26,7 @@ void WowEditWorldInitialize();
 void WowEditWorldShutdown();
 
 // Opens a map (Map.dbc ID); position nullptr picks a default (Northshire on map 0, the middle of the map's terrain on
-// the others, the camera dropped onto the ground once it has loaded). False when the map is unknown.
+// the others, the camera dropped onto the ground once it has loaded). False if its map data is unavailable.
 bool WowEditWorldLoadMap(int32_t mapId, const C3Vector* position);
 int32_t WowEditWorldGetMapId(); // -1 before the first map
 void WowEditWorldGetCameraPosition(float* position);

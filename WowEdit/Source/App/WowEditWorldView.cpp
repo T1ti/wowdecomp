@@ -19,7 +19,6 @@
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "Engine/Source/Tempest/CRect.h"
 #include "WoW/Common/TextureCache.h"
-#include "WoW/Source/DB/DBClient/DBClient.h"
 #include "WoW/Source/DB/Rec/MapRec.h"
 #include "WoW/Source/UIUtil/Camera.h"
 #include "WoW/Source/Ui/GameUI.h"
@@ -33,6 +32,7 @@
 #include "WoW/Source/WorldClient/WorldConstants.h"
 #include "WoW/Source/WorldClient/WorldEditHooks.h"
 #include "WowEdit/Source/App/WowEditApp.h"
+#include "WowEdit/Source/App/WowEditMapSession.h"
 #include "WowEdit/Source/App/WowEditRenderDistance.h"
 
 // See WowEditWorldView.h.
@@ -40,7 +40,7 @@
 static WorldEditView s_view;
 static bool s_hasFocus = true;
 static HLAYER s_layer;
-static int32_t s_mapId = -1;
+static CWowEditMapSession s_map;
 static int32_t s_timeOfDay = 12 * 60;
 
 // Camera state: yaw around Z from +X (north), pitch up from the horizon, in radians.
@@ -296,7 +296,7 @@ static void UpdateDayNight(const C3Vector& forward, float elapsedSec) {
     info->m_dayProgression = s_timeOfDay * (1.0f / 1440.0f);
     info->m_day = 0.0f;
 
-    MapRec* map = g_mapDB.GetRecord(s_mapId);
+    const MapRec* map = s_map.GetMap();
 
     if (map && map->m_timeOfDayOverride != -1) {
         float progression = map->m_timeOfDayOverride * (1.0f / 1440.0f);
@@ -311,7 +311,7 @@ static void UpdateDayNight(const C3Vector& forward, float elapsedSec) {
 }
 
 bool WowEditWorldGetBrushRay(C3Vector& start, C3Vector& end) {
-    if (!s_hasFocus || s_looking || s_mapId < 0) {
+    if (!s_hasFocus || s_looking || !s_map.GetMap()) {
         return false;
     }
 
@@ -350,10 +350,20 @@ static void UpdateViewInputs(const C3Vector& forward) {
     s_view.m_terrainBounds.maxX = position.x + base;
     s_view.m_terrainBounds.maxY = position.y + base;
 
+    const C3Vector right = camera.Right();
+    const C3Vector up = camera.Up();
+    const float halfHeight = tanf(camera.FOV() * 0.3f);
+    const float halfWidth = halfHeight * camera.m_aspect;
+    // At unit depth the corner rays bound the whole frustum horizontally. Start the WDL behind
+    // the detailed pass before those rays can leave the horizontal terrain square.
+    const float reachX = fabsf(forward.x) + halfWidth * fabsf(right.x) + halfHeight * fabsf(up.x);
+    const float reachY = fabsf(forward.y) + halfWidth * fabsf(right.y) + halfHeight * fabsf(up.y);
+    const float edgeDepth = base / fmaxf(reachX, reachY);
+    s_view.m_horizonNearClip = fmaxf(camera.m_clipRange.m_l, fminf(farZ, edgeDepth) - 50.0f);
+
     if (farZ > base) {
         // The free camera has no roll. Project the bottom of its far plane onto world Z for WMO queries.
-        float halfHeight = farZ * tanf(camera.FOV() * 0.3f);
-        float bottomZ = position.z + farZ * forward.z - halfHeight * fabsf(camera.Up().z);
+        float bottomZ = position.z + farZ * (forward.z - halfHeight * fabsf(up.z));
         s_view.m_objectMinZ = fminf(s_view.m_objectMinZ, bottomZ);
     }
 
@@ -473,7 +483,7 @@ static void PaintWorld(void* param, const RECTF* rect, const RECTF* visible, flo
 
     CGCamera* camera = Camera();
 
-    if (s_mapId < 0 || !camera) {
+    if (!s_map.GetMap() || !camera) {
         return;
     }
 
@@ -517,6 +527,7 @@ void WowEditWorldInitialize() {
     const WowEditDistanceInfo& viewDistance = WowEditGetDistanceInfo(WOWEDITDISTANCE_VIEW);
     s_view.m_minFarClip = viewDistance.min;
     s_view.m_maxFarClip = viewDistance.max;
+    s_view.m_allowPendingMapAssets = true;
     WorldEditSetView(&s_view);
 
     // Under the console (6, 7) and the system messages.
@@ -534,10 +545,7 @@ void WowEditWorldInitialize() {
 void WowEditWorldShutdown() {
     StopLooking();
 
-    if (s_mapId >= 0) {
-        World::UnloadMap();
-        s_mapId = -1;
-    }
+    s_map.Close();
 
     WorldEditSetView(nullptr);
     delete s_view.m_camera;
@@ -545,21 +553,17 @@ void WowEditWorldShutdown() {
 }
 
 bool WowEditWorldLoadMap(int32_t mapId, const C3Vector* position) {
-    MapRec* map = g_mapDB.GetRecord(mapId);
     CGCamera* camera = Camera();
-
-    if (!map || !camera) {
-        ConsolePrintf("WowEdit: no map %d in Map.dbc", mapId);
+    if (!camera) {
         return false;
     }
 
-    if (s_mapId >= 0) {
-        World::UnloadMap();
-
-        if (World::s_weather) {
-            World::s_weather->Reset();
-        }
+    const MapRec* map = CWowEditMapSession::FindAvailableMap(mapId);
+    if (!map) {
+        return false;
     }
+
+    s_map.Close();
 
     C3Vector start = position ? *position : (mapId == 0 ? NORTHSHIRE : C3Vector(0.0f, 0.0f, 300.0f));
     camera->m_position = start;
@@ -573,8 +577,7 @@ bool WowEditWorldLoadMap(int32_t mapId, const C3Vector* position) {
     camera->m_clipRange.m_l = World::s_nearClip;
     camera->m_clipRange.m_h = World::farClip;
     UpdateViewInputs(ForwardVector());
-    CWorld::LoadMap(map->m_directory, &start, mapId, 1);
-    s_mapId = mapId;
+    s_map.Open(*map, start);
     s_dropToGround = false;
 
     // No position on a map other than Azeroth: the middle of the terrain the map's WDT lists, then the ground.
@@ -609,7 +612,8 @@ bool WowEditWorldLoadMap(int32_t mapId, const C3Vector* position) {
 }
 
 int32_t WowEditWorldGetMapId() {
-    return s_mapId;
+    const MapRec* map = s_map.GetMap();
+    return map ? map->m_id : -1;
 }
 
 void WowEditWorldGetCameraPosition(float* position) {

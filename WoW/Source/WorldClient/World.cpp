@@ -2150,7 +2150,7 @@ void CWorldScene::BuildHorizonProjection(C44Matrix* projection) {
     float fov = camera->FOV();
 #ifdef WOWDECOMP_TOOL_FEATURES
     if (const WorldEditView* editorView = WorldEditGetView()) {
-        GxuXformCreateProjection_Exact(fov * 0.6f, camera->m_aspect, farZ - 50.0f, editorView->m_horizonFarClip, *projection);
+        GxuXformCreateProjection_Exact(fov * 0.6f, camera->m_aspect, editorView->m_horizonNearClip, editorView->m_horizonFarClip, *projection);
         return;
     }
 #endif
@@ -3899,6 +3899,9 @@ void CWorldScene::RenderChunksSinglePass() {
 // VERIFY: 981a5585 manual
 // OFFSET: 0x00798DA0
 void CWorldScene::RenderChunks() {
+#ifdef WOWDECOMP_TOOL_FEATURES
+    WorldEditClearTerrainChunks();
+#endif
     g_theGxDevicePtr->RsPush();
     CMapRenderChunk::s_fogColor = *reinterpret_cast<CImVector*>(&g_theGxDevicePtr->m_appRenderStates[GxRs_FogColor].m_value.m_data.i[0]);
 

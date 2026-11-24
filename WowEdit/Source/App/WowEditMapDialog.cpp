@@ -88,7 +88,12 @@ void CWowEditMapDialog::LoadSelected() {
     }
 
     this->m_dialog->Show(0);
-    WowEditWorldLoadMap(this->m_mapIds[row], nullptr);
+    if (!WowEditWorldLoadMap(this->m_mapIds[row], nullptr)) {
+        this->m_dialog->Show(1);
+        OsGuiMessageBox(this->m_dialog->m_handle, OSGUI_MESSAGE_STYLE_OK,
+            "The selected map could not be opened from the configured game data. See the console for details.",
+            "Open Map");
+    }
 }
 
 void CWowEditMapDialog::OnEvent(const OsGuiCallbackParams& params) {

@@ -2071,6 +2071,11 @@ void CMap::PreUpdateAreas(bool addToScene) {
     CMap::ProcessDetailDoodadUpdateList();
 
     int32_t waitForLoad = !(CMap::s_isStreamingMode || CMap::bPreload);
+#ifdef WOWDECOMP_TOOL_FEATURES
+    if (const WorldEditView* view = WorldEditGetView(); view && view->m_allowPendingMapAssets) {
+        waitForLoad = 0;
+    }
+#endif
     CMapBaseObjLink* link = CMap::areaLinkList.Head();
 
     while (link) {
@@ -2261,6 +2266,12 @@ void CMap::PrepareMapObjDefs(bool addToScene) {
     if (CMap::s_isStreamingMode || CMap::bPreload) {
         waitLoad = 0;
     }
+
+#ifdef WOWDECOMP_TOOL_FEATURES
+    if (const WorldEditView* view = WorldEditGetView(); view && view->m_allowPendingMapAssets) {
+        waitLoad = 0;
+    }
+#endif
 
     CMapObjDef* mapObjDef = CMap::mapObjDefHash.m_fulllist.Head();
 

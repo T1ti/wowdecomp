@@ -513,7 +513,9 @@ static void DrawGroup(CMapRenderChunk* const* chunks, const C44Matrix& viewProj,
 }
 
 static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count, bool late) {
-    if (!(CWorld::enables & Enables::Enable_Chunks)) {
+    if (!count || !(CWorld::enables & Enables::Enable_Chunks)) {
+        s_brushPointValid = false;
+        s_lastChunkCount = 0;
         return;
     }
 
