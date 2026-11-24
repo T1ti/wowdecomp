@@ -184,7 +184,7 @@ int32_t EvaluateBonusBar(const WOWGUID* unit, const TSGrowableArray<MacroSubstri
             offset = *c + 10 * offset - '0';
         }
 
-        if (offset == CGActionBar::m_bonusBarOffset) {
+        if (offset == CGActionBar::GetBonusBarOffset()) {
             return 1;
         }
     }

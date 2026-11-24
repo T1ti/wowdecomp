@@ -277,14 +277,14 @@ static int32_t Script_GetActionText(lua_State* L) {
 // VERIFY: b41a956b manual
 // OFFSET: 0x005A7F20
 static int32_t Script_GetBonusBarOffset(lua_State* L) {
-    lua_pushnumber(L, CGActionBar::m_bonusBarOffset);
+    lua_pushnumber(L, CGActionBar::GetBonusBarOffset());
     return 1;
 }
 
 // VERIFY: ce8c7e12 auto
 // OFFSET: 0x005A7FD0
 static int32_t Script_GetActionBarPage(lua_State* L) {
-    if (CGActionBar::m_tempPageActiveFlags) {
+    if (CGActionBar::GetTemporaryActionBarFlags()) {
         lua_pushinteger(L, 1);
     } else {
         lua_pushinteger(L, CGActionBar::m_currentPage + 1);

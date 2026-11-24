@@ -1381,7 +1381,9 @@ void CGActionBar::UseAction(int32_t slot, const WOWGUID& target, const char* but
         }
     } else {
         int32_t petSpell;
-        Spell_C_ClickSpell(CGActionBar::GetSpell(slot, petSpell), nullptr, target);
+        int32_t spellId = CGActionBar::GetSpell(slot, petSpell);
+        STORM_ASSERT(!petSpell);
+        Spell_C_ClickSpell(spellId, nullptr, target);
     }
 }
 
@@ -1411,13 +1413,14 @@ void CGActionBar::UpdateBonusBar() {
         if (CGActionBar::m_tempPageActiveFlags) {
             offset = 5;
         } else {
-            SpellShapeshiftFormRec* form = g_spellShapeshiftFormDB.GetRecord(player->GetShapeshiftForm());
+            SpellShapeshiftFormRec* rec = g_spellShapeshiftFormDB.GetRecord(player->GetShapeshiftForm());
 
-            if (form) {
+            if (rec) {
                 offset = 5;
 
-                if (!FormHasActionBar(form)) {
-                    offset = form->m_bonusActionBar;
+                if (!FormHasActionBar(rec)) {
+                    STORM_ASSERT(rec->m_bonusActionBar >= 0 && rec->m_bonusActionBar <= NUM_BONUS_ACTION_PAGES);
+                    offset = rec->m_bonusActionBar;
                 }
             }
         }
@@ -1645,6 +1648,7 @@ void CGActionBar::RemoveMacro(int32_t spellId) {
             continue;
         }
 
+        STORM_ASSERT(!petSpell);
         uint32_t action = CGActionBar::m_slotActions[i];
 
         if (action && (action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO) {
@@ -2089,6 +2093,7 @@ void CGActionBar::ReplaceSpell(int32_t oldSpell, int32_t newSpell) {
         }
 
         if (!(action & ACTION_MASK::ACTION_MASK_TAG)) {
+            STORM_ASSERT(!petSpell);
             CGActionBar::SetAction(slot, newSpell, 1, 0);
         } else if ((action & ACTION_MASK::ACTION_MASK_TAG) == ACTION_TAG::ACTION_TAG_MACRO) {
             CGUIMacros::GetMacroByID(action & ACTION_MASK::ACTION_MASK_MACRO_ID)->m_spellID = newSpell;

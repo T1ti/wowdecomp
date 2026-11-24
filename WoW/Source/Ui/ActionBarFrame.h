@@ -56,9 +56,7 @@ class CGActionBar {
 
     static void LeaveWorld();
     static void SignalUpdateCooldown();
-    static uint32_t m_tempPageActiveFlags;
     static uint32_t m_currentPage;
-    static int32_t m_bonusBarOffset;
     static void UpdateOverrideSpellBar();
     static uint32_t GetSlotSpellAction(uint32_t slot);
     static void UpdateTemporaryActionBar(int32_t (*getSpell)(uint32_t index, const void* data), const void* data);
@@ -128,6 +126,13 @@ class CGActionBar {
     static void SlotChanged(int32_t slot, int32_t sendToServer, BOOL silent);
     static void UseAction(int32_t slot, const WOWGUID& target, const char* button);
     static void UpdateMacro(uint32_t macroId);
+    static int32_t GetBonusBarOffset() { return m_bonusBarOffset; }
+    static uint32_t GetTemporaryActionBarFlags() { return m_tempPageActiveFlags; } // (inferred)
+
+    private:
+    static constexpr int32_t NUM_BONUS_ACTION_PAGES = 5;
+    static uint32_t m_tempPageActiveFlags;
+    static int32_t m_bonusBarOffset;
 };
 
 void ItemStatsCallback(int32_t id, const WOWGUID& guid, void* param, bool success);
