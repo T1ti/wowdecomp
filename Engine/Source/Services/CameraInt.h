@@ -17,12 +17,12 @@ class CBaseManaged {
     // VECTOR3 below corresponds to the older COORD name. No 3.3.5 camera
     // producers/consumers were located for ALPHACOLOR, COLOR, C33MATRIX or INT;
     // this does not establish that they are unused outside the recovered paths.
-    // DATATYPEIDS is the older enum's count marker, not a verified payload tag.
     // Keep the current tag byte: the older enum's width is not its storage width.
     enum DATA_TYPE : uint8_t {
         UNKNOWN_0 = 0,
         VECTOR3 = 3,
         FLOAT = 6,
+        DATATYPEIDS = 7,
     };
 
     enum : uint8_t {
@@ -32,17 +32,31 @@ class CBaseManaged {
         UPDATED = 0x8,
     };
 
-    /* 0004 */ TSLink<CBaseManaged> m_link;
-    /* 000C */ DATA_TYPE m_dataTypeId;
-    /* 000D */ uint8_t m_flags;
-    /* 0010 */ void (*m_updateFcn)(float, void*, void*);
-    /* 0014 */ void* m_updateData;
-    /* 0018 */ float m_updatePriority;
-
     CBaseManaged();
     virtual ~CBaseManaged();
     virtual void Update(float time);
     virtual void Validate(float time);
+
+    DATA_TYPE GetDataTypeId() const { return this->m_dataTypeId; } // (inferred)
+    bool HasFlag(uint8_t flag) const { return (this->m_flags & flag) != 0; } // (inferred)
+    void ClearUpdate() { // (inferred)
+        this->m_updateFcn = nullptr;
+        this->m_updateData = nullptr;
+        this->m_updatePriority = 0.0f;
+    }
+
+    private:
+    friend class CDataMgr; // (inferred)
+    /* 0004 */ TSLink<CBaseManaged> m_link;
+    /* 000C */ DATA_TYPE m_dataTypeId;
+
+    protected:
+    /* 000D */ uint8_t m_flags;
+    /* 0010 */ void (*m_updateFcn)(float, void*, void*);
+    /* 0014 */ void* m_updateData;
+
+    private:
+    /* 0018 */ float m_updatePriority;
 };
 
 template <class T>
@@ -68,14 +82,20 @@ class CAngle : public TManaged<float> {
 
 class CDataMgr : public CHandleObject {
     public:
-    /* 0008 */ TSFixedArray<CBaseManaged*> m_managed;
-    /* 0014 */ TSExplicitList<CBaseManaged, offsetof(CBaseManaged, m_link)> m_updateList;
-
     CDataMgr(uint32_t count);
     virtual ~CDataMgr();
-    void AddManaged(TManaged<C3Vector>* data, uint32_t index, uint8_t flags);
-    void AddManaged(TManaged<float>* data, uint32_t index, uint8_t flags);
+    void AddManaged(TManaged<C3Vector>* manage, uint32_t fieldId, uint8_t flags);
+    void AddManaged(TManaged<float>* manage, uint32_t fieldId, uint8_t flags);
+    CBaseManaged* GetManagedField(uint32_t fieldId) const { // (inferred)
+        return fieldId < this->m_managedArray.Count() ? this->m_managedArray.m_data[fieldId] : nullptr;
+    }
+
+    private:
+    void AddManaged(CBaseManaged* manage, uint32_t fieldId, uint8_t flags, CBaseManaged::DATA_TYPE dataTypeId);
     void InsertByPriority(CBaseManaged* data);
+
+    /* 0008 */ TSFixedArray<CBaseManaged*> m_managedArray;
+    /* 0014 */ TSExplicitList<CBaseManaged, offsetof(CBaseManaged, m_link)> m_updateList;
 };
 
 class CCamera : public CDataMgr {

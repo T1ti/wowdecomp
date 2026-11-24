@@ -212,7 +212,7 @@ CDataMgr::~CDataMgr() {
 
 // INLINED
 CDataMgr::CDataMgr(uint32_t count) {
-    this->m_managed.SetCount(count);
+    this->m_managedArray.SetCount(count);
 }
 
 // VERIFY: a7d7446b manual
@@ -257,49 +257,31 @@ CCamera* CameraDuplicate(CCamera* source) {
         return nullptr;
     }
 
-    camera->m_position.m_updatePriority = 0.0f;
-    camera->m_position.m_updateFcn = nullptr;
-    camera->m_position.m_updateData = nullptr;
+    camera->m_position.ClearUpdate();
     camera->m_position.Set_(source->m_position.m_data);
 
-    camera->m_target.m_updatePriority = 0.0f;
-    camera->m_target.m_updateFcn = nullptr;
-    camera->m_target.m_updateData = nullptr;
+    camera->m_target.ClearUpdate();
     camera->m_target.Set_(source->m_target.m_data);
 
-    camera->m_distance.m_updatePriority = 0.0f;
-    camera->m_distance.m_updateFcn = nullptr;
-    camera->m_distance.m_updateData = nullptr;
+    camera->m_distance.ClearUpdate();
     camera->m_distance.Set_(source->m_distance.m_data);
 
-    camera->m_zNear.m_updatePriority = 0.0f;
-    camera->m_zNear.m_updateFcn = nullptr;
-    camera->m_zNear.m_updateData = nullptr;
+    camera->m_zNear.ClearUpdate();
     camera->m_zNear.Set_(source->m_zNear.m_data);
 
-    camera->m_zFar.m_updatePriority = 0.0f;
-    camera->m_zFar.m_updateFcn = nullptr;
-    camera->m_zFar.m_updateData = nullptr;
+    camera->m_zFar.ClearUpdate();
     camera->m_zFar.Set_(source->m_zFar.m_data);
 
-    camera->m_aoa.m_updatePriority = 0.0f;
-    camera->m_aoa.m_updateFcn = nullptr;
-    camera->m_aoa.m_updateData = nullptr;
+    camera->m_aoa.ClearUpdate();
     camera->m_aoa.Set_(source->m_aoa.m_data);
 
-    camera->m_fov.m_updatePriority = 0.0f;
-    camera->m_fov.m_updateFcn = nullptr;
-    camera->m_fov.m_updateData = nullptr;
+    camera->m_fov.ClearUpdate();
     camera->m_fov.Set_(source->m_fov.m_data);
 
-    camera->m_roll.m_updatePriority = 0.0f;
-    camera->m_roll.m_updateFcn = nullptr;
-    camera->m_roll.m_updateData = nullptr;
+    camera->m_roll.ClearUpdate();
     camera->m_roll.Set_(source->m_roll.m_data);
 
-    camera->m_rotation.m_updatePriority = 0.0f;
-    camera->m_rotation.m_updateFcn = nullptr;
-    camera->m_rotation.m_updateData = nullptr;
+    camera->m_rotation.ClearUpdate();
     camera->m_rotation.Set_(source->m_rotation.m_data);
 
     return reinterpret_cast<CCamera*>(HandleCreate(camera, "HCAMERA"));
@@ -319,16 +301,16 @@ float CAngle::ClampTo2Pi(float angle) {
 
 // VERIFY: d430685f manual
 // OFFSET: 0x004C1180
-static void GetManagedValue(CDataMgr* mgr, uint32_t index, float* value, CBaseManaged::DATA_TYPE dataTypeId) {
-    if (!value || !mgr || index >= mgr->m_managed.Count() || !mgr->m_managed[index] || mgr->m_managed[index]->m_dataTypeId != dataTypeId) {
+static void GetManagedValue(CDataMgr* mgr, uint32_t fieldId, float* value, CBaseManaged::DATA_TYPE dataTypeId) {
+    STORM_ASSERT(mgr);
+    CBaseManaged* data = value && mgr ? mgr->GetManagedField(fieldId) : nullptr;
+    if (!data || data->GetDataTypeId() != dataTypeId) {
         SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
         return;
     }
 
-    CBaseManaged* data = mgr->m_managed[index];
-
-    if (data->m_flags & CBaseManaged::REQUIRESUPDATE) {
-        if (data->m_flags & CBaseManaged::READONLY) {
+    if (data->HasFlag(CBaseManaged::REQUIRESUPDATE)) {
+        if (data->HasFlag(CBaseManaged::READONLY)) {
             data->Validate(0.0f);
         } else {
             data->Update(0.0f);
@@ -349,16 +331,16 @@ float CameraGetFloat(CCamera* camera, uint32_t index) {
 
 // VERIFY: ecbbb5cc manual
 // OFFSET: 0x004C1220
-static void GetManagedValue(CDataMgr* mgr, uint32_t index, C3Vector* value, CBaseManaged::DATA_TYPE dataTypeId) {
-    if (!value || !mgr || index >= mgr->m_managed.Count() || !mgr->m_managed[index] || mgr->m_managed[index]->m_dataTypeId != dataTypeId) {
+static void GetManagedValue(CDataMgr* mgr, uint32_t fieldId, C3Vector* value, CBaseManaged::DATA_TYPE dataTypeId) {
+    STORM_ASSERT(mgr);
+    CBaseManaged* data = value && mgr ? mgr->GetManagedField(fieldId) : nullptr;
+    if (!data || data->GetDataTypeId() != dataTypeId) {
         SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
         return;
     }
 
-    CBaseManaged* data = mgr->m_managed[index];
-
-    if (data->m_flags & CBaseManaged::REQUIRESUPDATE) {
-        if (data->m_flags & CBaseManaged::READONLY) {
+    if (data->HasFlag(CBaseManaged::REQUIRESUPDATE)) {
+        if (data->HasFlag(CBaseManaged::READONLY)) {
             data->Validate(0.0f);
         } else {
             data->Update(0.0f);
@@ -376,36 +358,36 @@ void DataMgrGetCoord(CDataMgr* mgr, uint32_t index, C3Vector* value) {
 
 // VERIFY: 6e02d0ab manual
 // OFFSET: 0x004C12B0
-void CameraSetCoord(CCamera* camera, uint32_t index, const C3Vector& value, uint32_t keepMask) {
+void CameraSetCoord(CCamera* mgr, uint32_t fieldId, const C3Vector& value, uint32_t keepMask) {
     C3Vector current(0.0f, 0.0f, 0.0f);
-    GetManagedValue(camera, index, &current, CBaseManaged::DATA_TYPE::VECTOR3);
+    GetManagedValue(mgr, fieldId, &current, CBaseManaged::DATA_TYPE::VECTOR3);
 
     C3Vector newValue((keepMask & 0x1) ? current.x : value.x, (keepMask & 0x2) ? current.y : value.y, (keepMask & 0x4) ? current.z : value.z);
 
-    if (!camera || index >= camera->m_managed.Count() || !camera->m_managed[index] || camera->m_managed[index]->m_dataTypeId != CBaseManaged::DATA_TYPE::VECTOR3 || (camera->m_managed[index]->m_flags & CBaseManaged::READONLY)) {
+    STORM_ASSERT(mgr);
+    CBaseManaged* manage = mgr ? mgr->GetManagedField(fieldId) : nullptr;
+    if (!manage || manage->GetDataTypeId() != CBaseManaged::DATA_TYPE::VECTOR3 || manage->HasFlag(CBaseManaged::READONLY)) {
         SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
         return;
     }
 
-    TManaged<C3Vector>* data = static_cast<TManaged<C3Vector>*>(camera->m_managed[index]);
-    data->m_updateFcn = nullptr;
-    data->m_updateData = nullptr;
-    data->m_updatePriority = 0.0f;
+    TManaged<C3Vector>* data = static_cast<TManaged<C3Vector>*>(manage);
+    data->ClearUpdate();
     data->Set_(newValue);
 }
 
 // VERIFY: ef5a2ea9 manual
 // OFFSET: 0x004C1360
-void CameraSetFloat(CCamera* camera, uint32_t index, float value) {
-    if (!camera || index >= camera->m_managed.Count() || !camera->m_managed[index] || camera->m_managed[index]->m_dataTypeId != CBaseManaged::DATA_TYPE::FLOAT || (camera->m_managed[index]->m_flags & CBaseManaged::READONLY)) {
+void CameraSetFloat(CCamera* mgr, uint32_t fieldId, float value) {
+    STORM_ASSERT(mgr);
+    CBaseManaged* manage = mgr ? mgr->GetManagedField(fieldId) : nullptr;
+    if (!manage || manage->GetDataTypeId() != CBaseManaged::DATA_TYPE::FLOAT || manage->HasFlag(CBaseManaged::READONLY)) {
         SErrSetLastError(STORM_ERROR_INVALID_PARAMETER);
         return;
     }
 
-    TManaged<float>* data = static_cast<TManaged<float>*>(camera->m_managed[index]);
-    data->m_updateFcn = nullptr;
-    data->m_updateData = nullptr;
-    data->m_updatePriority = 0.0f;
+    TManaged<float>* data = static_cast<TManaged<float>*>(manage);
+    data->ClearUpdate();
     data->Set_(value);
 }
 
@@ -422,28 +404,31 @@ void CDataMgr::InsertByPriority(CBaseManaged* data) {
     this->m_updateList.LinkToTail(data);
 }
 
-// VERIFY: e2e5042b auto
-// OFFSET: 0x004C14B0
-void CDataMgr::AddManaged(TManaged<C3Vector>* data, uint32_t index, uint8_t flags) {
-    data->m_flags = flags;
-    data->m_dataTypeId = CBaseManaged::DATA_TYPE::VECTOR3;
-    this->m_managed[index] = data;
+// INLINED
+inline void CDataMgr::AddManaged(CBaseManaged* manage, uint32_t fieldId, uint8_t flags, CBaseManaged::DATA_TYPE dataTypeId) {
+    STORM_ASSERT(manage);
+    STORM_ASSERT(fieldId < m_managedArray.Count());
+    STORM_ASSERT(dataTypeId < CBaseManaged::DATATYPEIDS);
+
+    manage->m_flags = flags;
+    manage->m_dataTypeId = dataTypeId;
+    this->m_managedArray[fieldId] = manage;
 
     if (flags & CBaseManaged::ALWAYSUPDATE) {
-        this->InsertByPriority(data);
+        this->InsertByPriority(manage);
     }
+}
+
+// VERIFY: e2e5042b auto
+// OFFSET: 0x004C14B0
+void CDataMgr::AddManaged(TManaged<C3Vector>* manage, uint32_t fieldId, uint8_t flags) {
+    this->AddManaged(manage, fieldId, flags, CBaseManaged::DATA_TYPE::VECTOR3);
 }
 
 // VERIFY: 0e9ed7c7 auto
 // OFFSET: 0x004C14E0
-void CDataMgr::AddManaged(TManaged<float>* data, uint32_t index, uint8_t flags) {
-    data->m_flags = flags;
-    data->m_dataTypeId = CBaseManaged::DATA_TYPE::FLOAT;
-    this->m_managed[index] = data;
-
-    if (flags & CBaseManaged::ALWAYSUPDATE) {
-        this->InsertByPriority(data);
-    }
+void CDataMgr::AddManaged(TManaged<float>* manage, uint32_t fieldId, uint8_t flags) {
+    this->AddManaged(manage, fieldId, flags, CBaseManaged::DATA_TYPE::FLOAT);
 }
 
 // VERIFY: e9e02e6c manual
