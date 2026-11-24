@@ -117,7 +117,7 @@ struct DNClouds {
     /* 008C */ float m_animTime;
     /* 0090 */ CTexture* m_textures [2];
 
-    static void __stdcall Collide(const C3Vector* origin, const C3Vector* dir, C3Vector* out);
+    static void __stdcall Collide(const C3Vector& origin, const C3Vector* dir, C3Vector* out);
     static void Callback_GxTex(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t face, uint32_t level, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
     static void Update();
 
@@ -282,7 +282,7 @@ namespace DayNight {
     void DrawSky(DNOverrideSky* sky, float weight);
     int32_t GetFogOverride();
     void RenderGlares();
-    void SetBlendSky(uint32_t index, const char* sky, int32_t flags, float blend);
+    void SetBlendSky(uint32_t index, const char* sky, int32_t flags, float alpha);
     void UpdateStars();
     void AddLightOverride(int32_t lightId, int32_t overrideId, uint32_t duration);
     void RemoveLightOverride(int32_t lightId, uint32_t duration);

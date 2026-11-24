@@ -856,15 +856,17 @@ DayNight::CurrentLight& DayNight::CurrentLight::operator=(const CurrentLight& so
 
 // VERIFY: 9e94a499 manual
 // OFFSET: 0x007EDA90
-void __stdcall DayNight::DNClouds::Collide(const C3Vector* origin, const C3Vector* dir, C3Vector* out) {
+void __stdcall DayNight::DNClouds::Collide(const C3Vector& origin, const C3Vector* dir, C3Vector* out) {
+    STORM_ASSERT(origin.x == 0 && origin.y == 0 && origin.z == 0);
+
     float offset = -cos(0.7853981852531433);
     float r0;
     float r1;
     CMath::solvequad_(dir->x * dir->x + dir->y * dir->y + dir->z * dir->z, -offset * dir->z + -offset * dir->z, offset * offset - 1.0f, r0, r1);
 
-    float x = dir->x * r1 + origin->x + DayNight::g_dnInfo.m_cameraPos.x;
-    float y = dir->y * r1 + origin->y + DayNight::g_dnInfo.m_cameraPos.y;
-    float z = r1 * dir->z + origin->z + DayNight::g_dnInfo.m_cameraPos.z;
+    float x = dir->x * r1 + origin.x + DayNight::g_dnInfo.m_cameraPos.x;
+    float y = dir->y * r1 + origin.y + DayNight::g_dnInfo.m_cameraPos.y;
+    float z = r1 * dir->z + origin.z + DayNight::g_dnInfo.m_cameraPos.z;
     out->x = x;
     out->y = y;
     out->z = z;
@@ -1362,7 +1364,7 @@ void DayNight::DNClouds::SetupBumpMap(C3Vector* shadeColor, C3Vector* sunColor, 
     C3Vector hit(0.0f, 0.0f, 0.0f);
     C2Vector uv(0.0f, 0.0f);
 
-    DayNight::DNClouds::Collide(&origin, &dir, &hit);
+    DayNight::DNClouds::Collide(origin, &dir, &hit);
     this->WorldToTexture(&hit, &uv);
 
     info.m_cloudSun = uv;
@@ -2513,6 +2515,7 @@ void DayNight::DNSky::GenSphere(float sphRadius) {
 void DayNight::LoadMap(int32_t mapId) {
     DayNight::s_mapId = mapId;
     DayNight::LightLoad(DayNight::g_areaLights, mapId);
+    STORM_ASSERT(s_areaLightOverrides.Count() == 0);
 
     DNInfo& info = DayNight::g_dnInfo;
     info.m_dayProgression = 0.0f;
@@ -2616,8 +2619,8 @@ void DayNight::SetColors() {
     DNInfo& info = DayNight::g_dnInfo;
     float liquidDepth = 0.0f;
     int32_t liquidStatus = World::SceneCamLiquidStatus(&liquidDepth);
-    const LiquidTypeRec* liquid = liquidStatus ? g_liquidTypeDB.GetRecord(liquidStatus) : nullptr;
-    bool liquidLight = liquid && liquid->m_lightID != 0;
+    const LiquidTypeRec* rec = liquidStatus ? g_liquidTypeDB.GetRecord(liquidStatus) : nullptr;
+    bool liquidLight = rec && rec->m_lightID != 0;
 
     for (int32_t i = 0; i < 3; i++) {
         info.m_blendSkyboxWeight[i] = 0.0f;
@@ -2630,8 +2633,9 @@ void DayNight::SetColors() {
 
     if (DayNight::g_areaLights.m_count) {
         if (liquidStatus && liquidLight) {
-            if (liquid) {
-                const LightParamsRec* params = g_lightParamsDB.GetRecord(liquid->m_lightID);
+            if (rec) {
+                STORM_ASSERT(rec->m_lightID);
+                const LightParamsRec* params = g_lightParamsDB.GetRecord(rec->m_lightID);
                 float progression = info.m_dayProgression * 2880.0f;
                 DayNight::CalcColors(CMath::fint_(progression - 0.5f), &info.m_bands, params);
             }
@@ -2706,17 +2710,17 @@ void DayNight::SetColors() {
 
     DayNight::SetLightColors();
 
-    if (liquidStatus && liquid && liquid->m_maxDarkenDepth > 0.0f) {
-        float maxDepth = -liquid->m_maxDarkenDepth;
+    if (liquidStatus && rec && rec->m_maxDarkenDepth > 0.0f) {
+        float maxDepth = -rec->m_maxDarkenDepth;
         float depth = liquidDepth <= 0.0f ? liquidDepth : 0.0f;
 
         if (depth <= maxDepth) {
             depth = maxDepth;
         }
 
-        float fogScale = liquid->m_fogDarkenIntensity;
-        float ambientScale = liquid->m_ambDarkenIntensity;
-        float directScale = liquid->m_dirDarkenIntensity;
+        float fogScale = rec->m_fogDarkenIntensity;
+        float ambientScale = rec->m_ambDarkenIntensity;
+        float directScale = rec->m_dirDarkenIntensity;
         float darken = 1.0f - depth / maxDepth - 1.0f;
         info.m_fog.m_color = DayNight::DarkenColor(info.m_fog.m_color, fogScale * darken + 1.0f);
         info.m_light1.m_ambient = DayNight::DarkenColor(info.m_light1.m_ambient, darken * ambientScale + 1.0f);
@@ -3290,14 +3294,16 @@ void DayNight::RemoveLightOverride(int32_t lightId, uint32_t duration) {
 
 // VERIFY: 1d606d65 auto
 // OFFSET: 0x007F31C0
-void DayNight::SetBlendSky(uint32_t index, const char* sky, int32_t flags, float blend) {
+void DayNight::SetBlendSky(uint32_t index, const char* sky, int32_t flags, float alpha) {
+    STORM_ASSERT(alpha >= 0.0f && alpha <= 1.0f);
+
     if (index > 3) {
         return;
     }
 
     if (sky) {
         DayNight::g_dnInfo.m_blendSkybox[index] = DayNight::GetOverrideSky(sky, flags);
-        DayNight::g_dnInfo.m_blendSkyboxWeight[index] = blend;
+        DayNight::g_dnInfo.m_blendSkyboxWeight[index] = alpha;
         DayNight::g_dnInfo.m_blendSkyboxFlags[index] = 0;
     } else {
         DayNight::g_dnInfo.m_blendSkybox[index] = nullptr;
