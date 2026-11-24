@@ -23,7 +23,13 @@
 #include "Engine/Source/Tempest/CiRect.h"
 
 // STATIC: 0x00AF0A0C
-TSList<CMapChunkLiquid, TSGetExplicitLink<CMapChunkLiquid> > CMapChunkLiquidBuf::s_freeLists = TSExplicitList<CMapChunkLiquid, offsetof(CMapChunkLiquid, m_link)>();
+TSList<CMapChunkLiquid, TSGetExplicitLink<CMapChunkLiquid> > CMapChunkLiquidBuf::s_bufEntryList = TSExplicitList<CMapChunkLiquid, offsetof(CMapChunkLiquid, m_link)>();
+
+#if defined(WOWDECOMP_ASSERTIONS)
+void CMapChunkLiquidBuf::AssertCacheEmpty() { // (inferred)
+    STORM_ASSERT(s_bufEntryList.Head() == nullptr); // 12213: "s_bufEntryList.Head() == __null"
+}
+#endif
 
 // STATIC: 0x00D2DD2C
 Liquid::CWaveManager* CChunkLiquid::s_waveManager;
@@ -73,6 +79,8 @@ bool CMapChunkLiquidBuf::Valid() const {
 // VERIFY: 8f8e7321 manual
 // OFFSET: 0x007CDF80
 void CChunkLiquid::CreateVertXY() {
+    STORM_ASSERT(m_vtxData);
+
     CMapChunk* owner = this->m_owner;
     int32_t chunkX = owner->m_cOffset.x;
     int32_t chunkY = owner->m_cOffset.y;
@@ -93,7 +101,7 @@ void CChunkLiquid::CreateVertXY() {
         for (int32_t col = 0; col < cols; col++) {
             vert->x = x;
             vert->y = (col + beginY) * stepY;
-            vert->z = this->m_vertexData->GetHeight(index++) - this->m_owner->m_topLeftCoords.z;
+            vert->z = this->m_vtxData->GetHeight(index++) - this->m_owner->m_topLeftCoords.z;
             vert++;
         }
     }
@@ -110,10 +118,10 @@ bool CChunkLiquid::GetHeight(const C2Vector& frac, const C2iVector& tile, float&
     uint32_t index = (tile.x - this->m_tileBegin.y) + cols * (tile.y - this->m_tileBegin.x);
     uint32_t next = index + cols;
 
-    float h00 = this->m_vertexData->GetHeight(index);
-    float h01 = this->m_vertexData->GetHeight(index + 1);
-    float h10 = this->m_vertexData->GetHeight(next);
-    float h11 = this->m_vertexData->GetHeight(next + 1);
+    float h00 = this->m_vtxData->GetHeight(index);
+    float h01 = this->m_vtxData->GetHeight(index + 1);
+    float h10 = this->m_vtxData->GetHeight(next);
+    float h11 = this->m_vtxData->GetHeight(next + 1);
 
     float top = h00 + (h01 - h00) * frac.x;
     height = top + (h10 + (h11 - h10) * frac.x - top) * frac.y;
@@ -237,7 +245,7 @@ void CChunkLiquid::BuildVertices(const C44Matrix* transform, uint32_t stride, C3
 
             if (*texCoord1) {
                 if (depthCoords) {
-                    uint8_t depth = this->m_vertexData->GetDepth(index);
+                    uint8_t depth = this->m_vtxData->GetDepth(index);
                     (*texCoord1)->x = 0.0f;
                     (*texCoord1)->y = (*depthCoords)[depth];
                 } else {
@@ -250,7 +258,7 @@ void CChunkLiquid::BuildVertices(const C44Matrix* transform, uint32_t stride, C3
 
             if (*texCoord0) {
                 if (customTexCoords) {
-                    const uint16_t* uv = this->m_vertexData->GetTexCoord(index);
+                    const uint16_t* uv = this->m_vtxData->GetTexCoord(index);
                     (*texCoord0)->x = 0.01171875f * uv[0];
                     (*texCoord0)->y = uv[1] * 0.01171875f;
                 } else {
@@ -334,7 +342,7 @@ CChunkLiquid::CChunkLiquid() {
     this->m_resPurgeTimer = 0.0f;
     this->m_type = 0;
     this->m_sphere.r = -1.0f;
-    this->m_vertexData = nullptr;
+    this->m_vtxData = nullptr;
     this->m_tiles = nullptr;
     this->m_instance = nullptr;
     this->m_owner = nullptr;
@@ -357,9 +365,11 @@ CChunkLiquid::~CChunkLiquid() {
         CChunkLiquid::s_waveManagerRefs--;
     }
 
-    if (this->m_vertexData) {
-        delete this->m_vertexData;
-        this->m_vertexData = nullptr;
+    STORM_ASSERT(m_instance == nullptr); // 12213: "m_instance == __null"
+
+    if (this->m_vtxData) {
+        delete this->m_vtxData;
+        this->m_vtxData = nullptr;
     }
 }
 
@@ -405,7 +415,7 @@ CMapChunkLiquid::~CMapChunkLiquid() {
 CMapChunkLiquidBuf* CMapChunkLiquidBuf::Alloc(uint32_t vertexCount, uint32_t indexCount, int32_t flags, EGxVertexBufferFormat format) {
     uint32_t vertexSize = GxVertexSize(format);
 
-    for (CMapChunkLiquid* list = CMapChunkLiquidBuf::s_freeLists.Head(); list; list = CMapChunkLiquidBuf::s_freeLists.Next(list)) {
+    for (CMapChunkLiquid* list = CMapChunkLiquidBuf::s_bufEntryList.Head(); list; list = CMapChunkLiquidBuf::s_bufEntryList.Next(list)) {
         if (list->m_vertexDataSize == vertexCount * vertexSize && list->m_indexDataSize == 2 * indexCount && list->m_liquids.Head()) {
             CMapChunkLiquidBuf* buf = list->m_liquids.Head();
             buf->m_link.Unlink();
@@ -424,10 +434,10 @@ CMapChunkLiquidBuf* CMapChunkLiquidBuf::Alloc(uint32_t vertexCount, uint32_t ind
 void CChunkLiquid::Batch() {
     STORM_ASSERT(!m_instance);
 
-    static TSGrowableArray<CChunkLiquid*> s_batch;
+    static TSGrowableArray<CChunkLiquid*> batchedLiquids;
 
-    s_batch.Clear();
-    s_batch.ReallocData(32);
+    batchedLiquids.Clear();
+    batchedLiquids.ReallocData(32);
 
     if (CMap::enableChunkBatching) {
         CMapArea* area = static_cast<CMapArea*>(this->m_owner->m_parentLinkList.Head()->ref);
@@ -441,7 +451,8 @@ void CChunkLiquid::Batch() {
 
                 for (CChunkLiquid* liquid = chunk->liquidsList.Head(); liquid; liquid = chunk->liquidsList.Next(liquid)) {
                     if (liquid->m_type == this->m_type) {
-                        s_batch.New(liquid);
+                        STORM_ASSERT(!liquid->m_instance);
+                        batchedLiquids.New(liquid);
                     }
                 }
 
@@ -450,16 +461,18 @@ void CChunkLiquid::Batch() {
 
             row += MAP_CHUNKS_PER_AREA_AXIS;
         }
+
+        STORM_ASSERT(batchedLiquids.Count());
     } else {
         CChunkLiquid* self = this;
-        s_batch.New(self);
+        batchedLiquids.New(self);
     }
 
     CAaBox bounds;
-    Liquid::CChunkGeomFactory* factory = Liquid::CChunkGeomFactory::Create(s_batch);
+    Liquid::CChunkGeomFactory* factory = Liquid::CChunkGeomFactory::Create(batchedLiquids);
 
-    for (uint32_t i = 0; i < s_batch.m_count; i++) {
-        CChunkLiquid* liquid = s_batch.m_data[i];
+    for (uint32_t i = 0; i < batchedLiquids.m_count; i++) {
+        CChunkLiquid* liquid = batchedLiquids.m_data[i];
 
         C2Vector minXY = C2Vector(liquid->m_topLeftCoords);
         minXY.x = minXY.x + liquid->m_tileBegin.y * SMOLTILE_SIZE;
@@ -483,7 +496,7 @@ void CChunkLiquid::Batch() {
     }
 
     C44Matrix transform;
-    transform.Translate(s_batch.m_data[0]->m_topLeftCoords);
+    transform.Translate(batchedLiquids.m_data[0]->m_topLeftCoords);
 
     Liquid::CInstance* instance = Liquid::CInstance::Create();
     instance->m_material = Liquid::CMaterialBank::GetMaterial(this->m_type);
@@ -503,8 +516,8 @@ void CChunkLiquid::Batch() {
     instance->m_bounds.c.z = (bounds.b.z + bounds.t.z) * 0.5f;
     instance->m_bounds.r = 0.5f * sqrtf(dy * dy + dx * dx + dz * dz);
 
-    for (uint32_t i = 0; i < s_batch.m_count; i++) {
-        s_batch.m_data[i]->m_instance = instance;
+    for (uint32_t i = 0; i < batchedLiquids.m_count; i++) {
+        batchedLiquids.m_data[i]->m_instance = instance;
         instance->AddRef();
     }
 
@@ -516,7 +529,7 @@ void CChunkLiquid::Batch() {
 void CMapChunkLiquidBuf::Free(CMapChunkLiquidBuf* buf) {
     CMapChunkLiquid* list;
 
-    for (list = CMapChunkLiquidBuf::s_freeLists.Head(); list; list = CMapChunkLiquidBuf::s_freeLists.Next(list)) {
+    for (list = CMapChunkLiquidBuf::s_bufEntryList.Head(); list; list = CMapChunkLiquidBuf::s_bufEntryList.Next(list)) {
         if (list->m_vertexDataSize == buf->m_vertexDataSize && list->m_indexDataSize == buf->m_indexDataSize) {
             break;
         }
@@ -527,7 +540,7 @@ void CMapChunkLiquidBuf::Free(CMapChunkLiquidBuf* buf) {
         list = mem ? new (mem) CMapChunkLiquid() : nullptr;
         list->m_vertexDataSize = buf->m_vertexDataSize;
         list->m_indexDataSize = buf->m_indexDataSize;
-        CMapChunkLiquidBuf::s_freeLists.LinkToTail(list);
+        CMapChunkLiquidBuf::s_bufEntryList.LinkToTail(list);
     }
 
     list->m_liquids.LinkToTail(buf);
@@ -536,10 +549,10 @@ void CMapChunkLiquidBuf::Free(CMapChunkLiquidBuf* buf) {
 // VERIFY: 9b76b6fd manual
 // OFFSET: 0x007CF840
 void CMapChunkLiquidBuf::Update(float elapsed) {
-    CMapChunkLiquid* list = CMapChunkLiquidBuf::s_freeLists.Head();
+    CMapChunkLiquid* list = CMapChunkLiquidBuf::s_bufEntryList.Head();
 
     while (list) {
-        CMapChunkLiquid* nextList = CMapChunkLiquidBuf::s_freeLists.Next(list);
+        CMapChunkLiquid* nextList = CMapChunkLiquidBuf::s_bufEntryList.Next(list);
 
         CMapChunkLiquidBuf* buf = list->m_liquids.Head();
 
@@ -584,10 +597,10 @@ void CChunkLiquid::RenderPrep() {
 // VERIFY: 87f4391a manual
 // OFFSET: 0x007CF9E0
 void CMap::FreeAllChunkLiquids() {
-    CMapChunkLiquid* list = CMapChunkLiquidBuf::s_freeLists.Head();
+    CMapChunkLiquid* list = CMapChunkLiquidBuf::s_bufEntryList.Head();
 
     while (list) {
-        CMapChunkLiquid* nextList = CMapChunkLiquidBuf::s_freeLists.Next(list);
+        CMapChunkLiquid* nextList = CMapChunkLiquidBuf::s_bufEntryList.Next(list);
         CMapChunkLiquidBuf* buf = list->m_liquids.Head();
 
         while (buf) {

@@ -2670,8 +2670,8 @@ void CWorldScene::CullLiquid(CSortEntry* entry) {
             if (CWorldScene::frustumStack[CWorldScene::frustumIndex].Cull(box) && !CWorldOcclusion::QueryBuffer(&box, CWorldOcclusion::QUERY_FLAG_NONE) && !CWorldOcclusion::QueryVolumes(liquid->GetSphere())) {
                 liquid->RenderPrep();
 
-                if (CWorldScene::s_liquidRenderer && liquid->m_instance) {
-                    CWorldScene::s_liquidRenderer->Draw(liquid->m_instance);
+                if (CWorldScene::s_liquidRenderer && liquid->GetInstance()) {
+                    CWorldScene::s_liquidRenderer->Draw(liquid->GetInstance());
                 }
             }
 

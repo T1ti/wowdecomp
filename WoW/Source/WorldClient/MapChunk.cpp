@@ -822,7 +822,7 @@ void CMapChunk::CreateLiquids(bool firstUse) {
                 void* mem = SMemAlloc(sizeof(Liquid::CChunkVertexData), __FILE__, __LINE__, 0);
                 Liquid::CChunkVertexData* vertexData = mem ? new (mem) Liquid::CChunkVertexData(verts, chunkLiquid->m_vertexFormat) : nullptr;
                 chunkLiquid->m_tiles = &mclq->m_tiles;
-                chunkLiquid->m_vertexData = vertexData;
+                chunkLiquid->m_vtxData = vertexData;
                 mclq++;
 
                 chunkLiquid->CreateVertXY();
@@ -858,7 +858,7 @@ void CMapChunk::CreateLiquids(bool firstUse) {
             chunkLiquid->m_tileEnd.y = xOffset + instance->m_width;
 
             void* mem = SMemAlloc(sizeof(Liquid::CInstanceVertexData), __FILE__, __LINE__, 0);
-            chunkLiquid->m_vertexData = mem ? new (mem) Liquid::CInstanceVertexData(area->m_liquid, instance) : nullptr;
+            chunkLiquid->m_vtxData = mem ? new (mem) Liquid::CInstanceVertexData(area->m_liquid, instance) : nullptr;
 
             uint32_t tileCount = instance->m_width * instance->m_height;
             chunkLiquid->m_tileBits.SetRawData(const_cast<char*>(reinterpret_cast<const char*>(area->m_liquid->GetExistsTable(instance))), tileCount, false);

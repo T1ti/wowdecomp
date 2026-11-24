@@ -3116,6 +3116,9 @@ void CMap::Load(const char* mapName, int32_t zoneID) {
     CMap::bPreload = 0;
     World::s_loadProgressCallback = nullptr;
     CWorld::status.m_prepareAll = 1;
+#if defined(WOWDECOMP_ASSERTIONS)
+    CMapChunkLiquidBuf::AssertCacheEmpty();
+#endif
 }
 
 // VERIFY: 512418e2 auto

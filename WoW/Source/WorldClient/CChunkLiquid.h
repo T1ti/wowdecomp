@@ -31,10 +31,13 @@ struct SLTiles;
 // Runtime terrain-liquid instance in 3.3.5. The 0.5.3 CChunkLiquid embedded
 // the legacy payload now described by SMLiquidChunk; its runtime layout differs.
 class CChunkLiquid {
-    public:
+    private:
+    friend class CMapChunk; // (inferred)
+
     static Liquid::CWaveManager* s_waveManager;
     static int32_t s_waveManagerRefs;
 
+    public:
     /* 0000 */ int32_t m_objectIndex;
     /* 0004 */ int32_t m_type;
     /* 0008 */ int32_t m_vertexFormat; // LIQUID_VERTEX_FORMAT values in the native signed DWORD carrier.
@@ -44,10 +47,16 @@ class CChunkLiquid {
     /* 0030 */ float m_resPurgeTimer;
     /* 0034 */ C2iVector m_tileBegin;
     /* 003C */ C2iVector m_tileEnd;
-    /* 0044 */ Liquid::IVertexData* m_vertexData;
+    private:
+    /* 0044 */ Liquid::IVertexData* m_vtxData;
+
+    public:
     /* 0048 */ CBitArray m_tileBits;
     /* 0054 */ SLTiles* m_tiles;
+    private:
     /* 0058 */ Liquid::CInstance* m_instance;
+
+    public:
     /* 005C */ CMapChunk* m_owner;
     /* 0060 */ TSLink<CChunkLiquid> m_link;
     /* 0068 */ TSLink<CChunkLiquid> m_updateLink;
@@ -66,6 +75,7 @@ class CChunkLiquid {
     bool GetTileInfo(const C2iVector& tile, int32_t* type, int32_t* flag6, int32_t* flag7) const;
     void Purge();
     void RenderPrep();
+    Liquid::CInstance* GetInstance() const { return this->m_instance; } // (inferred)
     bool TileExists(uint32_t x, uint32_t y) const;
     bool GetTris(World::TriData* triData, const CAaBox& box, const CiRect& rect);
     bool GetTris(World::TriData* triData, uint8_t* codes, const C2iVector& start, const C2iVector& size) const;

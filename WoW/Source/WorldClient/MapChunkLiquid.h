@@ -8,13 +8,12 @@
 
 struct CGxBuf;
 struct CGxPool;
+class CMap;
 class CMapChunkLiquidBuf;
 class CMapChunkLiquid;
 
 class CMapChunkLiquidBuf {
     public:
-    static TSList<CMapChunkLiquid, TSGetExplicitLink<CMapChunkLiquid> > s_freeLists;
-
     enum FLAGS : uint32_t {
         NONE = 0x0,
         // Free buffers with this bit are never released by Update's idle flush; no caller sets it.
@@ -22,9 +21,25 @@ class CMapChunkLiquidBuf {
     };
 
     static CMapChunkLiquidBuf* Alloc(uint32_t vertexCount, uint32_t indexCount, int32_t flags, EGxVertexBufferFormat format);
-    static CMapChunkLiquidBuf* CreateBuf(uint32_t vertexCount, uint32_t indexCount, int32_t flags, uint32_t vertexSize);
     static void Free(CMapChunkLiquidBuf* buf);
     static void Update(float elapsed);
+
+    CMapChunkLiquidBuf();
+    ~CMapChunkLiquidBuf();
+    bool Valid() const;
+    CGxBuf* GetVertexBuffer() const { return this->m_vertexBuf; } // (inferred)
+    CGxBuf* GetIndexBuffer() const { return this->m_indexBuf; } // (inferred)
+
+    private:
+    friend class CMap; // (inferred)
+    friend class CMapChunkLiquid; // (inferred)
+
+    static TSList<CMapChunkLiquid, TSGetExplicitLink<CMapChunkLiquid> > s_bufEntryList;
+
+    static CMapChunkLiquidBuf* CreateBuf(uint32_t vertexCount, uint32_t indexCount, int32_t flags, uint32_t vertexSize);
+#if defined(WOWDECOMP_ASSERTIONS)
+    static void AssertCacheEmpty();
+#endif
 
     /* 0000 */ uint32_t m_flags;
     /* 0004 */ float m_flushTimer;
@@ -35,10 +50,6 @@ class CMapChunkLiquidBuf {
     /* 0018 */ CGxPool* m_vertexPool;
     /* 001C */ CGxPool* m_indexPool;
     /* 0020 */ TSLink<CMapChunkLiquidBuf> m_link;
-
-    CMapChunkLiquidBuf();
-    ~CMapChunkLiquidBuf();
-    bool Valid() const;
 };
 
 class CMapChunkLiquid {

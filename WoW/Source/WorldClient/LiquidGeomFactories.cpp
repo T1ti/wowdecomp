@@ -252,8 +252,8 @@ Liquid::CChunkGeomFactory* Liquid::CChunkGeomFactory::Create(const TSGrowableArr
 void Liquid::CChunkGeomFactory::GetBuffers(EGxVertexBufferFormat vtxFormat, CGxBuf** vertexBuf, CGxBuf** indexBuf, CGxBatch* batch) {
     if (this->m_buf && this->m_buf->Valid() && !this->m_dirty) {
         STORM_ASSERT(m_vtxFormat == vtxFormat);
-        *vertexBuf = this->m_buf->m_vertexBuf;
-        *indexBuf = this->m_buf->m_indexBuf;
+        *vertexBuf = this->m_buf->GetVertexBuffer();
+        *indexBuf = this->m_buf->GetIndexBuffer();
         *batch = this->m_batch;
         return;
     }
@@ -279,8 +279,8 @@ void Liquid::CChunkGeomFactory::GetBuffers(EGxVertexBufferFormat vtxFormat, CGxB
         this->m_buf = CMapChunkLiquidBuf::Alloc(vertexCount, indexCount, CMapChunkLiquidBuf::FLAGS::NONE, vtxFormat);
     }
 
-    *vertexBuf = this->m_buf->m_vertexBuf;
-    *indexBuf = this->m_buf->m_indexBuf;
+    *vertexBuf = this->m_buf->GetVertexBuffer();
+    *indexBuf = this->m_buf->GetIndexBuffer();
 
     if (this->m_dirty) {
         (*vertexBuf)->m_hasData = 0;
