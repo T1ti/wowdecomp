@@ -8,10 +8,15 @@
 #include "Engine/Source/Os/Input.h"
 #include "Engine/Source/Tempest/C3Vector.h"
 #include "WowEdit/Source/App/WowEditCommands.h"
+#include "WowEdit/Source/App/WowEditDistancePalette.h"
+#include "WowEdit/Source/App/WowEditMapDialog.h"
+#include "WowEdit/Source/App/WowEditMenus.h"
 #include "WowEdit/Source/App/WowEditModule.h"
 #include "WowEdit/Source/App/WowEditRenderDistance.h"
 #include "WowEdit/Source/App/WowEditSettings.h"
+#include "WowEdit/Source/App/WowEditToolPalette.h"
 #include "WowEdit/Source/App/WowEditUndo.h"
+#include "WowEdit/Source/App/WowEditViewPalette.h"
 #include "WowEdit/Source/App/WowEditViewToggles.h"
 #include "WowEdit/Source/App/WowEditWorldView.h"
 
@@ -26,9 +31,13 @@ static UINT s_attachMessage;
 static WNDPROC s_gxWindowProc;
 static HWND s_subclassedWindow;
 
-struct WowEditAppMenus {
+struct WowEditAppUi {
     COsMenuBar* bar;
     COsMenu* menus[WOWEDITMENU_LAST];
+    CWowEditMapDialog* mapDialog;
+    CWowEditToolPalette* toolPalette;
+    CWowEditViewPalette* viewPalette;
+    CWowEditDistancePalette* distancePalette;
 };
 
 void CWowEditApp::InitializeWorld() {
@@ -115,32 +124,15 @@ static void UnsubclassCursor(HWND hwnd) {
 
 // ---- CWowEditApp
 
-CWowEditApp* CWowEditApp::Get() {
-    return s_app;
-}
-
 CWowEditApp::CWowEditApp() {
     this->m_window = nullptr;
     this->m_attachPending = false;
-    this->m_menus = nullptr;
+    this->m_ui = nullptr;
     this->m_undoer = new CWowEditUndoer();
     this->m_commander = new CWowEditCommander(this->m_undoer);
 
-    this->m_commander->AddModule(WowEditCreateAppModule());
     this->m_commander->AddModule(WowEditCreateViewModule());
     this->m_commander->AddModule(WowEditCreateTerrainModule());
-}
-
-CWowEditCommander* CWowEditApp::GetCommander() {
-    return this->m_commander;
-}
-
-CWowEditUndoer* CWowEditApp::GetUndoer() {
-    return this->m_undoer;
-}
-
-void* CWowEditApp::GetMainWindow() {
-    return this->m_window;
 }
 
 intptr_t CWowEditApp::WindowProc(void* window, uint32_t message, uintptr_t wparam, intptr_t lparam) {
@@ -195,15 +187,15 @@ void CWowEditApp::Attach(void* window) {
     SubclassCursor(static_cast<HWND>(window));
 
     // The menu bar, from the command table: each menu's items in table order, a null text being a separator.
-    this->m_menus = new WowEditAppMenus();
-    this->m_menus->bar = new COsMenuBar(window);
-    this->m_menus->menus[0] = nullptr;
+    this->m_ui = new WowEditAppUi();
+    this->m_ui->bar = new COsMenuBar(window);
+    this->m_ui->menus[0] = nullptr;
 
     TSGrowableArray<COsMenu*> menus;
 
     for (uint8_t id = 1; id < WOWEDITMENU_LAST; id++) {
         COsMenu* menu = new COsMenu(id, WowEditGetMenuTitle(id));
-        this->m_menus->menus[id] = menu;
+        this->m_ui->menus[id] = menu;
         *menus.New() = menu;
     }
 
@@ -213,7 +205,7 @@ void CWowEditApp::Attach(void* window) {
 
     for (uint32_t i = 0; i < count; i++) {
         const WowEditCommandData& data = table[i];
-        COsMenu* menu = this->m_menus->menus[data.menu];
+        COsMenu* menu = this->m_ui->menus[data.menu];
         int32_t position = positions[data.menu]++;
 
         if (data.command == WOWEDITCMD_NONE) {
@@ -227,14 +219,16 @@ void CWowEditApp::Attach(void* window) {
         menu->AddTextItem(position, data.text, data.key != KEY_NONE ? &hotkey : nullptr);
     }
 
-    this->m_menus->bar->Set(menus);
+    this->m_ui->mapDialog = new CWowEditMapDialog(window);
+    this->m_ui->viewPalette = new CWowEditViewPalette(window);
+    this->m_ui->viewPalette->Show(true);
+    // Hidden until Window > Render Distance.
+    this->m_ui->distancePalette = new CWowEditDistancePalette(window);
+    this->m_ui->toolPalette = new CWowEditToolPalette(window);
+    this->m_ui->toolPalette->Show(true);
 
+    this->m_ui->bar->Set(menus);
     OsGuiSetWindowTitle(window, WOWEDIT_WINDOW_TITLE);
-
-    for (uint32_t i = 0; i < this->m_commander->GetNumModules(); i++) {
-        this->m_commander->GetModule(i)->OnAttach(window);
-    }
-
     this->UpdateMenus();
 }
 
@@ -243,33 +237,32 @@ void CWowEditApp::Detach() {
         return;
     }
 
-    for (uint32_t i = 0; i < this->m_commander->GetNumModules(); i++) {
-        this->m_commander->GetModule(i)->OnDetach();
-    }
+    delete this->m_ui->mapDialog;
+    delete this->m_ui->viewPalette;
+    delete this->m_ui->distancePalette;
+    delete this->m_ui->toolPalette;
 
     // The bar destroys its menus' handles with its own; the COsMenu objects go after it.
     SetMenu(static_cast<HWND>(this->m_window), nullptr);
-    delete this->m_menus->bar;
+    delete this->m_ui->bar;
 
     for (uint8_t id = 1; id < WOWEDITMENU_LAST; id++) {
-        delete this->m_menus->menus[id];
+        delete this->m_ui->menus[id];
     }
 
-    delete this->m_menus;
-    this->m_menus = nullptr;
+    delete this->m_ui;
+    this->m_ui = nullptr;
     UnsubclassCursor(static_cast<HWND>(this->m_window));
     this->m_window = nullptr;
 }
 
 // Before a menu opens: each item's enabled and checked state from its module.
 void CWowEditApp::UpdateMenus() {
-    if (!this->m_menus) {
+    if (!this->m_ui) {
         return;
     }
 
-    for (uint32_t i = 0; i < this->m_commander->GetNumModules(); i++) {
-        this->m_commander->GetModule(i)->OnRefresh();
-    }
+    this->RefreshPalettes();
 
     uint32_t count;
     const WowEditCommandData* table = WowEditGetCommandTable(&count);
@@ -285,19 +278,98 @@ void CWowEditApp::UpdateMenus() {
 
         bool enabled;
         bool checked;
-        this->m_commander->GetCommandStatus(data.command, &enabled, &checked);
+        this->GetMenuCommandStatus(data.command, &enabled, &checked);
 
-        COsMenu* menu = this->m_menus->menus[data.menu];
+        COsMenu* menu = this->m_ui->menus[data.menu];
         menu->EnableItem(position, enabled);
         menu->CheckItem(position, checked);
+    }
+}
+
+void CWowEditApp::RefreshPalettes() {
+    this->m_ui->viewPalette->Refresh();
+    this->m_ui->distancePalette->Refresh();
+    this->m_ui->toolPalette->Refresh();
+}
+
+void CWowEditApp::GetMenuCommandStatus(int32_t command, bool* enabled, bool* checked) {
+    *enabled = true;
+    *checked = false;
+
+    switch (command) {
+        case WOWEDITCMD_OPEN_MAP:
+        case WOWEDITCMD_EXIT:
+        case WOWEDITCMD_ABOUT:
+            return;
+
+        case WOWEDITCMD_WINDOW_VIEW_PALETTE:
+            *checked = this->m_ui->viewPalette->IsShowing();
+            return;
+
+        case WOWEDITCMD_WINDOW_DISTANCE_PALETTE:
+            *checked = this->m_ui->distancePalette->IsShowing();
+            return;
+
+        case WOWEDITCMD_WINDOW_TOOL_PALETTE:
+            *checked = this->m_ui->toolPalette->IsShowing();
+            return;
+
+        default:
+            this->m_commander->GetCommandStatus(command, enabled, checked);
+            return;
+    }
+}
+
+void CWowEditApp::DoMenuCommand(int32_t command) {
+    if (!this->m_ui) {
+        return;
+    }
+
+    switch (command) {
+        case WOWEDITCMD_OPEN_MAP:
+            this->m_ui->mapDialog->Open();
+            return;
+
+        case WOWEDITCMD_EXIT:
+            // As the close box: OsWindowProc queues OS_INPUT_CLOSE.
+            PostMessageA(static_cast<HWND>(this->m_window), WM_SYSCOMMAND, SC_CLOSE, 0);
+            return;
+
+        case WOWEDITCMD_ABOUT:
+            OsGuiMessageBox(this->m_window, OSGUI_MESSAGE_STYLE_OK,
+                "World of Warcraft Editor\n\n"
+                "A reconstruction of Blizzard's world editor on the 3.3.5 client engine: the world drawn on its own, "
+                "its window built with OsGui, the engine's tool interface layer.\n\n"
+                "Camera: hold the right mouse button to look, W A S D to move, E and Q up and down, Shift faster, "
+                "the mouse wheel for the speed.",
+                "About WowEdit");
+            return;
+
+        case WOWEDITCMD_WINDOW_VIEW_PALETTE:
+            this->m_ui->viewPalette->Show(!this->m_ui->viewPalette->IsShowing());
+            return;
+
+        case WOWEDITCMD_WINDOW_DISTANCE_PALETTE:
+            this->m_ui->distancePalette->Show(!this->m_ui->distancePalette->IsShowing());
+            return;
+
+        case WOWEDITCMD_WINDOW_TOOL_PALETTE:
+            this->m_ui->toolPalette->Show(!this->m_ui->toolPalette->IsShowing());
+            return;
+
+        default:
+            if (this->m_commander->DoCommand(command)) {
+                this->RefreshPalettes();
+            }
+            return;
     }
 }
 
 // OsGui menu command callback: type is the menu id, subType the item position.
 void CWowEditApp::OnMenuCommand(const OsGuiCallbackParams& params) {
     CWowEditApp* app = static_cast<CWowEditApp*>(params.user);
-    int32_t command = app->m_commander->FindMenuCommand(static_cast<uint8_t>(params.type), params.subType);
-    app->m_commander->DoCommand(command);
+    int32_t command = WowEditFindMenuCommand(static_cast<uint8_t>(params.type), params.subType);
+    app->DoMenuCommand(command);
 }
 
 #endif

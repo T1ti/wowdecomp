@@ -5,17 +5,9 @@
 #include <cstdio>
 #include "Engine/Source/Os/Gui.h"
 #include "WowEdit/Source/App/WowEditSlider.h"
-#include "WowEdit/Source/WowEdit.h"
 #include "WowEdit/Source/WowEditTerrain.h"
 
 // See WowEditToolPalette.h.
-
-const float CWowEditToolPalette::DEFAULT_RADIUS = 10.0f;
-const float CWowEditToolPalette::DEFAULT_INNER = 0.5f;
-
-// The brush size while the brush is off, so turning it back on keeps it.
-static float s_radius = CWowEditToolPalette::DEFAULT_RADIUS;
-static float s_inner = CWowEditToolPalette::DEFAULT_INNER;
 
 static const int32_t RADIUS_MIN = 1; // yards
 static const int32_t RADIUS_MAX = 100;
@@ -105,52 +97,25 @@ bool CWowEditToolPalette::IsShowing() {
 }
 
 void CWowEditToolPalette::Refresh() {
-    float radius = WowEditTerrainGetBrush();
-
-    if (radius > 0.0f) {
-        s_radius = radius;
-        s_inner = WowEditTerrainGetBrushInner() / radius;
-    }
-
+    const WowEditBrushSettings brush = WowEditTerrainGetBrush();
     this->m_refreshing = true;
-    this->m_brushOn->SetValue(radius > 0.0f);
-    this->m_radius->SetValue(static_cast<int32_t>(s_radius + 0.5f));
-    this->m_inner->SetValue(static_cast<int32_t>(s_inner * 100.0f + 0.5f));
+    this->m_brushOn->SetValue(brush.enabled);
+    this->m_radius->SetValue(static_cast<int32_t>(brush.radius + 0.5f));
+    this->m_inner->SetValue(static_cast<int32_t>(brush.innerFraction * 100.0f + 0.5f));
     this->m_refreshing = false;
 
     this->UpdateTexts();
 }
 
 void CWowEditToolPalette::UpdateTexts() {
+    const WowEditBrushSettings brush = WowEditTerrainGetBrush();
     char text[64];
 
-    snprintf(text, sizeof(text), "Radius: %.0f yards", s_radius);
+    snprintf(text, sizeof(text), "Radius: %.0f yards", brush.radius);
     this->m_radiusText->SetText(text);
 
-    snprintf(text, sizeof(text), "Inner circle: %.0f%% of the radius", s_inner * 100.0f);
+    snprintf(text, sizeof(text), "Inner circle: %.0f%% of the radius", brush.innerFraction * 100.0f);
     this->m_innerText->SetText(text);
-}
-
-void CWowEditToolPalette::ToggleBrush() {
-    if (WowEditTerrainGetBrush() > 0.0f) {
-        WowEditTerrainSetBrush(0.0f, 0.0f);
-    } else {
-        WowEditTerrainSetBrush(s_radius, s_radius * s_inner);
-        WowEditPrepareTerrainOverlays();
-    }
-}
-
-void CWowEditToolPalette::ApplyBrush() {
-    if (this->m_brushOn->GetValue()) {
-        bool wasOn = WowEditTerrainGetBrush() > 0.0f;
-        WowEditTerrainSetBrush(s_radius, s_radius * s_inner);
-
-        if (!wasOn) {
-            WowEditPrepareTerrainOverlays();
-        }
-    } else {
-        WowEditTerrainSetBrush(0.0f, 0.0f);
-    }
 }
 
 void CWowEditToolPalette::OnEvent(const OsGuiCallbackParams& params) {
@@ -165,7 +130,7 @@ void CWowEditToolPalette::HandleEvent(int32_t controlId, int32_t event) {
     }
 
     if (controlId == -1 && event == EVENT_ACTIVATE) {
-        // The brush may have changed from the console or the menu meanwhile.
+        // The brush may have changed while another control had the focus.
         this->Refresh();
         return;
     }
@@ -174,26 +139,27 @@ void CWowEditToolPalette::HandleEvent(int32_t controlId, int32_t event) {
         return;
     }
 
+    WowEditBrushSettings brush = WowEditTerrainGetBrush();
+
     switch (controlId) {
         case ID_BRUSH_ON:
-            this->ApplyBrush();
+            brush.enabled = this->m_brushOn->GetValue() != 0;
             break;
 
         case ID_RADIUS:
-            s_radius = static_cast<float>(this->m_radius->GetValue());
-            this->UpdateTexts();
-            this->ApplyBrush();
+            brush.radius = static_cast<float>(this->m_radius->GetValue());
             break;
 
         case ID_INNER:
-            s_inner = static_cast<float>(this->m_inner->GetValue()) / 100.0f;
-            this->UpdateTexts();
-            this->ApplyBrush();
+            brush.innerFraction = static_cast<float>(this->m_inner->GetValue()) / 100.0f;
             break;
 
         default:
-            break;
+            return;
     }
+
+    WowEditTerrainSetBrush(brush);
+    this->UpdateTexts();
 }
 
 #endif

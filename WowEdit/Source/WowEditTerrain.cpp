@@ -1,4 +1,5 @@
 #include "WowEdit/Source/WowEditTerrain.h"
+#include "WowEdit/Source/WowEdit.h"
 #include "WowEdit/Source/App/WowEditWorldView.h"
 
 #include "Engine/Source/Gx/CGxDevice/CGxDevice.h"
@@ -24,8 +25,7 @@
 static int32_t s_grid = WOWEDITGRID_OFF;
 static bool s_slopes;
 static int32_t s_overlay = WOWEDITOVERLAY_OFF;
-static float s_brushRadius; // yards; 0: no brush
-static float s_brushInnerRadius; // yards, the inner (falloff) circle; 0: none
+static WowEditBrushSettings s_brush = { false, 10.0f, 0.5f };
 static C3Vector s_brushPoint; // the terrain point under the cursor
 static bool s_brushPointValid;
 static CGxTex* s_brushTexture;
@@ -326,7 +326,7 @@ static uint32_t BrushChunks(CMapRenderChunk* const* chunks, uint32_t count, TSGr
         const CAaSphere& sphere = chunks[i]->m_sphere;
         float dx = sphere.c.x - s_brushPoint.x;
         float dy = sphere.c.y - s_brushPoint.y;
-        float reach = sphere.r + s_brushRadius;
+        float reach = sphere.r + s_brush.radius;
 
         if (dx * dx + dy * dy <= reach * reach) {
             *reached.New() = chunks[i];
@@ -411,11 +411,11 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
     CGxShader* overlaysShader = s_overlay != WOWEDITOVERLAY_OFF ? WowEditShaderGet(WOWEDITSHADER_OVERLAYS) : nullptr;
 
     // The cursor's terrain point, for the brush and the area label.
-    if (s_brushRadius > 0.0f || s_overlay == WOWEDITOVERLAY_AREAS) {
+    if (s_brush.enabled || s_overlay == WOWEDITOVERLAY_AREAS) {
         UpdateBrushPoint();
     }
 
-    if (s_brushRadius > 0.0f) {
+    if (s_brush.enabled) {
         brushShader = s_brushPointValid ? WowEditShaderGet(WOWEDITSHADER_BRUSH) : nullptr;
     }
 
@@ -480,11 +480,11 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
         device->RsSet(GxRs_Texture0, brushTexture);
         CMapRenderChunk* const* reached = s_brushChunks.m_data;
         uint32_t reachedCount = s_brushChunks.Count();
-        SetBrushConstants(s_brushRadius, s_brushOuterTint);
+        SetBrushConstants(s_brush.radius, s_brushOuterTint);
         DrawChunks(reached, reachedCount, view, projection);
 
-        if (s_brushInnerRadius > 0.0f) {
-            SetBrushConstants(s_brushInnerRadius, s_brushInnerTint);
+        if (s_brush.innerFraction > 0.0f && s_brush.innerFraction < 1.0f) {
+            SetBrushConstants(s_brush.radius * s_brush.innerFraction, s_brushInnerTint);
             DrawChunks(reached, reachedCount, view, projection);
         }
     }
@@ -493,7 +493,7 @@ static void TerrainPass(CMapRenderChunk* const* chunks, uint32_t count) {
 }
 
 static void UpdateTerrainPass() {
-    WorldEditSetTerrainPass(s_grid >= 0 || s_slopes || s_brushRadius > 0.0f || s_overlay != WOWEDITOVERLAY_OFF ? TerrainPass : nullptr);
+    WorldEditSetTerrainPass(s_grid >= 0 || s_slopes || s_brush.enabled || s_overlay != WOWEDITOVERLAY_OFF ? TerrainPass : nullptr);
 }
 
 bool WowEditTerrainPrepare() {
@@ -507,7 +507,7 @@ bool WowEditTerrainPrepare() {
         ready = WowEditShaderGet(WOWEDITSHADER_SLOPES) != nullptr && ready;
     }
 
-    if (s_brushRadius > 0.0f) {
+    if (s_brush.enabled) {
         ready = WowEditShaderGet(WOWEDITSHADER_BRUSH) != nullptr && ready;
     }
 
@@ -545,17 +545,21 @@ int32_t WowEditTerrainGetOverlay() {
     return s_overlay;
 }
 
-void WowEditTerrainSetBrush(float radius, float innerRadius) {
-    s_brushRadius = radius > 0.0f ? (radius < WOWEDITBRUSH_MAX_RADIUS ? radius : WOWEDITBRUSH_MAX_RADIUS) : 0.0f;
-    s_brushInnerRadius = innerRadius > 0.0f && innerRadius < s_brushRadius ? innerRadius : 0.0f;
+void WowEditTerrainSetBrush(const WowEditBrushSettings& settings) {
+    const bool starting = settings.enabled && settings.radius > 0.0f && !s_brush.enabled;
+    s_brush.enabled = settings.enabled && settings.radius > 0.0f;
+    if (settings.radius > 0.0f) {
+        s_brush.radius = settings.radius < WOWEDITBRUSH_MAX_RADIUS ? settings.radius : WOWEDITBRUSH_MAX_RADIUS;
+    }
+    s_brush.innerFraction = settings.innerFraction > 0.0f ? (settings.innerFraction < 1.0f ? settings.innerFraction : 1.0f) : 0.0f;
     s_brushPointValid = false;
     UpdateTerrainPass();
+
+    if (starting) {
+        WowEditPrepareTerrainOverlays();
+    }
 }
 
-float WowEditTerrainGetBrush() {
-    return s_brushRadius;
-}
-
-float WowEditTerrainGetBrushInner() {
-    return s_brushInnerRadius;
+WowEditBrushSettings WowEditTerrainGetBrush() {
+    return s_brush;
 }

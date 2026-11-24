@@ -24,24 +24,17 @@ struct OsGuiCallbackParams;
 
 class CWowEditToolPalette {
     public:
-    static const float DEFAULT_RADIUS; // yards
-    static const float DEFAULT_INNER; // of the radius
-
     explicit CWowEditToolPalette(void* parentWindow);
     ~CWowEditToolPalette();
 
     void Show(bool show);
     bool IsShowing();
-    // Reads the brush state back (it may have changed from the console).
+    // Reads the state back after a command changes the brush.
     void Refresh();
-
-    // The brush on or off, at the palette's radius.
-    static void ToggleBrush();
 
     private:
     static void OnEvent(const OsGuiCallbackParams& params);
     void HandleEvent(int32_t controlId, int32_t event);
-    void ApplyBrush();
     void UpdateTexts();
 
     COsDialog* m_dialog;

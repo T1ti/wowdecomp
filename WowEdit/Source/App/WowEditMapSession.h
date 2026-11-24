@@ -8,8 +8,18 @@
 class C3Vector;
 class MapRec;
 
+// Names are borrowed from the loaded map database and remain valid until the database is closed.
+struct WowEditMapInfo {
+    int32_t id;
+    const char* name;
+    const char* directory;
+};
+
 class CWowEditMapSession {
     public:
+    static uint32_t GetMapCount();
+    static WowEditMapInfo GetMapInfo(uint32_t index);
+
     // Check the archive before releasing the current map.
     static const MapRec* FindAvailableMap(int32_t mapId);
 

@@ -4,8 +4,7 @@
 
 #include <cstdio>
 #include "Engine/Source/Os/Gui.h"
-#include "WoW/Source/DB/DBClient/DBClient.h"
-#include "WoW/Source/DB/Rec/MapRec.h"
+#include "WowEdit/Source/App/WowEditMapSession.h"
 #include "WowEdit/Source/App/WowEditWorldView.h"
 
 // See WowEditMapDialog.h.
@@ -35,12 +34,12 @@ CWowEditMapDialog::CWowEditMapDialog(void* parentWindow) {
     this->m_list->SetPosition(8, 8);
     this->m_list->SetSize(width, listHeight);
 
-    for (uint32_t i = 0; i < g_mapDB.GetNumRecords(); i++) {
-        MapRec* map = &g_mapDB.m_records[i];
+    for (uint32_t i = 0; i < CWowEditMapSession::GetMapCount(); i++) {
+        const WowEditMapInfo map = CWowEditMapSession::GetMapInfo(i);
         char text[256];
-        snprintf(text, sizeof(text), "%4d   %s   (%s)", map->m_id, map->m_mapName ? map->m_mapName : "", map->m_directory ? map->m_directory : "");
+        snprintf(text, sizeof(text), "%4d   %s   (%s)", map.id, map.name, map.directory);
         this->m_list->InsertItem(text, -1);
-        *this->m_mapIds.New() = map->m_id;
+        *this->m_mapIds.New() = map.id;
     }
 
     COsButton* open = new COsButton(this->m_dialog, ID_OPEN, 0);

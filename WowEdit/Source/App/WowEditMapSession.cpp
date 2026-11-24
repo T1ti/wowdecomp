@@ -11,6 +11,19 @@
 #include "WoW/Source/WorldClient/World.h"
 #include "WoW/Source/WorldClient/WorldEditHooks.h"
 
+uint32_t CWowEditMapSession::GetMapCount() {
+    return g_mapDB.GetNumRecords();
+}
+
+WowEditMapInfo CWowEditMapSession::GetMapInfo(uint32_t index) {
+    if (index >= GetMapCount()) {
+        return { -1, "", "" };
+    }
+
+    const MapRec& map = g_mapDB.m_records[index];
+    return { map.m_id, map.m_mapName ? map.m_mapName : "", map.m_directory ? map.m_directory : "" };
+}
+
 const MapRec* CWowEditMapSession::FindAvailableMap(int32_t mapId) {
     const MapRec* map = g_mapDB.GetRecord(mapId);
     if (!map || !map->m_directory || !map->m_directory[0]) {

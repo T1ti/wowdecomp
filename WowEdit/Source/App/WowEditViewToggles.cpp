@@ -217,7 +217,9 @@ void WowEditMatchGameView() {
     SetSlopes(false);
     SetAreas(false);
     SetMarkers(false);
-    WowEditTerrainSetBrush(0.0f, 0.0f);
+    WowEditBrushSettings brush = WowEditTerrainGetBrush();
+    brush.enabled = false;
+    WowEditTerrainSetBrush(brush);
 }
 
 #endif

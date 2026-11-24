@@ -31,13 +31,18 @@ enum WOWEDITOVERLAY : int32_t {
 
 void WowEditTerrainSetOverlay(int32_t overlay);
 int32_t WowEditTerrainGetOverlay();
-// Terrain brush: the 8.1 editor's brush cursor, laid on the terrain under the mouse cursor: a dashed red-orange circle
-// at radius and a dashed yellow one at innerRadius (the falloff radius; 0 or not below radius: none). Yards; a radius
-// of 0 turns it off.
+// The 8.1 terrain brush draws a dashed outer circle and a falloff circle at a fraction of that radius.
+// Radius is in yards. The tool retains both settings when the preview is disabled.
+struct WowEditBrushSettings {
+    bool enabled;
+    float radius;
+    float innerFraction;
+};
+
 static const float WOWEDITBRUSH_MAX_RADIUS = 533.33333f; // one map tile
-void WowEditTerrainSetBrush(float radius, float innerRadius);
-float WowEditTerrainGetBrush();
-float WowEditTerrainGetBrushInner();
+void WowEditTerrainSetBrush(const WowEditBrushSettings& settings);
+WowEditBrushSettings WowEditTerrainGetBrush();
+
 // Builds the shaders the enabled overlays need, so a failure shows in the console when the overlay is turned on;
 // false when one is missing.
 bool WowEditTerrainPrepare();
