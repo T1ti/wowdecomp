@@ -172,8 +172,10 @@ void CWorldScene::ScaleFadeDist(float scale) {
 
 // VERIFY: 6c8ec1cb auto
 // OFFSET: 0x007B3B20
-void CMapObjDef::RenderWithCallback(TSGrowableArray<uint32_t>* groups) {
+void CMapObjDef::RenderWithCallback(const TSGrowableArray<uint32_t>& inGroups) {
+    STORM_ASSERT(inGroups.Count() != 0);
+
     CMapObj::SetGroupRenderCallback(reinterpret_cast<RENDER_CALLBACK>(CWorldScene::AddMapObjDefGroupToSortTable), this);
     CWorldScene::s_curMapObjDef = this;
-    this->mapObj->RenderInterior(this->m_mat, this->m_invMat, CWorldScene::s_activeWorldView, CWorldScene::camTarget, groups);
+    this->mapObj->RenderInterior(this->m_mat, this->m_invMat, CWorldScene::s_activeWorldView, CWorldScene::camTarget, inGroups);
 }

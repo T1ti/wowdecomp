@@ -4339,7 +4339,7 @@ CSortTable::CSortTable() {
     this->nonVisEntityList.SetLinkOffset(offsetof(CMapEntity, m_sortEntryLink));
     this->visOccluderList.SetLinkOffset(offsetof(CWorldOccluder, m_link));
     this->visLowDetailAreaList.SetLinkOffset(offsetof(CMapAreaLow, m_horizonLink));
-    this->visLowDetailMapObjDefList.SetLinkOffset(offsetof(CMapObjDef, m_horizonLink));
+    this->visLowDetailMapObjDefList.SetLinkOffset(offsetof(CMapObjDef, m_visLink));
 }
 
 // VERIFY: 4e2f336e manual
@@ -5215,7 +5215,7 @@ void CWorldScene::RenderHorizon() {
             }
         }
 
-        def->m_horizonLink.Unlink();
+        def->m_visLink.Unlink();
     }
 
     if (groupListCount) {

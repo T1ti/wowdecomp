@@ -88,6 +88,8 @@ CMapObjDef::CMapObjDef() {
 // VERIFY: 3855c196 manual
 // OFFSET: [0x007B4500, 0x007B47C0]
 CMapObjDef::~CMapObjDef() {
+    STORM_ASSERT(m_refCount == 0);
+    STORM_ASSERT(m_visLink.IsLinked() == 0);
 }
 
 // VERIFY: 3113f3c8 manual
@@ -487,6 +489,10 @@ void CMapObjDef::SetDoodadsEnabled(CMapObjDef* mapObjDef, BOOL enable, uint16_t 
 // VERIFY: 3c60fcab manual
 // OFFSET: [0x007B3BE0, 0x007B3F00]
 CMapObjDefGroup::~CMapObjDefGroup() {
+    STORM_ASSERT(entityLinkList.Head() == nullptr); // 12213: "entityLinkList.Head() == __null"
+    STORM_ASSERT(tableLink.IsLinked() == 0);
+    STORM_ASSERT(visLink.IsLinked() == 0);
+
     if (this->m_liquidInstance) {
         this->m_liquidInstance->Release();
         this->m_liquidInstance = nullptr;

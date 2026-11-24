@@ -114,7 +114,7 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
         CWorldScene::s_cullPassStamp++;
 
         if (CWorldScene::s_viewerMovedMapObjDef) {
-            CWorldScene::s_viewerMovedMapObjDef->RenderWithCallback(&CWorldScene::s_viewerMovedMapObjGroups);
+            CWorldScene::s_viewerMovedMapObjDef->RenderWithCallback(CWorldScene::s_viewerMovedMapObjGroups);
             CWorldScene::s_worldPortalView.m_rect.minX = FLT_MAX;
             CWorldScene::s_worldPortalView.m_rect.minY = FLT_MAX;
             CWorldScene::s_worldPortalView.m_verts = nullptr;
@@ -133,7 +133,7 @@ void CWorldScene::Render(const C3Vector& cameraPos, float time) {
             CWorldScene::s_portalViews.SetCount(0);
         }
 
-        CWorldScene::s_viewerMapObjDef->RenderWithCallback(&CWorldScene::s_viewerMapObjGroups);
+        CWorldScene::s_viewerMapObjDef->RenderWithCallback(CWorldScene::s_viewerMapObjGroups);
 
         if (CWorldScene::frustumPortalView.m_maxViewDepth < 0.0f) {
             CWorldScene::sortTable.Clear();

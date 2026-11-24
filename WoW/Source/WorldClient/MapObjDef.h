@@ -79,7 +79,12 @@ class CMapObjDef : public CMapBaseObj, public TSHashObject<CMapObjDef, HASHKEY_N
     /* 0100 */ int32_t m_doodadSet;
     /* 0104 */ int32_t m_nameSet;
     /* 0108 */ int32_t unused_0108;
-    /* 010C */ TSLink<CMapObjDef> m_horizonLink;
+    private:
+    friend class CWorldScene; // (inferred)
+    friend class CSortTable; // (inferred)
+    /* 010C */ TSLink<CMapObjDef> m_visLink;
+
+    public:
     /* 0114 */ TSExplicitList<CMapBaseObjLink, offsetof(CMapBaseObjLink, m_refLink)> groupLinkList;
     /* 0120 */ TSCGrowableArray<CMapObjDefGroup*, 4> m_defGroups;
     /* 0134 */ TSGrowableArray<CMapLight*> m_lightsArray;
@@ -95,7 +100,7 @@ class CMapObjDef : public CMapBaseObj, public TSHashObject<CMapObjDef, HASHKEY_N
     bool IsAllDrawable();
     bool IsAllLoaded();
     int32_t GetGroundType(uint32_t groupNum, uint16_t faceIndex);
-    void RenderWithCallback(TSGrowableArray<uint32_t>* groups);
+    void RenderWithCallback(const TSGrowableArray<uint32_t>& inGroups);
     void CullMapObjDefGroupFromExterior(CMapObjDefGroup* mapObjDefGroup, CRect* rect, uint32_t skipOcclusion);
     void SetSequence(uint32_t sequence, int32_t unknown3, uint16_t doodadSet);
 };

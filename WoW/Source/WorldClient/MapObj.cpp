@@ -1745,8 +1745,8 @@ void CMapObj::PrepareUpdate() {
 
 // VERIFY: d0b199c6 manual
 // OFFSET: 0x007AD1F0
-void CMapObj::RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget, TSGrowableArray<uint32_t>* inGroups) {
-    STORM_ASSERT(inGroups->Count()); // 12213: "inGroups.Count()"
+void CMapObj::RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldPos, C3Vector& camTarget, const TSGrowableArray<uint32_t>& inGroups) {
+    STORM_ASSERT(inGroups.Count());
 
     this->SetupMapObjDefCull(mat, invMat, worldPos, camTarget);
     s_interiorPass = 1;
@@ -1765,8 +1765,8 @@ void CMapObj::RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldP
     ndcRect.maxY = 1.0f;
     ndcRect.maxX = 1.0f;
 
-    for (uint32_t i = 0; i < inGroups->Count(); i++) {
-        CMapObjGroup* group = this->GetGroup(inGroups->m_data[i], 0);
+    for (uint32_t i = 0; i < inGroups.Count(); i++) {
+        CMapObjGroup* group = this->GetGroup(inGroups.m_data[i], 0);
 
         if (!group) {
             continue;
@@ -1779,7 +1779,7 @@ void CMapObj::RenderInterior(C44Matrix& mat, C44Matrix& invMat, C3Vector& worldP
             CWorldScene::s_interiorGroupRendered = 1;
         }
 
-        this->RenderThruPortals(inGroups->m_data[i], 0xFFFF, ndcRect, 0, 1);
+        this->RenderThruPortals(inGroups.m_data[i], 0xFFFF, ndcRect, 0, 1);
     }
 
     CWorldScene::FrustumPop();
