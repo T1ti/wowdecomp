@@ -33,21 +33,46 @@ struct CharacterBaseVariation {
         DESTRUCTION_COUNT = 7,
     };
 
-    /* 0000 */ HTEXTURECACHE m_texture [CharSectionsRec::TEXTURE_INDEX::COUNT];
-
     ~CharacterBaseVariation();
+
+    HTEXTURECACHE GetTexture(uint32_t index) const { // (inferred)
+        STORM_ASSERT(index < 3);
+        return this->m_texture[index];
+    }
+
+    void SetTexture(uint32_t index, HTEXTURECACHE texture) { // (inferred)
+        STORM_ASSERT(index < 3);
+        this->m_texture[index] = texture;
+    }
+
+    private:
+    /* 0000 */ HTEXTURECACHE m_texture [CharSectionsRec::TEXTURE_INDEX::COUNT];
 };
 
 // Item texture layers per body section, ordered by s_itemPriority (inferred name).
 static const int32_t NUM_SECTION_LAYERS = 7;
 
 struct CharacterSection {
+    private:
+    friend class CCharacterComponent; // (inferred)
+
     /* 0000 */ HTEXTURECACHE m_layerTex [NUM_SECTION_LAYERS];
     /* 001C */ uint32_t m_layerItemDisplayId [NUM_SECTION_LAYERS];
     /* 0038 */ uint32_t m_layerMask;
 
+    public:
     CharacterSection();
     ~CharacterSection();
+
+    bool HasCompMip(uint32_t compMip) const { // (inferred)
+        STORM_ASSERT(compMip < 7);
+        return ((1 << compMip) & this->m_layerMask) != 0;
+    }
+
+    void SetItemDisplayID(uint32_t compMip, uint32_t displayID) { // (inferred)
+        STORM_ASSERT(compMip < 7);
+        this->m_layerItemDisplayId[compMip] = displayID;
+    }
 };
 
 struct CompSectionInfo {
@@ -191,7 +216,10 @@ class CCharacterComponent {
 
     /* 0000 */ TSLink<CCharacterComponent> m_link;
     /* 0008 */ uint32_t m_flags;
+    private:
     /* 000C */ uint32_t m_dirtySections;
+
+    public:
     /* 0010 */ uint32_t m_heapIndex;
     /* 0014 */ EGxTexFormat m_gxTexFormat;
     /* 0018 */ ComponentData m_data;
@@ -199,14 +227,13 @@ class CCharacterComponent {
     private:
     /* 0190 */ CTexture* m_baseTexture;
 
-    public:
     /* 0194 */ CharacterBaseVariation m_baseVariation [CHARTEXTUREVARIATIONS_NUM];
     /* 01D0 */ CharacterSection m_section [10];
     /* 0428 */ uint32_t m_itemDisplayID [12];
     /* 0458 */ uint32_t m_handItemDisplayID [3];
     /* 0464 */ int32_t m_itemSlotForAttachSlot [MODEL_ATTACHMENT_ID::NUM_ATTACH_SLOTS];
 
-    private:
+    void InvalidateComponentRequest(); // (inferred)
     void UpdateSections();
     int32_t UpdateItemDisplay(COMPONENT_SECTIONS section, const ItemDisplayInfoRec* displayRec, int32_t priority);
     /* 052C */ CComponentRequest* m_componentRequest;
@@ -251,7 +278,7 @@ class CCharacterComponent {
     bool IsHelmModelCorrect();
     bool IsQuiverModelCorrect();
     bool ItemsLoaded(BOOL wait);
-    void LoadBaseVariation(CHARTEXTUREVARIATIONS variation, int32_t textureIndex, int32_t variationIndex, int32_t colorIndex, COMPONENT_SECTIONS section, const char* debug);
+    void LoadBaseVariation(CHARTEXTUREVARIATIONS variation, uint32_t index, int32_t variationIndex, int32_t colorIndex, COMPONENT_SECTIONS section, const char* debug);
     HTEXTURECACHE LoadItemComponentTexture(const ItemDisplayInfoRec* displayRec, COMPONENT_SECTIONS section);
     void Prep();
     void PrepSections();
@@ -275,7 +302,7 @@ class CCharacterComponent {
     void ReplaceExtraSkinTexture(const char* debug);
     void ReplaceHairTexture(int32_t hairStyleID, const char* debug);
     void SetBeardStyle(int32_t facialHairID, bool loadVariation, const char* debug);
-    void SetDirtySections(uint32_t mask);
+    void SetDirtySections(uint32_t sections);
     void SetFace(int32_t faceID, bool loadHair, const char* debug);
     void SetHairColor(int32_t hairColorID, bool loadHair, const char* debug);
     void SetHairStyle(int32_t hairStyleID, const char* debug);
