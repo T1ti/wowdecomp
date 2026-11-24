@@ -4678,14 +4678,14 @@ uint32_t World::TriDataToFacetData(void* unused, FacetData* facets, WOWGUID guid
     uint32_t first = facets->facets.Count();
 
     for (uint32_t b = 0; b < World::TriData::nBatches; b++) {
-        World::TriData::Batch& batch = World::TriData::batches[b];
-        const uint16_t* indices = batch.m_indices;
+        const World::TriData::Batch& batch = World::TriData::GetBatch(b);
+        const uint16_t* indices = batch.vertexIndices;
 
         for (uint32_t f = 0; f < batch.m_faceCount; f++, indices += 3) {
             CFacet* facet = facets->facets.New();
-            const C3Vector& a = batch.m_vertexList[indices[0]];
-            const C3Vector& b1 = batch.m_vertexList[indices[1]];
-            const C3Vector& c = batch.m_vertexList[indices[2]];
+            const C3Vector& a = batch.GetVertex(indices[0]);
+            const C3Vector& b1 = batch.GetVertex(indices[1]);
+            const C3Vector& c = batch.GetVertex(indices[2]);
             C3Vector e1 = b1 - a;
             C3Vector e2 = c - a;
             float nx = e1.y * e2.z - e1.z * e2.y;

@@ -670,9 +670,9 @@ bool CChunkLiquid::GetTris(World::TriData* triData, uint8_t* codes, const C2iVec
                         matrix->d1 = this->m_owner->m_topLeftCoords.y;
                         matrix->d2 = this->m_owner->m_topLeftCoords.z;
                         batch->m_matrix = matrix;
-                        batch->m_vertexList = const_cast<C3Vector*>(this->m_verts);
+                        batch->vertices = this->m_verts;
                         indices = triData->AllocIndices(6 * size.x * size.y);
-                        batch->m_indices = indices;
+                        batch->vertexIndices = indices;
 
                         if (!indices) {
                             return false;
@@ -683,7 +683,7 @@ bool CChunkLiquid::GetTris(World::TriData* triData, uint8_t* codes, const C2iVec
 
                     for (uint32_t k = 0; k < 3; k++) {
                         uint16_t index = static_cast<uint16_t>(vertex + vertTri[k]);
-                        indices[batch->m_indexCount++] = index;
+                        indices[batch->indexCount++] = index;
                         batch->m_minVertexIndex = batch->m_minVertexIndex < index ? batch->m_minVertexIndex : index;
                         batch->m_maxVertexIndex = batch->m_maxVertexIndex > index ? batch->m_maxVertexIndex : index;
                     }

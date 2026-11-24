@@ -326,16 +326,16 @@ void CWaterRipple::InitRipple(const C3Vector& pos, float rotation, float size, f
     }
 
     for (uint32_t i = 0; i < World::TriData::nBatches; i++) {
-        World::TriData::Batch& batch = World::TriData::batches[i];
-        const uint16_t* indices = batch.m_indices;
+        const World::TriData::Batch& batch = World::TriData::GetBatch(i);
+        const uint16_t* indices = batch.vertexIndices;
         uint32_t base = this->m_verts.Count();
         this->m_verts.SetCount(batch.m_faceCount + base + 2 * batch.m_faceCount);
         C3Vector* out = &this->m_verts.m_data[base];
 
         for (uint32_t j = 0; j < batch.m_faceCount; j++) {
-            *out++ = batch.m_vertexList[indices[0]] * *batch.m_matrix;
-            *out++ = batch.m_vertexList[indices[1]] * *batch.m_matrix;
-            *out++ = batch.m_vertexList[indices[2]] * *batch.m_matrix;
+            *out++ = batch.GetVertex(indices[0]) * *batch.m_matrix;
+            *out++ = batch.GetVertex(indices[1]) * *batch.m_matrix;
+            *out++ = batch.GetVertex(indices[2]) * *batch.m_matrix;
             indices += 3;
         }
     }

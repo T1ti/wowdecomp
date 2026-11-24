@@ -187,12 +187,12 @@ World::TriData::Batch* World::TriData::AllocBatch() {
 
     Batch* batch = &World::TriData::batches[World::TriData::nBatches++];
     batch->m_matrix = nullptr;
-    batch->m_vertexList = nullptr;
+    batch->vertices = nullptr;
     batch->m_normalList = nullptr;
-    batch->m_heightList = nullptr;
-    batch->m_indices = nullptr;
+    batch->heights = nullptr;
+    batch->vertexIndices = nullptr;
     batch->m_faceIndices = nullptr;
-    batch->m_indexCount = 0;
+    batch->indexCount = 0;
     batch->m_faceCount = 0;
     batch->m_minVertexIndex = 0;
     batch->m_maxVertexIndex = 0;
@@ -3423,11 +3423,10 @@ bool CMapObj::VectorIntersect(C3Vector& start, C3Vector& end, uint32_t flags, ui
             face = *World::TriData::batches[0].m_faceIndices;
 
             if (normalDot) {
-                C3Vector* vertices = World::TriData::batches[0].m_vertexList;
-                uint16_t* indices = World::TriData::batches[0].m_indices;
-                C3Vector& v0 = vertices[indices[0]];
-                C3Vector& v1 = vertices[indices[1]];
-                C3Vector& v2 = vertices[indices[2]];
+                const auto& batch = World::TriData::GetBatch(0);
+                const C3Vector& v0 = batch.GetVertex(batch.GetVertexIndex(0));
+                const C3Vector& v1 = batch.GetVertex(batch.GetVertexIndex(1));
+                const C3Vector& v2 = batch.GetVertex(batch.GetVertexIndex(2));
                 normal = C3Vector::Cross(v1 - v0, v2 - v0);
                 *normalDot = (seg.end.z - seg.start.z) * normal.z + (seg.end.y - seg.start.y) * normal.y + (seg.end.x - seg.start.x) * normal.x;
             }

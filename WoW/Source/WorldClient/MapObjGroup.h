@@ -422,16 +422,32 @@ namespace World {
         public:
         struct Batch {
             /* 0000 */ const C44Matrix* m_matrix;
-            /* 0004 */ C3Vector* m_vertexList;
+            /* 0004 */ const C3Vector* vertices;
             /* 0008 */ C3Vector* m_normalList;
-            /* 000C */ float* m_heightList;
-            /* 0010 */ uint16_t* m_indices;
+            /* 000C */ const float* heights;
+            /* 0010 */ const uint16_t* vertexIndices;
             /* 0014 */ uint16_t* m_faceIndices;
-            /* 0018 */ uint16_t m_indexCount;
+            /* 0018 */ uint16_t indexCount;
             /* 001A */ uint16_t m_faceCount;
             /* 001C */ uint16_t m_minVertexIndex;
             /* 001E */ uint16_t m_maxVertexIndex;
             /* 0020 */ CMapObjDef* m_def;
+
+            uint16_t GetVertexIndex(uint32_t i) const { // (inferred)
+                STORM_ASSERT(vertexIndices);
+                STORM_ASSERT(i < indexCount);
+                return this->vertexIndices[i];
+            }
+
+            const C3Vector& GetVertex(uint16_t i) const { // (inferred)
+                STORM_ASSERT(vertices);
+                return this->vertices[i];
+            }
+
+            float GetHeight(uint16_t i) const { // (inferred)
+                STORM_ASSERT(heights);
+                return this->heights[i];
+            }
         };
 
         static uint32_t statusFlags;
@@ -443,6 +459,11 @@ namespace World {
         static uint16_t indexPool[WORLD_TRI_POOL_LIMITS::TRI_QUERY_INDEX_CAPACITY];
         static Batch batches[WORLD_TRI_POOL_LIMITS::TRI_QUERY_BATCH_CAPACITY];
         static C44Matrix matrixPool[WORLD_TRI_POOL_LIMITS::TRI_QUERY_MATRIX_CAPACITY];
+
+        static const Batch& GetBatch(uint32_t b) { // (inferred)
+            STORM_ASSERT(b < nBatches);
+            return batches[b];
+        }
 
         static Batch* AllocBatch();
         static Batch* __stdcall AllocBatch(uint32_t indexCount, uint32_t faceCount);

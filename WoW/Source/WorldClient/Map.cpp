@@ -6175,17 +6175,17 @@ bool CMap::GetTriSubchunk(CMapChunk* chunk, const CiRect* rect, const CAaBox* bo
                         matrix->d2 = chunk->m_topLeftCoords.z;
                         matrix->d3 = 1.0f;
                         batch->m_matrix = matrix;
-                        batch->m_vertexList = CMapChunk::vertexList;
-                        batch->m_heightList = chunk->m_height;
+                        batch->vertices = CMapChunk::vertexList;
+                        batch->heights = chunk->m_height;
                         batch->m_normalList = nullptr;
                         indices = World::TriData::AllocIndices(12 * (rect->maxX - rect->minX + 1) * (rect->maxY - rect->minY + 1));
-                        batch->m_indices = indices;
+                        batch->vertexIndices = indices;
                     }
                 }
 
                 found = true;
 
-                if (!batch || !batch->m_indices || !batch->m_vertexList) {
+                if (!batch || !batch->vertexIndices || !batch->vertices) {
                     continue;
                 }
 
@@ -6202,7 +6202,7 @@ bool CMap::GetTriSubchunk(CMapChunk* chunk, const CiRect* rect, const CAaBox* bo
                     }
                 }
 
-                batch->m_indexCount += 3;
+                batch->indexCount += 3;
                 batch->m_faceCount++;
             }
         }

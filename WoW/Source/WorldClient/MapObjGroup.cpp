@@ -537,12 +537,12 @@ World::TriData::Batch* __stdcall World::TriData::AllocBatch(uint32_t indexCount,
 
     Batch* batch = &World::TriData::batches[World::TriData::nBatches++];
     batch->m_matrix = nullptr;
-    batch->m_vertexList = nullptr;
+    batch->vertices = nullptr;
     batch->m_normalList = nullptr;
-    batch->m_heightList = nullptr;
-    batch->m_indices = nullptr;
+    batch->heights = nullptr;
+    batch->vertexIndices = nullptr;
     batch->m_faceIndices = nullptr;
-    batch->m_indexCount = 0;
+    batch->indexCount = 0;
     batch->m_faceCount = 0;
     batch->m_minVertexIndex = 0;
     batch->m_maxVertexIndex = 0;
@@ -658,12 +658,12 @@ void CMapObjGroup::GetTrisFromQuery(World::TriData* triData, BspQuery& q, CMapOb
     }
 
     batch->m_matrix = &mapObjDef->m_mat;
-    batch->m_vertexList = this->m_vertexList;
+    batch->vertices = this->m_vertexList;
     batch->m_normalList = this->m_normalList;
     STORM_ASSERT(tris);
     batch->m_faceCount = BspQuery::hitFaceSub;
     STORM_ASSERT(indices);
-    batch->m_indexCount = 3 * BspQuery::hitFaceSub;
+    batch->indexCount = 3 * BspQuery::hitFaceSub;
 
     uint16_t* out = indices;
 
@@ -685,7 +685,7 @@ void CMapObjGroup::GetTrisFromQuery(World::TriData* triData, BspQuery& q, CMapOb
         }
     }
 
-    batch->m_indices = indices;
+    batch->vertexIndices = indices;
     batch->m_faceIndices = tris;
 }
 
@@ -1848,23 +1848,23 @@ bool CMapObjGroup::VectorIntersectLiquidTiles(const C3Segment& seg, float* t, ui
                     if (batch) {
                         batch->m_def = mapObjDef;
                         batch->m_matrix = &mapObjDef->m_mat;
-                        batch->m_vertexList = this->m_liquidVertArray->m_verts.m_data;
+                        batch->vertices = this->m_liquidVertArray->m_verts.m_data;
                         indices = triData->AllocIndices(3);
-                        batch->m_indices = indices;
+                        batch->vertexIndices = indices;
                     }
                 }
 
                 found = true;
 
-                if (!batch || !batch->m_indices) {
+                if (!batch || !batch->vertexIndices) {
                     continue;
                 }
 
-                batch->m_indexCount = 0;
+                batch->indexCount = 0;
 
                 for (uint32_t k = 0; k < 3; k++) {
                     uint16_t index = base + tris[j][k];
-                    indices[batch->m_indexCount++] = index;
+                    indices[batch->indexCount++] = index;
                     batch->m_minVertexIndex = batch->m_minVertexIndex < index ? batch->m_minVertexIndex : index;
                     batch->m_maxVertexIndex = batch->m_maxVertexIndex > index ? batch->m_maxVertexIndex : index;
                 }
@@ -2071,21 +2071,21 @@ bool CMapObjGroup::GetLiquidTris(const CAaBox& box, uint32_t flags, World::TriDa
                         if (batch) {
                             batch->m_def = mapObjDef;
                             batch->m_matrix = &mapObjDef->m_mat;
-                            batch->m_vertexList = this->m_liquidVertArray->m_verts.m_data;
+                            batch->vertices = this->m_liquidVertArray->m_verts.m_data;
                             indices = triData->AllocIndices(6 * (width + 1) * (height + 1));
-                            batch->m_indices = indices;
+                            batch->vertexIndices = indices;
                         }
                     }
 
                     found = true;
 
-                    if (!batch || !batch->m_indices) {
+                    if (!batch || !batch->vertexIndices) {
                         continue;
                     }
 
                     for (uint32_t k = 0; k < 3; k++) {
                         uint16_t index = (tileVert - this->m_liquidVertArray->m_verts.m_data) + vertTris[j][k];
-                        indices[batch->m_indexCount++] = index;
+                        indices[batch->indexCount++] = index;
                         batch->m_minVertexIndex = batch->m_minVertexIndex < index ? batch->m_minVertexIndex : index;
                         batch->m_maxVertexIndex = batch->m_maxVertexIndex > index ? batch->m_maxVertexIndex : index;
                     }
@@ -2211,21 +2211,21 @@ bool CMapObjGroup::GetLiquidTris(const CFrustum& frustum, uint32_t flags, World:
                         if (batch) {
                             batch->m_def = mapObjDef;
                             batch->m_matrix = &mapObjDef->m_mat;
-                            batch->m_vertexList = this->m_liquidVertArray->m_verts.m_data;
+                            batch->vertices = this->m_liquidVertArray->m_verts.m_data;
                             indices = triData->AllocIndices(6 * (width + 1) * (height + 1));
-                            batch->m_indices = indices;
+                            batch->vertexIndices = indices;
                         }
                     }
 
                     found = true;
 
-                    if (!batch || !batch->m_indices) {
+                    if (!batch || !batch->vertexIndices) {
                         continue;
                     }
 
                     for (uint32_t k = 0; k < 3; k++) {
                         uint16_t index = (tileVert - this->m_liquidVertArray->m_verts.m_data) + vertTris[j][k];
-                        indices[batch->m_indexCount++] = index;
+                        indices[batch->indexCount++] = index;
                         batch->m_minVertexIndex = batch->m_minVertexIndex < index ? batch->m_minVertexIndex : index;
                         batch->m_maxVertexIndex = batch->m_maxVertexIndex > index ? batch->m_maxVertexIndex : index;
                     }
