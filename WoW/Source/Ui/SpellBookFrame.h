@@ -44,6 +44,7 @@ struct SPELLSBYNAME : public TSHashObject<SPELLSBYNAME, HASHKEY_UTF8I> {
 
 class CGPlayer_C;
 class SpellRec;
+class SpellVisualRec;
 
 // Companion list index; names follow the s_companionTypes Lua tokens.
 enum COMPANION_TYPE : int32_t {
@@ -110,7 +111,20 @@ class CGSpellBook {
     static BOOL CanApplyAura(const AuraData* aura);
     static int32_t FindRaidBuff(int32_t spellId);
     static BOOL IsShapeshiftSpell(int32_t spellId);
+    static int32_t GetKnownSlotFromHighestRankSlot(uint32_t slot);
     static BOOL CanStealAura(const CGUnit_C* unit, const AuraData* aura, const SpellRec* spell);
+
+    private:
+    static TSGrowableArray<SpellUsableInfo> m_combatFeedbackSpells;
+    static int32_t m_knownSpells[MAXIMUM_LEARNED_SPELLS];
+    static uint32_t m_knownHighestRankSpells[MAXIMUM_LEARNED_SPELLS];
+    static int32_t m_numHighestRankSpells;
+
+    static void MakeKnownSpellVisualKitsLocal(int32_t SpellVisualRec::* kit);
+    static void MakeKnownSpellMissilesLocal();
+
+    friend int32_t GetSpellSlot(int32_t spellId, int32_t petSpell); // (inferred)
+    friend int32_t GetSpellIdBySlot(int32_t slot, int32_t petSpell); // (inferred)
 };
 
 int32_t IsValidSpell(const char* name, int32_t* petSpell);
@@ -122,10 +136,7 @@ void ClearPetSpellInfo();
 extern const char* s_companionTypes[NUM_COMPANION_TYPES];
 extern TSGrowableArray<SpellUsableInfo> s_shapeshiftSpells;
 extern uint32_t s_numSkillInfos;
-extern uint32_t s_displayedSpells[MAXIMUM_LEARNED_SPELLS];
-extern int32_t s_spellList[MAXIMUM_LEARNED_SPELLS];
 extern uint32_t s_numSpells;
-extern uint32_t s_displayedSpellCount;
 extern TSGrowableArray<SpellBookSkillInfo*> s_skillInfos;
 void PrefetchSpellVisuals(int32_t spellId);
 
@@ -141,7 +152,6 @@ int __cdecl SortCompanions(const void* a, const void* b);
 
 extern TSGrowableArray<int32_t> s_trackingSpells;
 
-extern int32_t s_spellList[MAXIMUM_LEARNED_SPELLS];
 extern uint32_t s_numSpells;
 extern uint32_t s_petSpellList[MAXIMUM_LEARNED_SPELLS];
 extern TSBitField<TSFixedArray<uint32_t> > s_knownSpellBits;

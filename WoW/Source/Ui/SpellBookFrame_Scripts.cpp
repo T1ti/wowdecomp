@@ -77,18 +77,7 @@ static int32_t Script_FindSpellBookSlotByID(lua_State* L) {
 // OFFSET: 0x0053B650
 static int32_t Script_GetKnownSlotFromHighestRankSlot(lua_State* L) {
     uint32_t slot = lua_tointeger(L, 1) - 1;
-    int32_t index = -1;
-
-    if (slot < s_displayedSpellCount) {
-        int32_t spell = s_displayedSpells[slot];
-
-        for (uint32_t i = 0; i < s_numSpells; i++) {
-            if (s_spellList[i] == spell) {
-                index = i;
-                break;
-            }
-        }
-    }
+    int32_t index = CGSpellBook::GetKnownSlotFromHighestRankSlot(slot);
 
     lua_pushnumber(L, index + 1);
     return 1;
