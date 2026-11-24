@@ -239,7 +239,7 @@ int32_t ComSat::Sound::Manager::SessionNumMembers(uint64_t session) {
     if (!this->m_sessions.Get(ComSat::MapKey<uint64_t>(session), info)) {
         return -1;
     }
-    int32_t count = info->m_talkerPriorities.m_used;
+    int32_t count = info->m_talkerPriorities.Count();
     uint32_t iterator = 0;
     ComSat::MapKey<uint8_t> key;
     LocalPlayer* localPlayer;

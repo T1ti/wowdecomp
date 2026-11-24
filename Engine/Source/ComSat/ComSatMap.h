@@ -7,13 +7,20 @@
 #include <new>
 #include "Engine/Source/ComSat/ComSatHash.h"
 #include "Engine/Source/ComSat/ComSatInterface.h"
+#include "Engine/Source/Storm/H/storm.h"
 
 namespace ComSat {
 
+template <class K, class V>
+class Map;
+
 template <class T>
 class MapKey {
-    public:
+    private:
+    template <class K, class V> friend class Map; // (inferred)
     /* 0000 */ uint32_t m_hash;
+
+    public:
     /* 0004 */ T m_value;
 
     MapKey();
@@ -24,7 +31,7 @@ class MapKey {
 
 template <class K, class V>
 class Map {
-    public:
+    private:
     class Entry {
         public:
         /* 0000 */ MapKey<K> m_key;
@@ -40,6 +47,7 @@ class Map {
     /* 0008 */ uint32_t m_capacity;
     /* 000C */ Allocator* m_allocator;
 
+    public:
     Map(Allocator& allocator);
     ~Map();
     void Clear();
@@ -47,11 +55,14 @@ class Map {
     bool Get(const MapKey<K>& key, V& value) const;
     bool Insert(const MapKey<K>& key, const V& value);
     bool Next(uint32_t& iterator, MapKey<K>& key, V& value) const;
-    uint32_t Reinsert(const Entry* entries, uint32_t count);
     bool Remove(const MapKey<K>& key, V& value);
-    void Resize(uint32_t capacity);
-    bool Shrink();
     V& operator[](const MapKey<K>& key);
+    uint32_t Count() const { return this->m_used; } // (inferred)
+
+    private:
+    uint32_t Reinsert(const Entry* entries, uint32_t count);
+    void Resize(uint32_t size);
+    bool Shrink();
 };
 
 }
@@ -174,6 +185,7 @@ bool ComSat::Map<K, V>::Insert(const ComSat::MapKey<K>& key, const V& value) {
     if (this->Find(key, index)) {
         return false;
     }
+    STORM_ASSERT(m_used < m_capacity);
     this->m_used++;
     new (&this->m_entries[index]) Entry(key, value);
     return true;
@@ -205,7 +217,9 @@ uint32_t ComSat::Map<K, V>::Reinsert(const Entry* entries, uint32_t count) {
     for (uint32_t i = 0; i < count; i++) {
         if (entries->m_key.m_hash) {
             uint32_t index;
-            this->Find(entries->m_key, index);
+            const bool found = this->Find(entries->m_key, index);
+            STORM_ASSERT(!found);
+            (void)found;
             new (&this->m_entries[index]) Entry(*entries);
             inserted++;
         }
@@ -241,12 +255,15 @@ bool ComSat::Map<K, V>::Remove(const ComSat::MapKey<K>& key, V& value) {
 // VERIFY: 9ecb3dce manual
 // OFFSET: [0x00881A10<unsigned __int64, unsigned char>, 0x00881AA0<unsigned __int64, float>, 0x00881B30<unsigned char, ComSat::Sound::Manager::LocalPlayer*>, 0x00881BC0<unsigned __int64, ComSat::Sound::Manager::RemoteTalker*>]
 template <class K, class V>
-void ComSat::Map<K, V>::Resize(uint32_t capacity) {
+void ComSat::Map<K, V>::Resize(uint32_t size) {
+    STORM_ASSERT(size > 0);
+    STORM_ASSERT(size > m_used);
+
     uint32_t oldCapacity = this->m_capacity;
     Entry* oldEntries = this->m_entries;
-    this->m_entries = static_cast<Entry*>(this->m_allocator->Alloc(sizeof(Entry) * capacity));
-    this->m_capacity = capacity;
-    for (uint32_t i = 0; i < capacity; i++) {
+    this->m_entries = static_cast<Entry*>(this->m_allocator->Alloc(sizeof(Entry) * size));
+    this->m_capacity = size;
+    for (uint32_t i = 0; i < size; i++) {
         new (&this->m_entries[i]) Entry();
     }
     if (oldEntries) {
@@ -278,6 +295,7 @@ V& ComSat::Map<K, V>::operator[](const ComSat::MapKey<K>& key) {
     }
     uint32_t index;
     if (!this->Find(key, index)) {
+        STORM_ASSERT(m_used < m_capacity);
         this->m_used++;
         new (&this->m_entries[index]) Entry(key);
     }
