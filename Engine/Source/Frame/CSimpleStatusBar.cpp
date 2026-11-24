@@ -51,8 +51,8 @@ int32_t CSimpleStatusBar::GetObjectType() {
 void CSimpleStatusBar::RunOnMinMaxChangedScript() {
     if (this->m_onMinMaxChanged.m_luaRef) {
         lua_State* L = FrameScript_GetContext();
-        lua_pushnumber(L, this->m_valueRange.m_l);
-        lua_pushnumber(L, this->m_valueRange.m_h);
+        lua_pushnumber(L, this->m_minValue);
+        lua_pushnumber(L, this->m_maxValue);
         this->RunScript(this->m_onMinMaxChanged, 2, nullptr);
     }
 }
@@ -154,19 +154,24 @@ void CSimpleStatusBar::SetOrientation(ORIENTATION orientation) {
 
 // VERIFY: 4f2300fa auto
 // OFFSET: 0x00961800
-void CSimpleStatusBar::SetMinMaxValues(float minValue, float maxValue) {
-    if (minValue > maxValue) {
-        minValue = maxValue;
+void CSimpleStatusBar::SetMinMaxValues(float min, float max) {
+    if (min > max) {
+        min = max;
     }
 
-    if (this->m_rangeSet && this->m_valueRange.m_l == minValue && this->m_valueRange.m_h == maxValue) {
+    STORM_ASSERT(min <= 1e12);
+    STORM_ASSERT(min >= -1e12);
+    STORM_ASSERT(max <= 1e12);
+    STORM_ASSERT(max >= -1e12);
+
+    if (this->m_rangeSet && this->m_minValue == min && this->m_maxValue == max) {
         return;
     }
 
-    this->m_valueRange.m_l = minValue;
+    this->m_minValue = min;
     this->m_changed = 1;
     this->m_rangeSet = 1;
-    this->m_valueRange.m_h = maxValue;
+    this->m_maxValue = max;
     this->RunOnMinMaxChangedScript();
 
     if (this->m_valueSet) {
@@ -181,10 +186,10 @@ void CSimpleStatusBar::SetValue(float value) {
         return;
     }
 
-    if (value > this->m_valueRange.m_h) {
-        value = this->m_valueRange.m_h;
-    } else if (value < this->m_valueRange.m_l) {
-        value = this->m_valueRange.m_l;
+    if (value > this->m_maxValue) {
+        value = this->m_maxValue;
+    } else if (value < this->m_minValue) {
+        value = this->m_minValue;
     }
 
     if (this->m_valueSet && this->m_value == value) {
@@ -205,10 +210,13 @@ void CSimpleStatusBar::SetValue(float value) {
 // VERIFY: 38b829a1 auto
 // OFFSET: 0x00961940
 float CSimpleStatusBar::GetAnimValue() const {
-    float range = this->m_valueRange.m_h - this->m_valueRange.m_l;
+    float range = this->m_maxValue - this->m_minValue;
 
     if (range > 0.0f) {
-        return (this->m_value - this->m_valueRange.m_l) / range;
+        STORM_ASSERT(m_minValue <= m_value);
+        STORM_ASSERT(m_value <= m_maxValue);
+        STORM_ASSERT((m_value - m_minValue) <= range);
+        return (this->m_value - this->m_minValue) / range;
     }
 
     return 0.0f;
@@ -233,8 +241,8 @@ CSimpleStatusBar::CSimpleStatusBar(CSimpleFrame* parent) : CSimpleFrame(parent) 
     this->m_rangeSet = 0;
     this->m_valueSet = 0;
     this->m_rotatesTexture = 0;
-    this->m_valueRange.m_l = 0.0f;
-    this->m_valueRange.m_h = 0.0f;
+    this->m_minValue = 0.0f;
+    this->m_maxValue = 0.0f;
     this->m_barTexture = nullptr;
     this->m_value = 0.0f;
     this->m_orientation = ORIENTATION_HORIZONTAL;

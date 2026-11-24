@@ -37,7 +37,7 @@ void CSimpleStatusBar::GetStatusBarColor(CImVector& color) {
 static int32_t Script_GetOrientation(lua_State* L) {
     CSimpleStatusBar* statusBar = static_cast<CSimpleStatusBar*>(FrameScript_GetObjectThis(L, CSimpleStatusBar::GetObjectType()));
 
-    lua_pushstring(L, OrientationToString(statusBar->m_orientation));
+    lua_pushstring(L, OrientationToString(statusBar->GetOrientation()));
     return 1;
 }
 
@@ -69,8 +69,8 @@ static int32_t Script_SetOrientation(lua_State* L) {
 static int32_t Script_GetMinMaxValues(lua_State* L) {
     CSimpleStatusBar* statusBar = static_cast<CSimpleStatusBar*>(FrameScript_GetObjectThis(L, CSimpleStatusBar::GetObjectType()));
 
-    lua_pushnumber(L, statusBar->m_valueRange.m_l);
-    lua_pushnumber(L, statusBar->m_valueRange.m_h);
+    lua_pushnumber(L, statusBar->GetMinValue());
+    lua_pushnumber(L, statusBar->GetMaxValue());
     return 2;
 }
 
@@ -107,7 +107,7 @@ static int32_t Script_SetMinMaxValues(lua_State* L) {
 static int32_t Script_GetValue(lua_State* L) {
     CSimpleStatusBar* statusBar = static_cast<CSimpleStatusBar*>(FrameScript_GetObjectThis(L, CSimpleStatusBar::GetObjectType()));
 
-    lua_pushnumber(L, statusBar->m_value);
+    lua_pushnumber(L, statusBar->GetValue());
     return 1;
 }
 
@@ -130,7 +130,7 @@ static int32_t Script_SetValue(lua_State* L) {
 // OFFSET: 0x009715D0
 static int32_t Script_GetStatusBarTexture(lua_State* L) {
     CSimpleStatusBar* statusBar = static_cast<CSimpleStatusBar*>(FrameScript_GetObjectThis(L, CSimpleStatusBar::GetObjectType()));
-    CSimpleTexture* texture = statusBar->m_barTexture;
+    CSimpleTexture* texture = statusBar->GetStatusBarTexture();
 
     if (!texture) {
         lua_pushnil(L);
@@ -217,7 +217,7 @@ static int32_t Script_SetStatusBarColor(lua_State* L) {
 static int32_t Script_GetRotatesTexture(lua_State* L) {
     CSimpleStatusBar* statusBar = static_cast<CSimpleStatusBar*>(FrameScript_GetObjectThis(L, CSimpleStatusBar::GetObjectType()));
 
-    if (statusBar->m_rotatesTexture) {
+    if (statusBar->GetRotatesTexture()) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

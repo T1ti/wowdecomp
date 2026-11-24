@@ -7,7 +7,6 @@
 #include "Engine/Source/Frame/CSimpleFrame.h"
 #include "Engine/Source/Frame/Types.h"
 #include "Engine/Source/FrameScript/FrameScript_Object.h"
-#include "Engine/Source/Tempest/CRange.h"
 
 class CImVector;
 class CSimpleRegion;
@@ -19,26 +18,11 @@ struct lua_State;
 class CSimpleStatusBar : public CSimpleFrame {
     public:
     static CDataAllocator s_allocator;
-    static int32_t s_metatable;
-    static int32_t s_objectType;
-    static const char* s_objectTypeName;
 
     static void operator delete(void* ptr);
     static void CreateScriptMetaTable();
     static void DestroyScriptMetaTable();
     static int32_t GetObjectType();
-    static void RegisterScriptMethods(lua_State* L);
-
-    /* 029C */ uint32_t m_changed : 1;
-    /* 029C */ uint32_t m_rangeSet : 1;
-    /* 029C */ uint32_t m_valueSet : 1;
-    /* 029C */ uint32_t m_rotatesTexture : 1;
-    /* 02A0 */ CRange m_valueRange;
-    /* 02A8 */ float m_value;
-    /* 02AC */ CSimpleTexture* m_barTexture;
-    /* 02B0 */ ORIENTATION m_orientation;
-    /* 02B4 */ FrameScript_Object::ScriptIx m_onValueChanged;
-    /* 02BC */ FrameScript_Object::ScriptIx m_onMinMaxChanged;
 
     virtual ~CSimpleStatusBar();
     virtual int32_t GetScriptMetaTable();
@@ -56,12 +40,37 @@ class CSimpleStatusBar : public CSimpleFrame {
 
     CSimpleStatusBar(CSimpleFrame* parent);
     void GetStatusBarColor(CImVector& color);
-    void RunOnMinMaxChangedScript();
     int32_t SetBarTexture(const char* fileName, uint32_t drawLayer);
     void SetBarTexture(CSimpleTexture* texture, uint32_t drawLayer);
-    void SetMinMaxValues(float minValue, float maxValue);
+    void SetMinMaxValues(float min, float max);
     void SetOrientation(ORIENTATION orientation);
     void SetRotatesTexture(int32_t rotates);
+
+    float GetMinValue() const { return this->m_minValue; } // (inferred)
+    float GetMaxValue() const { return this->m_maxValue; } // (inferred)
+    float GetValue() const { return this->m_value; }
+    ORIENTATION GetOrientation() const { return this->m_orientation; }
+    CSimpleTexture* GetStatusBarTexture() const { return this->m_barTexture; }
+    bool GetRotatesTexture() const { return this->m_rotatesTexture != 0; }
+
+    private:
+    static int32_t s_metatable;
+    static int32_t s_objectType;
+    static const char* s_objectTypeName;
+    static void RegisterScriptMethods(lua_State* L);
+    void RunOnMinMaxChangedScript();
+
+    /* 029C */ uint32_t m_changed : 1;
+    /* 029C */ uint32_t m_rangeSet : 1;
+    /* 029C */ uint32_t m_valueSet : 1;
+    /* 029C */ uint32_t m_rotatesTexture : 1;
+    /* 02A0 */ float m_minValue;
+    /* 02A4 */ float m_maxValue;
+    /* 02A8 */ float m_value;
+    /* 02AC */ CSimpleTexture* m_barTexture;
+    /* 02B0 */ ORIENTATION m_orientation;
+    /* 02B4 */ FrameScript_Object::ScriptIx m_onValueChanged;
+    /* 02BC */ FrameScript_Object::ScriptIx m_onMinMaxChanged;
 };
 
 #endif
