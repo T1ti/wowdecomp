@@ -40,12 +40,12 @@ static ClientGameTable<gtRegenMPPerSptRec> s_gtRegenMPPerSpt("RegenMPPerSpt", &g
 static ClientGameTable<gtOCTClassCombatRatingScalarRec> s_gtOCTClassCombatRatingScalar("OCTClassCombatRatingScalar", &g_gtOCTClassCombatRatingScalarDB);
 
 // STATIC: 0x00AF4F90
-static ClientGameTableBase* s_gameTables[NUM_GAME_TABLES] = { &s_gtBarberShopCostBase, &s_gtCombatRatings, &s_gtChanceToMeleeCrit, &s_gtChanceToMeleeCritBase, &s_gtChanceToSpellCrit, &s_gtChanceToSpellCritBase, &s_gtNPCManaCostScaler, &s_gtOCTRegenHP, &s_gtOCTRegenMP, &s_gtRegenHPPerSpt, &s_gtRegenMPPerSpt, &s_gtOCTClassCombatRatingScalar };
+static ClientGameTableBase* s_gameTables[NUM_GAMETABLES] = { &s_gtBarberShopCostBase, &s_gtCombatRatings, &s_gtChanceToMeleeCrit, &s_gtChanceToMeleeCritBase, &s_gtChanceToSpellCrit, &s_gtChanceToSpellCritBase, &s_gtNPCManaCostScaler, &s_gtOCTRegenHP, &s_gtOCTRegenMP, &s_gtRegenHPPerSpt, &s_gtRegenMPPerSpt, &s_gtOCTClassCombatRatingScalar };
 
 // INLINED
 ClientGameTableBase::ClientGameTableBase(const char* name) {
     this->m_name = name;
-    this->m_gameTable = nullptr;
+    this->m_info = nullptr;
 }
 
 // VERIFY: 001196df auto
@@ -55,11 +55,13 @@ void ClientGameTableBase::Initialize() {
         GameTablesRec* rec = i >= 0 && i < g_gameTablesDB.GetNumRecords() ? &g_gameTablesDB.m_records[i] : nullptr;
 
         if (!SStrCmpI(this->m_name, rec->m_name, STORM_MAX_STR)) {
-            this->m_gameTable = rec;
+            this->m_info = rec;
 
-            return;
+            break;
         }
     }
+
+    STORM_ASSERT(m_info);
 }
 
 // VERIFY: 5f1fbdc9 auto
@@ -72,6 +74,7 @@ void GameTablesInitialize() {
 
 // VERIFY: 166b2593 auto
 // OFFSET: 0x007F6990
-float GetGameTableValue(GAME_TABLE table, int32_t index, int32_t row) {
-    return s_gameTables[table]->EvaluateTable(index, row);
+float GetGameTableValue(GAME_TABLE tableEnum, int32_t rowIndex, int32_t columnIndex) {
+    STORM_ASSERT(tableEnum < NUM_GAMETABLES);
+    return s_gameTables[tableEnum]->EvaluateTable(rowIndex, columnIndex);
 }
