@@ -14,10 +14,6 @@ class CDynTable : protected CMemBlock {
           m_chunk(chunk), m_capacity(capacity), iused(0) {
     }
 
-    bool IsValid() const {
-        return this->m_block != nullptr;
-    }
-
     uint32_t Used() const {
         STORM_ASSERT(this->IsValid());
         return this->iused;
@@ -25,12 +21,12 @@ class CDynTable : protected CMemBlock {
 
     const T& operator[](uint32_t i) const {
         STORM_ASSERT(this->IsValid() && i < iused);
-        return reinterpret_cast<const T*>(this->m_data)[i];
+        return reinterpret_cast<const T*>(this->mem)[i];
     }
 
     T& operator[](uint32_t i) {
         STORM_ASSERT(this->IsValid() && i < iused);
-        return reinterpret_cast<T*>(this->m_data)[i];
+        return reinterpret_cast<T*>(this->mem)[i];
     }
 
     bool Grow() {

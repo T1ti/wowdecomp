@@ -33,7 +33,7 @@ void CMemBlock::Set32b_(uint32_t* dest, uint32_t value, uint32_t bytes) {
 void CMemBlock::Set32b_(uint8_t* dest, uint8_t value, uint32_t bytes) {
     uint32_t head = static_cast<uint32_t>(-reinterpret_cast<intptr_t>(dest)) & 3;
     uint32_t tail = (bytes - head) & 3;
-    uint32_t middle = bytes - tail - head;
+    uint32_t body = bytes - tail - head;
 
     switch (head) {
         case 3:
@@ -46,9 +46,10 @@ void CMemBlock::Set32b_(uint8_t* dest, uint8_t value, uint32_t bytes) {
 
     uint8_t* cur = dest + head;
 
-    if (middle) {
-        CMemBlock::Set32b_(reinterpret_cast<uint32_t*>(cur), value | ((value | ((value | (value << 8)) << 8)) << 8), middle);
-        cur += middle;
+    if (body) {
+        STORM_ASSERT((body & 0x3) == 0);
+        CMemBlock::Set32b_(reinterpret_cast<uint32_t*>(cur), value | ((value | ((value | (value << 8)) << 8)) << 8), body);
+        cur += body;
     }
 
     switch (tail) {
@@ -103,77 +104,76 @@ void CMemBlock::SetM_(uint8_t* dest, uint8_t value, uint32_t bytes) {
     }
 }
 
+// INLINED
+inline void CMemBlock::Free() {
+    if (this->mem_) {
+        STORM_ASSERT(mem_ <= mem && size_ >= size);
+        if (this->mem_ != reinterpret_cast<uint8_t*>(-1)) {
+            SMemFree(this->mem_, __FILE__, __LINE__, 0);
+        }
+
+        this->size = 0;
+        this->size_ = 0;
+        this->mem = nullptr;
+        this->mem_ = nullptr;
+    }
+}
+
 // VERIFY: e1352d2f manual
 // OFFSET: [0x00984670, 0x00984770]
 CMemBlock::~CMemBlock() {
-    if (this->m_block) {
-        if (this->m_block != reinterpret_cast<uint8_t*>(-1)) {
-            SMemFree(this->m_block, __FILE__, __LINE__, 0);
-        }
-
-        this->m_size = 0;
-        this->m_blockSize = 0;
-        this->m_data = nullptr;
-        this->m_block = nullptr;
-    }
+    this->Free();
 }
 
 // VERIFY: 2b816450 manual
 // OFFSET: 0x009846B0
 void CMemBlock::Constructor_(uint32_t size, uint32_t offset, const char* name, int32_t line) {
-    if (this->m_block) {
-        if (this->m_block != reinterpret_cast<uint8_t*>(-1)) {
-            SMemFree(this->m_block, __FILE__, __LINE__, 0);
-        }
-
-        this->m_size = 0;
-        this->m_blockSize = 0;
-        this->m_data = nullptr;
-        this->m_block = nullptr;
-    }
+    this->Free();
 
     uint8_t* block = size + offset ? static_cast<uint8_t*>(SMemAlloc(size + offset, __FILE__, __LINE__, SMEM_FLAG_ZEROMEMORY)) : reinterpret_cast<uint8_t*>(-1);
 
-    this->m_block = block;
-    this->m_blockSize = size + offset;
-    this->m_size = size;
-    this->m_data = block + offset;
+    this->mem_ = block;
+    STORM_ASSERT(mem_ != nullptr); // 12213: "mem_ != __null"
+    this->size_ = size + offset;
+    this->size = size;
+    this->mem = block + offset;
 }
 
 // VERIFY: 65708b0d auto
 // OFFSET: 0x00984730
 CMemBlock::CMemBlock(uint32_t size, uint32_t offset, const char* name, int32_t line) {
-    this->m_block = nullptr;
+    this->mem_ = nullptr;
     this->Constructor_(size, offset, name, line);
 }
 
 // VERIFY: c22b0826 manual
 // OFFSET: 0x009847D0
 bool CMemBlock::Resize(uint32_t size, bool keep) {
-    if (size != this->m_size) {
-        uint32_t offset = this->m_blockSize - this->m_size;
+    if (size != this->size) {
+        uint32_t offset = this->size_ - this->size;
         uint32_t total = offset + size;
         uint8_t* block;
 
-        if (this->m_block == reinterpret_cast<uint8_t*>(-1)) {
+        if (this->mem_ == reinterpret_cast<uint8_t*>(-1)) {
             block = static_cast<uint8_t*>(SMemAlloc(total, __FILE__, __LINE__, 0));
         } else {
-            block = static_cast<uint8_t*>(SMemReAlloc(this->m_block, total, __FILE__, __LINE__, 0));
+            block = static_cast<uint8_t*>(SMemReAlloc(this->mem_, total, __FILE__, __LINE__, 0));
         }
 
-        this->m_block = block;
-        this->m_data = block + offset;
+        this->mem_ = block;
+        this->mem = block + offset;
 
-        if (size > this->m_size) {
-            memset(this->m_data + this->m_size, 0, size - this->m_size);
+        if (size > this->size) {
+            memset(this->mem + this->size, 0, size - this->size);
         }
 
-        this->m_blockSize = total;
-        this->m_size = size;
+        STORM_ASSERT(mem_ != nullptr); // 12213: "mem_ != __null"
+        this->size_ = total;
+        this->size = size;
     }
 
     if (!keep) {
-        CMemBlock::SetM_(this->m_data, 0, this->m_size);
+        CMemBlock::SetM_(this->mem, 0, this->size);
     }
 
     return true;
