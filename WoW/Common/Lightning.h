@@ -36,10 +36,13 @@ class CLightning {
 
     static uint32_t DecodeChainEffectsID(uint32_t id);
 
+    private:
+    friend class CLightningManager; // (inferred)
+
     /* 0000 */ C3Vector m_srcPos;
     /* 000C */ C3Vector m_dstPos;
     /* 0018 */ CImVector m_color;
-    /* 001C */ const SpellChainEffectsRec* m_chainEffects;
+    /* 001C */ const SpellChainEffectsRec* mRec;
     /* 0020 */ TSFixedArray<LightningJoint> m_joints;
     /* 002C */ TSFixedArray<C3Vector> m_points;
     /* 0038 */ TSFixedArray<C3Vector> m_positions;
@@ -72,11 +75,14 @@ class CLightning {
     void RandomizeJoint(LightningJoint& joint, float radius);
     void Render(uint32_t index, const C3Vector& cameraPos);
     void Reset();
+    void Update(float elapsed);
+    void UpdateJointCount(float length, float radius);
+
+    public:
+    uint32_t GetFlags() const { return this->m_flags; } // (inferred)
     void SetDstPos(const C3Vector& pos);
     void SetSrcPos(const C3Vector& pos);
     void SetTexture(CTexture* texture);
-    void Update(float elapsed);
-    void UpdateJointCount(float length, float radius);
 };
 
 class CLightningManager {
@@ -85,18 +91,23 @@ class CLightningManager {
         BADBOLT = 0xFFFFFFFF,
     };
 
-    /* 0000 */ TSGrowableArray<CLightning*> mLiveBolts;
-    /* 0010 */ TSGrowableArray<uint32_t> m_freeList;
-
     CLightningManager();
     ~CLightningManager();
     uint32_t Add(void (*coordUpdate)(void*, uint32_t, C3Vector*, C3Vector*), void* param, const SpellChainEffectsRec* chainEffects);
     CLightning* GetTempPtr(uint32_t index);
-    void Move(uint32_t index, C3Vector* srcPos, C3Vector* dstPos);
-    void Remove(uint32_t index);
+    void Move(uint32_t boltId, C3Vector* srcPos, C3Vector* dstPos);
+    void Remove(uint32_t boltId);
     void Render(const C3Vector& cameraPos);
     void SetBoltVisible(uint32_t index, bool visible);
     void Update(float elapsed);
+
+    private:
+    static constexpr uintptr_t NOTUSEDFLAG = 1;
+
+    /* 0000 */ TSGrowableArray<CLightning*> mLiveBolts;
+    /* 0010 */ TSGrowableArray<uint32_t> m_freeList;
+
+    void SetCoordUpdate(uint32_t boltId, void (*coordUpdate)(void*, uint32_t, C3Vector*, C3Vector*), void* param); // (inferred)
 };
 
 #endif

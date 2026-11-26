@@ -20,7 +20,7 @@ bool SpellChainEffectsRec::Read(SFileImpl* file, const char* stringBuffer) {
     uint32_t comboOffset;
 
     int32_t idRead = SFileReadFile(file, &this->m_id, sizeof(this->m_id), nullptr, nullptr, 0);
-    int32_t avgSegLenRead = SFileReadFile(file, &this->m_avgSegLen, sizeof(this->m_avgSegLen), nullptr, nullptr, 0);
+    int32_t avgSegLenRead = SFileReadFile(file, &this->m_AvgSegLen, sizeof(this->m_AvgSegLen), nullptr, nullptr, 0);
     int32_t widthRead = SFileReadFile(file, &this->m_width, sizeof(this->m_width), nullptr, nullptr, 0);
     int32_t noiseScaleRead = SFileReadFile(file, &this->m_noiseScale, sizeof(this->m_noiseScale), nullptr, nullptr, 0);
     int32_t texCoordScaleRead = SFileReadFile(file, &this->m_texCoordScale, sizeof(this->m_texCoordScale), nullptr, nullptr, 0);

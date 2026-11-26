@@ -27,7 +27,7 @@ class SpellChainEffectsRec {
     static const bool s_generatedID = false;
 
     /* 0000 */ int32_t m_id;
-    /* 0004 */ float m_avgSegLen;
+    /* 0004 */ float m_AvgSegLen;
     /* 0008 */ float m_width;
     /* 000C */ float m_noiseScale;
     /* 0010 */ float m_texCoordScale;

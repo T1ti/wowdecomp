@@ -192,15 +192,15 @@ bool LightningObject::Tick(uint32_t time) {
             CLightning* lightning = s_lightningManager->GetTempPtr(bolt.m_lightning);
 
             if (source && lightning) {
-                if (lightning->m_flags & CLightning::RUNTIME_FLAGS::FLAG_SOURCE_ENDPOINT) {
+                if (lightning->GetFlags() & CLightning::RUNTIME_FLAGS::FLAG_SOURCE_ENDPOINT) {
                     source->ConnectToLightningThisFrame(this->m_spellId, -1);
                 }
 
                 if (target) {
-                    if (lightning->m_flags & CLightning::RUNTIME_FLAGS::FLAG_DESTINATION_ENDPOINT) {
+                    if (lightning->GetFlags() & CLightning::RUNTIME_FLAGS::FLAG_DESTINATION_ENDPOINT) {
                         target->ConnectToLightningThisFrame(this->m_spellId, -1);
                     }
-                } else if (lightning->m_flags & CLightning::RUNTIME_FLAGS::FLAG_DESTINATION_ENDPOINT) {
+                } else if (lightning->GetFlags() & CLightning::RUNTIME_FLAGS::FLAG_DESTINATION_ENDPOINT) {
                     source->ConnectToLightningThisFrame(this->m_spellId, bolt.m_attachment);
                 }
             }

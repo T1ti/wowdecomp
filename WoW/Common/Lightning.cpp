@@ -72,21 +72,21 @@ static float RandomFloat(float min, float max) {
 // OFFSET: 0x009A8EC0
 void CLightning::Reset() {
     this->m_flags &= ~RUNTIME_FLAGS::FLAG_RESET_MASK;
-    this->m_waveAngle = (this->m_chainEffects->m_maxWaveAngle - this->m_chainEffects->m_minWaveAngle) * CRandom::ufloat_(s_rndSeed) + this->m_chainEffects->m_minWaveAngle;
-    this->m_waveSpin = (this->m_chainEffects->m_maxWaveSpin - this->m_chainEffects->m_minWaveSpin) * CRandom::ufloat_(s_rndSeed) + this->m_chainEffects->m_minWaveSpin;
+    this->m_waveAngle = (this->mRec->m_maxWaveAngle - this->mRec->m_minWaveAngle) * CRandom::ufloat_(s_rndSeed) + this->mRec->m_minWaveAngle;
+    this->m_waveSpin = (this->mRec->m_maxWaveSpin - this->mRec->m_minWaveSpin) * CRandom::ufloat_(s_rndSeed) + this->mRec->m_minWaveSpin;
 
-    if (this->m_chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::USE_DEFINED_WAVE_PHASE) {
-        this->m_wavePhase = this->m_chainEffects->m_wavePhase;
+    if (this->mRec->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::USE_DEFINED_WAVE_PHASE) {
+        this->m_wavePhase = this->mRec->m_wavePhase;
     } else {
         this->m_wavePhase = CRandom::ufloat_(s_rndSeed) * TWO_PI;
     }
 
-    this->m_arcAngle = (this->m_chainEffects->m_maxArcAngle - this->m_chainEffects->m_minArcAngle) * CRandom::ufloat_(s_rndSeed) + this->m_chainEffects->m_minArcAngle;
-    this->m_arcSpin = (this->m_chainEffects->m_maxArcSpin - this->m_chainEffects->m_minArcSpin) * CRandom::ufloat_(s_rndSeed) + this->m_chainEffects->m_minArcSpin;
-    this->m_flickerTimer = (this->m_chainEffects->m_maxFlickerOnDuration - this->m_chainEffects->m_minFlickerOnDuration) * CRandom::ufloat_(s_rndSeed) + this->m_chainEffects->m_minFlickerOnDuration;
+    this->m_arcAngle = (this->mRec->m_maxArcAngle - this->mRec->m_minArcAngle) * CRandom::ufloat_(s_rndSeed) + this->mRec->m_minArcAngle;
+    this->m_arcSpin = (this->mRec->m_maxArcSpin - this->mRec->m_minArcSpin) * CRandom::ufloat_(s_rndSeed) + this->mRec->m_minArcSpin;
+    this->m_flickerTimer = (this->mRec->m_maxFlickerOnDuration - this->mRec->m_minFlickerOnDuration) * CRandom::ufloat_(s_rndSeed) + this->mRec->m_minFlickerOnDuration;
     this->m_pulsePos = 0.0f;
 
-    if (this->m_chainEffects->m_pulseSpeed < 0.0f) {
+    if (this->mRec->m_pulseSpeed < 0.0f) {
         this->m_flags |= RUNTIME_FLAGS::FLAG_INITIAL_PULSE_WRAP;
     }
 
@@ -102,14 +102,14 @@ void CLightning::RandomizeJoint(LightningJoint& joint, float radius) {
     joint.m_pos.z = radius * z;
 
     float speed = CRandom::sfloat_(s_rndSeed);
-    joint.m_velocity.x = CRandom::sfloat_(s_rndSeed) * this->m_chainEffects->m_jointMoveSpeed;
+    joint.m_velocity.x = CRandom::sfloat_(s_rndSeed) * this->mRec->m_jointMoveSpeed;
     joint.m_velocity.y = 0.0f;
-    joint.m_velocity.z = this->m_chainEffects->m_jointMoveSpeed * speed;
+    joint.m_velocity.z = this->mRec->m_jointMoveSpeed * speed;
 
     if (this->m_flags & RUNTIME_FLAGS::FLAG_JOINTS_INITIALIZED) {
-        joint.m_jumpTimer = CRandom::ufloat_(s_rndSeed) * this->m_chainEffects->m_maxDurationBetweenJointJumps;
+        joint.m_jumpTimer = CRandom::ufloat_(s_rndSeed) * this->mRec->m_maxDurationBetweenJointJumps;
     } else {
-        joint.m_jumpTimer = (this->m_chainEffects->m_maxDurationBetweenJointJumps - this->m_chainEffects->m_minDurationBetweenJointJumps) * CRandom::ufloat_(s_rndSeed) + this->m_chainEffects->m_minDurationBetweenJointJumps;
+        joint.m_jumpTimer = (this->mRec->m_maxDurationBetweenJointJumps - this->mRec->m_minDurationBetweenJointJumps) * CRandom::ufloat_(s_rndSeed) + this->mRec->m_minDurationBetweenJointJumps;
     }
 }
 
@@ -145,7 +145,7 @@ void CLightning::BuildPoint(C3Vector& point, const C3Vector& base, float t, Ligh
     if (*reinterpret_cast<int32_t*>(&joint.m_smoothPos.x) == -1) {
         smooth = joint.m_pos;
     } else {
-        float smoothness = this->m_chainEffects->m_jointSmoothness;
+        float smoothness = this->mRec->m_jointSmoothness;
         smooth.x = joint.m_smoothPos.x * smoothness + joint.m_pos.x * (1.0f - smoothness);
         smooth.y = joint.m_smoothPos.y * smoothness + joint.m_pos.y * (1.0f - smoothness);
         smooth.z = joint.m_smoothPos.z * smoothness + joint.m_pos.z * (1.0f - smoothness);
@@ -173,7 +173,7 @@ void CLightning::BuildPoint(C3Vector& point, const C3Vector& base, float t, Ligh
 // VERIFY: e17ab14c manual
 // OFFSET: 0x009A9490
 void CLightning::ApplyPulsingToVertexData(int32_t& start, int32_t& count) {
-    const SpellChainEffectsRec* chainEffects = this->m_chainEffects;
+    const SpellChainEffectsRec* chainEffects = this->mRec;
 
     if (!(chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::PULSE)) {
         start = 0;
@@ -244,7 +244,7 @@ CLightning* CLightningManager::GetTempPtr(uint32_t index) {
 
     CLightning* bolt = this->mLiveBolts.m_data[index];
 
-    if (reinterpret_cast<uintptr_t>(bolt) & 0x1) {
+    if (reinterpret_cast<uintptr_t>(bolt) & NOTUSEDFLAG) {
         return nullptr;
     }
 
@@ -255,6 +255,7 @@ CLightning* CLightningManager::GetTempPtr(uint32_t index) {
 // OFFSET: 0x009A9710
 void CLightningManager::Move(uint32_t boltId, C3Vector* srcPos, C3Vector* dstPos) {
     STORM_ASSERT(BADBOLT != boltId && boltId < mLiveBolts.Count());
+    STORM_ASSERT(0 == (NOTUSEDFLAG & (uintptr_t)mLiveBolts[boltId]));
 
     if (srcPos) {
         this->mLiveBolts.m_data[boltId]->m_srcPos = *srcPos;
@@ -279,7 +280,7 @@ void CLightningManager::SetBoltVisible(uint32_t index, bool visible) {
 
     CLightning* bolt = this->mLiveBolts.m_data[index];
 
-    if (reinterpret_cast<uintptr_t>(bolt) & 0x1) {
+    if (reinterpret_cast<uintptr_t>(bolt) & NOTUSEDFLAG) {
         return;
     }
 
@@ -317,13 +318,13 @@ CLightning::~CLightning() {
 // VERIFY: f0e8bc20 manual
 // OFFSET: 0x009A9900
 void CLightning::Init(const SpellChainEffectsRec* chainEffects) {
-    this->m_chainEffects = chainEffects;
+    this->mRec = chainEffects;
     this->m_color.a = chainEffects->m_alpha;
     this->m_color.r = chainEffects->m_red;
     this->m_color.g = chainEffects->m_green;
     this->m_color.b = chainEffects->m_blue;
 
-    if (!(this->m_chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::PULSE)) {
+    if (!(this->mRec->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::PULSE)) {
         for (uint32_t i = 0; i < this->m_colors.Count(); i++) {
             this->m_colors.m_data[i] = this->m_color;
         }
@@ -341,7 +342,7 @@ void CLightning::PrecomputeBeamValues() {
     s_beamDir.z = this->m_dstPos.z - this->m_srcPos.z;
     ComputeXZAxesFromYAxis(s_beamAxisX, s_beamDir, s_beamAxisZ);
 
-    const SpellChainEffectsRec* chainEffects = this->m_chainEffects;
+    const SpellChainEffectsRec* chainEffects = this->mRec;
 
     if (fabs(chainEffects->m_waveHeight) >= 0.00000023841858f && !(chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::HELICAL_WAVE)) {
         float c = CMath::cos_(this->m_waveAngle) * chainEffects->m_waveHeight;
@@ -354,7 +355,7 @@ void CLightning::PrecomputeBeamValues() {
         s_waveOffset.z = s * s_beamAxisX.z + cz;
     }
 
-    chainEffects = this->m_chainEffects;
+    chainEffects = this->mRec;
 
     if (fabs(chainEffects->m_arcHeight) >= 0.00000023841858f) {
         float c = CMath::cos_(this->m_arcAngle) * chainEffects->m_arcHeight;
@@ -371,7 +372,7 @@ void CLightning::PrecomputeBeamValues() {
 // VERIFY: 95a70aa3 auto
 // OFFSET: 0x009A9B30
 void CLightning::ApplyWaveToPosition(C3Vector& position, float t, float length) {
-    const SpellChainEffectsRec* chainEffects = this->m_chainEffects;
+    const SpellChainEffectsRec* chainEffects = this->mRec;
     float envelope = 1.0f - (t - 0.5f) * (t - 0.5f) * 4.0f;
     float angle = t * chainEffects->m_waveFreq * length + this->m_wavePhase;
 
@@ -427,7 +428,7 @@ void CLightning::BuildPointsUsingHierarchy() {
     s_jointAxisY = beam;
     ComputeXZAxesFromYAxis(s_jointAxisX, s_jointAxisY, s_jointAxisZ);
 
-    const SpellChainEffectsRec* chainEffects = this->m_chainEffects;
+    const SpellChainEffectsRec* chainEffects = this->mRec;
     int32_t minorStep = chainEffects->m_jointsPerMinorJoint;
     int32_t majorStep = minorStep * chainEffects->m_minorJointsPerMajorJoint;
     float majorT = 1.0f / static_cast<float>(last);
@@ -525,7 +526,7 @@ void CLightning::Render(uint32_t index, const C3Vector& cameraPos) {
         this->m_dstPos = dstPos;
     }
 
-    if (this->m_chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::USE_HIERARCHICAL_POINTS) {
+    if (this->mRec->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::USE_HIERARCHICAL_POINTS) {
         this->BuildPointsUsingHierarchy();
     } else {
         this->BuildPoints();
@@ -540,7 +541,7 @@ void CLightning::Render(uint32_t index, const C3Vector& cameraPos) {
     this->m_bounds.b = prev;
     this->m_bounds.t = prev;
 
-    const SpellChainEffectsRec* chainEffects = this->m_chainEffects;
+    const SpellChainEffectsRec* chainEffects = this->mRec;
     bool wave = chainEffects->m_waveHeight != 0.0f;
     bool arc = chainEffects->m_arcHeight != 0.0f;
 
@@ -841,7 +842,7 @@ void CLightning::Render(uint32_t index, const C3Vector& cameraPos) {
         return;
     }
 
-    chainEffects = this->m_chainEffects;
+    chainEffects = this->mRec;
     float texScale;
 
     if (chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::SCALE_TEXTURE_BY_LENGTH) {
@@ -864,8 +865,8 @@ void CLightning::Render(uint32_t index, const C3Vector& cameraPos) {
     emissive.r = this->m_color.r;
     emissive.a = 0xFF;
     g_theGxDevicePtr->RsSet(GxRs_MatEmissive, *reinterpret_cast<int32_t*>(&emissive));
-    g_theGxDevicePtr->RsSet(GxRs_DepthWrite, static_cast<uint8_t>(this->m_chainEffects->m_blendMode) == GxBlend_Alpha);
-    g_theGxDevicePtr->RsSet(GxRs_BlendingMode, static_cast<int32_t>(static_cast<uint8_t>(this->m_chainEffects->m_blendMode)));
+    g_theGxDevicePtr->RsSet(GxRs_DepthWrite, static_cast<uint8_t>(this->mRec->m_blendMode) == GxBlend_Alpha);
+    g_theGxDevicePtr->RsSet(GxRs_BlendingMode, static_cast<int32_t>(static_cast<uint8_t>(this->mRec->m_blendMode)));
     GxUpdateAlphaRef(GxRs_AlphaRef);
 
     CGxTex* gxTex = TextureGetGxTex(this->m_texture, 0, nullptr);
@@ -893,12 +894,22 @@ CLightningManager::CLightningManager() {
 // OFFSET: 0x009AAEA0
 CLightningManager::~CLightningManager() {
     for (uint32_t i = this->mLiveBolts.Count(); i; i--) {
-        CLightning* bolt = reinterpret_cast<CLightning*>(reinterpret_cast<uintptr_t>(this->mLiveBolts.m_data[i - 1]) & ~0x1);
+        CLightning* bolt = reinterpret_cast<CLightning*>(reinterpret_cast<uintptr_t>(this->mLiveBolts.m_data[i - 1]) & ~NOTUSEDFLAG);
 
         if (bolt) {
             delete bolt;
         }
     }
+}
+
+// INLINED
+inline void CLightningManager::SetCoordUpdate(uint32_t boltId, void (*coordUpdate)(void*, uint32_t, C3Vector*, C3Vector*), void* param) {
+    STORM_ASSERT(BADBOLT != boltId && boltId < mLiveBolts.Count());
+    STORM_ASSERT(0 == (NOTUSEDFLAG & (uintptr_t)mLiveBolts[boltId]));
+
+    CLightning* bolt = this->mLiveBolts.m_data[boltId];
+    bolt->m_coordUpdateData.callback = coordUpdate;
+    bolt->m_coordUpdateData.context = param;
 }
 
 // VERIFY: 193d56e8 manual
@@ -908,7 +919,7 @@ uint32_t CLightningManager::Add(void (*coordUpdate)(void*, uint32_t, C3Vector*, 
 
     if (this->m_freeList.Count()) {
         index = *this->m_freeList.Top();
-        this->mLiveBolts.m_data[index] = reinterpret_cast<CLightning*>(reinterpret_cast<uintptr_t>(this->mLiveBolts.m_data[index]) & ~0x1);
+        this->mLiveBolts.m_data[index] = reinterpret_cast<CLightning*>(reinterpret_cast<uintptr_t>(this->mLiveBolts.m_data[index]) & ~NOTUSEDFLAG);
         this->m_freeList.SetCount(this->m_freeList.Count() - 1);
         this->mLiveBolts.m_data[index]->Init(chainEffects);
     } else {
@@ -918,9 +929,7 @@ uint32_t CLightningManager::Add(void (*coordUpdate)(void*, uint32_t, C3Vector*, 
         this->mLiveBolts.m_data[index]->Init(chainEffects);
     }
 
-    CLightning* bolt = this->mLiveBolts.m_data[index];
-    bolt->m_coordUpdateData.callback = coordUpdate;
-    bolt->m_coordUpdateData.context = param;
+    this->SetCoordUpdate(index, coordUpdate, param);
 
     return index;
 }
@@ -948,11 +957,11 @@ void CLightningManager::Render(const C3Vector& cameraPos) {
 
             CLightning* bolt = this->mLiveBolts.m_data[i];
 
-            if (reinterpret_cast<uintptr_t>(bolt) & 0x1) {
+            if (reinterpret_cast<uintptr_t>(bolt) & NOTUSEDFLAG) {
                 continue;
             }
 
-            if (bolt->m_chainEffects && bolt->m_chainEffects->m_renderLayer == layer) {
+            if (bolt->mRec && bolt->mRec->m_renderLayer == layer) {
                 bolt->Render(i, cameraPos);
             }
         }
@@ -977,20 +986,25 @@ void CLightningManager::Render(const C3Vector& cameraPos) {
 
 // VERIFY: ac4c6214 auto
 // OFFSET: 0x009AB2B0
-void CLightningManager::Remove(uint32_t index) {
-    this->mLiveBolts.m_data[index] = reinterpret_cast<CLightning*>(reinterpret_cast<uintptr_t>(this->mLiveBolts.m_data[index]) | 0x1);
-    this->m_freeList.Add(1, &index);
+void CLightningManager::Remove(uint32_t boltId) {
+    STORM_ASSERT(BADBOLT != boltId && boltId < mLiveBolts.Count());
+    STORM_ASSERT(0 == (NOTUSEDFLAG & (uintptr_t)mLiveBolts[boltId]));
+
+    this->mLiveBolts.m_data[boltId] = reinterpret_cast<CLightning*>(reinterpret_cast<uintptr_t>(this->mLiveBolts.m_data[boltId]) | NOTUSEDFLAG);
+    this->m_freeList.Add(1, &boltId);
 }
 
 // VERIFY: 286b8892 manual
 // OFFSET: 0x009AB2E0
 void CLightning::UpdateJointCount(float length, float radius) {
+    STORM_ASSERT(mRec->m_AvgSegLen > 0.0f);
+
     int32_t count;
 
-    if (this->m_chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::USE_FIXED_JOINT_COUNT) {
-        count = this->m_chainEffects->m_jointCount;
+    if (this->mRec->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::USE_FIXED_JOINT_COUNT) {
+        count = this->mRec->m_jointCount;
     } else {
-        count = static_cast<int32_t>(length / this->m_chainEffects->m_avgSegLen) + 2;
+        count = static_cast<int32_t>(length / this->mRec->m_AvgSegLen) + 2;
     }
 
     count++;
@@ -1035,12 +1049,12 @@ void CLightning::Update(float elapsed) {
         }
 
         this->Reset();
-    } else if ((this->m_chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::FLICKER) && this->m_flickerTimer <= 0.0f) {
-        this->m_flickerTimer = RandomFloat(this->m_chainEffects->m_minFlickerOffDuration, this->m_chainEffects->m_maxFlickerOffDuration);
+    } else if ((this->mRec->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::FLICKER) && this->m_flickerTimer <= 0.0f) {
+        this->m_flickerTimer = RandomFloat(this->mRec->m_minFlickerOffDuration, this->mRec->m_maxFlickerOffDuration);
         this->m_flags |= RUNTIME_FLAGS::FLAG_FLICKER_OFF;
     }
 
-    const SpellChainEffectsRec* chainEffects = this->m_chainEffects;
+    const SpellChainEffectsRec* chainEffects = this->mRec;
 
     if (chainEffects->m_texCoordScale != 0.0f) {
         this->m_texOffset = fmodf(chainEffects->m_texCoordScale * elapsed + this->m_texOffset, 1.0f);
@@ -1097,7 +1111,7 @@ void CLightning::Update(float elapsed) {
         LightningJoint& joint = this->m_joints.m_data[i];
         joint.m_jumpTimer -= elapsed;
 
-        if ((this->m_chainEffects->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::JOINT_JUMP) && joint.m_jumpTimer < 0.0f) {
+        if ((this->mRec->m_flags & SpellChainEffectsRec::CHAIN_EFFECT_FLAGS::JOINT_JUMP) && joint.m_jumpTimer < 0.0f) {
             this->RandomizeJoint(joint, radius);
         } else {
             joint.m_pos.x = joint.m_velocity.x * elapsed + joint.m_pos.x;
@@ -1106,7 +1120,7 @@ void CLightning::Update(float elapsed) {
         }
     }
 
-    chainEffects = this->m_chainEffects;
+    chainEffects = this->mRec;
     this->m_waveAngle = this->m_waveSpin * elapsed + this->m_waveAngle;
     this->m_wavePhase = this->m_wavePhase - chainEffects->m_waveSpeed * elapsed;
     this->m_arcAngle = this->m_arcSpin * elapsed + this->m_arcAngle;
@@ -1139,7 +1153,7 @@ void CLightningManager::Update(float elapsed) {
     for (uint32_t i = this->mLiveBolts.Count(); i;) {
         i--;
 
-        if (!(reinterpret_cast<uintptr_t>(this->mLiveBolts.m_data[i]) & 0x1)) {
+        if (!(reinterpret_cast<uintptr_t>(this->mLiveBolts.m_data[i]) & NOTUSEDFLAG)) {
             this->mLiveBolts.m_data[i]->Update(elapsed);
         }
     }
