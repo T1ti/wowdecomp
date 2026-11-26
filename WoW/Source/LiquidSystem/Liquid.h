@@ -332,30 +332,12 @@ namespace Liquid {
     extern int32_t s_useCameraRelativeCoords;
     extern int32_t s_settingsBankRefCount;
     extern int32_t s_materialBankRefCount;
-    // Slots of s_procTexturesUpdated, named after the texture UpdateProceduralTextures uploads
-    // for each; slot 0 covers the s_unk_D43B50 array (name inferred).
-    enum PROC_TEXTURE : int32_t {
-        PROC_TEXTURE_UNKNOWN_0 = 0,
-        PROC_TEXTURE_WMO_WATER = 1,
-        PROC_TEXTURE_RIVER_DEPTH = 2,
-        PROC_TEXTURE_OCEAN_DEPTH = 3,
-        NUM_PROC_TEXTURES = 4,
-    };
-
-    extern uint8_t s_procTexturesUpdated[NUM_PROC_TEXTURES];
-    extern CTexture* s_unk_D43B4C;
-    extern CTexture* s_unk_D43B50[32];
-    extern CTexture* s_wmoWaterTex;
-    extern CTexture* s_oceanDepthTex;
-    extern CTexture* s_riverDepthTex;
     extern VSConstants s_vsConstants;
     extern PSConstants s_psConstants;
 
-    void CacheProceduralTextures();
     void ClearMaterials();
     void CreateProceduralTextures();
     void DestroyProceduralTextures();
-    void ExtWaterDepthTexCallback(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
     const char* GetShaderSuffix();
     C44Matrix* GetTexScrollMtx(const C2Vector& speed);
     int32_t Initialize(BOOL useCameraRelativeCoords, float worldCoordScale, int32_t shadersEnabled, const char* shaderPostfix, IDatabase<LiquidTypeRec>* liquidTypeDB, IDatabase<LiquidMaterialRec>* liquidMaterialDB);
@@ -371,7 +353,6 @@ namespace Liquid {
     void SetShadersEnabled(BOOL enabled);
     void SetSpecularEnabled(BOOL enabled);
     int32_t UseCameraRelativeCoords();
-    void WmoWaterTexCallback(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
     float WorldCoordScale();
 }
 
