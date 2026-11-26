@@ -17,12 +17,13 @@ struct HASHKEY_MODELBLOBFILE {
 };
 
 class CModelBlob {
-    public:
+    private:
     struct SEntry {
         /* 0000 */ uint32_t m_filenameOffset;
         /* 0004 */ CAaBox m_boundingBox;
     };
 
+    public:
     class CHashEntry : public TSHashObject<CHashEntry, HASHKEY_MODELBLOBFILE> {
         public:
         /* 0018 */ CModelBlob* m_blob;
@@ -32,18 +33,22 @@ class CModelBlob {
         ~CHashEntry();
     };
 
+    CModelBlob(const char* fileName);
+    ~CModelBlob();
+    int32_t Query(const char* modelName, C3Vector& min, C3Vector& max);
+
+    bool IsLoaded() const { return this->m_fileData != nullptr; } // (inferred)
+
+    private:
     /* 0000 */ char m_filename[256];
     /* 0100 */ uint32_t m_version;
-    /* 0104 */ uint8_t* m_data;
+    /* 0104 */ uint8_t* m_fileData;
     /* 0108 */ SEntry* m_entries;
     /* 010C */ uint32_t m_entryCount;
     /* 0110 */ const char* m_stringTable;
 
-    CModelBlob(const char* fileName);
-    ~CModelBlob();
     void HashBlobEntry(SEntry* entry);
     void Load(const char* fileName);
-    int32_t Query(const char* modelName, C3Vector& min, C3Vector& max);
 };
 
 void ModelBlobDestroy();

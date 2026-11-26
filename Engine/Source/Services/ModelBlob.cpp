@@ -4,6 +4,21 @@
 #include "Engine/Source/BlizzardCore/SFile2-Core.h"
 #include "Engine/Source/Storm/H/storm.h"
 
+namespace {
+
+struct ModelBlobChunk { // (inferred)
+    enum TOKEN : uint32_t {
+        MBVR = 0x4D425652,
+        MBBB = 0x4D424242,
+        MBFN = 0x4D42464E,
+    };
+
+    uint32_t token;
+    uint32_t size;
+};
+
+}
+
 // STATIC: 0x00B4A270
 static CModelBlob* s_modelBlob;
 
@@ -34,7 +49,7 @@ CModelBlob::CHashEntry::~CHashEntry() {
 
 // INLINED
 CModelBlob::CModelBlob(const char* fileName) {
-    this->m_data = nullptr;
+    this->m_fileData = nullptr;
     this->m_entries = nullptr;
     this->m_entryCount = 0;
     this->m_stringTable = nullptr;
@@ -44,8 +59,8 @@ CModelBlob::CModelBlob(const char* fileName) {
 // VERIFY: e1be90a5 manual
 // OFFSET: 0x004BAF60
 CModelBlob::~CModelBlob() {
-    if (this->m_data) {
-        SMemFree(this->m_data, __FILE__, __LINE__, 0);
+    if (this->m_fileData) {
+        SMemFree(this->m_fileData, __FILE__, __LINE__, 0);
     }
 
     this->m_entries = nullptr;
@@ -124,15 +139,25 @@ void CModelBlob::Load(const char* fileName) {
 
     SStrCopy(this->m_filename, fileName, STORM_MAX_STR);
     uint32_t size = SFileGetFileSize(file, nullptr);
-    this->m_data = static_cast<uint8_t*>(SMemAlloc(size, __FILE__, __LINE__, 0));
-    SFileReadFile(file, this->m_data, size, nullptr, nullptr, 0);
+    this->m_fileData = static_cast<uint8_t*>(SMemAlloc(size, __FILE__, __LINE__, 0));
+    STORM_ASSERT(m_fileData);
+    SFileReadFile(file, this->m_fileData, size, nullptr, nullptr, 0);
     SFileCloseFile(file);
 
-    uint8_t* chunk = this->m_data + *reinterpret_cast<uint32_t*>(this->m_data + 4) + 8;
-    uint32_t chunkSize = *reinterpret_cast<uint32_t*>(chunk + 4);
-    this->m_entries = reinterpret_cast<SEntry*>(chunk + 8);
+    const auto* chunkHdr = reinterpret_cast<const ModelBlobChunk*>(this->m_fileData);
+    STORM_ASSERT(chunkHdr->token == ModelBlobChunk::MBVR); // 12213: "chunkHdr->token == 'MBVR'"
+
+    auto* boundsData = this->m_fileData + sizeof(*chunkHdr) + chunkHdr->size;
+    chunkHdr = reinterpret_cast<const ModelBlobChunk*>(boundsData);
+    STORM_ASSERT(chunkHdr->token == ModelBlobChunk::MBBB); // 12213: "chunkHdr->token == 'MBBB'"
+    uint32_t chunkSize = chunkHdr->size;
+    this->m_entries = reinterpret_cast<SEntry*>(boundsData + sizeof(*chunkHdr));
     this->m_entryCount = chunkSize / sizeof(SEntry);
-    this->m_stringTable = reinterpret_cast<const char*>(this->m_entries) + chunkSize + 8;
+
+    const auto* namesData = reinterpret_cast<const uint8_t*>(this->m_entries) + chunkSize;
+    chunkHdr = reinterpret_cast<const ModelBlobChunk*>(namesData);
+    STORM_ASSERT(chunkHdr->token == ModelBlobChunk::MBFN); // 12213: "chunkHdr->token == 'MBFN'"
+    this->m_stringTable = reinterpret_cast<const char*>(namesData + sizeof(*chunkHdr));
 
     SEntry* entry = this->m_entries;
 
@@ -151,7 +176,7 @@ int32_t ModelBlobLoad(const char* fileName) {
 
     s_modelBlob = new CModelBlob(fileName);
 
-    if (s_modelBlob->m_data) {
+    if (s_modelBlob->IsLoaded()) {
         return 1;
     }
 
