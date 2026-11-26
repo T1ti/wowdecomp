@@ -438,21 +438,8 @@ class CMap {
     static bool LocateViewerMapObjs(C3Vector& start, C3Vector& end, float dist, CMapObjDef** outDefs, uint32_t* outGroups);
     static void TestQueryAdd(const CFacet& facet, CImVector color, const C44Matrix* mat);
     static bool QueryLiquidStatusMapObjsExt(C3Vector* pos, int32_t* liquidType, float* height);
-    static bool GetFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* facets, uint32_t flags, uint32_t* status);
-    static bool GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* facets, uint32_t flags, uint32_t* status);
-    static bool QueryFacets(CFrustum* frustum, World::FacetData* facets, uint32_t flags, uint32_t* count);
-    static bool GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBox* queryBox, CAaBox* box, World::FacetData* facets, uint32_t flags);
-    static bool GetChunkLiquidFacets(CMapChunk* chunk, CAaBox* box, CiRect* rect, CChunkLiquid* liquid, World::FacetData* facets);
-    static bool GetChunkLiquidFacets(CMapChunk* chunk, CWFrustum* frustum, CiRect* rect, CChunkLiquid* liquid, World::FacetData* facets);
-    static bool GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrustum* frustum, World::FacetData* facets, uint32_t flags);
-    static bool GetMapObjFacets(CFrustum* frustum, World::FacetData* facets, uint32_t flags, uint32_t* status);
-    static void QueryDestructibleFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* list, CAaBox* box, World::FacetData* facets, uint32_t flags);
-    static void AppendDestructibleFacets(World::ObjectCollisionData* data, CAaBox* box, World::FacetData* facets, WOWGUID guid);
-    static CFacet* BuildImpassableFacets(World::FacetData* facets, C3Vector* up, C3Vector* edge, C3Vector* normal, C3Vector* origin);
-    static void CreateImpassableFacets(CMapChunk* chunk, CAaBox* box, World::FacetData* facets);
-    static bool CreateFlightBoundsFacets(int32_t areaX, int32_t areaY, CAaBox* box, World::FacetData* facets);
-    static void AppendMapObjFacets(CMapDoodadDef* def, CAaBox* box, World::FacetData* facets);
-    static bool GetDoodadDefFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* linkList, CAaBox* box, World::FacetData* facets, uint32_t flags);
+    static bool GetFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* facetData, uint32_t flags, uint32_t* status);
+    static bool QueryFacets(CFrustum* frustum, World::FacetData* facetData, uint32_t flags, uint32_t* count);
     static int32_t GetFlightBounds(const C3Vector& pos, float* height, int32_t which);
     static int32_t QueryFlightBounds(const C3Vector& pos, float* height);
 
@@ -465,6 +452,20 @@ class CMap {
     static float s_depthCoordTable0[256];
     static float s_depthCoordTable1[256];
     static const DepthCoordTable* const s_depthCoordTables[DEPTH_TABLE_CNT];
+
+    static bool GetMapObjFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* facets, uint32_t flags, uint32_t* status);
+    static bool GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBox* queryBox, CAaBox* box, World::FacetData* facetData, uint32_t flags);
+    static bool GetChunkLiquidFacets(CMapChunk* chunk, CAaBox* box, CiRect* rect, CChunkLiquid* liquid, World::FacetData* facets);
+    static bool GetChunkLiquidFacets(CMapChunk* chunk, CWFrustum* frustum, CiRect* rect, CChunkLiquid* liquid, World::FacetData* facets);
+    static bool GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrustum* frustum, World::FacetData* facetData, uint32_t flags);
+    static bool GetMapObjFacets(CFrustum* frustum, World::FacetData* facets, uint32_t flags, uint32_t* status);
+    static void QueryDestructibleFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* list, CAaBox* box, World::FacetData* facets, uint32_t flags);
+    static void AppendDestructibleFacets(World::ObjectCollisionData* data, CAaBox* box, World::FacetData* facets, WOWGUID guid);
+    static CFacet* BuildImpassableFacets(World::FacetData* facets, C3Vector* up, C3Vector* edge, C3Vector* normal, C3Vector* origin);
+    static void CreateImpassableFacets(CMapChunk* chunk, CAaBox* box, World::FacetData* facets);
+    static bool CreateFlightBoundsFacets(int32_t areaX, int32_t areaY, CAaBox* box, World::FacetData* facets);
+    static void AppendMapObjFacets(CMapDoodadDef* def, CAaBox* box, World::FacetData* facets);
+    static bool GetDoodadDefFacets(TSList<CMapBaseObjLink, TSGetExplicitLink<CMapBaseObjLink> >* linkList, CAaBox* box, World::FacetData* facets, uint32_t flags);
 
     static void PurgeArea(CMapArea* area);
     static void RemoveAreaFromTable(const CMapArea* area); // (inferred)

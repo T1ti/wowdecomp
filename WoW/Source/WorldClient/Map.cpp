@@ -4438,8 +4438,10 @@ bool CMap::GetChunkLiquidFacets(CMapChunk* chunk, CAaBox* box, CiRect* rect, CCh
 
 // VERIFY: 92053872 manual
 // OFFSET: 0x007A5A60
-bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBox* queryBox, CAaBox* box, World::FacetData* facets, uint32_t flags) {
-    uint32_t first = facets->facets.Count();
+bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBox* queryBox, CAaBox* box, World::FacetData* facetData, uint32_t flags) {
+    STORM_ASSERT(facetData);
+
+    uint32_t first = facetData->facets.Count();
     int32_t areaIndex = CMap::GetAreaIndex((chunkX >> 4) & MAP_AREA_INDEX_MASK, (chunkY >> 4) & MAP_AREA_INDEX_MASK);
     CMapArea* area = CMap::m_areaTable[areaIndex];
 
@@ -4451,7 +4453,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
         }
 
         if (chunk->m_flags & MAPOBJ_FLAG_IMPASSABLE) {
-            CMap::CreateImpassableFacets(chunk, box, facets);
+            CMap::CreateImpassableFacets(chunk, box, facetData);
         }
 
         CiRect rect;
@@ -4481,7 +4483,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
         localBox.t = box->t - chunk->m_topLeftCoords;
 
         if (flags & WORLD_QUERY_TERRAIN) {
-            chunk->Intersect(&rect, &localBox, &facets->facets);
+            chunk->Intersect(&rect, &localBox, &facetData->facets);
         }
 
         if (flags & WORLD_QUERY_LIQUID_MASK) {
@@ -4489,24 +4491,24 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
 
             for (CChunkLiquid* liquid = chunk->liquidsList.Head(); liquid; liquid = chunk->liquidsList.Next(liquid)) {
                 if (!walkableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
-                    CMap::GetChunkLiquidFacets(chunk, &localBox, &rect, liquid, facets);
+                    CMap::GetChunkLiquidFacets(chunk, &localBox, &rect, liquid, facetData);
                 }
             }
         }
 
-        uint32_t count = facets->facets.Count();
-        facets->facetIds.SetCount(count);
+        uint32_t count = facetData->facets.Count();
+        facetData->facetIds.SetCount(count);
 
         if (count > first) {
-            memset(&facets->facetIds.m_data[first], 0, sizeof(uint64_t) * (count - first));
+            memset(&facetData->facetIds.m_data[first], 0, sizeof(uint64_t) * (count - first));
         }
 
-        if ((flags & WORLD_QUERY_DOODAD_MASK) && !CMap::GetDoodadDefFacets(&chunk->doodadDefLinkList, box, facets, flags)) {
+        if ((flags & WORLD_QUERY_DOODAD_MASK) && !CMap::GetDoodadDefFacets(&chunk->doodadDefLinkList, box, facetData, flags)) {
             return false;
         }
 
         if (flags & WORLD_QUERY_OBJECT_MASK) {
-            CMap::QueryDestructibleFacets(&chunk->entityLinkList, box, facets, flags);
+            CMap::QueryDestructibleFacets(&chunk->entityLinkList, box, facetData, flags);
         }
 
         return true;
@@ -4532,7 +4534,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
         return false;
     }
 
-    World::AddAaBoxFacets(&cellBox, facets);
+    World::AddAaBoxFacets(&cellBox, facetData);
     return true;
 }
 
@@ -4715,12 +4717,14 @@ bool CMap::CreateFlightBoundsFacets(int32_t areaX, int32_t areaY, CAaBox* box, W
 
 // VERIFY: f40f6721 manual
 // OFFSET: 0x007A5F20
-bool CMap::GetFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* facets, uint32_t flags, uint32_t* status) {
+bool CMap::GetFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* facetData, uint32_t flags, uint32_t* status) {
+    STORM_ASSERT(facetData);
+
     CMap::mapGetFacetsCount++;
     CMap::s_queryTag++;
-    facets->facets.SetCount(0);
+    facetData->facets.SetCount(0);
 
-    if (!CMap::GetMapObjFacets(queryBox, box, facets, flags, status)) {
+    if (!CMap::GetMapObjFacets(queryBox, box, facetData, flags, status)) {
         return false;
     }
 
@@ -4751,7 +4755,7 @@ bool CMap::GetFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* facets, ui
 
     for (int32_t y = rect.minY >> 3; y <= rect.maxY >> 3; y++) {
         for (int32_t x = rect.minX >> 3; x <= rect.maxX >> 3; x++) {
-            if (!CMap::GetChunkFacets(x, y, &rect, queryBox, box, facets, flags)) {
+            if (!CMap::GetChunkFacets(x, y, &rect, queryBox, box, facetData, flags)) {
                 result = false;
             }
         }
@@ -4760,7 +4764,7 @@ bool CMap::GetFacets(CAaBox* queryBox, CAaBox* box, World::FacetData* facets, ui
     if (flags & WORLD_QUERY_FLIGHT_BOUNDS) {
         for (int32_t y = (rect.minY >> 3) >> 4; y <= (rect.maxY >> 3) >> 4; y++) {
             for (int32_t x = (rect.minX >> 3) >> 4; x <= (rect.maxX >> 3) >> 4; x++) {
-                if (!CMap::CreateFlightBoundsFacets(x, y, box, facets)) {
+                if (!CMap::CreateFlightBoundsFacets(x, y, box, facetData)) {
                     result = false;
                 }
             }
@@ -5241,8 +5245,10 @@ bool CMap::GetChunkLiquidFacets(CMapChunk* chunk, CWFrustum* frustum, CiRect* re
 
 // VERIFY: 784e1e63 manual
 // OFFSET: 0x007A5330
-bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrustum* frustum, World::FacetData* facets, uint32_t flags) {
-    uint32_t first = facets->facets.Count();
+bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrustum* frustum, World::FacetData* facetData, uint32_t flags) {
+    STORM_ASSERT(facetData);
+
+    uint32_t first = facetData->facets.Count();
     CMapArea* area = CMap::GetAreaForChunk(chunkX, chunkY);
 
     if (!area || area->asyncObject) {
@@ -5281,7 +5287,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
     localFrustum.Translate(C3Vector(-chunk->m_topLeftCoords.x, -chunk->m_topLeftCoords.y, -chunk->m_topLeftCoords.z));
 
     if (flags & WORLD_QUERY_TERRAIN) {
-        chunk->Intersect(&rect, &localFrustum, &facets->facets);
+        chunk->Intersect(&rect, &localFrustum, &facetData->facets);
     }
 
     if (flags & WORLD_QUERY_LIQUID_MASK) {
@@ -5289,7 +5295,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
 
         for (CChunkLiquid* liquid = chunk->liquidsList.Head(); liquid; liquid = chunk->liquidsList.Next(liquid)) {
             if (!walkableOnly || (g_liquidTypeDB.GetRecord(liquid->m_type)->m_flags & LIQUID_TYPE_FLAG_WATER_WALKING)) {
-                CMap::GetChunkLiquidFacets(chunk, &localFrustum, &rect, liquid, facets);
+                CMap::GetChunkLiquidFacets(chunk, &localFrustum, &rect, liquid, facetData);
             }
         }
     }
@@ -5298,22 +5304,23 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CFrus
         CAaBox box = CAaBox::Bounding(frustum->corners, 8);
 
         for (CMapBaseObjLink* link = chunk->doodadDefLinkList.Head(); link; link = chunk->doodadDefLinkList.Next(link)) {
-            CMapDoodadDef* def = static_cast<CMapDoodadDef*>(link->owner);
+            CMapDoodadDef* doodadDef = static_cast<CMapDoodadDef*>(link->owner);
+            STORM_ASSERT(doodadDef);
 
-            if ((def->m_flags & MAPOBJ_FLAG_NO_HITTEST) || !(def->m_flags & MAPOBJ_FLAG_PREPARED) || def->m_queryTag == CMap::s_queryTag) {
+            if ((doodadDef->m_flags & MAPOBJ_FLAG_NO_HITTEST) || !(doodadDef->m_flags & MAPOBJ_FLAG_PREPARED) || doodadDef->m_queryTag == CMap::s_queryTag) {
                 continue;
             }
 
-            CM2Model* model = def->model;
+            CM2Model* model = doodadDef->model;
 
-            if (model && box.Intersects(def->m_collideExt)) {
-                model->GetCollisionFacets(box, def->m_mat, facets->facets);
-                def->m_queryTag = CMap::s_queryTag;
+            if (model && box.Intersects(doodadDef->m_collideExt)) {
+                model->GetCollisionFacets(box, doodadDef->m_mat, facetData->facets);
+                doodadDef->m_queryTag = CMap::s_queryTag;
             }
         }
     }
 
-    return first != facets->facets.Count();
+    return first != facetData->facets.Count();
 }
 
 // VERIFY: 97cd8735 manual
@@ -5352,14 +5359,21 @@ bool CMap::GetMapObjFacets(CFrustum* frustum, World::FacetData* facets, uint32_t
 
 // VERIFY: 041a89f8 manual
 // OFFSET: 0x007A5DD0
-bool CMap::QueryFacets(CFrustum* frustum, World::FacetData* facets, uint32_t flags, uint32_t* count) {
+bool CMap::QueryFacets(CFrustum* frustum, World::FacetData* facetData, uint32_t flags, uint32_t* count) {
+    STORM_ASSERT(facetData);
+
     CMap::s_queryTag++;
-    facets->facets.SetCount(0);
+    facetData->facets.SetCount(0);
     CAaBox box = CAaBox::Bounding(frustum->corners, 8);
     float topX = -(box.t.x - HALF_WORLD_SIZE);
     float topY = -(box.t.y - HALF_WORLD_SIZE);
     float bottomX = -(box.b.x - HALF_WORLD_SIZE);
     float bottomY = -(box.b.y - HALF_WORLD_SIZE);
+    // 12213: "tLocation.minx >= 0.0f && tLocation.miny >= 0.0f"
+    STORM_ASSERT(topY >= 0.0f && topX >= 0.0f);
+    // 12213: "tLocation.maxx < ((64*16)*((150.0f/36.0f)*8)) && tLocation.maxy < ((64*16)*((150.0f/36.0f)*8))"
+    STORM_ASSERT(bottomY < 2.0f * HALF_WORLD_SIZE && bottomX < 2.0f * HALF_WORLD_SIZE);
+
     CiRect rect;
     rect.maxX = CMath::fint_(bottomY * OO_COORD_TO_SUBCHUNK - 0.5f);
     rect.maxY = CMath::fint_(bottomX * OO_COORD_TO_SUBCHUNK - 0.5f);
@@ -5368,12 +5382,12 @@ bool CMap::QueryFacets(CFrustum* frustum, World::FacetData* facets, uint32_t fla
 
     for (int32_t y = rect.minY >> 3; y <= rect.maxY >> 3; y++) {
         for (int32_t x = rect.minX >> 3; x <= rect.maxX >> 3; x++) {
-            CMap::GetChunkFacets(x, y, &rect, frustum, facets, flags);
+            CMap::GetChunkFacets(x, y, &rect, frustum, facetData, flags);
         }
     }
 
-    CMap::GetMapObjFacets(frustum, facets, flags, count);
-    return facets->facets.Count() != 0;
+    CMap::GetMapObjFacets(frustum, facetData, flags, count);
+    return facetData->facets.Count() != 0;
 }
 
 // VERIFY: 10d86f1c auto
