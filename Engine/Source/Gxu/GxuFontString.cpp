@@ -242,7 +242,10 @@ void CGxString::HandleScreenSizeChange() {
 
 // VERIFY: 6a878b65 manual
 // OFFSET: 0x006C6CD0
-void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVector& color, const C3Vector& position, uint32_t* texturePagesUsed, EMBEDDEDPARSEINFO& parseInfo) {
+void CGxString::InitializeTextLine(const char* currentText, uint32_t numBytes, CImVector& color, const C3Vector& position, uint32_t* texturePagesUsedFlag, EMBEDDEDPARSEINFO& parseInfo) {
+    STORM_ASSERT(currentText);
+    STORM_ASSERT(texturePagesUsedFlag);
+
     if (this->m_flags & EGxStringFlags::EGxStringFlags_UniformColor) {
         for (uint32_t i = 0; i < 8; i++) {
             if (this->m_textLines[i]) {
@@ -274,16 +277,16 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
     float step = 0.0f;
     float x = 0.0f;
 
-    if (*text) {
+    if (*currentText) {
         while (numBytes) {
             CImVector codeColor;
             *reinterpret_cast<uint32_t*>(&codeColor) = 0;
 
             int32_t advance;
             uint32_t wide;
-            QUOTEDCODE code = GxuDetermineQuotedCode(text, advance, &codeColor, this->m_flags, wide);
+            QUOTEDCODE code = GxuDetermineQuotedCode(currentText, advance, &codeColor, this->m_flags, wide);
 
-            text += advance;
+            currentText += advance;
             numBytes -= advance;
 
             if (lastCode) {
@@ -303,7 +306,7 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
                         color = codeColor;
                     }
 
-                    parseInfo.m_hyperlink.m_colorCode = text - advance;
+                    parseInfo.m_hyperlink.m_colorCode = currentText - advance;
                     parseInfo.m_hyperlink.m_colorCodeLength = advance;
                     break;
                 }
@@ -324,11 +327,11 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
                     }
 
                     parseInfo.m_state = HYPERLINKDISPLAY;
-                    parseInfo.m_hyperlink.m_linkData = text - advance + g_quotedCodeLengths[CODE_HYPERLINKSTART];
+                    parseInfo.m_hyperlink.m_linkData = currentText - advance + g_quotedCodeLengths[CODE_HYPERLINKSTART];
                     parseInfo.m_hyperlink.m_linkDataLength = advance - g_quotedCodeLengths[CODE_HYPERLINKSTOP] - g_quotedCodeLengths[CODE_HYPERLINKSTART];
-                    parseInfo.m_hyperlink.m_linkText = text - advance;
+                    parseInfo.m_hyperlink.m_linkText = currentText - advance;
 
-                    const char* end = SStrStr(text, "|h");
+                    const char* end = SStrStr(currentText, "|h");
 
                     if (end) {
                         end += g_quotedCodeLengths[CODE_HYPERLINKSTOP];
@@ -369,7 +372,7 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
 
                     GXUEMBEDDEDTEXTUREINFO& texture = parseInfo.m_texture;
 
-                    if (!ParseEmbeddedTexture(text - advance, &texture, fontPixelHeight, this->m_scale, this->m_currentFontHeight)) {
+                    if (!ParseEmbeddedTexture(currentText - advance, &texture, fontPixelHeight, this->m_scale, this->m_currentFontHeight)) {
                         break;
                     }
 
@@ -451,27 +454,30 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
                         }
                     }
 
-                    uint32_t texturePage = desc->m_textureNumber;
-                    *texturePagesUsed |= 1 << texturePage;
+                    const uint32_t textureNumber = desc->m_textureNumber;
+                    // 12213: "textureNumber < ( 0 * sizeof(reinterpret_cast<const volatile Arrsize_Check::IllegalArrsizeUsage *>(m_currentFace->m_textureCache)) + 0 * sizeof(Arrsize_Check::IllegalArrsizeUsage::CheckType((m_currentFace->m_textureCache), &(m_currentFace->m_textureCache))) + sizeof(m_currentFace->m_textureCache) / sizeof((m_currentFace->m_textureCache)[0]))"
+                    STORM_ASSERT(textureNumber < ARRSIZE(m_currentFace->m_textureCache));
+                    STORM_ASSERT(m_currentFace->m_textureCache[textureNumber].GetTexturePtr());
+                    *texturePagesUsedFlag |= 1 << textureNumber;
 
-                    if (!this->m_textLines[texturePage]) {
-                        this->m_textLines[texturePage] = TEXTLINETEXTURE::NewTextLineTexture();
+                    if (!this->m_textLines[textureNumber]) {
+                        this->m_textLines[textureNumber] = TEXTLINETEXTURE::NewTextLineTexture();
                     }
 
-                    TEXTLINETEXTURE* textLine = this->m_textLines[texturePage];
+                    TEXTLINETEXTURE* textLine = this->m_textLines[textureNumber];
 
                     if (!(this->m_flags & EGxStringFlags::EGxStringFlags_UniformColor)) {
                         uint32_t colorIndex = textLine->m_colors.Add(4, 0, &color);
 
                         if (this->m_flags & EGxStringFlags::EGxStringFlags_Gradient) {
                             GRADIENTINFO gradient[4];
-                            gradient[0].m_texturePage = texturePage;
+                            gradient[0].m_texturePage = textureNumber;
                             gradient[0].m_vertIndex = colorIndex;
-                            gradient[1].m_texturePage = texturePage;
+                            gradient[1].m_texturePage = textureNumber;
                             gradient[1].m_vertIndex = colorIndex + 1;
-                            gradient[2].m_texturePage = texturePage;
+                            gradient[2].m_texturePage = textureNumber;
                             gradient[2].m_vertIndex = colorIndex + 2;
-                            gradient[3].m_texturePage = texturePage;
+                            gradient[3].m_texturePage = textureNumber;
                             gradient[3].m_vertIndex = colorIndex + 3;
                             this->m_gradientInfo.Add(4, 8, gradient);
                         }
@@ -545,7 +551,7 @@ void CGxString::InitializeTextLine(const char* text, uint32_t numBytes, CImVecto
                 }
             }
 
-            if (!*text) {
+            if (!*currentText) {
                 break;
             }
         }

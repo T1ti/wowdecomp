@@ -329,13 +329,7 @@ void BATCHEDRENDERFONTDESC::RenderBatch() {
     int32_t space = 2048;
 
     for (int32_t texturePage = 0; texturePage < 8; texturePage++) {
-        CTexture* texture = this->face->m_textureCache[texturePage].GetTexture();
-
-        if (!texture) {
-            continue;
-        }
-
-        CGxTex* gxTex = TextureGetGxTex(texture, 1, nullptr);
+        CGxTex* gxTex = this->face->m_textureCache[texturePage].GetTexturePtr();
 
         if (!gxTex) {
             continue;

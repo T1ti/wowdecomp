@@ -81,29 +81,31 @@ struct CGxString : public TSLinkedNode<CGxString> {
 
     CGxString();
     ~CGxString();
-    void AddEmbeddedTextureParseInfo(GXUEMBEDDEDTEXTUREINFO info);
-    void AddHyperlinkParseInfo(GXUFONTHYPERLINKINFO info);
     void AddShadow(const C2Vector& offset, const CImVector& color);
     int32_t CalculateVertsNeeded(int32_t texturePage);
     int32_t CheckGeometry();
-    void ClearInstanceData();
-    void CreateGeometry();
-    uint8_t GetGradientAlpha(const GRADIENTINFO& info);
     uint32_t GetEmbeddedTextureInfo(const GXUEMBEDDEDTEXTUREINFO*& info);
     uint32_t GetHyperLinkInfo(const GXUFONTHYPERLINKINFO*& info);
     void HandleScreenSizeChange();
     int32_t Initialize(float fontHeight, const C3Vector& position, float blockWidth, float blockHeight, CGxFont* face, const char* text, EGxFontVJusts vertJust, EGxFontHJusts horzJust, float spacing, uint32_t flags, const CImVector& color, float scale);
-    void InitializeTextLine(const char* text, uint32_t numBytes, CImVector& color, const C3Vector& position, uint32_t* texturePagesUsed, EMBEDDEDPARSEINFO& parseInfo);
-    void InitializeViewTranslation();
     void Recycle();
     void RemoveShadow();
     void SetColor(const CImVector& color);
-    void SetGradientAlpha(const GRADIENTINFO& info, uint8_t alpha);
     int32_t SetGradient(int32_t start, int32_t length);
     void SetStringPosition(const C3Vector& position);
     void TexturePageEvicted(uint32_t texturePage);
     void Tick();
     void WriteGeometry(CGxVertexPCT* buf, int32_t texturePage, int32_t vertIndex, int32_t numVerts) const;
+
+    private:
+    void AddEmbeddedTextureParseInfo(GXUEMBEDDEDTEXTUREINFO info);
+    void AddHyperlinkParseInfo(GXUFONTHYPERLINKINFO info);
+    void ClearInstanceData();
+    void CreateGeometry();
+    uint8_t GetGradientAlpha(const GRADIENTINFO& info);
+    void InitializeTextLine(const char* currentText, uint32_t numBytes, CImVector& color, const C3Vector& position, uint32_t* texturePagesUsedFlag, EMBEDDEDPARSEINFO& parseInfo);
+    void InitializeViewTranslation();
+    void SetGradientAlpha(const GRADIENTINFO& info, uint8_t alpha);
 };
 
 struct VERT {

@@ -5,6 +5,7 @@
 #include <cstdint>
 #include "Engine/Source/Gx/Types.h"
 #include "Engine/Source/Gxu/GxuFontString.h"
+#include "Engine/Source/Services/Texture.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/C2Vector.h"
 #include "Engine/Source/Tempest/C3Vector.h"
@@ -137,7 +138,9 @@ struct TEXTURECACHE {
     void CreateTexture(int32_t filter);
     void Destroy();
     void Initialize(CGxFont* face, uint32_t pixelSize);
-    CTexture* GetTexture() const { return this->m_texture; } // (inferred)
+    CGxTex* GetTexturePtr() const {
+        return this->m_texture ? TextureGetGxTex(this->m_texture, 1, nullptr) : nullptr;
+    }
     void UpdateDirty();
 };
 
