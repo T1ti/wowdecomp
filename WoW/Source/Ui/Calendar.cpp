@@ -179,12 +179,14 @@ size_t CGCalendar::GetDateTimeText(char* buf, uint32_t size, uint32_t time) {
 // VERIFY: 0d10e0e8 auto
 // OFFSET: 0x005B8E50
 static int32_t QSortTextures(const void* a, const void* b) {
-    LfgDungeonsRec* recA = g_lfgDungeonsDB.GetRecord(*static_cast<const int32_t*>(a));
-    LfgDungeonsRec* recB = g_lfgDungeonsDB.GetRecord(*static_cast<const int32_t*>(b));
-    int32_t result = recB->m_expansionLevel - recA->m_expansionLevel;
+    const LfgDungeonsRec* rec1 = g_lfgDungeonsDB.GetRecord(*static_cast<const int32_t*>(a));
+    const LfgDungeonsRec* rec2 = g_lfgDungeonsDB.GetRecord(*static_cast<const int32_t*>(b));
+    STORM_ASSERT(rec1 && rec2);
+
+    int32_t result = rec2->m_expansionLevel - rec1->m_expansionLevel;
 
     if (!result) {
-        return SStrSortUTF8I(recA->m_name, recB->m_name, STORM_MAX_STR);
+        return SStrSortUTF8I(rec1->m_name, rec2->m_name, STORM_MAX_STR);
     }
 
     return result;
@@ -740,18 +742,18 @@ int32_t CalendarDayEvent::GetSequenceType() const {
 static bool ComputeEventOccurrence(const WowTime* now, const WowTime* rangeStart, const WowTime* rangeEnd, WowTime* outEnd, HolidaysRec* holiday, int32_t index, bool* weekly, int32_t interval, WowTime* outStart) {
     *weekly = false;
     DYNAMICHOLIDAYHASH* dynamic = CalendarGetHolidayInfo(holiday->m_id);
-    int32_t* durations;
-    int32_t* dates;
+    const int32_t* durations;
+    const int32_t* holidayDate;
     int32_t looping;
 
     if (dynamic) {
         durations = dynamic->m_duration;
-        dates = dynamic->m_date;
+        holidayDate = dynamic->m_date;
         looping = dynamic->m_looping;
     } else {
         looping = holiday->m_looping;
         durations = holiday->m_duration;
-        dates = holiday->m_date;
+        holidayDate = holiday->m_date;
     }
 
     if (index > 0 && !durations[index]) {
@@ -767,11 +769,11 @@ static bool ComputeEventOccurrence(const WowTime* now, const WowTime* rangeStart
     int32_t durationMinutes = 60 * duration;
 
     for (uint32_t i = 0; i < MAX_HOLIDAY_DATES; i++) {
-        if (!dates[i]) {
+        if (!holidayDate[i]) {
             continue;
         }
 
-        WowTime::WowDecodeTime(dates[i], outStart);
+        WowTime::WowDecodeTime(holidayDate[i], outStart);
         const WowTime* reference = now;
 
         if (holiday->m_flags & CALENDAR_EVENT_FLAGS::CALENDAR_EVENT_FLAG_PLAYER) {
@@ -841,6 +843,8 @@ static bool ComputeEventOccurrence(const WowTime* now, const WowTime* rangeStart
         bool after = *rangeEnd < *outStart;
 
         if (looping) {
+            STORM_ASSERT(holidayDate[1] == 0);
+
             if (after) {
                 return false;
             }
@@ -1257,14 +1261,16 @@ void CGCalendar::InitHolidays() {
 
 // VERIFY: 0650d640 manual
 // OFFSET: 0x005C2030
-void CGCalendar::InsertEvent(CalendarDayEvent* event, int32_t table) {
-    uint32_t originalEnd = event->m_endTime;
+void CGCalendar::InsertEvent(CalendarDayEvent* eventInfo, int32_t table) {
+    STORM_ASSERT(eventInfo);
+
+    uint32_t originalEnd = eventInfo->m_endTime;
     WowTime start;
     WowTime end;
-    WowTime::WowDecodeTime(event->m_startTime, &start);
+    WowTime::WowDecodeTime(eventInfo->m_startTime, &start);
 
-    if (event->m_endTime) {
-        WowTime::WowDecodeTime(event->m_endTime, &end);
+    if (eventInfo->m_endTime) {
+        WowTime::WowDecodeTime(eventInfo->m_endTime, &end);
 
         if (end.m_year == -1) {
             end.m_year = 31;
@@ -1304,21 +1310,21 @@ void CGCalendar::InsertEvent(CalendarDayEvent* event, int32_t table) {
             void* mem = SMemAlloc(sizeof(CalendarDayEvent), __FILE__, __LINE__, 0);
 
             if (mem) {
-                memcpy(mem, event, sizeof(CalendarDayEvent));
-                event = static_cast<CalendarDayEvent*>(mem);
+                memcpy(mem, eventInfo, sizeof(CalendarDayEvent));
+                eventInfo = static_cast<CalendarDayEvent*>(mem);
             } else {
-                event = nullptr;
+                eventInfo = nullptr;
             }
         }
 
-        event->m_sequenceIndex = sequence;
-        event->m_sequenceLength = numDays;
+        eventInfo->m_sequenceIndex = sequence;
+        eventInfo->m_sequenceLength = numDays;
         sequence++;
 
         CalendarDayEvent** slot = entry->m_events.New();
 
         if (slot) {
-            *slot = event;
+            *slot = eventInfo;
         }
 
         if (first) {
@@ -1336,7 +1342,7 @@ void CGCalendar::InsertEvent(CalendarDayEvent* event, int32_t table) {
     } while (start.m_month != end.m_month || start.m_monthDay != end.m_monthDay || end.m_hour || end.m_minute);
 
     if (numDays > 1) {
-        event->m_startTime = originalEnd;
+        eventInfo->m_startTime = originalEnd;
     }
 }
 

@@ -267,7 +267,6 @@ class CGCalendar {
     static bool GetDayEvent(uint32_t offset, uint32_t day);
     static int32_t GetNumDayEvents(uint32_t offset, uint32_t day);
     static int32_t GetFirstPendingInviteIndex(uint32_t offset, uint32_t day);
-    static void InsertEvent(CalendarDayEvent* event, int32_t table);
     static bool ValidateCreateDate(const WowTime* date);
     static bool CanEditCurrentEvent();
     static void SetInviteStatus(uint32_t index, uint32_t status);
@@ -312,6 +311,10 @@ class CGCalendar {
     static bool DeletePendingInvite(uint64_t eventID);
     static void SetInviteFlag(uint64_t eventID, uint32_t flag, bool set);
     static void InsertLockoutEvent(int32_t mapID, int32_t difficulty, uint64_t instanceID, uint32_t time);
+
+    private:
+    friend void PH_SMSG_CALENDAR_SEND_CALENDAR(CDataStore* msg); // (inferred)
+    static void InsertEvent(CalendarDayEvent* eventInfo, int32_t table);
 };
 
 void CalendarRegisterScriptFunctions();
