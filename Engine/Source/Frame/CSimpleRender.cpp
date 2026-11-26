@@ -2283,7 +2283,7 @@ void CSimpleTexture::PostLoadXML(XMLNode* node, CStatus* status) {
     }
 
     for (uint32_t i = 0; i < FRAMEPOINT_NUMPOINTS; i++) {
-        if (this->m_framePoints[i] && !(this->m_framePoints[i]->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
+        if (this->m_framePoints[i] && !(this->m_framePoints[i]->GetFlags() & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
             return;
         }
     }

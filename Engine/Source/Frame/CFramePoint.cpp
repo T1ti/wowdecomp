@@ -69,8 +69,11 @@ int32_t CFramePoint::GetRelativeRect(CRect& rect) {
 
     this->m_flags &= ~POINT_FLAGS::FLAG_CHANGED_DURING_READ;
 
+    STORM_ASSERT(m_relative);
     if (!this->m_relative->IsResizePending() || (this->m_relative->Resize(1), !(this->m_flags & POINT_FLAGS::FLAG_CHANGED_DURING_READ))) {
+        STORM_ASSERT(m_relative);
         if (!(this->m_relative->m_layoutFlags & CLayoutFrame::LayoutFlags::LAYOUT_DEFERRED_RESIZE) || (this->m_relative->SetDeferredResize(0), !(this->m_flags & POINT_FLAGS::FLAG_CHANGED_DURING_READ))) {
+            STORM_ASSERT(m_relative);
             if (this->m_relative->GetRect(&rect)) {
                 if (this->m_relative->IsAttachmentOrigin()) {
                     float offsetX = -rect.minX;
@@ -156,6 +159,9 @@ float CFramePoint::Y(float scale) {
 // VERIFY: 9e24f527 manual
 // OFFSET: 0x0049CA40
 CFramePoint::CFramePoint(CLayoutFrame* relative, FRAMEPOINT framePoint, float x, float y) {
+    // 12213: "(relative != __null) && (framePoint != FRAMEPOINT_NUMPOINTS)"
+    STORM_ASSERT((relative != nullptr) && (framePoint != FRAMEPOINT_NUMPOINTS));
+
     this->m_x = x;
     this->m_framePoint = framePoint;
     this->m_y = y;

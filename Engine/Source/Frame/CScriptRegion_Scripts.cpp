@@ -386,7 +386,7 @@ static int32_t Script_GetNumPoints(lua_State* L) {
     for (int32_t i = 0; i < FRAMEPOINT_NUMPOINTS; i++) {
         CFramePoint* framePoint = region->m_framePoints[i];
 
-        if (framePoint && !(framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
+        if (framePoint && !(framePoint->GetFlags() & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
             count++;
         }
     }
@@ -412,7 +412,7 @@ static int32_t Script_GetPoint(lua_State* L) {
     for (point = 0; point < FRAMEPOINT_NUMPOINTS; point++) {
         framePoint = region->m_framePoints[point];
 
-        if (framePoint && !(framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
+        if (framePoint && !(framePoint->GetFlags() & CFramePoint::POINT_FLAGS::FLAG_UNUSED)) {
             if (found >= index) {
                 break;
             }
@@ -425,14 +425,14 @@ static int32_t Script_GetPoint(lua_State* L) {
         return 0;
     }
 
-    if (framePoint->m_flags & CFramePoint::POINT_FLAGS::FLAG_ABSOLUTE_COORDINATES) {
+    if (framePoint->GetFlags() & CFramePoint::POINT_FLAGS::FLAG_ABSOLUTE_COORDINATES) {
         lua_pushstring(L, FramePointToString(static_cast<FRAMEPOINT>(point)));
-        lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * framePoint->m_x));
-        lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * framePoint->m_y));
+        lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * framePoint->GetXOffset()));
+        lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * framePoint->GetYOffset()));
         return 3;
     }
 
-    CLayoutFrame* relative = framePoint->m_relative;
+    CLayoutFrame* relative = framePoint->GetRelative();
     lua_pushstring(L, FramePointToString(static_cast<FRAMEPOINT>(point)));
 
     if (relative == CSimpleTop::s_instance) {
@@ -443,9 +443,9 @@ static int32_t Script_GetPoint(lua_State* L) {
         lua_rawgeti(L, LUA_REGISTRYINDEX, relativeRegion->GetLuaObjectRef());
     }
 
-    lua_pushstring(L, FramePointToString(framePoint->m_framePoint));
-    lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * framePoint->m_x));
-    lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * framePoint->m_y));
+    lua_pushstring(L, FramePointToString(framePoint->GetFramePoint()));
+    lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * framePoint->GetXOffset()));
+    lua_pushnumber(L, DDCToNDCWidth(CoordinateGetAspectCompensation() * 1024.0f * framePoint->GetYOffset()));
     return 5;
 }
 

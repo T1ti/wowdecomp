@@ -21,10 +21,26 @@ class CFramePoint {
     };
 
     static float UNDEFINED;
-    static CDataAllocator s_framePointHeap;
 
     static void* operator new(size_t bytes) noexcept;
     static void operator delete(void* ptr);
+
+    CFramePoint(CLayoutFrame* relative, FRAMEPOINT framePoint, float x, float y);
+    void MarkUnused();
+    void SetRelative(CLayoutFrame* relative, FRAMEPOINT framePoint, float x, float y);
+    float X(float scale);
+    float Y(float scale);
+
+    // Inline accessors (inferred).
+    uint32_t GetFlags() const { return this->m_flags; }
+    CLayoutFrame* GetRelative() const { return this->m_relative; }
+    FRAMEPOINT GetFramePoint() const { return this->m_framePoint; }
+    float GetXOffset() const { return this->m_x; }
+    float GetYOffset() const { return this->m_y; }
+
+    private:
+    friend class CLayoutFrame; // (inferred)
+    static CDataAllocator s_framePointHeap;
 
     /* 0000 */ float m_x;
     /* 0004 */ float m_y;
@@ -32,12 +48,7 @@ class CFramePoint {
     /* 000C */ FRAMEPOINT m_framePoint : 8;
     /* 000C */ uint32_t m_flags : 24;
 
-    CFramePoint(CLayoutFrame* relative, FRAMEPOINT framePoint, float x, float y);
     int32_t GetRelativeRect(CRect& rect);
-    void MarkUnused();
-    void SetRelative(CLayoutFrame* relative, FRAMEPOINT framePoint, float x, float y);
-    float X(float scale);
-    float Y(float scale);
 };
 
 #endif
