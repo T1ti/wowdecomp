@@ -565,7 +565,7 @@ static int32_t OnUpdatePlayerHairStyle(WOWGUID guid, uint32_t fieldOffset, uint3
         if (component) {
             component->SetHairStyle(player->m_player->hairStyleID, nullptr);
 
-            if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && (!activePlayer || !CGBarberShop::m_barberShopEnabled)) {
+            if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && (!activePlayer || !CGBarberShop::IsEnabled())) {
                 VisibleItem_C* head = &player->m_player->m_playerVisibleItems[INVSLOT_HEAD];
 
                 if (head && head->GetDisplayID() && player->CanEquipItemsInThisForm()) {
@@ -597,7 +597,7 @@ static int32_t OnUpdatePlayerFacialStyle(WOWGUID guid, uint32_t fieldOffset, uin
         if (component) {
             component->SetBeardStyle(player->m_player->facialHairStyleID, true, nullptr);
 
-            if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && (!activePlayer || !CGBarberShop::m_barberShopEnabled)) {
+            if (!(player->m_player->m_playerFlags & PLAYER_FLAGS::PLAYER_FLAG_HIDE_HELM) && (!activePlayer || !CGBarberShop::IsEnabled())) {
                 VisibleItem_C* head = &player->m_player->m_playerVisibleItems[INVSLOT_HEAD];
 
                 if (head && head->GetDisplayID() && player->CanEquipItemsInThisForm()) {
@@ -1006,7 +1006,7 @@ void CGPlayer_C::SetClientStandState(UNITSTANDSTATE standState) {
         }
     }
 
-    if (CGBarberShop::m_barberShopEnabled) {
+    if (CGBarberShop::IsEnabled()) {
         CGBarberShop::DisableBarberShop();
     }
 }

@@ -15,14 +15,14 @@
 // VERIFY: 350bfeb0 auto
 // OFFSET: 0x0052E4F0
 static int32_t Script_CanAlterSkin(lua_State* L) {
-    lua_pushboolean(L, CGBarberShop::m_currentSkinColor != 0);
+    lua_pushboolean(L, CGBarberShop::HasSkinColorStyle());
     return 1;
 }
 
 // VERIFY: edda00c4 manual
 // OFFSET: 0x0052E850
 static int32_t Script_GetBarberShopStyleInfo(lua_State* L) {
-    if (!CGBarberShop::m_barberShopEnabled) {
+    if (!CGBarberShop::IsEnabled()) {
         return 0;
     }
 
@@ -37,7 +37,7 @@ static int32_t Script_GetBarberShopStyleInfo(lua_State* L) {
         return 0;
     }
 
-    if (index == BARBER_SHOP_SKIN_COLOR && !CGBarberShop::m_currentSkinColor) {
+    if (index == BARBER_SHOP_SKIN_COLOR && !CGBarberShop::HasSkinColorStyle()) {
         return 0;
     }
 
@@ -105,7 +105,7 @@ static int32_t Script_SetNextBarberShopStyle(lua_State* L) {
 
     uint32_t index = static_cast<uint32_t>(lua_tonumber(L, 1)) - 1;
 
-    if (index <= BARBER_SHOP_SKIN_COLOR && (index != BARBER_SHOP_SKIN_COLOR || CGBarberShop::m_currentSkinColor)) {
+    if (index <= BARBER_SHOP_SKIN_COLOR && (index != BARBER_SHOP_SKIN_COLOR || CGBarberShop::HasSkinColorStyle())) {
         bool backward = StringToBOOL(L, 2, 0) != 0;
         CGBarberShop::SetNextBarberShopStyle(static_cast<BARBER_SHOP_STYLE_TYPE>(index), backward);
     }

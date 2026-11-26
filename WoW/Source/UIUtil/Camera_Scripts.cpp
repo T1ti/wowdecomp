@@ -18,7 +18,7 @@ static int32_t Script_CameraZoomIn(lua_State* L) {
     uint32_t time = CSimpleTop::GetEventTime();
     double distance = lua_isnumber(L, 1) ? lua_tonumber(L, 1) : 1.0;
 
-    if (CGBarberShop::m_barberShopEnabled) {
+    if (CGBarberShop::IsEnabled()) {
         distance *= 0.2f;
     }
 
@@ -33,7 +33,7 @@ static int32_t Script_CameraZoomOut(lua_State* L) {
     uint32_t time = CSimpleTop::GetEventTime();
     double distance = lua_isnumber(L, 1) ? lua_tonumber(L, 1) : 1.0;
 
-    if (CGBarberShop::m_barberShopEnabled) {
+    if (CGBarberShop::IsEnabled()) {
         distance *= 0.2f;
     }
 

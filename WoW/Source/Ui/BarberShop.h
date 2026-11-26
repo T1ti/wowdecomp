@@ -12,7 +12,6 @@ struct lua_State;
 
 class CDataStore;
 
-int32_t Packet_SMSG_ENABLE_BARBER_SHOP(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 int32_t Packet_SMSG_BARBER_SHOP_RESULT(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 
 class CGBarberShop {
@@ -28,18 +27,10 @@ class CGBarberShop {
     };
 
     static void EnterWorld();
-    static STYLEREC* GetStyle(BARBER_SHOP_STYLE_TYPE type, int32_t race, int32_t sex, int32_t data);
     static float GetMinCameraDistance();
-    static uint8_t m_barberShopEnabled;
-    static uint8_t m_helmHidden;
-    static int32_t m_prevView;
-    static float m_minCameraDistance;
-    static uint8_t m_resetPortrait;
-    static STYLEREC* m_currentHairStyle;
-    static STYLEREC* m_currentFacialHair;
-    static STYLEREC* m_currentSkinColor;
-    static TSHashTable<USEABLESTYLE, HASHKEY_NONE> m_useableStyles;
-    static uint8_t m_initialized;
+    // Inline accessors (inferred).
+    static bool IsEnabled() { return m_barberShopEnabled != 0; }
+    static bool HasSkinColorStyle() { return m_currentSkinColor != nullptr; }
 
     static void AppearanceApplied();
     static void DisableBarberShop();
@@ -54,6 +45,22 @@ class CGBarberShop {
     static void ShutdownGame();
     static void RegisterScriptFunctions();
     static void UnregisterScriptFunctions();
+
+    private:
+    static uint8_t m_barberShopEnabled;
+    static uint8_t m_helmHidden;
+    static int32_t m_prevView;
+    static float m_minCameraDistance;
+    static uint8_t m_resetPortrait;
+    static STYLEREC* m_currentHairStyle;
+    static STYLEREC* m_currentFacialStyle;
+    static STYLEREC* m_currentSkinColor;
+    static TSHashTable<USEABLESTYLE, HASHKEY_NONE> m_useableStyles;
+    static uint8_t m_initialized;
+
+
+    static STYLEREC* GetStyle(BARBER_SHOP_STYLE_TYPE type, int32_t race, int32_t sex, int32_t data);
+    static int32_t Packet_SMSG_ENABLE_BARBER_SHOP(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg); // Private static callback (inferred).
 };
 
 #endif

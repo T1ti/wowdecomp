@@ -614,7 +614,7 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
         if (worldModel->HasAttachment(MODEL_ATTACHMENT_ID::ATTACH_BREATH)) {
             C3Vector pivot = worldModel->GetAttachmentPivot(MODEL_ATTACHMENT_ID::ATTACH_BREATH);
 
-            if (CGBarberShop::m_barberShopEnabled && unit->IsActivePlayer()) {
+            if (CGBarberShop::IsEnabled() && unit->IsActivePlayer()) {
                 height = (pivot.z + 0.097222224f - standOffset) * scale;
             } else {
                 height = (pivot.z + 0.097222224f) * scale;
@@ -681,7 +681,7 @@ int32_t CGCamera::FinishLoadingTarget(CGObject_C* target) {
             maxHeight = 15.0f;
         }
 
-        if (CGBarberShop::m_barberShopEnabled) {
+        if (CGBarberShop::IsEnabled()) {
             maxHeight *= 1.2;
         }
     } else {
@@ -1437,7 +1437,7 @@ void CGCamera::UpdateTargetHeight(CGObject_C* target, uint32_t time) {
 
     if (target && (target->m_obj->m_type & TYPE_UNIT) && (static_cast<CGUnit_C*>(target)->m_movement->m_flags & MOVEMENTFLAG_SWIMMING)) {
         this->SmoothSetHeight(this->m_targetHeightSwim + s_targetHeightOffset, 0.0f, scale, time);
-    } else if (this->m_smoothDistance.m_target >= 1.8315002f || CGBarberShop::m_barberShopEnabled) {
+    } else if (this->m_smoothDistance.m_target >= 1.8315002f || CGBarberShop::IsEnabled()) {
         this->SmoothSetHeight(this->m_targetHeightFar + s_targetHeightOffset, 0.0f, scale, time);
 
         if (target && (target->m_obj->m_type & TYPE_UNIT) && static_cast<CGUnit_C*>(target)->GetCanFly()) {
@@ -2599,7 +2599,7 @@ void CGCamera::CalcTargetCamera(CGObject_C* target, uint32_t time) {
             }
         }
 
-        if (CGBarberShop::m_barberShopEnabled) {
+        if (CGBarberShop::IsEnabled()) {
             fadeStart = fadeStart * 0.33333334f;
         }
 
@@ -2865,7 +2865,7 @@ void CGCamera::UpdateMotion(uint32_t time) {
 
     if (this->m_flags & FLAGS::FLAG_VEHICLE_ZOOM_MIN) {
         minDistance = this->m_overrideDistanceRange.m_l;
-    } else if (CGBarberShop::m_barberShopEnabled) {
+    } else if (CGBarberShop::IsEnabled()) {
         minDistance = CGBarberShop::GetMinCameraDistance();
     } else {
         minDistance = MIN_CAMERA_DIST;
@@ -3704,7 +3704,7 @@ uint32_t CGCamera::CollideCameraWithWorld(const C3Vector& target, float& distanc
 
         if (object && (object->m_obj->m_type & TYPE_UNIT)) {
             float collisionHeight = static_cast<CGUnit_C*>(object)->m_movementData.m_collisionHeight;
-            float minimum = object->m_obj->m_guid == ClntObjMgrGetActivePlayer() && CGBarberShop::m_barberShopEnabled ? collisionHeight : collisionHeight * 0.75f;
+            float minimum = object->m_obj->m_guid == ClntObjMgrGetActivePlayer() && CGBarberShop::IsEnabled() ? collisionHeight : collisionHeight * 0.75f;
 
             if (!(minimum <= height)) {
                 height = minimum;

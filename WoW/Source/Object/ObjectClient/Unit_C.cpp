@@ -413,7 +413,7 @@ int32_t DisplayIDUpdateHandler(WOWGUID guid, uint32_t fieldOffset, uint32_t fiel
             unit->m_displayId = 0;
         }
 
-        if (unit->IsActivePlayer() && CGBarberShop::m_barberShopEnabled) {
+        if (unit->IsActivePlayer() && CGBarberShop::IsEnabled()) {
             CGBarberShop::DisableBarberShop();
         }
 
@@ -14181,7 +14181,7 @@ int32_t CGUnit_C::SheatheHandItem(uint32_t hand, int32_t sheathe) {
 
     bool skipAdd = false;
 
-    if (this->IsActivePlayer() && CGBarberShop::m_barberShopEnabled && item->m_inventoryType == INVTYPE_SHIELD) {
+    if (this->IsActivePlayer() && CGBarberShop::IsEnabled() && item->m_inventoryType == INVTYPE_SHIELD) {
         skipAdd = true;
         to = ATTACH_NONE;
     }
