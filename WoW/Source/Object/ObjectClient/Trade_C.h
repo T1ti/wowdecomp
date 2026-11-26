@@ -8,8 +8,6 @@
 
 class CDataStore;
 
-extern uint32_t s_clientStateIndex;
-
 bool Trade_C_AddItem(WOWGUID item, WOWGUID bag, uint8_t slot, uint8_t tradeSlot);
 void Trade_C_BeginTrade();
 void Trade_C_CancelTrade();
@@ -26,7 +24,5 @@ WOWGUID Trade_C_GetTradeTarget();
 int32_t Trade_C_IsTradeRequested();
 int32_t Trade_C_UseCursorItem();
 
-int32_t Packet_SMSG_TRADE_STATUS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
-int32_t Packet_SMSG_TRADE_STATUS_EXTENDED(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 
 #endif

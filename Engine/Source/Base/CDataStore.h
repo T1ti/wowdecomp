@@ -31,6 +31,7 @@ class CDataStore {
     CDataStore();
     CDataStore(uint8_t* data, uint32_t size);
     int32_t IsFinal() const;
+    bool IsValid() const;
     int32_t IsReadOnly() const;
     uint32_t Size() const;
     uint32_t Tell() const;
@@ -66,6 +67,11 @@ class CDataStore {
 // A finalized store is being read (m_read is valid); an unfinalized one is being written.
 inline int32_t CDataStore::IsFinal() const {
     return this->m_read != static_cast<uint32_t>(-1);
+}
+
+// INLINED
+inline bool CDataStore::IsValid() const {
+    return this->m_read <= this->m_size;
 }
 
 // INLINED

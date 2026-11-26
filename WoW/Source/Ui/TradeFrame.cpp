@@ -240,23 +240,6 @@ bool CGTradeInfo::IsItemBeingTraded(WOWGUID item) {
     return false;
 }
 
-// VERIFY: 82403266 manual
-// OFFSET: 0x00704320
-void CGTradeInfo::RemoveMoney(uint32_t amount) {
-    if (!amount || amount > CGTradeInfo::m_playerTrade.m_money[0]) {
-        return;
-    }
-
-    uint32_t money = CGTradeInfo::m_playerTrade.m_money[0] - amount;
-    CDataStore msg;
-    msg.Put(static_cast<uint32_t>(CMSG_SET_TRADE_GOLD));
-    msg.Put(money);
-    s_clientStateIndex++;
-    msg.Finalize();
-    CGTradeInfo::m_playerTrade.m_money[0] = money;
-    ClientServices::Send2(&msg);
-}
-
 // VERIFY: 369a38df auto
 // OFFSET: 0x00586390
 static void SetTargetAccepted(int32_t accepted) {

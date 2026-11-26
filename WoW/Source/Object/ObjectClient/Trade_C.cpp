@@ -13,8 +13,11 @@
 #include "WoW/Source/Ui/Types.h"
 #include <cstring>
 
+static int32_t Packet_SMSG_TRADE_STATUS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
+static int32_t Packet_SMSG_TRADE_STATUS_EXTENDED(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
+
 // STATIC: 0x00CA0B7C
-uint32_t s_clientStateIndex;
+static uint32_t s_clientStateIndex;
 
 // STATIC: 0x00CA0B80
 static TRADE_ITEM s_tradeItems[2][NUM_TRADE_SLOTS];
@@ -240,6 +243,23 @@ bool CGTradeInfo::SetMoney(uint32_t amount) {
     return true;
 }
 
+// VERIFY: 82403266 manual
+// OFFSET: 0x00704320
+void CGTradeInfo::RemoveMoney(uint32_t amount) {
+    if (!amount || amount > CGTradeInfo::m_playerTrade.m_money[0]) {
+        return;
+    }
+
+    uint32_t money = CGTradeInfo::m_playerTrade.m_money[0] - amount;
+    CDataStore msg;
+    msg.Put(static_cast<uint32_t>(CMSG_SET_TRADE_GOLD));
+    msg.Put(money);
+    s_clientStateIndex++;
+    msg.Finalize();
+    CGTradeInfo::m_playerTrade.m_money[0] = money;
+    ClientServices::Send2(&msg);
+}
+
 // VERIFY: 895d61e1 auto
 // OFFSET: 0x007048D0
 void Trade_C_Initialize() {
@@ -252,7 +272,7 @@ void Trade_C_Initialize() {
 
 // VERIFY: 54433403 manual
 // OFFSET: 0x007044A0
-int32_t Packet_SMSG_TRADE_STATUS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+static int32_t Packet_SMSG_TRADE_STATUS(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
     uint32_t status;
     msg->Get(status);
     int32_t reset = 0;
@@ -347,29 +367,38 @@ int32_t Packet_SMSG_TRADE_STATUS(void* param, NETMESSAGE msgId, uint32_t time, C
 
 // VERIFY: 6a4a3506 manual
 // OFFSET: 0x00704680
-int32_t Packet_SMSG_TRADE_STATUS_EXTENDED(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
-    uint8_t side;
-    uint32_t tradeId;
-    uint32_t stateIndex;
-    msg->Get(side);
-    msg->Get(tradeId);
-    msg->Get(stateIndex);
+static int32_t Packet_SMSG_TRADE_STATUS_EXTENDED(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    uint8_t whichPlayer;
+    uint32_t tradeID;
+    uint32_t clientStateIndex;
+    msg->Get(whichPlayer);
+    msg->Get(tradeID);
+    STORM_ASSERT(whichPlayer == 0 || whichPlayer == 1);
+    msg->Get(clientStateIndex);
 
-    if (tradeId != CGTradeInfo::m_playerTrade.m_tradeId) {
+    // 12213: "tradeID == s_currentTradeID"
+    STORM_ASSERT(tradeID == CGTradeInfo::m_playerTrade.m_tradeId);
+    if (tradeID != CGTradeInfo::m_playerTrade.m_tradeId) {
         Trade_C_CancelTrade();
         return 1;
     }
 
-    if (!side && stateIndex < s_clientStateIndex) {
-        msg->m_read = msg->m_size;
-        return 1;
+    if (!whichPlayer) {
+        if (clientStateIndex < s_clientStateIndex) {
+            STORM_ASSERT(msg->IsFinal()); // 12213: "IsFinal()"
+            msg->m_read = msg->m_size;
+            return 1;
+        }
+
+        STORM_ASSERT(clientStateIndex == s_clientStateIndex);
     }
 
-    msg->Get(CGTradeInfo::m_playerTrade.m_stateIndex[side]);
-    msg->Get(CGTradeInfo::m_playerTrade.m_money[side]);
+    msg->Get(CGTradeInfo::m_playerTrade.m_stateIndex[whichPlayer]);
+    msg->Get(CGTradeInfo::m_playerTrade.m_money[whichPlayer]);
     bool received[NUM_TRADE_SLOTS] = {};
-    msg->Get(reinterpret_cast<uint32_t&>(s_tradeEnchantSpell[side]));
+    msg->Get(reinterpret_cast<uint32_t&>(s_tradeEnchantSpell[whichPlayer]));
 
+    STORM_ASSERT(msg->IsFinal()); // 12213: "IsFinal()"
     while (msg->m_read < msg->m_size) {
         uint8_t slot;
         TRADE_ITEM item;
@@ -393,24 +422,26 @@ int32_t Packet_SMSG_TRADE_STATUS_EXTENDED(void* param, NETMESSAGE msgId, uint32_
         msg->Get(reinterpret_cast<uint32_t&>(item.m_maxDurability));
         msg->Get(reinterpret_cast<uint32_t&>(item.m_durability));
 
-        if (!side && s_tradeItems[0][slot].m_itemID && !item.m_itemID) {
+        if (!whichPlayer && s_tradeItems[0][slot].m_itemID && !item.m_itemID) {
             CGTradeInfo::DenyPlayerItem(slot);
         }
 
-        s_tradeItems[side][slot] = item;
+        s_tradeItems[whichPlayer][slot] = item;
         received[slot] = true;
+        STORM_ASSERT(msg->IsFinal()); // 12213: "IsFinal()"
     }
 
     for (uint32_t i = 0; i < NUM_TRADE_SLOTS; i++) {
         if (!received[i]) {
-            if (!side && s_tradeItems[0][i].m_itemID) {
+            if (!whichPlayer && s_tradeItems[0][i].m_itemID) {
                 CGTradeInfo::DenyPlayerItem(i);
             }
 
-            memset(&s_tradeItems[side][i], 0, sizeof(TRADE_ITEM));
+            memset(&s_tradeItems[whichPlayer][i], 0, sizeof(TRADE_ITEM));
         }
     }
 
+    STORM_ASSERT(msg->IsRead() && msg->IsValid());
     CGTradeInfo::OnTradeUpdated(s_tradeItems[1]);
     return 1;
 }
