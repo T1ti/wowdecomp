@@ -404,7 +404,7 @@ static void RenderDebugShipPath(const WOWGUID& transportGuid) {
 
     ShipPath* shipPath = static_cast<CGGameObject_C*>(object)->GetShipPath();
 
-    if (!shipPath || !shipPath->m_legs.m_count) {
+    if (!shipPath || !shipPath->GetLegCount()) {
         return;
     }
 
@@ -417,8 +417,8 @@ static void RenderDebugShipPath(const WOWGUID& transportGuid) {
         s_debugShipLegEnds.SetCount(0);
         s_debugShipSamples.SetCount(0);
 
-        for (uint32_t l = 0; l < shipPath->m_legs.m_count; l++) {
-            ShipPathLeg& leg = shipPath->m_legs.m_data[l];
+        for (uint32_t l = 0; l < shipPath->GetLegCount(); l++) {
+            ShipPathLeg& leg = shipPath->GetLeg(l);
 
             if (leg.m_mapId != mapId) {
                 continue;
