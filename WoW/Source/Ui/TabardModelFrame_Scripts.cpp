@@ -45,7 +45,7 @@ static int32_t Script_CanSaveTabardNow(lua_State* L) {
 static int32_t Script_GetUpperBackgroundFileName(lua_State* L) {
     CGTabardModelFrame* frame = static_cast<CGTabardModelFrame*>(FrameScript_GetObjectThis(L, CGTabardModelFrame::GetObjectType()));
     char fileName[260];
-    CCharacterComponent::GetTabardBackgroundFileName(SECTION_TORSO_UPPER, frame->m_variations[4], fileName, sizeof(fileName));
+    CCharacterComponent::GetTabardBackgroundFileName(SECTION_TORSO_UPPER, frame->GetVariation(4), fileName, sizeof(fileName));
     lua_pushstring(L, fileName);
     return 1;
 }
@@ -55,7 +55,7 @@ static int32_t Script_GetUpperBackgroundFileName(lua_State* L) {
 static int32_t Script_GetLowerBackgroundFileName(lua_State* L) {
     CGTabardModelFrame* frame = static_cast<CGTabardModelFrame*>(FrameScript_GetObjectThis(L, CGTabardModelFrame::GetObjectType()));
     char fileName[260];
-    CCharacterComponent::GetTabardBackgroundFileName(SECTION_TORSO_LOWER, frame->m_variations[4], fileName, sizeof(fileName));
+    CCharacterComponent::GetTabardBackgroundFileName(SECTION_TORSO_LOWER, frame->GetVariation(4), fileName, sizeof(fileName));
     lua_pushstring(L, fileName);
     return 1;
 }
@@ -65,7 +65,7 @@ static int32_t Script_GetLowerBackgroundFileName(lua_State* L) {
 static int32_t Script_GetUpperEmblemFileName(lua_State* L) {
     CGTabardModelFrame* frame = static_cast<CGTabardModelFrame*>(FrameScript_GetObjectThis(L, CGTabardModelFrame::GetObjectType()));
     char fileName[260];
-    CCharacterComponent::GetTabardEmblemFileName(SECTION_TORSO_UPPER, frame->m_variations[0], frame->m_variations[1], fileName, sizeof(fileName));
+    CCharacterComponent::GetTabardEmblemFileName(SECTION_TORSO_UPPER, frame->GetVariation(0), frame->GetVariation(1), fileName, sizeof(fileName));
     lua_pushstring(L, fileName);
     return 1;
 }
@@ -75,7 +75,7 @@ static int32_t Script_GetUpperEmblemFileName(lua_State* L) {
 static int32_t Script_GetLowerEmblemFileName(lua_State* L) {
     CGTabardModelFrame* frame = static_cast<CGTabardModelFrame*>(FrameScript_GetObjectThis(L, CGTabardModelFrame::GetObjectType()));
     char fileName[260];
-    CCharacterComponent::GetTabardEmblemFileName(SECTION_TORSO_LOWER, frame->m_variations[0], frame->m_variations[1], fileName, sizeof(fileName));
+    CCharacterComponent::GetTabardEmblemFileName(SECTION_TORSO_LOWER, frame->GetVariation(0), frame->GetVariation(1), fileName, sizeof(fileName));
     lua_pushstring(L, fileName);
     return 1;
 }
@@ -122,6 +122,11 @@ static int32_t Script_InitializeTabardColors(lua_State* L) {
     return 0;
 }
 
+static constexpr uint32_t UPPER_EMBLEM_TEXTURE_WIDTH = 128;
+static constexpr uint32_t UPPER_EMBLEM_TEXTURE_HEIGHT = 64;
+static constexpr uint32_t LOWER_EMBLEM_TEXTURE_WIDTH = 128;
+static constexpr uint32_t LOWER_EMBLEM_TEXTURE_HEIGHT = 32;
+
 // VERIFY: 834caa4a manual
 // OFFSET: 0x00599890
 static int32_t Script_GetUpperEmblemTexture(lua_State* L) {
@@ -150,19 +155,24 @@ static int32_t Script_GetUpperEmblemTexture(lua_State* L) {
     static TSGrowableArray<CImVector> s_texels;
 
     if (!s_texels.m_count) {
-        s_texels.SetCount(0x2000);
+        s_texels.SetCount(UPPER_EMBLEM_TEXTURE_WIDTH * UPPER_EMBLEM_TEXTURE_HEIGHT);
     }
 
     char fileName[260];
-    CCharacterComponent::GetTabardEmblemFileName(SECTION_TORSO_UPPER, frame->m_variations[0], frame->m_variations[1], fileName, sizeof(fileName));
+    CCharacterComponent::GetTabardEmblemFileName(SECTION_TORSO_UPPER, frame->GetVariation(0), frame->GetVariation(1), fileName, sizeof(fileName));
     SStrPack(fileName, ".BLP", sizeof(fileName));
-    CBLPFile blp;
+    CBLPFile image;
 
-    if (blp.Open(fileName, 0)) {
+    if (image.Open(fileName, 0)) {
+        // 12213: "image.Width() == UPPER_EMBLEM_TEXTURE_WIDTH"
+        STORM_ASSERT(image.Width(0) == UPPER_EMBLEM_TEXTURE_WIDTH);
+        // 12213: "image.Height() == UPPER_EMBLEM_TEXTURE_HEIGHT"
+        STORM_ASSERT(image.Height(0) == UPPER_EMBLEM_TEXTURE_HEIGHT);
+
         uint8_t* data;
         uint32_t stride;
 
-        if (blp.Lock(PIXEL_ARGB8888, 0, data, stride)) {
+        if (image.Lock(PIXEL_ARGB8888, 0, data, stride)) {
             for (uint32_t i = 0; i < s_texels.m_count; i++) {
                 CImVector& texel = s_texels.m_data[i];
                 texel.a = data[4 * i + 3];
@@ -172,14 +182,14 @@ static int32_t Script_GetUpperEmblemTexture(lua_State* L) {
             }
         }
 
-        blp.Unlock(0);
-        blp.Close();
+        image.Unlock(0);
+        image.Close();
     }
 
-    CTexture* emblem = TextureCreate(0x80, 0x40, GxTex_Argb8888, GxTex_Argb8888, CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &s_texels, EmblemTextureUpdate, "TabardModelFrameUpper", 0);
+    CTexture* emblem = TextureCreate(UPPER_EMBLEM_TEXTURE_WIDTH, UPPER_EMBLEM_TEXTURE_HEIGHT, GxTex_Argb8888, GxTex_Argb8888, CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &s_texels, EmblemTextureUpdate, "TabardModelFrameUpper", 0);
     texture->SetTexture(emblem);
     HandleClose(reinterpret_cast<HOBJECT>(emblem));
-    blp.Close();
+    image.Close();
     return 0;
 }
 
@@ -211,19 +221,24 @@ static int32_t Script_GetLowerEmblemTexture(lua_State* L) {
     static TSGrowableArray<CImVector> s_texels;
 
     if (!s_texels.m_count) {
-        s_texels.SetCount(0x1000);
+        s_texels.SetCount(LOWER_EMBLEM_TEXTURE_WIDTH * LOWER_EMBLEM_TEXTURE_HEIGHT);
     }
 
     char fileName[260];
-    CCharacterComponent::GetTabardEmblemFileName(SECTION_TORSO_LOWER, frame->m_variations[0], frame->m_variations[1], fileName, sizeof(fileName));
+    CCharacterComponent::GetTabardEmblemFileName(SECTION_TORSO_LOWER, frame->GetVariation(0), frame->GetVariation(1), fileName, sizeof(fileName));
     SStrPack(fileName, ".BLP", sizeof(fileName));
-    CBLPFile blp;
+    CBLPFile image;
 
-    if (blp.Open(fileName, 0)) {
+    if (image.Open(fileName, 0)) {
+        // 12213: "image.Width() == LOWER_EMBLEM_TEXTURE_WIDTH"
+        STORM_ASSERT(image.Width(0) == LOWER_EMBLEM_TEXTURE_WIDTH);
+        // 12213: "image.Height() == LOWER_EMBLEM_TEXTURE_HEIGHT"
+        STORM_ASSERT(image.Height(0) == LOWER_EMBLEM_TEXTURE_HEIGHT);
+
         uint8_t* data;
         uint32_t stride;
 
-        if (blp.Lock(PIXEL_ARGB8888, 0, data, stride)) {
+        if (image.Lock(PIXEL_ARGB8888, 0, data, stride)) {
             for (uint32_t i = 0; i < s_texels.m_count; i++) {
                 CImVector& texel = s_texels.m_data[i];
                 texel.a = data[4 * i + 3];
@@ -233,14 +248,14 @@ static int32_t Script_GetLowerEmblemTexture(lua_State* L) {
             }
         }
 
-        blp.Unlock(0);
-        blp.Close();
+        image.Unlock(0);
+        image.Close();
     }
 
-    CTexture* emblem = TextureCreate(0x80, 0x20, GxTex_Argb8888, GxTex_Argb8888, CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &s_texels, EmblemTextureUpdate, "TabardModelFrameLower", 0);
+    CTexture* emblem = TextureCreate(LOWER_EMBLEM_TEXTURE_WIDTH, LOWER_EMBLEM_TEXTURE_HEIGHT, GxTex_Argb8888, GxTex_Argb8888, CGxTexFlags(GxTex_Linear, 0, 0, 0, 0, 0, 1), &s_texels, EmblemTextureUpdate, "TabardModelFrameLower", 0);
     texture->SetTexture(emblem);
     HandleClose(reinterpret_cast<HOBJECT>(emblem));
-    blp.Close();
+    image.Close();
     return 0;
 }
 
