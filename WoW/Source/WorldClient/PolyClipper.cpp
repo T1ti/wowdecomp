@@ -45,6 +45,7 @@ void PolyClipper::Begin() {
         vertex.m_stamp = -1;
         vertex.m_edges[0] = i - 1;
 
+        STORM_ASSERT(m_edgeCnt<MAX_EDGE_BUFFER_SIZE);
         PCEdge& edge = this->m_edges[this->m_edgeCnt];
         edge.m_verts[0] = i;
         edge.m_verts[1] = i + 1;
@@ -89,6 +90,8 @@ PCResultsIterator::PCResultsIterator(const PolyClipper* clipper, void* (*lerp)(c
 // VERIFY: 0b9a461b manual
 // OFFSET: 0x007D9390
 void PCResultsIterator::GetVertex(C3Vector& pos, const void*& data) const {
+    STORM_ASSERT(!m_finished);
+
     int32_t index = (this->m_step & 1) ? this->m_back : this->m_front;
     const PolyClipper::PCVertex& vertex = this->m_clipper->m_verts[index];
     pos = vertex.m_pos;
@@ -128,6 +131,9 @@ int32_t PolyClipper::Clip(const C4Plane& plane, int32_t side) {
     this->m_stamp++;
 
     int32_t crossings = 0;
+#if defined(WOWDECOMP_ASSERTIONS)
+    int32_t clippedEdges = 0;
+#endif
     int32_t crossEdge[2];
     int32_t crossSide[2];
     int32_t crossVert[2];
@@ -181,6 +187,10 @@ int32_t PolyClipper::Clip(const C4Plane& plane, int32_t side) {
         crossVert[k] = this->m_vtxCnt;
         newEdge[1 - keep] = this->m_vtxCnt;
 
+#if defined(WOWDECOMP_ASSERTIONS)
+        clippedEdges++;
+#endif
+        STORM_ASSERT(m_vtxCnt<MAX_VTX_BUFFER_SIZE);
         PCVertex& vertex = this->m_verts[this->m_vtxCnt];
         vertex.m_pos.x = (b.m_pos.x - a.m_pos.x) * t + a.m_pos.x;
         vertex.m_pos.y = (b.m_pos.y - a.m_pos.y) * t + a.m_pos.y;
@@ -201,8 +211,10 @@ int32_t PolyClipper::Clip(const C4Plane& plane, int32_t side) {
         return crossings;
     }
 
+    STORM_ASSERT(clippedEdges==2);
     this->m_edges[crossEdge[0]].m_verts[crossSide[0]] = crossVert[0];
     this->m_edges[crossEdge[1]].m_verts[crossSide[1]] = crossVert[1];
+    STORM_ASSERT(m_edgeCnt<MAX_EDGE_BUFFER_SIZE);
     this->m_edges[this->m_edgeCnt].m_verts[0] = newEdge[0];
     this->m_edges[this->m_edgeCnt].m_verts[1] = newEdge[1];
     this->m_edges[this->m_edgeCnt].m_clipped = false;
