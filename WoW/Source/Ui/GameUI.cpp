@@ -5288,7 +5288,7 @@ void CGGameUI::ShowCombatFeedbackAttackRoundInfo(const ATTACKROUNDINFO* info) {
         SErrDisplayAppFatalMessage("", "", 0);
     }
 
-    CGGameUI::SignalUnitCombat(info->m_victim, s_victimStateTokens[info->m_victimState], info->m_damage, info->m_schoolMask[0], info->m_hitInfo);
+    CGGameUI::SignalUnitCombat(info->victim, s_victimStateTokens[info->m_victimState], info->m_damage, info->m_schoolMask[0], info->m_hitInfo);
 }
 
 // VERIFY: 632abec5 auto

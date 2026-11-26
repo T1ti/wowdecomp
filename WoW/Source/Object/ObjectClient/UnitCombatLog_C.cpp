@@ -933,7 +933,7 @@ bool ShouldShowFeedback(const ATTACKROUNDINFO& info) {
 // OFFSET: 0x007512B0
 void UnitCombatLog(const ATTACKROUNDINFO& info) {
     if (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_RAGE_GAIN) {
-        CGUnit_C* attacker = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(info.m_attacker, TYPE_UNIT, __FILE__, __LINE__));
+        CGUnit_C* attacker = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(info.attacker, TYPE_UNIT, __FILE__, __LINE__));
 
         if (attacker) {
             attacker->ModifyPredictedPower(POWER_TYPE_RAGE, info.m_rageGained);
@@ -956,14 +956,14 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
             absorbed += info.m_absorbed[i];
         }
 
-        WOWGUID target = info.m_victim;
+        WOWGUID target = info.victim;
         bool crushing = (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_CRUSHING) != 0;
         bool glancing = (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_GLANCING) != 0;
         bool critical = (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_CRITICAL) != 0;
         int32_t blocked = info.m_blocked;
         uint32_t school = info.m_schoolMask[0];
         int32_t overkill = info.m_overkill;
-        CombatLogEntry* entry = GetCombatLogEntry(info.m_attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_DAMAGE, nullptr);
+        CombatLogEntry* entry = GetCombatLogEntry(info.attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_DAMAGE, nullptr);
         entry->m_infoFlags |= COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_DAMAGE;
         entry->m_info.m_values[2] = overkill;
         entry->m_info.m_values[4] = absorbed;
@@ -991,11 +991,11 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
         return;
     }
 
-    WOWGUID target = info.m_victim;
+    WOWGUID target = info.victim;
     CombatLogEntry* entry;
 
     if (info.m_hitInfo & HIT_INFO_FLAGS::HIT_INFO_FLAG_MISS) {
-        entry = GetCombatLogEntry(info.m_attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_MISSED, nullptr);
+        entry = GetCombatLogEntry(info.attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_MISSED, nullptr);
         entry->SetMissInfo(MISS_REASON::MISS_PHYSICAL, 0);
 
         if (s_combatTextActiveUnit == target) {
@@ -1008,7 +1008,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
             absorbed += info.m_absorbed[i];
         }
 
-        entry = GetCombatLogEntry(info.m_attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_MISSED, nullptr);
+        entry = GetCombatLogEntry(info.attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_MISSED, nullptr);
         entry->SetMissInfo(MISS_REASON::MISS_ABSORBED, absorbed);
 
         if (s_combatTextActiveUnit == target) {
@@ -1021,7 +1021,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
             resisted += info.m_resisted[i];
         }
 
-        entry = GetCombatLogEntry(info.m_attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_MISSED, nullptr);
+        entry = GetCombatLogEntry(info.attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_MISSED, nullptr);
         entry->SetMissInfo(MISS_REASON::MISS_RESIST, resisted);
 
         if (s_combatTextActiveUnit == target) {
@@ -1060,7 +1060,7 @@ void UnitCombatLog(const ATTACKROUNDINFO& info) {
                 return;
         }
 
-        entry = GetCombatLogEntry(info.m_attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_MISSED, nullptr);
+        entry = GetCombatLogEntry(info.attacker, target, COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SWING_MISSED, nullptr);
         entry->SetMissInfo(missType, info.m_blocked);
 
         if (s_combatTextActiveUnit == target) {

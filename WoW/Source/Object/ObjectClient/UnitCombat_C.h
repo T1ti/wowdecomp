@@ -58,8 +58,8 @@ class ATTACKROUNDINFO {
     public:
     static constexpr uint32_t MAX_DAMAGE_TYPES = 2;
 
-    /* 0000 */ WOWGUID m_attacker;
-    /* 0008 */ WOWGUID m_victim;
+    /* 0000 */ WOWGUID attacker;
+    /* 0008 */ WOWGUID victim;
     // Raw uint32_t storage preserves unrecognized packet bits and mask writes.
     /* 0010 */ uint32_t m_hitInfo;
 
