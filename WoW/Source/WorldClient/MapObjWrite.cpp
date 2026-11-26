@@ -90,7 +90,7 @@ int32_t MapObjRootToBin(const CMapObj& mapObj, TSGrowableArray<uint8_t>& out, CS
     iff.WriteChunk(WMOTOKEN_MVER, &WMO_FILE_VERSION, sizeof(WMO_FILE_VERSION));
     iff.WriteChunk(WMOTOKEN_MOHD, mapObj.m_header, sizeof(SMOHeader));
     iff.WriteChunk(WMOTOKEN_MOTX, mapObj.m_textureNameList, mapObj.m_texturesSize);
-    iff.WriteChunk(WMOTOKEN_MOMT, mapObj.m_materialList, mapObj.m_materialsCount * sizeof(SMOMaterial));
+    iff.WriteChunk(WMOTOKEN_MOMT, mapObj.materialList, mapObj.materialCount * sizeof(SMOMaterial));
     iff.WriteChunk(WMOTOKEN_MOGN, mapObj.m_groupNameList, mapObj.m_groupNameSize);
     iff.WriteChunk(WMOTOKEN_MOGI, mapObj.m_groupInfo, mapObj.m_groupInfoCount * sizeof(SMOGroupInfo));
 
@@ -116,7 +116,7 @@ int32_t MapObjRootToBin(const CMapObj& mapObj, TSGrowableArray<uint8_t>& out, CS
     iff.WriteChunk(WMOTOKEN_MODS, mapObj.m_doodadSetList, mapObj.m_doodadSetCount * sizeof(SMODoodadSet));
     iff.WriteChunk(WMOTOKEN_MODN, mapObj.m_doodadNameList, mapObj.m_doodadNameSize);
     iff.WriteChunk(WMOTOKEN_MODD, mapObj.m_doodadDefList, mapObj.m_doodadDefCount * sizeof(SMODoodadDef));
-    iff.WriteChunk(WMOTOKEN_MFOG, mapObj.m_fogList, mapObj.m_fogsCount * sizeof(SMOFog));
+    iff.WriteChunk(WMOTOKEN_MFOG, mapObj.fogList, mapObj.fogCount * sizeof(SMOFog));
 
     if (mapObj.m_convexVolumePlanes && mapObj.m_convexVolumePlaneCount) {
         iff.WriteChunk(WMOTOKEN_MCVP, mapObj.m_convexVolumePlanes, mapObj.m_convexVolumePlaneCount * sizeof(C4Plane));

@@ -22,9 +22,9 @@ TSList<CMapObjGroup, TSGetExplicitLink<CMapObjGroup> > CMapObj::s_loadedGroups =
 // VERIFY: 477d94a9 manual
 // OFFSET: 0x007D72D0
 void CMapObj::CreateMaterials() {
-    for (uint32_t i = 0; i < static_cast<uint32_t>(this->m_materialsCount); i++) {
-        this->m_materialList[i].Textures()[SMOMaterial::MAPID_DIFFUSE] = nullptr;
-        this->m_materialList[i].Textures()[SMOMaterial::MAPID_ENV] = nullptr;
+    for (uint32_t i = 0; i < static_cast<uint32_t>(this->materialCount); i++) {
+        this->materialList[i].Textures()[SMOMaterial::MAPID_DIFFUSE] = nullptr;
+        this->materialList[i].Textures()[SMOMaterial::MAPID_ENV] = nullptr;
     }
 }
 
@@ -71,8 +71,8 @@ void CMapObj::Load() {
     this->m_texturesSize = chunk->m_size;
 
     chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + chunk->m_size);
-    this->m_materialList = reinterpret_cast<SMOMaterial*>(&chunk->m_data);
-    this->m_materialsCount = chunk->m_size / sizeof(SMOMaterial);
+    this->materialList = reinterpret_cast<SMOMaterial*>(&chunk->m_data);
+    this->materialCount = chunk->m_size / sizeof(SMOMaterial);
 
     chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + chunk->m_size);
     this->m_groupNameList = reinterpret_cast<char*>(&chunk->m_data);
@@ -143,8 +143,8 @@ void CMapObj::Load() {
     this->m_doodadDefCount = chunk->m_size / sizeof(SMODoodadDef);
 
     chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + chunk->m_size);
-    this->m_fogList = reinterpret_cast<SMOFog*>(&chunk->m_data);
-    this->m_fogsCount = chunk->m_size / sizeof(SMOFog);
+    this->fogList = reinterpret_cast<SMOFog*>(&chunk->m_data);
+    this->fogCount = chunk->m_size / sizeof(SMOFog);
 
     uint8_t* end = static_cast<uint8_t*>(this->m_pWmoData) + this->m_wmoFileSize;
     chunk = reinterpret_cast<SIffChunk*>(reinterpret_cast<uint8_t*>(&chunk->m_data) + chunk->m_size);
@@ -158,9 +158,9 @@ void CMapObj::Load() {
 // VERIFY: 4e3ee2fd auto
 // OFFSET: 0x007D7710
 void CMapObj::CreateMaterial(uint8_t materialId) {
-    STORM_ASSERT(materialId < this->m_materialsCount); // 12213: "materialId < materialCount"
+    STORM_ASSERT(materialId < this->materialCount); // 12213: "materialId < materialCount"
 
-    SMOMaterial& material = this->m_materialList[materialId];
+    SMOMaterial& material = this->materialList[materialId];
 
     if (material.Textures()[SMOMaterial::MAPID_DIFFUSE]) {
         return;
@@ -613,7 +613,7 @@ void CMapObjGroup::Create() {
     for (uint32_t i = 0; i < batchCount; i++) {
         SMOBatch& batch = this->m_batchList[i];
 
-        if (mapObj->m_materialList[batch.m_texture].m_blendMode) {
+        if (mapObj->materialList[batch.m_texture].m_blendMode) {
             this->m_runtimeFlags &= ~CMapObjGroup::RUNTIME_FLAGS::ALL_BATCHES_OPAQUE;
             break;
         }
@@ -639,7 +639,7 @@ void CMapObjGroup::Create() {
     }
 
     for (uint32_t i = 0; i < batchCount; i++) {
-        if (mapObj->m_materialList[this->m_batchList[i].m_texture].m_shader == CMapObj::SHADER_TYPE::COMPOSITE) {
+        if (mapObj->materialList[this->m_batchList[i].m_texture].m_shader == CMapObj::SHADER_TYPE::COMPOSITE) {
             this->m_runtimeFlags |= CMapObjGroup::RUNTIME_FLAGS::EXTENDED_VERTEX_FORMAT;
             return;
         }

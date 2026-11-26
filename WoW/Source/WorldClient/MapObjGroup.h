@@ -220,6 +220,15 @@ class CMapObjGroup {
         RUNTIME_STATE_MASK = 0xF,
     };
 
+    bool IsLoaded() const { // (inferred)
+        const bool loaded = (this->m_runtimeFlags & RUNTIME_FLAGS::LOADED) != 0;
+        if (loaded) {
+            STORM_ASSERT(rawData);
+        }
+
+        return loaded;
+    }
+
     bool QueryLighting(const C3Vector& point, uint16_t face, CImVector* color, uint8_t* flag);
     struct VertArray {
         /* 0000 */ TSLink<VertArray> m_link;

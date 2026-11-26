@@ -12,6 +12,7 @@
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Tempest/CWFrustum.h"
 #include "WoW/Source/WorldClient/MapObjGroup.h"
+#include "WoW/Source/WorldClient/DayNight.h"
 
 struct MINIMAPQUADINFO;
 class C2Vector;
@@ -164,9 +165,9 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     /* 014C */ SMODoodadSet* m_doodadSetList;
     /* 0150 */ char* m_doodadNameList;
     /* 0154 */ SMODoodadDef* m_doodadDefList;
-    /* 0158 */ SMOFog* m_fogList;
+    /* 0158 */ SMOFog* fogList;
     /* 015C */ C4Plane* m_convexVolumePlanes;
-    /* 0160 */ SMOMaterial* m_materialList;
+    /* 0160 */ SMOMaterial* materialList;
     /* 0164 */ int32_t m_texturesSize;
     /* 0168 */ int32_t m_groupNameSize;
     /* 016C */ int32_t m_groupInfoCount;
@@ -179,9 +180,9 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     /* 0188 */ uint32_t m_doodadSetCount;
     /* 018C */ int32_t m_doodadNameSize;
     /* 0190 */ int32_t m_doodadDefCount;
-    /* 0194 */ int32_t m_fogsCount;
+    /* 0194 */ int32_t fogCount;
     /* 0198 */ int32_t m_convexVolumePlaneCount;
-    /* 019C */ int32_t m_materialsCount;
+    /* 019C */ int32_t materialCount;
     /* 01A0 */ CImVector m_argbColor;
     /* 01A4 */ int32_t unused_01A4;
     /* 01A8 */ CAaBox m_bbox;
@@ -236,6 +237,8 @@ class CMapObj : public CMapObjIndex, public TSHashObject<CMapObj, HASHKEY_NONE> 
     BOOL IsGroupLoaded(int32_t index) const;
     char* GetGroupName(int32_t index);
     CMapObjGroup* GetGroup(int32_t index, BOOL allowUnloaded);
+    SMOMaterial* GetMaterial(uint32_t mtlId) const; // (inferred)
+    const SMOFog& GetFog(uint32_t index) const; // (inferred)
     BOOL IsGroupLoading(int32_t index) const;
     void RenderGroup(int32_t groupIndex, C44Matrix& matrix, TSExplicitList<CWFrustum, offsetof(CWFrustum, m_link)>* frustumList);
     void CreateMaterial(uint8_t texture);
@@ -405,6 +408,17 @@ struct SMOMaterial {
 
     CTexture** Textures();
 };
+
+inline SMOMaterial* CMapObj::GetMaterial(uint32_t mtlId) const {
+    STORM_ASSERT(mtlId < materialCount);
+    STORM_ASSERT(materialList != nullptr); // 12213: "materialList != __null"
+    return &this->materialList[mtlId];
+}
+
+inline const SMOFog& CMapObj::GetFog(uint32_t index) const {
+    STORM_ASSERT(index < fogCount);
+    return this->fogList[index];
+}
 
 inline CTexture** SMOMaterial::Textures() {
     return reinterpret_cast<CTexture**>(&this->m_runTimeData[4 - SMOMaterial::MAPID_COUNT * sizeof(CTexture*) / sizeof(uint32_t)]);

@@ -116,7 +116,7 @@ int32_t CMapEntity::QueryCameraFog(SMOFog* fog, CMapObjDef** mapObjDef, uint8_t*
 
     CMapObj* owner = CWorldScene::s_viewerMapObjDef->mapObj;
 
-    if (!owner || owner->m_fogsCount == 1) {
+    if (!owner || owner->fogCount == 1) {
         return 0;
     }
 
@@ -143,7 +143,7 @@ int32_t CMapEntity::QueryCameraFog(SMOFog* fog, CMapObjDef** mapObjDef, uint8_t*
         *distance = 0.0f;
     }
 
-    *fog = owner->m_fogList[0];
+    *fog = owner->GetFog(0);
 
     uint32_t params[2] = { 32, 32 };
     static FogQueue s_fogQueue(params);
@@ -158,7 +158,7 @@ int32_t CMapEntity::QueryCameraFog(SMOFog* fog, CMapObjDef** mapObjDef, uint8_t*
                 continue;
             }
 
-            const SMOFog& groupFog = owner->m_fogList[fogIndex];
+            const SMOFog& groupFog = owner->GetFog(fogIndex);
             float dx = groupFog.m_position.x - localPos.x;
             float dy = groupFog.m_position.y - localPos.y;
             float dz = groupFog.m_position.z - localPos.z;
@@ -172,7 +172,7 @@ int32_t CMapEntity::QueryCameraFog(SMOFog* fog, CMapObjDef** mapObjDef, uint8_t*
 
     while (!s_fogQueue.Empty()) {
         FogQ entry = s_fogQueue.Pop();
-        const SMOFog& groupFog = owner->m_fogList[entry.m_fogIndex];
+        const SMOFog& groupFog = owner->GetFog(entry.m_fogIndex);
         float clamped = entry.m_distance;
 
         if (clamped < 0.0f) {

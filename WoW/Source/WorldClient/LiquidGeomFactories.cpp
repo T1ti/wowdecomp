@@ -98,7 +98,7 @@ bool Liquid::CChunkGeomFactory::SetTransform(C44Matrix* transform) {
 // VERIFY: 05f0b938 manual
 // OFFSET: 0x007D43F0
 void Liquid::CMeshGeomFactory::GetBuffers(EGxVertexBufferFormat vtxFormat, CGxBuf** vtxBuffer, CGxBuf** idxBuffer, CGxBatch* batch) {
-    if (static_cast<uint16_t>(this->m_mapObjGroup->m_liquidMaterialId) >= static_cast<uint32_t>(this->m_mapObj->m_materialsCount)) {
+    if (static_cast<uint16_t>(this->m_mapObjGroup->m_liquidMaterialId) >= static_cast<uint32_t>(this->m_mapObj->materialCount)) {
         SErrDisplayAppFatal("Water in chunk \"%s\" of object \"%s\" has no materialId.", this->m_mapObjGroup->m_groupName, this->m_mapObj->m_wmoName);
     }
 

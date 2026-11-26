@@ -613,12 +613,12 @@ void CMapObj::SelectWorldShaders() {
 void CMapObj::UpdateMaterials() {
     DayNight::DNInfo* info = DayNight::GetInfo();
 
-    for (uint32_t i = 0; i < static_cast<uint32_t>(this->m_materialsCount); i++) {
-        if (this->m_materialList[i].m_flags & SMOMaterial::F_SIDN) {
-            this->m_materialList[i].m_frameSidnColor = this->m_materialList[i].m_sidnColor;
+    for (uint32_t i = 0; i < static_cast<uint32_t>(this->materialCount); i++) {
+        if (this->materialList[i].m_flags & SMOMaterial::F_SIDN) {
+            this->materialList[i].m_frameSidnColor = this->materialList[i].m_sidnColor;
 
             int32_t scale = CMath::fint_(info->m_curve0 * 255.0f - 0.5f);
-            CImVector& color = this->m_materialList[i].m_frameSidnColor;
+            CImVector& color = this->materialList[i].m_frameSidnColor;
             uint8_t r = static_cast<uint8_t>((scale * color.r) >> 8);
             uint8_t g = static_cast<uint8_t>((scale * color.g) >> 8);
             uint8_t b = static_cast<uint8_t>((scale * color.b) >> 8);
@@ -962,7 +962,7 @@ void CMapObj::UnifiedRender(CMapObjGroup* group, uint32_t index) {
         }
 
         batch.m_flags |= SMOBatch::F_RENDERED;
-        SMOMaterial& material = this->m_materialList[batch.m_texture];
+        SMOMaterial& material = this->materialList[batch.m_texture];
         CTexture* texture = material.Textures()[SMOMaterial::MAPID_DIFFUSE];
         CGxTex* gxTex0 = TextureGetGxTex(texture, 0, nullptr);
 
@@ -1401,7 +1401,7 @@ void CMapObj::ExteriorRender(CMapObjGroup* group, uint32_t index) {
         }
 
         batch.m_flags |= SMOBatch::F_RENDERED;
-        SMOMaterial& material = this->m_materialList[batch.m_texture];
+        SMOMaterial& material = this->materialList[batch.m_texture];
         CTexture* texture = material.Textures()[SMOMaterial::MAPID_DIFFUSE];
         CGxTex* gxTex0 = TextureGetGxTex(texture, 0, nullptr);
 
@@ -1520,7 +1520,7 @@ void CMapObj::InteriorRender(CMapObjGroup* group, uint32_t index) {
         }
 
         batch.m_flags |= SMOBatch::F_RENDERED;
-        SMOMaterial& material = this->m_materialList[batch.m_texture];
+        SMOMaterial& material = this->materialList[batch.m_texture];
         CTexture* texture = material.Textures()[SMOMaterial::MAPID_DIFFUSE];
         CGxTex* gxTex0 = TextureGetGxTex(texture, 0, nullptr);
 
@@ -1847,7 +1847,7 @@ void CMapObj::InitPtrs() {
     this->m_doodadSetList = nullptr;
     this->m_doodadNameList = nullptr;
     this->m_doodadDefList = nullptr;
-    this->m_fogList = nullptr;
+    this->fogList = nullptr;
     this->m_convexVolumePlanes = nullptr;
     this->m_texturesSize = 0;
     this->m_groupNameSize = 0;
@@ -1859,7 +1859,7 @@ void CMapObj::InitPtrs() {
     this->m_doodadSetCount = 0;
     this->m_doodadNameSize = 0;
     this->m_doodadDefCount = 0;
-    this->m_fogsCount = 0;
+    this->fogCount = 0;
     this->m_convexVolumePlaneCount = 0;
 }
 
@@ -1907,8 +1907,8 @@ void CMapObj::Init() {
     this->m_asyncObject = nullptr;
     this->m_isGroupLoaded = 0;
     this->m_interiorGroupCount = 0xFFFF;
-    this->m_materialList = nullptr;
-    this->m_materialsCount = 0;
+    this->materialList = nullptr;
+    this->materialCount = 0;
     this->m_mapObjGroupCount = 0;
     this->InitPtrs();
 }
@@ -1923,11 +1923,11 @@ void CMapObj::Clear() {
         this->m_asyncObject = nullptr;
     }
 
-    for (uint32_t i = 0; i < static_cast<uint32_t>(this->m_materialsCount); i++) {
+    for (uint32_t i = 0; i < static_cast<uint32_t>(this->materialCount); i++) {
         for (uint32_t j = 0; j < SMOMaterial::MAPID_COUNT; j++) {
-            if (this->m_materialList[i].Textures()[j]) {
-                HandleClose(reinterpret_cast<HOBJECT>(this->m_materialList[i].Textures()[j]));
-                this->m_materialList[i].Textures()[j] = nullptr;
+            if (this->materialList[i].Textures()[j]) {
+                HandleClose(reinterpret_cast<HOBJECT>(this->materialList[i].Textures()[j]));
+                this->materialList[i].Textures()[j] = nullptr;
             }
         }
     }
@@ -1956,7 +1956,7 @@ void CMapObj::Clear() {
 BOOL CMapObj::IsGroupLoaded(int32_t index) const {
     if (this->m_isGroupLoaded) {
         STORM_ASSERT(groupPtrList[index]);
-        return this->groupPtrList[index]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED;
+        return this->groupPtrList[index]->IsLoaded();
     }
 
     return 0;
@@ -2075,13 +2075,13 @@ bool CMapObj::TestBounds(C3Vector& start, C3Vector& end) {
 // VERIFY: 735b2379 auto
 // OFFSET: 0x007AE880
 bool CMapObj::TestGroupBounds(C3Vector& start, C3Vector& end, uint32_t groupNum) {
-    return this->m_isGroupLoaded && (this->groupPtrList[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && CWorldMath::VectorIntersectAABox2(this->m_groupInfo[groupNum].m_boundingBox, start, end);
+    return this->m_isGroupLoaded && (this->groupPtrList[groupNum]->IsLoaded()) && CWorldMath::VectorIntersectAABox2(this->m_groupInfo[groupNum].m_boundingBox, start, end);
 }
 
 // VERIFY: 6fd4dc44 auto
 // OFFSET: 0x007AE970
 bool CMapObj::GroupBoundingBoxIntersectsSphere(C3Vector& pos, uint32_t groupNum, float radius) {
-    if (!this->m_isGroupLoaded || !(this->groupPtrList[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+    if (!this->m_isGroupLoaded || !(this->groupPtrList[groupNum]->IsLoaded())) {
         return false;
     }
 
@@ -2103,7 +2103,7 @@ CMapObjGroup* CMapObj::GetGroup(int32_t index, BOOL allowUnloaded) {
 
     CMapObjGroup* group = this->groupPtrList[index];
 
-    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !allowUnloaded) {
+    if (!(group->IsLoaded()) && !allowUnloaded) {
         return nullptr;
     }
 
@@ -2129,7 +2129,7 @@ char* CMapObj::GetGroupName(int32_t index) {
     if (this->m_isGroupLoaded) {
         CMapObjGroup* group = this->groupPtrList[index];
 
-        if (group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) {
+        if (group->IsLoaded()) {
             return group->m_groupName;
         }
     }
@@ -2186,7 +2186,7 @@ bool CMapObj::VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* gr
         if (useSphere) {
             hit = this->GroupBoundingBoxIntersectsSphere(const_cast<C3Vector&>(seg.start), g, 0.01f);
         } else {
-            if (!this->m_isGroupLoaded || !(this->groupPtrList[g]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+            if (!this->m_isGroupLoaded || !(this->groupPtrList[g]->IsLoaded())) {
                 continue;
             }
 
@@ -2199,7 +2199,7 @@ bool CMapObj::VectorIntersectPortal(const C3Segment& seg, float* t, uint32_t* gr
 
         CMapObjGroup* group = this->groupPtrList[g];
 
-        if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+        if (!(group->IsLoaded())) {
             continue;
         }
 
@@ -2476,7 +2476,7 @@ SMOMaterial* CMapObj::GetLiquidMaterial(int32_t groupIndex) {
         return nullptr;
     }
 
-    return &this->m_materialList[static_cast<uint16_t>(group->m_liquidMaterialId)];
+    return &this->materialList[static_cast<uint16_t>(group->m_liquidMaterialId)];
 }
 
 // VERIFY: 64db3118 auto
@@ -2495,7 +2495,7 @@ bool CMapObj::QueryLiquidStatus(uint32_t ignoreFlags, const C3Vector& pos, int32
 
         CMapObjGroup* group = this->groupPtrList[i];
 
-        if ((group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && group->QueryLiquid(pos, liquidType, level)) {
+        if ((group->IsLoaded()) && group->QueryLiquid(pos, liquidType, level)) {
             return true;
         }
     }
@@ -2823,7 +2823,7 @@ bool CMapObj::GetTris(const CAaBox& box, uint32_t flags, World::TriData* triData
 
         CMapObjGroup* group = this->groupPtrList[i];
 
-        if ((group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
+        if ((group->IsLoaded()) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
             result |= group->GetTris(box, flags, ignoreFlags, triData, mapObjDef);
         }
     }
@@ -2849,7 +2849,7 @@ bool CMapObj::GetLiquidFacets(const CAaBox& box, uint32_t flags, World::FacetDat
 
         CMapObjGroup* group = this->groupPtrList[i];
 
-        if ((group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & (CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE))) {
+        if ((group->IsLoaded()) && !(group->m_flags & (CMapObjGroup::MOGP_FLAGS::F_UNKNOWN_0x400000 | CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE))) {
             result |= group->GetLiquidFacets(box, flags, facets, mapObjDef);
         }
     }
@@ -2860,7 +2860,7 @@ bool CMapObj::GetLiquidFacets(const CAaBox& box, uint32_t flags, World::FacetDat
 // VERIFY: d6cd6b2c auto
 // OFFSET: 0x007AE920
 bool CMapObj::TestGroupBounds(const C3Vector& point, uint32_t groupNum) {
-    return this->m_isGroupLoaded && (this->groupPtrList[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && this->m_groupInfo[groupNum].m_boundingBox.ContainsPoint(point);
+    return this->m_isGroupLoaded && (this->groupPtrList[groupNum]->IsLoaded()) && this->m_groupInfo[groupNum].m_boundingBox.ContainsPoint(point);
 }
 
 // VERIFY: 15693e65 auto
@@ -2872,7 +2872,7 @@ bool CMapObj::Intersect(C3Vector& start, C3Vector& end, float* distance, uint32_
 
     CMapObjGroup* group = this->groupPtrList[groupNum];
 
-    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+    if (!(group->IsLoaded())) {
         return false;
     }
 
@@ -2885,7 +2885,7 @@ bool CMapObj::Intersect(C3Vector& start, C3Vector& end, float* distance, uint32_
 // VERIFY: d090e248 manual
 // OFFSET: 0x007AE8D0
 bool CMapObj::TestGroupBounds(CAaBox& box, uint32_t groupNum, BOOL requireLoaded) {
-    return (!requireLoaded || (this->m_isGroupLoaded && (this->groupPtrList[groupNum]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED))) && this->m_groupInfo[groupNum].m_boundingBox.Intersects(box);
+    return (!requireLoaded || (this->m_isGroupLoaded && (this->groupPtrList[groupNum]->IsLoaded()))) && this->m_groupInfo[groupNum].m_boundingBox.Intersects(box);
 }
 
 // VERIFY: aacb9f67 manual
@@ -2897,7 +2897,7 @@ bool CMapObj::QueryLighting(uint32_t groupNum, const C3Vector& point, uint16_t f
 
     CMapObjGroup* group = this->groupPtrList[groupNum];
 
-    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
+    if (!(group->IsLoaded()) || (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
         return false;
     }
 
@@ -2915,7 +2915,7 @@ bool CMapObj::QueryLighting(uint32_t groupNum, const C3Segment& seg, CImVector* 
 
     CMapObjGroup* group = this->groupPtrList[groupNum];
 
-    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
+    if (!(group->IsLoaded()) || (group->m_flags & CMapObjGroup::MOGP_FLAGS::F_EXTERIOR_CLASSIFICATION_MASK)) {
         return false;
     }
 
@@ -2950,7 +2950,7 @@ bool CMapObj::GetTris(const CWFrustum& frustum, uint32_t flags, World::TriData* 
 
         CMapObjGroup* group = this->groupPtrList[i];
 
-        if ((group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
+        if ((group->IsLoaded()) && !(group->m_flags & CMapObjGroup::MOGP_FLAGS::F_UNREACHABLE)) {
             result |= group->GetTris(frustum, flags, ignoreFlags, triData, mapObjDef);
         }
     }
@@ -3071,7 +3071,7 @@ void CMapObj::QueryMapObjMinimapGroup(int32_t groupNum, int32_t fromGroup, CAaBo
 
     CMapObjGroup* group = this->groupPtrList[groupNum];
 
-    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+    if (!(group->IsLoaded())) {
         return;
     }
 
@@ -3120,7 +3120,7 @@ void CMapObj::QueryMapObjMinimapGroup(int32_t groupNum, int32_t fromGroup, CAaBo
 
         CMapObjGroup* targetGroup;
 
-        if (!this->m_isGroupLoaded || !((targetGroup = this->groupPtrList[target])->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (targetGroup->m_wmoGroupId != WMO_GROUP_ID_RAVENS_WATCH && targetGroup->m_wmoGroupId != WMO_GROUP_ID_EAGLES_EYE)) {
+        if (!this->m_isGroupLoaded || !(targetGroup = this->groupPtrList[target])->IsLoaded() || (targetGroup->m_wmoGroupId != WMO_GROUP_ID_RAVENS_WATCH && targetGroup->m_wmoGroupId != WMO_GROUP_ID_EAGLES_EYE)) {
             this->QueryMapObjMinimapGroup(target, groupNum, box, quads, maxQuads, inside, flagsMask, ++depth);
         }
     }
@@ -3138,7 +3138,7 @@ bool CMapObj::QueryMapObjMinimap(int32_t groupNum, CAaBox* box, TSStackArray<MIN
     CAaBox query = *box;
     CMapObjGroup* group = this->groupPtrList[groupNum];
 
-    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+    if (!(group->IsLoaded())) {
         return false;
     }
 
@@ -3163,7 +3163,7 @@ bool CMapObj::VectorIntersectPortals(uint32_t groupNum, C3Segment& seg, float* t
 
     CMapObjGroup* group = this->groupPtrList[groupNum];
 
-    if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+    if (!(group->IsLoaded())) {
         return false;
     }
 
@@ -3183,7 +3183,7 @@ bool CMapObj::VectorIntersectPortals(uint32_t groupNum, C3Segment& seg, float* t
     for (int32_t i = 0; i < group->m_portalCount; i++, ref++) {
         SMOPortal& portal = this->m_portalList[ref->m_portalIndex];
 
-        if (!this->m_isGroupLoaded || !(this->groupPtrList[ref->m_groupIndex]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+        if (!this->m_isGroupLoaded || !(this->groupPtrList[ref->m_groupIndex]->IsLoaded())) {
             continue;
         }
 
@@ -3275,7 +3275,7 @@ void CMapObj::RenderMapObjGroupsShadowMap(CMapObjGroup** groups, uint32_t count,
 
         for (int32_t j = 0; j < group->m_batchListCount; j++) {
             SMOBatch& smoBatch = group->m_batchList[j];
-            SMOMaterial& material = mapObj->m_materialList[smoBatch.m_texture];
+            SMOMaterial& material = mapObj->materialList[smoBatch.m_texture];
             CGxTex* gxTex = TextureGetGxTex(material.Textures()[SMOMaterial::MAPID_DIFFUSE], 0, nullptr);
 
             if (!gxTex) {
@@ -3362,7 +3362,7 @@ void CMapObj::RenderMapObjGroupsColor(CMapObjGroup** groups, uint32_t count, C44
 
         for (int32_t j = 0; j < group->m_batchListCount; j++) {
             SMOBatch& smoBatch = group->m_batchList[j];
-            CGxTex* gxTex = TextureGetGxTex(mapObj->m_materialList[smoBatch.m_texture].Textures()[SMOMaterial::MAPID_DIFFUSE], 0, nullptr);
+            CGxTex* gxTex = TextureGetGxTex(mapObj->materialList[smoBatch.m_texture].Textures()[SMOMaterial::MAPID_DIFFUSE], 0, nullptr);
 
             if (!gxTex) {
                 continue;
@@ -3404,7 +3404,7 @@ bool CMapObj::VectorIntersect(C3Vector& start, C3Vector& end, uint32_t flags, ui
 
         CMapObjGroup* group = this->groupPtrList[i];
 
-        if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) || (groupIgnoreFlags & group->m_flags)) {
+        if (!(group->IsLoaded()) || (groupIgnoreFlags & group->m_flags)) {
             continue;
         }
 
@@ -3588,7 +3588,7 @@ void CMapObj::RenderGroupColorTex(CMapObjGroup* group, uint32_t index) {
         }
 
         batch->m_flags |= SMOBatch::F_RENDERED;
-        SMOMaterial& material = this->m_materialList[batch->m_texture];
+        SMOMaterial& material = this->materialList[batch->m_texture];
         CGxTex* gxTex = TextureGetGxTex(material.Textures()[SMOMaterial::MAPID_DIFFUSE], 1, nullptr);
         GxTexSetWrap(gxTex, static_cast<EGxTexWrapMode>((material.m_flags & SMOMaterial::F_CLAMP_S) == 0), static_cast<EGxTexWrapMode>((material.m_flags & SMOMaterial::F_CLAMP_T) == 0));
         g_theGxDevicePtr->RsSet(GxRs_Texture0, gxTex);
@@ -4097,7 +4097,7 @@ BOOL CMapObj::IsAllLoaded() {
     }
 
     for (int32_t i = 0; i < this->m_groupInfoCount; i++) {
-        if (!(this->groupPtrList[i]->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+        if (!(this->groupPtrList[i]->IsLoaded())) {
             return 0;
         }
     }
@@ -4114,14 +4114,14 @@ BOOL CMapObj::IsAllDrawable() {
         return loaded;
     }
 
-    for (int32_t i = 0; i < this->m_materialsCount; i++) {
-        CTexture* texture0 = this->m_materialList[i].Textures()[SMOMaterial::MAPID_DIFFUSE];
+    for (int32_t i = 0; i < this->materialCount; i++) {
+        CTexture* texture0 = this->materialList[i].Textures()[SMOMaterial::MAPID_DIFFUSE];
 
         if (texture0 && !TextureGetGxTex(texture0, 0, nullptr)) {
             return 0;
         }
 
-        CTexture* texture1 = this->m_materialList[i].Textures()[SMOMaterial::MAPID_ENV];
+        CTexture* texture1 = this->materialList[i].Textures()[SMOMaterial::MAPID_ENV];
 
         if (texture1 && !TextureGetGxTex(texture1, 0, nullptr)) {
             return 0;

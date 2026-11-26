@@ -2301,7 +2301,7 @@ void CMap::PrepareMapObjDefs(bool addToScene) {
             CAaBox& box = defGroup->aaBox;
 
             if (CWorld::s_objectAreaOfInterest.b.x <= box.t.x && CWorld::s_objectAreaOfInterest.b.y <= box.t.y && CWorld::s_objectAreaOfInterest.b.z <= box.t.z && CWorld::s_objectAreaOfInterest.t.x >= box.b.x && CWorld::s_objectAreaOfInterest.t.y >= box.b.y && CWorld::s_objectAreaOfInterest.t.z >= box.b.z) {
-                if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+                if (!(group->IsLoaded())) {
                     if (!group->asyncObject) {
                         mapObj->ReadGroup(defGroup->groupNum);
                     }
@@ -2313,7 +2313,7 @@ void CMap::PrepareMapObjDefs(bool addToScene) {
 
                 group->unused_0190 = 0.0f;
 
-                if (group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED) {
+                if (group->IsLoaded()) {
                     if (!(defGroup->m_flags & MAPOBJ_FLAG_GROUP_INIT)) {
                         CMapObj::InitDefGroup(mapObj, group, mapObjDef, defGroup);
                     }
@@ -2335,7 +2335,7 @@ void CMap::PrepareMapObjDefs(bool addToScene) {
                 continue;
             }
 
-            if (!(group->m_runtimeFlags & CMapObjGroup::RUNTIME_FLAGS::LOADED)) {
+            if (!(group->IsLoaded())) {
                 CWorldScene::s_barrier.AddBarrierMapObjDefGroup(defGroup, 50.0f);
                 continue;
             }

@@ -1057,7 +1057,7 @@ void CMapObjGroup::SetIndexVB() {
 // VERIFY: 13d55b84 manual
 // OFFSET: 0x007CB0C0
 bool CMapObjGroup::GetTris(const C3Segment& seg, float* dist, uint32_t flags, uint16_t faceIgnoreFlags, World::TriData* triData, CMapObjDef* mapObjDef) {
-    SMOMaterial* materials = this->m_parent->m_materialList;
+    SMOMaterial* materials = this->m_parent->materialList;
     uint32_t batchCount = World::TriData::nBatches;
 
     BspQuery_Segment query(this->m_polyList, this->m_vertexList, this->m_indices, seg, dist, faceIgnoreFlags, materials);
@@ -2423,7 +2423,7 @@ bool CMapObjGroup::GetTris(const CAaBox& box, uint32_t flags, uint16_t faceIgnor
 // OFFSET: 0x007CB2F0
 bool CMapObjGroup::Intersect(C3Segment& seg, float* dist, uint32_t flags, uint16_t faceIgnoreFlags, int32_t* hitIndex) {
     bool hit = false;
-    BspQuery_Segment query(this->m_polyList, this->m_vertexList, this->m_indices, seg, dist, faceIgnoreFlags, this->m_parent->m_materialList);
+    BspQuery_Segment query(this->m_polyList, this->m_vertexList, this->m_indices, seg, dist, faceIgnoreFlags, this->m_parent->materialList);
     CAaBsp_Query_Segment<BspQuery_Segment> bspQuery;
     bspQuery.m_aaBsp = &this->m_aaBsp;
     bspQuery.m_f = &query;

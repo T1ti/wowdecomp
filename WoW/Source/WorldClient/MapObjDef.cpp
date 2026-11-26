@@ -101,7 +101,7 @@ int32_t CMapObjDef::GetGroundType(uint32_t groupNum, uint16_t faceIndex) {
         SMOPoly* poly = &group->m_polyList[faceIndex];
 
         if (poly) {
-            return this->mapObj->m_materialList[poly->m_materialId].m_groundType;
+            return this->mapObj->GetMaterial(poly->m_materialId)->m_groundType;
         }
     }
 
