@@ -250,8 +250,9 @@ float CGUnit::GetMeleeRange(const CGUnit* target) const {
 
 // VERIFY: 803010fd manual
 // OFFSET: 0x005774B0
-int32_t CGUnit::GetEffectiveStat(int32_t stat) const {
-    return this->m_unit->m_unitFieldStat[stat] < 0 ? 0 : this->m_unit->m_unitFieldStat[stat];
+int32_t CGUnit::GetEffectiveStat(int32_t statNumber) const {
+    STORM_ASSERT(static_cast<uint32_t>(statNumber) < ARRSIZE(this->m_unit->m_unitFieldStat)); // 12213: "statNumber < ARRSIZE(m_unit->stats)"
+    return this->m_unit->m_unitFieldStat[statNumber] < 0 ? 0 : this->m_unit->m_unitFieldStat[statNumber];
 }
 
 // VERIFY: 4fc14c7a manual

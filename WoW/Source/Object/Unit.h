@@ -49,7 +49,7 @@ class CGUnit {
     int32_t GetSpellCostModifier(int32_t schoolMask) const;
     float GetSpellCostMultiplier(int32_t schoolMask) const;
     float GetMeleeRange(const CGUnit* target) const;
-    int32_t GetEffectiveStat(int32_t stat) const;
+    int32_t GetEffectiveStat(int32_t statNumber) const;
     BOOL HasAuraState(int32_t state) const;
     BOOL IsOnFlyingSpline() const;
     BOOL IsOnSpline() const;
