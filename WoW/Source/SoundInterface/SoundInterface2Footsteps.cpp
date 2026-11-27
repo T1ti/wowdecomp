@@ -36,18 +36,16 @@ static uint32_t GetFootstepSound(int32_t terrainType, int32_t footstepId, int32_
         return 0;
     }
 
-    int32_t index = terrain->m_soundID;
+    uint32_t terrainSoundID = terrain->m_soundID;
     FOOTSTEPSNDCACHE* cache = s_footstepSounds.Ptr(footstepId, s_footstepKey);
 
     if (!cache) {
         return 0;
     }
 
-    if (splash) {
-        return cache->m_splashSounds[index];
-    }
-
-    return cache->m_sounds[index];
+    TSGrowableArray<uint32_t>& theArray = splash ? cache->m_splashSounds : cache->m_sounds;
+    STORM_ASSERT(terrainSoundID < theArray.Count());
+    return theArray[terrainSoundID];
 }
 
 // VERIFY: 508a3422 manual
@@ -107,7 +105,8 @@ FOOTSTEPSNDCACHE::FOOTSTEPSNDCACHE() {
 void SI2::InitFootstepSounds() {
     s_footstepSounds.Clear();
 
-    uint32_t count = g_terrainTypeSoundsDB.GetMaxID() + 1;
+    uint32_t numTerrains = g_terrainTypeSoundsDB.GetMaxID() + 1;
+    STORM_ASSERT(numTerrains < sizeof(int) * 8);
 
     for (int32_t i = g_footstepTerrainLookupDB.GetNumRecords(); i;) {
         i--;
@@ -118,14 +117,16 @@ void SI2::InitFootstepSounds() {
             continue;
         }
 
+        STORM_ASSERT(static_cast<uint32_t>(rec->m_terrainSoundID) < numTerrains); // 12213: "rec->m_TerrainSoundID < numTerrains"
+
         FOOTSTEPSNDCACHE* cache = s_footstepSounds.Ptr(rec->m_creatureFootstepID, s_footstepKey);
 
         if (!cache) {
             cache = s_footstepSounds.New(rec->m_creatureFootstepID, s_footstepKey, 0, 0);
-            cache->m_sounds.SetCount(count);
-            cache->m_splashSounds.SetCount(count);
+            cache->m_sounds.SetCount(numTerrains);
+            cache->m_splashSounds.SetCount(numTerrains);
 
-            for (uint32_t j = 0; j < count; j++) {
+            for (uint32_t j = 0; j < numTerrains; j++) {
                 cache->m_sounds[j] = 0;
                 cache->m_splashSounds[j] = 0;
             }
