@@ -19,7 +19,11 @@ static int32_t FREETYPE_RenderGlyph(FT_Face face, uint32_t code, bool monochrome
 
 // VERIFY: d81e8b25 manual
 // OFFSET: 0x006C8C60
-static void CalculateYOffset(uint32_t pixelSize, int32_t baseline, FT_Face face, uint32_t glyphHeight, int32_t* yOffset, uint32_t* yStart) {
+static void CalculateYOffset(uint32_t pixelSize, int32_t baseline, FT_Face face, uint32_t glyphHeight, int32_t* yOffsetPtr, uint32_t* glyphYStart) {
+    STORM_ASSERT(yOffsetPtr);
+    STORM_ASSERT(glyphYStart);
+    STORM_ASSERT(glyphHeight);
+
     int32_t offset = 0;
     int32_t start;
 
@@ -41,11 +45,11 @@ static void CalculateYOffset(uint32_t pixelSize, int32_t baseline, FT_Face face,
     int32_t available = pixelSize - glyphHeight;
 
     if (available >= start) {
-        *yOffset = offset;
-        *yStart = start;
+        *yOffsetPtr = offset;
+        *glyphYStart = start;
     } else {
-        *yOffset = pixelSize - start - glyphHeight;
-        *yStart = pixelSize - glyphHeight;
+        *yOffsetPtr = pixelSize - start - glyphHeight;
+        *glyphYStart = pixelSize - glyphHeight;
     }
 }
 
