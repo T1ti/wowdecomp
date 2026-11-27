@@ -173,6 +173,11 @@ C3Vector::EAxis C3Vector::MajorAxis() const {
     return C3AXIS_Z;
 }
 
+// INLINED
+float C3Vector::Mag() const {
+    return sqrtf(this->SquaredMag());
+}
+
 // VERIFY: 8564aa4a manual
 // OFFSET: 0x009829F0
 C3Vector::EAxis C3Vector::MinorAxis() const {

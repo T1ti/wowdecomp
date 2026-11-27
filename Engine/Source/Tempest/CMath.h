@@ -34,6 +34,7 @@ class CMath {
     static int32_t ftol_round_0_255_(float f);
     static double log2_(double x);
     static bool fnotequal(float a, float b);
+    static bool fequal_(float a, float b);
     static bool fnotequal_(float a, float b);
     static float normalizeAnglePi(float angle);
     static float normalizeAngleNegPiToPi_(float angle);
@@ -74,6 +75,11 @@ int32_t RoundToInt64(float value);
 void ClampInPlace(float& value, float min, float max);
 bool fnotequal(float a, float b);
 int32_t IsNaN(double value);
+
+// INLINED
+inline bool CMath::fequal_(float a, float b) {
+    return ::fequal(a, b);
+}
 
 // INLINED
 inline bool CMath::fnotequal_(float a, float b) {

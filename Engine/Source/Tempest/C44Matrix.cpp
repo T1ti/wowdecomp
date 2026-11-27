@@ -2,6 +2,8 @@
 #include "Engine/Source/Tempest/C33Matrix.h"
 #include "Engine/Source/Tempest/C34Matrix.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
+#include "Engine/Source/Storm/H/storm.h"
+#include "Engine/Source/Tempest/CMath.h"
 #include "Engine/Source/Tempest/C4Quaternion.h"
 
 // VERIFY: cbb36d4b auto
@@ -415,8 +417,10 @@ C44Matrix C44Matrix::Adjoint() const {
 
 // VERIFY: 0cf132bb auto
 // OFFSET: 0x004C2F90
-C44Matrix C44Matrix::Inverse(float determinant) const {
-    return this->Adjoint() * (1.0f / determinant);
+C44Matrix C44Matrix::Inverse(float det) const {
+    STORM_ASSERT(det != 0.0f);
+
+    return this->Adjoint() * (1.0f / det);
 }
 
 // VERIFY: 8fbe6bb9 manual
@@ -604,6 +608,8 @@ C44Matrix C44Matrix::Rotation(float angle, const C3Vector& axis, bool normalized
         y = y * scale;
         z = z * scale;
     }
+
+    STORM_ASSERT(CMath::fequal_(C3Vector(x, y, z).Mag(), 1.0f)); // 12213: "CMath::fequal_(axis_.Mag(), 1.0f)"
 
     float c = cos(angle);
     float s = sin(angle);

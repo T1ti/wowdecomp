@@ -1,6 +1,7 @@
 #include "Engine/Source/Tempest/CMath.h"
 #include <cmath>
 #include "Engine/Source/Tempest/C33Matrix.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Tempest/C44Matrix.h"
 #include "Engine/Source/Tempest/C4Quaternion.h"
 
@@ -127,8 +128,10 @@ C33Matrix C33Matrix::Adjoint() const {
 
 // VERIFY: a0d47934 manual
 // OFFSET: 0x004C54E0
-C33Matrix C33Matrix::Inverse(float determinant) const {
-    float scale = 1.0f / determinant;
+C33Matrix C33Matrix::Inverse(float det) const {
+    STORM_ASSERT(CMath::fequal_(det, 0.0f) == false);
+
+    float scale = 1.0f / det;
     C33Matrix adjoint = this->Adjoint();
 
     C33Matrix result;
@@ -248,29 +251,31 @@ void C33Matrix::FromEulerAnglesZYX(float yaw, float pitch, float roll) {
 // VERIFY: 3a3bfaa3 manual
 // OFFSET: 0x004C5820
 C33Matrix C33Matrix::Rotation(float angle, const C3Vector& axis, bool normalized) {
-    C3Vector a = axis;
+    C3Vector axis_ = axis;
 
     if (!normalized) {
-        float scale = 1.0f / sqrt(a.z * a.z + a.y * a.y + a.x * a.x);
-        a.x = a.x * scale;
-        a.y = a.y * scale;
-        a.z = a.z * scale;
+        float scale = 1.0f / sqrt(axis_.z * axis_.z + axis_.y * axis_.y + axis_.x * axis_.x);
+        axis_.x = axis_.x * scale;
+        axis_.y = axis_.y * scale;
+        axis_.z = axis_.z * scale;
     }
+
+    STORM_ASSERT(CMath::fequal_(axis_.Mag(), 1.0f));
 
     float c = cos(angle);
     float s = sin(angle);
     float t = 1.0f - c;
 
     C33Matrix result;
-    result.a0 = a.x * a.x * t + c;
-    result.a1 = a.y * a.x * t + s * a.z;
-    result.a2 = a.z * a.x * t - a.y * s;
-    result.b0 = a.y * a.x * t - s * a.z;
-    result.b1 = a.y * a.y * t + c;
-    result.b2 = t * (a.z * a.y) + a.x * s;
-    result.c0 = a.y * s + a.z * a.x * t;
-    result.c1 = t * (a.z * a.y) - a.x * s;
-    result.c2 = t * (a.z * a.z) + c;
+    result.a0 = axis_.x * axis_.x * t + c;
+    result.a1 = axis_.y * axis_.x * t + s * axis_.z;
+    result.a2 = axis_.z * axis_.x * t - axis_.y * s;
+    result.b0 = axis_.y * axis_.x * t - s * axis_.z;
+    result.b1 = axis_.y * axis_.y * t + c;
+    result.b2 = t * (axis_.z * axis_.y) + axis_.x * s;
+    result.c0 = axis_.y * s + axis_.z * axis_.x * t;
+    result.c1 = t * (axis_.z * axis_.y) - axis_.x * s;
+    result.c2 = t * (axis_.z * axis_.z) + c;
     return result;
 }
 
