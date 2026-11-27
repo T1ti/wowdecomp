@@ -64,7 +64,7 @@ class CMapAreaEntry {
 // WDT MAIN entry, one per map area.
 struct SMAreaInfo {
     enum FLAGS : uint32_t {
-        F_HAS_ADT = 0x1, // The area has terrain data to load.
+        FLAG_EXISTS = 0x1, // The area has terrain data to load.
     };
 
     /* 0000 */ uint32_t m_flags; // FLAGS

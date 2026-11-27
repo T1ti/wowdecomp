@@ -1741,7 +1741,7 @@ void CMap::UpdateBarriers() {
         for (int32_t x = minX; x <= maxX; x++) {
             int32_t index = CMap::GetAreaIndex(x, y);
 
-            if (!(CMap::m_areaInfo[index].m_flags & SMAreaInfo::F_HAS_ADT)) {
+            if (!(CMap::m_areaInfo[index].m_flags & SMAreaInfo::FLAG_EXISTS)) {
                 continue;
             }
 
@@ -2096,7 +2096,7 @@ void CMap::PreUpdateAreas(bool addToScene) {
         for (int32_t x = minX; x <= maxX; x++) {
             int32_t index = CMap::GetAreaIndex(x, y);
 
-            if ((CMap::m_areaInfo[index].m_flags & SMAreaInfo::F_HAS_ADT) && !CMap::m_areaTable[index]) {
+            if ((CMap::m_areaInfo[index].m_flags & SMAreaInfo::FLAG_EXISTS) && !CMap::m_areaTable[index]) {
                 CMapArea* area = CMap::PrepareArea(x, y);
                 AddAreaToSortList(entries, sortCount, maxCount, area);
             }
@@ -3531,6 +3531,7 @@ void CMapAreaLowHeap::Delete(CMapAreaLow* areaLow) {
 // OFFSET: 0x007C0C60
 void CMap::FreeAreaLow(CMapAreaLow* areaLow) {
     STORM_ASSERT(areaLow);
+    STORM_ASSERT(areaLow->m_block == NULL); // 12213: "vbb == __null"
 
     CMap::areaLowHeap->Delete(areaLow);
 }
@@ -4316,6 +4317,8 @@ void CMap::LoadArea(CMapArea* area) {
 // VERIFY: a0b22da5 auto
 // OFFSET: 0x007D9A70
 CMapArea* CMap::PrepareArea(int32_t areaIndexX, int32_t areaIndexY) {
+    STORM_ASSERT(CMap::m_areaInfo[areaIndexY * 64 + areaIndexX].m_flags & SMAreaInfo::FLAG_EXISTS); // 12213: "areaInfo[index].flags & SMAreaInfo::FLAG_EXISTS"
+
     CMapArea* area = CMap::AllocArea();
     CMapBaseObjLink* link = CMap::AllocBaseObjLink(area);
     CMap::areaLinkList.LinkToTail(link);
@@ -4514,7 +4517,7 @@ bool CMap::GetChunkFacets(int32_t chunkX, int32_t chunkY, CiRect* subRect, CAaBo
         return true;
     }
 
-    if (!(CMap::m_areaInfo[areaIndex].m_flags & SMAreaInfo::F_HAS_ADT)) {
+    if (!(CMap::m_areaInfo[areaIndex].m_flags & SMAreaInfo::FLAG_EXISTS)) {
         return true;
     }
 

@@ -628,7 +628,7 @@ bool WowEditWorldLoadMap(int32_t mapId, const C3Vector* position) {
 
         for (int32_t areaY = 0; areaY < MAP_AREAS_PER_AXIS; areaY++) {
             for (int32_t areaX = 0; areaX < MAP_AREAS_PER_AXIS; areaX++) {
-                if (CMap::m_areaInfo[CMap::GetAreaIndex(areaX, areaY)].m_flags & SMAreaInfo::F_HAS_ADT) {
+                if (CMap::m_areaInfo[CMap::GetAreaIndex(areaX, areaY)].m_flags & SMAreaInfo::FLAG_EXISTS) {
                     sumX += areaX;
                     sumY += areaY;
                     count++;
