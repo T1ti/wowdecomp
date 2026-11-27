@@ -1252,6 +1252,8 @@ void CMap::VectorIntersectDoodadDefs(TSList<CMapBaseObjLink, TSGetExplicitLink<C
             }
         }
 
+        STORM_ASSERT(model->m_scene->IsHitTesting()); // 12213: "m_scene->IsHitTesting()"
+
         if (mode >= 0 && (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED)) {
             if (!model->m_hitTestPrev) {
                 model->m_hitTestPrev = &model->m_scene->m_hitList;
@@ -1306,6 +1308,8 @@ void CMap::VectorIntersectEntitys(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
         if (!model) {
             continue;
         }
+
+        STORM_ASSERT(model->m_scene->IsHitTesting()); // 12213: "m_scene->IsHitTesting()"
 
         if (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
             if (!model->m_hitTestPrev) {
@@ -5607,6 +5611,8 @@ void CMap::QueryDoodadDefHitTests(TSList<CMapBaseObjLink, TSGetExplicitLink<CMap
         if (start.x > doodadDef->m_bbox.t.x || start.x < doodadDef->m_bbox.b.x || start.y > doodadDef->m_bbox.t.y || start.y < doodadDef->m_bbox.b.y || end.z > doodadDef->m_bbox.t.z || start.z < doodadDef->m_bbox.b.z) {
             continue;
         }
+
+        STORM_ASSERT(model->m_scene->IsHitTesting()); // 12213: "m_scene->IsHitTesting()"
 
         if (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
             if (!model->m_hitTestPrev) {

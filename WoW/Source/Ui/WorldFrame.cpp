@@ -253,6 +253,8 @@ static int32_t GetObjectHitTestType(CGObject_C* object) {
 // VERIFY: d69961a6 auto
 // OFFSET: 0x004F6370
 static void AddModelToHitTest(CM2Model* model, uint32_t group, void* owner, uint32_t mode) {
+    STORM_ASSERT(model->m_scene->IsHitTesting()); // 12213: "m_scene->IsHitTesting()"
+
     if (model->m_runtimeFlags & M2_FLAGS::M2_INITIALIZED) {
         if (!model->m_hitTestPrev) {
             CM2Model** head = &model->m_scene->m_hitList;
