@@ -40,8 +40,8 @@ static CTexture* oceanDepthTexid;
 // STATIC: 0x00D43BD8
 static CTexture* riverDepthTexid;
 
-static void ExtWaterDepthTexCallback(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
-static void WmoWaterTexCallback(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
+static void ExtWaterDepthTexCallback(EGxTexCommand command, uint32_t w, uint32_t h, uint32_t depth, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
+static void WmoWaterTexCallback(EGxTexCommand command, uint32_t w, uint32_t h, uint32_t depth, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels);
 
 // VERIFY: 901024cc manual
 // OFFSET: 0x008A2980
@@ -194,10 +194,8 @@ void Liquid::InvalidateProceduralTextures() {
 // VERIFY: 331f7c3c manual
 // OFFSET: 0x008A2AC0
 static void WmoWaterTexCallback(EGxTexCommand command, uint32_t w, uint32_t h, uint32_t depth, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
-    const uint32_t texWidth = 8;
     STORM_ASSERT(mipLevel == 0);
-    STORM_ASSERT(w==texWidth);
-    STORM_ASSERT(h==WATERTEX_HEIGHT);
+    STORM_ASSERT(h == 64);
 
     // STATIC: 0x00D43BE0
     static CImVector s_texels[WATERTEX_HEIGHT * 8];
@@ -243,7 +241,12 @@ static void WmoWaterTexCallback(EGxTexCommand command, uint32_t w, uint32_t h, u
 
 // VERIFY: aa313e0a manual
 // OFFSET: 0x008A2BF0
-static void ExtWaterDepthTexCallback(EGxTexCommand command, uint32_t width, uint32_t height, uint32_t depth, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
+static void ExtWaterDepthTexCallback(EGxTexCommand command, uint32_t w, uint32_t h, uint32_t depth, uint32_t mipLevel, void* userArg, uint32_t& texelStrideInBytes, const void*& texels) {
+    const uint32_t texWidth = 8;
+    STORM_ASSERT(mipLevel == 0);
+    STORM_ASSERT(w==texWidth);
+    STORM_ASSERT(h==WATERTEX_HEIGHT);
+
     // STATIC: 0x00D443E8
     static CImVector s_texels[WATERTEX_HEIGHT * 8];
 
@@ -277,14 +280,14 @@ static void ExtWaterDepthTexCallback(EGxTexCommand command, uint32_t width, uint
 
     CImVector* row = s_texels;
 
-    for (uint32_t y = 0; y < height; y++) {
+    for (uint32_t y = 0; y < h; y++) {
         CImVector color;
         color.b = blue >> 8;
         color.g = green >> 8;
         color.r = red >> 8;
         color.a = alpha >> 8;
 
-        if (y == height - 1 && type == 0) {
+        if (y == h - 1 && type == 0) {
             C3Vector rgb(color);
             C3Vector hsv;
             RGBtoHSV(rgb, hsv);
@@ -293,7 +296,7 @@ static void ExtWaterDepthTexCallback(EGxTexCommand command, uint32_t width, uint
             color = rgb;
         }
 
-        for (uint32_t x = 0; x < width; x++) {
+        for (uint32_t x = 0; x < w; x++) {
             row[x] = color;
         }
 
@@ -301,9 +304,9 @@ static void ExtWaterDepthTexCallback(EGxTexCommand command, uint32_t width, uint
         blue += blueStep;
         alpha += alphaStep;
         red += redStep;
-        row += width;
+        row += w;
     }
 
-    texelStrideInBytes = width * sizeof(CImVector);
+    texelStrideInBytes = w * sizeof(CImVector);
     texels = s_texels;
 }
