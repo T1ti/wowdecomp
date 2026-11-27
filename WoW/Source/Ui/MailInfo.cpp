@@ -368,35 +368,36 @@ int32_t Packet_SMSG_MAIL_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
     }
 
     for (uint32_t i = 0; i < count; i++) {
-        MailboxMessageInfo* message = CGMailInfo::m_inbox.m_data[i];
-        memset(message, 0, sizeof(*message));
+        MailboxMessageInfo* messageInfo = CGMailInfo::m_inbox.m_data[i];
+        STORM_ASSERT(messageInfo != NULL);
+        memset(messageInfo, 0, sizeof(*messageInfo));
         uint16_t size;
         msg->Get(size);
-        msg->Get(reinterpret_cast<uint32_t&>(message->m_messageID));
+        msg->Get(reinterpret_cast<uint32_t&>(messageInfo->m_messageID));
         uint8_t type = 0;
         msg->Get(type);
-        message->m_messageType = type;
+        messageInfo->m_messageType = type;
 
         if (!type) {
-            msg->Get(message->m_sender.m_guid);
-            message->m_senderEntry = 0;
+            msg->Get(messageInfo->m_sender.m_guid);
+            messageInfo->m_senderEntry = 0;
         } else if (type <= 5) {
-            msg->Get(reinterpret_cast<uint32_t&>(message->m_senderEntry));
-            message->m_sender = WOWGUID();
+            msg->Get(reinterpret_cast<uint32_t&>(messageInfo->m_senderEntry));
+            messageInfo->m_sender = WOWGUID();
         }
 
-        msg->Get(reinterpret_cast<uint32_t&>(message->m_cod));
-        msg->Get(reinterpret_cast<uint32_t&>(message->m_package));
-        msg->Get(reinterpret_cast<uint32_t&>(message->m_stationery));
-        msg->Get(reinterpret_cast<uint32_t&>(message->m_money));
-        msg->Get(message->m_flags);
-        msg->Get(message->m_expireTime);
-        msg->Get(reinterpret_cast<uint32_t&>(message->m_mailTemplateID));
-        msg->GetString(message->m_subject, sizeof(message->m_subject));
-        msg->GetString(message->m_body, sizeof(message->m_body));
+        msg->Get(reinterpret_cast<uint32_t&>(messageInfo->m_cod));
+        msg->Get(reinterpret_cast<uint32_t&>(messageInfo->m_package));
+        msg->Get(reinterpret_cast<uint32_t&>(messageInfo->m_stationery));
+        msg->Get(reinterpret_cast<uint32_t&>(messageInfo->m_money));
+        msg->Get(messageInfo->m_flags);
+        msg->Get(messageInfo->m_expireTime);
+        msg->Get(reinterpret_cast<uint32_t&>(messageInfo->m_mailTemplateID));
+        msg->GetString(messageInfo->m_subject, sizeof(messageInfo->m_subject));
+        msg->GetString(messageInfo->m_body, sizeof(messageInfo->m_body));
         uint8_t numItems;
         msg->Get(numItems);
-        memset(message->m_attachments, 0, sizeof(message->m_attachments));
+        memset(messageInfo->m_attachments, 0, sizeof(messageInfo->m_attachments));
 
         TSBitField<TSGrowableArray<uint32_t> > used;
         used.m_count = MailboxMessageInfo::MAX_ATTACHMENTS;
@@ -428,7 +429,7 @@ int32_t Packet_SMSG_MAIL_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
             if (index >= MailboxMessageInfo::MAX_ATTACHMENTS) {
                 attachment = &unused;
             } else {
-                attachment = &message->m_attachments[index];
+                attachment = &messageInfo->m_attachments[index];
                 used.Set(index);
             }
 
@@ -452,22 +453,22 @@ int32_t Packet_SMSG_MAIL_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
             attachment->m_unlocked = unlocked;
         }
 
-        message->m_invoiceItemID = 0;
-        message->m_invoiceRandomPropertiesID = 0;
-        message->m_invoiceType = CGMailInfo::INVOICE_TYPE::UNSET;
+        messageInfo->m_invoiceItemID = 0;
+        messageInfo->m_invoiceRandomPropertiesID = 0;
+        messageInfo->m_invoiceType = CGMailInfo::INVOICE_TYPE::UNSET;
 
-        if (type == MAIL_MESSAGE_TYPE_NORMAL && FriendList::s_friendList->IsIgnored(message->m_sender, true) && !(message->m_flags & MailboxMessageInfo::FLAGS::RETURN_BLOCKED_MASK)) {
+        if (type == MAIL_MESSAGE_TYPE_NORMAL && FriendList::s_friendList->IsIgnored(messageInfo->m_sender, true) && !(messageInfo->m_flags & MailboxMessageInfo::FLAGS::RETURN_BLOCKED_MASK)) {
             CDataStore reply;
 
-            if (GetNumAttachments(message) || message->m_money) {
+            if (GetNumAttachments(messageInfo) || messageInfo->m_money) {
                 reply.Put(static_cast<uint32_t>(CMSG_MAIL_RETURN_TO_SENDER));
                 reply.Put(CGMailInfo::m_object.m_guid);
-                reply.Put(static_cast<uint32_t>(message->m_messageID));
-                reply.Put(message->m_sender.m_guid);
+                reply.Put(static_cast<uint32_t>(messageInfo->m_messageID));
+                reply.Put(messageInfo->m_sender.m_guid);
             } else {
                 reply.Put(static_cast<uint32_t>(CMSG_MAIL_DELETE));
                 reply.Put(CGMailInfo::m_object.m_guid);
-                reply.Put(static_cast<uint32_t>(message->m_messageID));
+                reply.Put(static_cast<uint32_t>(messageInfo->m_messageID));
                 reply.Put(static_cast<uint32_t>(1));
             }
 
@@ -477,29 +478,29 @@ int32_t Packet_SMSG_MAIL_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
             count--;
             total--;
         } else {
-            if (message->m_stationery <= 0) {
-                message->m_stationery = GetStationery(0)->m_id;
+            if (messageInfo->m_stationery <= 0) {
+                messageInfo->m_stationery = GetStationery(0)->m_id;
             }
 
             if (type == MAIL_MESSAGE_TYPE_AUCTION) {
-                SStrCopy(message->m_invoiceSubject, message->m_subject, sizeof(message->m_invoiceSubject));
-                CGMailInfo::ParseInboxSubject(message);
+                SStrCopy(messageInfo->m_invoiceSubject, messageInfo->m_subject, sizeof(messageInfo->m_invoiceSubject));
+                CGMailInfo::ParseInboxSubject(messageInfo);
             } else if (type == MAIL_MESSAGE_TYPE_CALENDAR) {
-                message->m_sender.m_guid = SStrToInt64(message->m_subject);
-                SStrCopy(message->m_invoiceSubject, SStrChr(message->m_subject, ':') + 1, sizeof(message->m_invoiceSubject));
-                ProfanityFilter(message->m_invoiceSubject, false, false);
-                CGMailInfo::ParseInboxSubject(message);
+                messageInfo->m_sender.m_guid = SStrToInt64(messageInfo->m_subject);
+                SStrCopy(messageInfo->m_invoiceSubject, SStrChr(messageInfo->m_subject, ':') + 1, sizeof(messageInfo->m_invoiceSubject));
+                ProfanityFilter(messageInfo->m_invoiceSubject, false, false);
+                CGMailInfo::ParseInboxSubject(messageInfo);
             }
 
-            if (message->m_mailTemplateID) {
-                MailTemplateRec* rec = g_mailTemplateDB.GetRecord(message->m_mailTemplateID);
+            if (messageInfo->m_mailTemplateID) {
+                MailTemplateRec* rec = g_mailTemplateDB.GetRecord(messageInfo->m_mailTemplateID);
 
                 if (rec) {
-                    SStrCopy(message->m_subject, rec->m_subject, sizeof(message->m_subject));
+                    SStrCopy(messageInfo->m_subject, rec->m_subject, sizeof(messageInfo->m_subject));
                 }
             }
 
-            ProfanityFilter(message->m_subject, false, false);
+            ProfanityFilter(messageInfo->m_subject, false, false);
         }
     }
 
@@ -711,14 +712,15 @@ static int32_t QSortStationery(const void* a, const void* b) {
 // VERIFY: 770972ed manual
 // OFFSET: 0x0056F4E0
 static void InboxAuctionItemQueryCallback(int32_t id, const WOWGUID& guid, void* param, bool success) {
-    uint32_t* messageID = static_cast<uint32_t*>(param);
+    uint32_t* mailID = static_cast<uint32_t*>(param);
+    STORM_ASSERT(mailID);
 
     if (success) {
-        CGMailInfo::ParseInboxSubject(*messageID);
+        CGMailInfo::ParseInboxSubject(*mailID);
         Script_SendUniqueSignal(SCRIPT_EVENT_MAIL_INBOX_UPDATE);
     }
 
-    delete messageID;
+    delete mailID;
 }
 
 // VERIFY: 5312eb4e manual
@@ -1205,6 +1207,8 @@ void CGMailInfo::ProcessAutoLootAttachments(MailboxMessageInfo* message) {
 // VERIFY: 6524167f manual
 // OFFSET: 0x00570410
 void CGMailInfo::AutoLoot(uint32_t index) {
+    STORM_ASSERT(!CGMailInfo::m_autoLooting);
+
     if (index >= CGMailInfo::m_numInboxItems) {
         return;
     }
