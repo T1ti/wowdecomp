@@ -1,4 +1,5 @@
 #include "GameObjectDef.h"
+#include "Engine/Source/Storm/H/storm.h"
 
 // The final word differs from the old valueBaseType mapping; retain its raw value.
 struct PropertyInfo {
@@ -1322,6 +1323,9 @@ int32_t CGameObjectDef::GetPropNum(int32_t typeId, int32_t propId) {
     if (typeId >= NUM_GAMEOBJECT_TYPE || propId >= PROPERTY_ID::NUM_PROP) {
         return -1;
     }
+
+    STORM_ASSERT(typeId >= 0 && typeId < NUM_GAMEOBJECT_TYPE);
+    STORM_ASSERT(propId >= 0 && propId < NUM_PROP);
 
     int32_t numProps = CGameObjectDef::s_objectInfo[typeId].numProperties;
 
