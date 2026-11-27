@@ -4161,23 +4161,25 @@ static int32_t CompareMapObjDistance(const void* a, const void* b) {
 // OFFSET: 0x007D9810
 void CMapObj::ProcessAsyncLoadQueue() {
     void** pending = static_cast<void**>(alloca(0x1000));
-    uint32_t count = 0;
+    uint32_t sortCount = 0;
 
     for (CMapObjGroup* group = CMapObj::s_loadedGroups.Head(); group; group = CMapObj::s_loadedGroups.Next(group)) {
         if (group->asyncObject) {
-            pending[count++] = group;
+            pending[sortCount++] = group;
+            STORM_ASSERT(sortCount < 1024);
         }
     }
 
-    if (count) {
-        qsort(pending, count, sizeof(void*), CompareGroupDistance);
+    if (sortCount) {
+        qsort(pending, sortCount, sizeof(void*), CompareGroupDistance);
         AsyncFile::EnterQueueLock();
 
-        for (uint32_t i = 0; i < count; i++) {
+        for (uint32_t i = 0; i < sortCount; i++) {
             CMapObjGroup* group = static_cast<CMapObjGroup*>(pending[i]);
 
             if (group->m_distToCamera < 40000.0f) {
                 CAsyncObject* object = group->asyncObject;
+                STORM_ASSERT(object); // 12213: "asyncObject"
 
                 if (object->isCurrent || object->isRead || object->isProcessed) {
                     continue;
@@ -4192,23 +4194,25 @@ void CMapObj::ProcessAsyncLoadQueue() {
         AsyncFile::LeaveQueueLock();
     }
 
-    count = 0;
+    sortCount = 0;
 
     for (CMapObj* mapObj = CMapObj::s_asyncLoadQueue.Head(); mapObj; mapObj = CMapObj::s_asyncLoadQueue.Next(mapObj)) {
         if (mapObj->m_asyncObject) {
-            pending[count++] = mapObj;
+            pending[sortCount++] = mapObj;
+            STORM_ASSERT(sortCount < 1024);
         }
     }
 
-    if (count) {
-        qsort(pending, count, sizeof(void*), CompareMapObjDistance);
+    if (sortCount) {
+        qsort(pending, sortCount, sizeof(void*), CompareMapObjDistance);
         AsyncFile::EnterQueueLock();
 
-        for (uint32_t i = 0; i < count; i++) {
+        for (uint32_t i = 0; i < sortCount; i++) {
             CMapObj* mapObj = static_cast<CMapObj*>(pending[i]);
 
             if (mapObj->m_distToCamera < 40000.0f) {
                 CAsyncObject* object = mapObj->m_asyncObject;
+                STORM_ASSERT(object); // 12213: "asyncObject"
 
                 if (object->isCurrent || object->isRead || object->isProcessed) {
                     continue;
