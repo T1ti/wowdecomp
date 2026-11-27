@@ -116,6 +116,7 @@ C2Vector CRandom::C2Vector_(CRndSeed& seed) {
 C3Vector CRandom::C3Vector_(CRndSeed& seed) {
     float z = CRandom::sfloat_(seed);
     float angle = CRandom::ufloat_(seed) * TWO_PI;
+    STORM_ASSERT(z >= -1.0f && z <= 1.0f); // 12213: "z >= -_1 && z <= _1"
     float r = sqrt(1.0f - z * z);
     float c = cos(angle);
     float s = sin(angle);
