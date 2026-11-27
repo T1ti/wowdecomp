@@ -79,6 +79,7 @@ bool Battlenet::CreepTendril::Initialize() {
 Battlenet::CreepTendril::Instance::Instance(const Authentication::Settings& settings, TumorManager& manager) : Tendril(Battlenet::Event::CREEP, manager) {
     this->m_creep = nullptr;
     memcpy(&this->m_settings, &settings, sizeof(this->m_settings));
+    STORM_ASSERT(s_creepModule);
     Battlenet::CreepTendril::s_instances++;
 
     BSN::Hard::SizeEncoder sizeEncoder;
@@ -90,6 +91,7 @@ Battlenet::CreepTendril::Instance::Instance(const Authentication::Settings& sett
     ProtocolHard::TypeInfoOf<Authentication::Settings>::Encode(this->m_settings, encoder);
 
     this->m_creep = Battlenet::CreepTendril::s_creepCreate(this, encoder.m_data, (encoder.m_position + 7) >> 3);
+    STORM_ASSERT(this->m_creep);
 
     this->m_eventHandlers[Event::EVENT_TYPE_UPDATE] = &Instance::ProcessEventData<Event::EVENT_TYPE_UPDATE>;
     this->m_eventHandlers[Event::EVENT_TYPE_UNKNOWN_2] = &Instance::ProcessEventData<Event::EVENT_TYPE_UNKNOWN_2>;
@@ -123,6 +125,8 @@ Battlenet::CreepTendril::Instance* Battlenet::CreepTendril::Instance::Create(con
 // VERIFY: 3c5d1abe auto
 // OFFSET: [0x009C1A40, 0x009C1C50, 0x009C1CF0]
 Battlenet::CreepTendril::Instance::~Instance() {
+    STORM_ASSERT(s_creepModule);
+
     Battlenet::CreepTendril::s_creepDestroy(this->m_creep);
     this->m_creep = nullptr;
 
