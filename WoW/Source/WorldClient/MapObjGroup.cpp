@@ -916,6 +916,7 @@ void CMapObjGroup::FillVertexVB(CGxBuf* buf, EGxVertexBufferFormat format) {
 // VERIFY: 745d4cbb manual
 // OFFSET: 0x007C8A70
 void CMapObjGroup::FillTransparencyVB(CGxBuf* buf) {
+    STORM_ASSERT(this->cvertexList);
     uint32_t count = this->m_batchList[this->transBatchCount - 1].m_vertexEnd + 1;
     CGxVertexPNCT* vertex = reinterpret_cast<CGxVertexPNCT*>(g_theGxDevicePtr->BufLock(buf));
 
