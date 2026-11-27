@@ -1845,15 +1845,17 @@ void CMovementShared::UnRoot(int32_t tryFall) {
 
 // VERIFY: c57f9a1e auto
 // OFFSET: 0x0098C770
-void CMovementShared::OnSpline(uint32_t timePassed, const C3Vector* points, uint32_t pointCount, uint32_t duration, uint32_t splineFlags, uint32_t splineId) {
+void CMovementShared::OnSpline(uint32_t timePassed, const C3Vector* points, uint32_t count, uint32_t duration, uint32_t splineFlags, uint32_t splineId) {
     STORM_ASSERT(m_spline);
 
     this->m_spline->flags = splineFlags;
+    STORM_ASSERT(count >= 4);
     this->m_spline->m_timePassed = timePassed;
     this->m_spline->m_start = 0;
     this->m_spline->m_duration = duration;
+    STORM_ASSERT(this->m_spline->m_duration > 0); // 12213: "m_spline->duration > 0"
     this->m_spline->m_spline.splineMode = (this->m_spline->flags & SPLINEFLAG_CATMULLROM_MASK) != 0 ? MODE_CATMULLROM : MODE_LINEAR;
-    this->m_spline->m_spline.SetPoints(points, pointCount);
+    this->m_spline->m_spline.SetPoints(points, count);
     this->m_spline->m_id = splineId;
     this->m_spline->m_durationModNext = 1.0f;
     this->m_spline->m_durationMod = 1.0f;
