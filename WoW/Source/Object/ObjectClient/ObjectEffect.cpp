@@ -524,7 +524,7 @@ void CObjectEffectModifier::Apply(CObjectEffectManager* manager, CObjectEffect* 
 // VERIFY: 07e2b193 auto
 // OFFSET: 0x006F17F0
 OBJECT_EFFECT_STATE FindObjectEffectStateFromAnimID(int32_t animID, int32_t alternate) {
-    STORM_ASSERT((s_objectEffectAnimStateMap[animID].animID == animID) || ((s_objectEffectAnimStateMap[animID].animID == ANIM_COUNT) && s_objectEffectAnimStateMap[animID].stateID == OBJECT_EFFECT_STATE_INVALID));  // 12213: NUM_ANIMATIONDATAENUM, OES_INVALID
+    STORM_ASSERT((s_objectEffectAnimStateMap[animID].animID == animID) || ((s_objectEffectAnimStateMap[animID].animID == ANIM_COUNT) && s_objectEffectAnimStateMap[animID].stateID == OBJECT_EFFECT_STATE_INVALID)); // 12213: "(s_objectEffectAnimStateMap[animID].animID == animID) || ((s_objectEffectAnimStateMap[animID].animID == NUM_ANIMATIONDATAENUM) && s_objectEffectAnimStateMap[animID].stateID == OES_INVALID)"
 
     if (alternate == 1) {
         return s_objectEffectAnimStateMap[animID].altStateID;
