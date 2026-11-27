@@ -5772,7 +5772,7 @@ void CMovement_C::FlushMoveQueue(BOOL removeSpline, BOOL halt) {
     CVehiclePassenger_C* passenger = this->m_unit->m_vehiclePassenger;
     s_flushingQueue = 1;
 
-    if (passenger && passenger->m_deferredTransitionSpline) {
+    if (passenger && passenger->m_vehicleAnimDeferredSpline) {
         if (passenger->m_flags & VEHICLE_PASSENGER_FLAGS::VEHICLE_PASSENGER_FLAG_WAITING_FOR_TRANSITION_ANIM) {
             passenger->StopWaitingForVehicleTransitionAnim();
         } else {

@@ -35,7 +35,7 @@ uint32_t* CVehiclePassenger_C::s_passengerPool;
 TSGrowableArray<CVehiclePassenger_C*>* CVehiclePassenger_C::s_pendingPassengers;
 
 // STATIC: 0x00CA1364
-uint32_t CVehiclePassenger_C::s_pendingCount;
+uint32_t CVehiclePassenger_C::s_addingRescueTransitions;
 
 // STATIC: 0x00CA1368
 CVehiclePassenger_C* CVehiclePassenger_C::s_headPassenger;
@@ -55,9 +55,9 @@ void CVehiclePassenger_C::ClearFlag8() {
 // VERIFY: c6078f8d auto
 // OFFSET: 0x00747910
 void CVehiclePassenger_C::DeleteAllDeferredVehicleTransitionAnimSplines() {
-    if (this->m_deferredTransitionSpline) {
-        delete this->m_deferredTransitionSpline;
-        this->m_deferredTransitionSpline = nullptr;
+    if (this->m_vehicleAnimDeferredSpline) {
+        delete this->m_vehicleAnimDeferredSpline;
+        this->m_vehicleAnimDeferredSpline = nullptr;
     }
 }
 
@@ -129,13 +129,13 @@ CGUnit_C* CVehiclePassenger_C::GetVehicleUnit() const {
 // OFFSET: 0x00748170
 void CVehiclePassenger_C::StartDeferringVehicleTransitionAnimSpline(CDataStore* msg) {
     CDataStore* spline = new (SMemAlloc(sizeof(CDataStore), __FILE__, __LINE__, 0)) CDataStore();
-    this->m_deferredTransitionSpline = spline;
+    this->m_vehicleAnimDeferredSpline = spline;
 
     uint32_t bytes = msg->m_size - msg->m_read;
     void* data;
     msg->GetDataInSitu(data, bytes);
     spline->PutData(data, bytes);
-    this->m_deferredTransitionSpline->Finalize();
+    this->m_vehicleAnimDeferredSpline->Finalize();
 }
 
 // VERIFY: a002108c manual
@@ -184,8 +184,8 @@ void CVehiclePassenger_C::Free() {
         this->m_next->m_prev = this->m_prev;
     }
 
-    if (this->m_deferredTransitionSpline) {
-        delete this->m_deferredTransitionSpline;
+    if (this->m_vehicleAnimDeferredSpline) {
+        delete this->m_vehicleAnimDeferredSpline;
     }
 
     ObjectFree(*s_passengerPool, this->m_memHandle);
@@ -210,6 +210,8 @@ CVehicle_C* CVehiclePassenger_C::GetVehicle() const {
 // VERIFY: bcb00fbb manual
 // OFFSET: 0x00749C20
 void CVehiclePassenger_C::AddPendingRescueTransition(WOWGUID passengerGuid, WOWGUID vehicleGuid, uint8_t seat, BOOL instant) {
+    STORM_ASSERT(s_addingRescueTransitions);
+
     VehiclePassengerRescueTransition* transition = s_rescueTransitions->New();
     transition->m_passengerGuid = passengerGuid;
     transition->m_vehicleGuid = vehicleGuid;
@@ -245,7 +247,7 @@ void CVehiclePassenger_C::InitSystem() {
 
     void* pending = SMemAlloc(sizeof(TSGrowableArray<CVehiclePassenger_C*>), __FILE__, __LINE__, 0);
     s_pendingPassengers = pending ? new (pending) TSGrowableArray<CVehiclePassenger_C*>() : nullptr;
-    s_pendingCount = 0;
+    s_addingRescueTransitions = 0;
 
     void* rescue = SMemAlloc(sizeof(TSGrowableArray<VehiclePassengerRescueTransition>), __FILE__, __LINE__, 0);
     s_headPassenger = nullptr;
@@ -266,7 +268,7 @@ void CVehiclePassenger_C::UninitSystem() {
         s_pendingPassengers = nullptr;
     }
 
-    s_pendingCount = 0;
+    s_addingRescueTransitions = 0;
 
     if (s_rescueTransitions) {
         delete s_rescueTransitions;
@@ -602,7 +604,7 @@ CVehiclePassenger_C* CVehiclePassenger_C::Alloc(CGUnit_C* unit) {
     passenger->m_vehicleRec = nullptr;
     passenger->m_seatRec = nullptr;
     passenger->m_rootVehicleGuid = WOWGUID();
-    passenger->m_deferredTransitionSpline = nullptr;
+    passenger->m_vehicleAnimDeferredSpline = nullptr;
     passenger->m_transitionAnimTimeout = 0;
     passenger->m_transitionAnimVehicleGuid = WOWGUID();
     passenger->m_boneAnimGuid = WOWGUID();
@@ -770,7 +772,7 @@ int32_t CVehiclePassenger_C::OverridesModelAnimation() const {
 // VERIFY: 1c7d54aa auto
 // OFFSET: 0x007478F0
 void CVehiclePassenger_C::StartAddingPendingRescueTransitions() {
-    CVehiclePassenger_C::s_pendingCount = 1;
+    CVehiclePassenger_C::s_addingRescueTransitions = 1;
 }
 
 // VERIFY: f56a1f77 auto
@@ -839,7 +841,7 @@ void CVehiclePassenger_C::StopWaitingForVehicleTransitionAnim() {
         unit->m_vehicle->UninstallBoneAnimListener(this->m_unit->m_obj->m_guid);
     }
 
-    if (this->m_deferredTransitionSpline) {
+    if (this->m_vehicleAnimDeferredSpline) {
         this->ExecuteAllDeferredVehicleTransitionAnimSplines();
     }
 }
@@ -847,9 +849,11 @@ void CVehiclePassenger_C::StopWaitingForVehicleTransitionAnim() {
 // VERIFY: b352fb18 auto
 // OFFSET: 0x00747990
 void CVehiclePassenger_C::ExecuteAllDeferredVehicleTransitionAnimSplines() {
-    CDataStore* spline = this->m_deferredTransitionSpline;
+    STORM_ASSERT(this->m_vehicleAnimDeferredSpline);
+
+    CDataStore* spline = this->m_vehicleAnimDeferredSpline;
     WOWGUID transport = this->m_transitionAnimGuid;
-    this->m_deferredTransitionSpline = nullptr;
+    this->m_vehicleAnimDeferredSpline = nullptr;
     this->m_unit->OnMonsterMove(spline, transport.m_guid ? SMSG_MONSTER_MOVE_TRANSPORT : SMSG_ON_MONSTER_MOVE, transport.m_guid, this->m_transitionAnimSeat, 0);
 
     if (spline) {
@@ -943,6 +947,8 @@ void CVehiclePassenger_C::UpdateAll(uint32_t time) {
 // VERIFY: 8bae8c48 manual
 // OFFSET: 0x00749CB0
 void CVehiclePassenger_C::ExecutePendingRescueTransitions() {
+    STORM_ASSERT(s_addingRescueTransitions);
+
     for (uint32_t i = 0; i < CVehiclePassenger_C::s_rescueTransitions->Count(); i++) {
         VehiclePassengerRescueTransition& transition = CVehiclePassenger_C::s_rescueTransitions->m_data[i];
         CGUnit_C* unit = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(transition.m_passengerGuid, TYPE_UNIT, __FILE__, __LINE__));
@@ -953,7 +959,7 @@ void CVehiclePassenger_C::ExecutePendingRescueTransitions() {
     }
 
     CVehiclePassenger_C::s_rescueTransitions->m_count = 0;
-    CVehiclePassenger_C::s_pendingCount = 0;
+    CVehiclePassenger_C::s_addingRescueTransitions = 0;
 }
 
 // STATIC: 0x00A2D3F0
@@ -2089,7 +2095,7 @@ void CVehiclePassenger_C::OnUpdateTransport(WOWGUID transport, uint8_t seat, CGU
     BOOL exiting = !transport.IsVehicle() && !transport.IsPlayer();
     BOOL allowed = this->m_unit->VehiclePassengerIsTransitionAllowed(this->m_seatRec, exiting);
 
-    if (this->m_vehicleGuid && !vehicle && CVehiclePassenger_C::s_pendingCount) {
+    if (this->m_vehicleGuid && !vehicle && CVehiclePassenger_C::s_addingRescueTransitions) {
         CVehiclePassenger_C::AddPendingRescueTransition(this->m_unit->m_obj->m_guid, transport, seat, allowed);
     } else if (!deferred) {
         this->BeginTransition(transport, seat, allowed);

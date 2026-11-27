@@ -88,7 +88,7 @@ class CVehiclePassenger_C {
 
     static uint32_t* s_passengerPool;
     static TSGrowableArray<CVehiclePassenger_C*>* s_pendingPassengers;
-    static uint32_t s_pendingCount;
+    static uint32_t s_addingRescueTransitions;
     static CVehiclePassenger_C* s_headPassenger;
     static CVehiclePassenger_C* s_tailPassenger;
     static TSGrowableArray<VehiclePassengerRescueTransition>* s_rescueTransitions;
@@ -134,7 +134,7 @@ class CVehiclePassenger_C {
     /* 0050 */ VehicleRec* m_vehicleRec;
     /* 0054 */ VehicleSeatRec* m_seatRec;
     /* 0058 */ WOWGUID m_rootVehicleGuid;
-    /* 0060 */ CDataStore* m_deferredTransitionSpline;
+    /* 0060 */ CDataStore* m_vehicleAnimDeferredSpline;
     /* 0064 */ uint32_t m_transitionAnimTimeout;
     /* 0068 */ WOWGUID m_transitionAnimVehicleGuid;
     /* 0070 */ WOWGUID m_boneAnimGuid;
