@@ -1830,11 +1830,7 @@ void CMissile::CalcPosition(int32_t advance) {
                         break;
                     }
 
-                    emitterModel = this->m_model;
-
-                    emitterModel->EnsureInitialized();
-
-                    emitterModel->m_particleEmitters[i]->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::IGNORE_DISTANCE;
+                    this->m_model->GetParticleEmitter(i)->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::IGNORE_DISTANCE;
                 }
 
                 this->m_flags |= MISSILE_FLAGS::MISSILE_FLAG_TRAJECTORY_PARTICLES_INITIALIZED;

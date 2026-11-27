@@ -461,6 +461,12 @@ class CM2Model {
             this->WaitForLoad(nullptr);
         }
     }
+    // INLINED (name inferred): 12213 M2Model.inl emitter accessor.
+    CParticleEmitter2* GetParticleEmitter(uint32_t particleIndex) {
+        this->EnsureInitialized();
+        STORM_ASSERT(particleIndex < m_shared->m_data->m_particles.m_count); // 12213: "particleIndex < m_shared->m_data->particles.count"
+        return this->m_particleEmitters[particleIndex];
+    }
     void AnimateMT(const C44Matrix* view, const C3Vector& diffuse, const C3Vector& emissive, float parentEffectiveAlpha, float parentAlpha);
     void AnimateMTSimple(const C44Matrix* view, const C3Vector& diffuse, const C3Vector& emissive, float parentEffectiveAlpha, float parentAlpha);
     void AnimateParticleST(float deltaTime, uint32_t index);

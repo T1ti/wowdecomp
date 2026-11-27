@@ -406,11 +406,7 @@ void CMapObjDef::SetDoodadEmittersIgnoresDistance(CMapObjDef* mapObjDef, BOOL ig
                     break;
                 }
 
-                model = doodadDef->model;
-
-                model->EnsureInitialized();
-
-                CParticleEmitter2* emitter = model->m_particleEmitters[i];
+                CParticleEmitter2* emitter = doodadDef->model->GetParticleEmitter(i);
 
                 if (ignore) {
                     emitter->m_flags |= CParticleEmitter2::RUNTIME_FLAGS::IGNORE_DISTANCE;

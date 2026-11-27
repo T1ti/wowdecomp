@@ -365,11 +365,7 @@ void CBarrier::Render(const C3Vector& viewerPos, float elapsedSec) {
                 break;
             }
 
-            CM2Model* emitterModel = CBarrier::s_sparkles[i];
-
-            emitterModel->EnsureInitialized();
-
-            CParticleEmitter2* emitter = emitterModel->m_particleEmitters[j];
+            CParticleEmitter2* emitter = CBarrier::s_sparkles[i]->GetParticleEmitter(j);
             emitter->SetWidth(100.0f);
             emitter->SetHeight(100.0f);
         }
