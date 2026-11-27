@@ -1116,6 +1116,7 @@ void CGQuestLog::Update(BOOL rebuild) {
         }
 
         if (i == CGQuestLog::m_numSortTypes) {
+            STORM_ASSERT(i < ARRSIZE(CGQuestLog::m_sortTypes)); // 12213: "j < ARRSIZE(m_sortTypes)"
             CGQuestLog::m_sortTypes[i] = quest->m_areaIdOrSortId;
             CGQuestLog::m_numSortTypes++;
             CGQuestLog::m_quests[CGQuestLog::m_numQuest].m_questId = quest->m_areaIdOrSortId;
