@@ -112,6 +112,7 @@ ParticleSystemManager* ParticleSystemManager::GetInstance() {
     }
 
     CParticleEmitter2::Init();
+    STORM_ASSERT(ParticleSystemManager::s_instance); // 12213: "manager"
 
     return ParticleSystemManager::s_instance;
 }
