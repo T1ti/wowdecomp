@@ -23,6 +23,7 @@ void ScrnSetStockFont(SCRNSTOCK stockID, const char* fontTexturePath) {
     }
 
     s_stockObjects[stockID] = TextBlockGenerateFont(fontTexturePath, 0, NDCToDDCHeight(s_stockObjectHeights[stockID]));
+    STORM_ASSERT(s_stockObjects[stockID]);
 }
 
 // VERIFY: f91e1722 auto
