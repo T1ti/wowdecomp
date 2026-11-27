@@ -199,7 +199,10 @@ int32_t TalentInfoIsSpellKnown(int32_t spellId, BOOL isInspect, BOOL isPet) {
 // VERIFY: 7cbaa1c1 auto
 // OFFSET: 0x005C5750
 static int TierCompare(const void* a, const void* b) {
-    return (*static_cast<TalentGroupTier_C* const*>(a))->m_tier - (*static_cast<TalentGroupTier_C* const*>(b))->m_tier;
+    TalentGroupTier_C* tier1 = *static_cast<TalentGroupTier_C* const*>(a);
+    TalentGroupTier_C* tier2 = *static_cast<TalentGroupTier_C* const*>(b);
+    STORM_ASSERT(tier1 && tier2);
+    return tier1->m_tier - tier2->m_tier;
 }
 
 // VERIFY: 2584c2bc auto
@@ -460,6 +463,7 @@ static void BuildTabInfo(CGPlayer_C* player, TSFixedArray<TalentTabInfo*>* tabs,
             continue;
         }
 
+        STORM_ASSERT(g_talentTabDB.GetRecord(talent->m_tabID)); // 12213: "g_talentTabDB.GetRecord(rec->m_tabID)"
         info = nullptr;
         lastTabId = tabId;
 
@@ -706,13 +710,22 @@ BOOL CGTalentGroup_C::CanAddPreviewTalentPoints(const TalentRec* talent, int32_t
         return 0;
     }
 
-    for (uint32_t i = 0; i < this->m_tabs.m_count; i++) {
+    TalentGroupTab_C* groupTab = nullptr;
+    uint32_t i = 0;
+
+    for (; i < this->m_tabs.m_count; i++) {
         if (this->m_tabs.m_data[i].m_tabId == talent->m_tabID) {
-            return this->ValidatePreviewTalentPoints(i, talent, points, delta, pet);
+            groupTab = &this->m_tabs.m_data[i];
+            break;
         }
     }
 
-    return 0;
+    if (!groupTab) {
+        STORM_ASSERT_RECOVERABLE(groupTab);
+        return 0;
+    }
+
+    return this->ValidatePreviewTalentPoints(i, talent, points, delta, pet);
 }
 
 // VERIFY: b579a45c manual
