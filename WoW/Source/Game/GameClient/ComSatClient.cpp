@@ -422,6 +422,7 @@ void ComSatClient_Shutdown() {
 
     ProcessComSatCallbacks();
     EventUnregister(EVENT_ID_IDLE, VoiceChat_TickWrapper);
+    STORM_ASSERT(!ComSatThread::s_threadRunning); // 12213: "!s_threadRunning"
     ComSat::Interface::Destroy(ComSatThread::s_comsat, s_comsatAllocator);
     ComSatThread::s_comsat = nullptr;
     s_mutedPlayers.InternalClear(0);
