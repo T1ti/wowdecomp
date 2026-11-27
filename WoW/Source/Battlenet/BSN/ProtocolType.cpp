@@ -18,8 +18,10 @@ void BSN::Protocol::Type::Int::Get(int32_t intType, const uint8_t*& cursor, uint
 
 // VERIFY: b0a9090d auto
 // OFFSET: 0x0088A0C0
-void BSN::Protocol::Type::Int::Get(int32_t intType, const uint8_t*& cursor, uint32_t& value) {
-    uint32_t size = BSN::Protocol::Type::Int::ByteSize(intType);
+void BSN::Protocol::Type::Int::Get(int32_t e, const uint8_t*& cursor, uint32_t& value) {
+    STORM_ASSERT(!IsSigned(e));
+    uint32_t size = BSN::Protocol::Type::Int::ByteSize(e);
+    STORM_ASSERT(size <= sizeof(size_t));
 
     for (value = 0; size; cursor++) {
         value <<= 8;

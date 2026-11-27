@@ -75,8 +75,12 @@ inline uint32_t ByteSize(int32_t intType) {
     return 1 << (intType >> 1);
 }
 
+inline bool IsSigned(int32_t intType) {
+    return (intType & TYPE_UNSIGNED) == 0;
+}
+
 void Get(int32_t intType, const uint8_t*& cursor, uint64_t& value);
-void Get(int32_t intType, const uint8_t*& cursor, uint32_t& value);
+void Get(int32_t e, const uint8_t*& cursor, uint32_t& value);
 void GetSize(const uint8_t*& cursor, uint32_t& value);
 }
 }
