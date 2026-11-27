@@ -191,6 +191,7 @@ static int32_t __stdcall PartTrackSample(const M2PartTrack<uint16_t>& track, flo
 // VERIFY: 495193f9 manual
 // OFFSET: 0x0097D7B0
 static uint32_t PopIndex(TSGrowableArray<uint32_t>& array) {
+    STORM_ASSERT(array.Count() != 0); // 12213: "m_stack.Count() != 0"
     uint32_t value = *array.Top();
     array.SetCount(array.Count() - 1);
 
