@@ -37,7 +37,7 @@ static char s_nameWithRealm[305];
 static char s_tokenBuffers[8][32];
 
 // STATIC: 0x00AD2780
-static char* s_tokenIDs[8] = { s_tokenBuffers[0], s_tokenBuffers[1], s_tokenBuffers[2], s_tokenBuffers[3], s_tokenBuffers[4], s_tokenBuffers[5], s_tokenBuffers[6], s_tokenBuffers[7] };
+static char* s_unitTokens[8] = { s_tokenBuffers[0], s_tokenBuffers[1], s_tokenBuffers[2], s_tokenBuffers[3], s_tokenBuffers[4], s_tokenBuffers[5], s_tokenBuffers[6], s_tokenBuffers[7] };
 
 // VERIFY: bb8249cc auto
 // OFFSET: 0x00608880
@@ -861,8 +861,8 @@ const char* Script_GetAuraTokenFromGUID(const WOWGUID* guid) {
 
 // VERIFY: 1a4d44e4 manual
 // OFFSET: 0x0060BB70
-char** Script_GetTokenIDsFromGUID(const WOWGUID& guid, int32_t* count) {
-    *count = 0;
+char** Script_GetTokenIDsFromGUID(const WOWGUID& guid, int32_t* numtokens) {
+    *numtokens = 0;
 
     if (guid == WOWGUID()) {
         return nullptr;
@@ -875,73 +875,74 @@ char** Script_GetTokenIDsFromGUID(const WOWGUID& guid, int32_t* count) {
     }
 
     if (guid == player->m_obj->m_guid) {
-        SStrCopy(s_tokenIDs[(*count)++], "player", sizeof(s_tokenBuffers[0]));
+        SStrCopy(s_unitTokens[(*numtokens)++], "player", sizeof(s_tokenBuffers[0]));
     }
 
     if (player->IsSeatedInVehicle() && guid.m_guid == player->GetTransportGUID()) {
-        SStrCopy(s_tokenIDs[(*count)++], "vehicle", sizeof(s_tokenBuffers[0]));
+        SStrCopy(s_unitTokens[(*numtokens)++], "vehicle", sizeof(s_tokenBuffers[0]));
     }
 
     if (guid == (player->m_unit->m_unitFieldCharm != WOWGUID() ? player->m_unit->m_unitFieldCharm : player->m_unit->m_unitFieldSummon)) {
-        SStrCopy(s_tokenIDs[(*count)++], "pet", sizeof(s_tokenBuffers[0]));
+        SStrCopy(s_unitTokens[(*numtokens)++], "pet", sizeof(s_tokenBuffers[0]));
     }
 
     for (uint32_t i = 0; i < CGPartyInfo::GetNumPartyMembers(); i++) {
         if (guid == CGGameUI::GetPartyMember(i)) {
-            SStrPrintf(s_tokenIDs[(*count)++], sizeof(s_tokenBuffers[0]), "party%d", i + 1);
+            SStrPrintf(s_unitTokens[(*numtokens)++], sizeof(s_tokenBuffers[0]), "party%d", i + 1);
             break;
         }
 
         if (guid == CGGameUI::GetPartyMemberPet(i)) {
-            SStrPrintf(s_tokenIDs[(*count)++], sizeof(s_tokenBuffers[0]), "partypet%d", i + 1);
+            SStrPrintf(s_unitTokens[(*numtokens)++], sizeof(s_tokenBuffers[0]), "partypet%d", i + 1);
             break;
         }
     }
 
     for (uint32_t i = 0; i < CGRaidInfo::m_numMembers; i++) {
         if (guid == GetRaidMemberGUID(i)) {
-            SStrPrintf(s_tokenIDs[(*count)++], sizeof(s_tokenBuffers[0]), "raid%d", i + 1);
+            SStrPrintf(s_unitTokens[(*numtokens)++], sizeof(s_tokenBuffers[0]), "raid%d", i + 1);
             break;
         }
 
         if (guid == CGGameUI::GetRaidMemberPet(i)) {
-            SStrPrintf(s_tokenIDs[(*count)++], sizeof(s_tokenBuffers[0]), "raidpet%d", i + 1);
+            SStrPrintf(s_unitTokens[(*numtokens)++], sizeof(s_tokenBuffers[0]), "raidpet%d", i + 1);
             break;
         }
     }
 
     for (uint32_t i = 0; i < GetArenaPetGUIDCount(); i++) {
         if (guid == CGBattlefieldInfo::GetArenaOpponent(i)) {
-            SStrPrintf(s_tokenIDs[(*count)++], sizeof(s_tokenBuffers[0]), "arena%d", i + 1);
+            SStrPrintf(s_unitTokens[(*numtokens)++], sizeof(s_tokenBuffers[0]), "arena%d", i + 1);
             break;
         }
 
         if (guid == CGBattlefieldInfo::GetArenaOpponentPet(i)) {
-            SStrPrintf(s_tokenIDs[(*count)++], sizeof(s_tokenBuffers[0]), "arenapet%d", i + 1);
+            SStrPrintf(s_unitTokens[(*numtokens)++], sizeof(s_tokenBuffers[0]), "arenapet%d", i + 1);
             break;
         }
     }
 
     for (uint32_t i = 0; i < CGInstanceEncounter_C::GetNumBossSlots(); i++) {
         if (guid == CGInstanceEncounter_C::GetBoss(i)) {
-            SStrPrintf(s_tokenIDs[(*count)++], sizeof(s_tokenBuffers[0]), "boss%d", i + 1);
+            SStrPrintf(s_unitTokens[(*numtokens)++], sizeof(s_tokenBuffers[0]), "boss%d", i + 1);
             break;
         }
     }
 
     if (guid == CGGameUI::m_lockedTarget) {
-        SStrCopy(s_tokenIDs[(*count)++], "target", sizeof(s_tokenBuffers[0]));
+        SStrCopy(s_unitTokens[(*numtokens)++], "target", sizeof(s_tokenBuffers[0]));
     }
 
     if (guid == CGGameUI::m_focusTarget) {
-        SStrCopy(s_tokenIDs[(*count)++], "focus", sizeof(s_tokenBuffers[0]));
+        SStrCopy(s_unitTokens[(*numtokens)++], "focus", sizeof(s_tokenBuffers[0]));
     }
 
     if (guid == CGGameUI::m_interactTarget) {
-        SStrCopy(s_tokenIDs[(*count)++], "npc", sizeof(s_tokenBuffers[0]));
+        SStrCopy(s_unitTokens[(*numtokens)++], "npc", sizeof(s_tokenBuffers[0]));
     }
 
-    return s_tokenIDs;
+    STORM_ASSERT(static_cast<uint32_t>(*numtokens) < ARRSIZE(s_unitTokens)); // 12213: "numtokens < ARRSIZE(s_unitTokens)"
+    return s_unitTokens;
 }
 
 // VERIFY: 36785034 auto
