@@ -67,12 +67,13 @@ void CAaBspDigestCache::GenerateDigest(CAaBspNodeDigest* digest, const CAaBsp& b
         const uint16_t* indices = &faceVertexIndices[face * 3];
 
         for (int32_t j = 0; j < 3; j++) {
-            uint16_t vertex = indices[j];
-            int32_t index = vertex & 0x3FF;
+            uint16_t idxVal = indices[j];
+            STORM_ASSERT(idxVal != 0xFFFF);
+            int32_t index = idxVal & 0x3FF;
             int32_t found = -1;
 
             do {
-                if (hash[index] == vertex) {
+                if (hash[index] == idxVal) {
                     found = index;
                 } else if (hash[index] == 0xFFFF) {
                     if (digest->m_nVertices >= sizeof(digest->m_vertices) / sizeof(digest->m_vertices[0])) {
@@ -80,10 +81,10 @@ void CAaBspDigestCache::GenerateDigest(CAaBspNodeDigest* digest, const CAaBsp& b
                         return;
                     }
 
-                    digest->m_vertices[digest->m_nVertices] = vertices[vertex];
-                    digest->m_vertexIndices[digest->m_nVertices] = vertex;
+                    digest->m_vertices[digest->m_nVertices] = vertices[idxVal];
+                    digest->m_vertexIndices[digest->m_nVertices] = idxVal;
                     slots[index] = digest->m_nVertices;
-                    hash[index] = vertex;
+                    hash[index] = idxVal;
                     digest->m_nVertices++;
                     found = index;
                 } else {
@@ -168,7 +169,7 @@ void CAaBspDigestCache::Reset() {
 // OFFSET: 0x0079B1F0
 CAaBspNodeDigest* CAaBspDigestCache::GetDigest(const CAaBsp& bsp, const CAaBspNode* node, SMOPoly* faces, const C3Vector* vertices, const uint16_t* faceVertexIndices) {
     uint32_t bucket = ((reinterpret_cast<uintptr_t>(node) >> 5) ^ node->m_nFaces) & 0x7F;
-    int32_t freeSlot = -1;
+    int32_t freecol = -1;
     int32_t foundSlot = -1;
 
     for (int32_t i = 0; i < 8; i++) {
@@ -180,7 +181,7 @@ CAaBspNodeDigest* CAaBspDigestCache::GetDigest(const CAaBsp& bsp, const CAaBspNo
         }
 
         if (!entry) {
-            freeSlot = i;
+            freecol = i;
             break;
         }
     }
@@ -190,12 +191,14 @@ CAaBspNodeDigest* CAaBspDigestCache::GetDigest(const CAaBsp& bsp, const CAaBspNo
     if (foundSlot >= 0) {
         digest = &this->m_digests[bucket * 8 + foundSlot];
     } else {
-        if (freeSlot < 0) {
-            freeSlot = ++CAaBspDigestCache::s_digestReplaceIndex & 7;
+        if (freecol < 0) {
+            freecol = ++CAaBspDigestCache::s_digestReplaceIndex & 7;
         }
 
-        this->m_nodes[bucket * 8 + freeSlot] = node;
-        digest = &this->m_digests[bucket * 8 + freeSlot];
+        STORM_ASSERT(freecol >= 0);
+
+        this->m_nodes[bucket * 8 + freecol] = node;
+        digest = &this->m_digests[bucket * 8 + freecol];
         this->GenerateDigest(digest, bsp, node, faces, vertices, faceVertexIndices);
     }
 
