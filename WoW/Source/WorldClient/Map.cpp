@@ -6136,6 +6136,8 @@ void CMap::NewFootprint(int32_t textureId, const float* size, const C3Vector* po
 // VERIFY: 599297b5 manual
 // OFFSET: 0x007A6260
 bool CMap::GetTriSubchunk(CMapChunk* chunk, const CiRect* rect, const CAaBox* box) {
+    STORM_ASSERT(s_subVertexIndexFlat[4] == 18); // 12213: "m_subVertexIndex[2][2] == 18"
+
     int32_t base = TERRAIN_CHUNK_VERTEX_ROW_STRIDE * rect->minY + rect->minX;
     C3Vector* vertices = &CMapChunk::vertexList[base];
     float* height = &chunk->m_height[base];
@@ -6287,6 +6289,11 @@ bool CMap::GetTrisChunk(int32_t chunkX, int32_t chunkY, const CiRect& cellRect, 
 // VERIFY: bd067831 manual
 // OFFSET: 0x007A6830
 bool CMap::GetTrisTerrain(const CAaBox& box, World::TriData* triData, uint32_t flags) {
+    // 12213: "tLocation.minx >= 0.0f && tLocation.miny >= 0.0f"
+    STORM_ASSERT(-(box.t.y - HALF_WORLD_SIZE) >= 0.0f && -(box.t.x - HALF_WORLD_SIZE) >= 0.0f);
+    // 12213: "tLocation.maxy < ((64*16)*((150.0f/36.0f)*8)) && tLocation.maxy < ((64*16)*((150.0f/36.0f)*8))" (maxy twice in 12213)
+    STORM_ASSERT(-(box.b.x - HALF_WORLD_SIZE) < 2.0f * HALF_WORLD_SIZE);
+
     bool result = false;
     CiRect cellRect;
     cellRect.minY = CMath::fint_(-(box.t.x - HALF_WORLD_SIZE) * OO_COORD_TO_SUBCHUNK - 0.5f);
