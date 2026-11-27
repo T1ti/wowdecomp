@@ -106,7 +106,7 @@ class CLayoutFrame {
     float CenterX();
     float CenterY();
     void DestroyLayout();
-    int32_t DragBy(CLayoutFrame* relative, float offsetX, float offsetY, FRAMEPOINT point);
+    int32_t DragBy(CLayoutFrame* top, float offsetX, float offsetY, FRAMEPOINT point);
     int32_t FlattenFrame(CLayoutFrame* relative, float width, float height, float offsetX, float offsetY);
     CFramePoint* GetFramePoint(FRAMEPOINT point);
     int32_t GetFramePointX(const FRAMEPOINT* points, int32_t count, float& x);

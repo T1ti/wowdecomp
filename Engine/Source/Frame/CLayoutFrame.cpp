@@ -1065,7 +1065,8 @@ int32_t CLayoutFrame::UnflattenFrame(CLayoutFrame* relative) {
 
 // VERIFY: d18d2b15 manual
 // OFFSET: 0x0048ABD0
-int32_t CLayoutFrame::DragBy(CLayoutFrame* relative, float offsetX, float offsetY, FRAMEPOINT point) {
+int32_t CLayoutFrame::DragBy(CLayoutFrame* top, float offsetX, float offsetY, FRAMEPOINT point) {
+    STORM_ASSERT(top);
     float width = this->GetWidth();
     float height = this->GetHeight();
     float newOffsetX;
@@ -1272,13 +1273,14 @@ int32_t CLayoutFrame::DragBy(CLayoutFrame* relative, float offsetX, float offset
         }
 
         default: {
+            STORM_ASSERT(!"Unhandled frame point");
             newOffsetX = offsetX;
             newOffsetY = offsetY;
             break;
         }
     }
 
-    return this->FlattenFrame(relative, width, height, newOffsetX, newOffsetY);
+    return this->FlattenFrame(top, width, height, newOffsetX, newOffsetY);
 }
 
 // VERIFY: 6d735449 manual
