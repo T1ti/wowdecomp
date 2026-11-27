@@ -266,6 +266,8 @@ struct CombatLogEntry : public TSLinkedNode<CombatLogEntry> {
     const char* GetObjectName(const WOWGUID& guid, uint32_t mask, const char** realm);
     int32_t PushEvent(lua_State* L);
     bool MatchesFilter();
+    // INLINED (12213 name).
+    bool IsPending() const { return this->m_pendingMask != 0; }
     void PackEvent(char* buffer, uint32_t size);
     void SetFailReason(const char* reason);
     void SetMissInfo(int32_t missType, int32_t amount);
@@ -413,7 +415,7 @@ inline CombatLogFilter::CombatLogFilter() {
 extern TSList<CombatLogEntry, TSGetLink<CombatLogEntry> > s_entries;
 extern WOWGUID s_combatTextActiveUnit;
 extern CombatLogEntry* s_currentEntry;
-extern CombatLogEntry* s_pendingEntries;
+extern CombatLogEntry* s_pendingCombatLogEntry;
 extern const char* g_spellMissStrings[MISS_REASON::MISS_NUMMISSTYPES];
 
 #endif

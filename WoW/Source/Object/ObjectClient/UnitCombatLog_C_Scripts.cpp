@@ -170,7 +170,7 @@ static int32_t Script_CombatLogSetCurrentEntry(lua_State* L) {
     int32_t all = StringToBOOL(L, 2, 0);
 
     if (index <= 0) {
-        CombatLogEntry* entry = s_pendingEntries ? s_entries.Prev(s_pendingEntries) : s_entries.Tail();
+        CombatLogEntry* entry = s_pendingCombatLogEntry ? s_entries.Prev(s_pendingCombatLogEntry) : s_entries.Tail();
 
         for (; entry; entry = s_entries.Prev(entry)) {
             if ((all || entry->MatchesFilter()) && index++ == 0) {
@@ -179,7 +179,7 @@ static int32_t Script_CombatLogSetCurrentEntry(lua_State* L) {
             }
         }
     } else {
-        for (CombatLogEntry* entry = s_entries.Head(); entry && entry != s_pendingEntries; entry = s_entries.Next(entry)) {
+        for (CombatLogEntry* entry = s_entries.Head(); entry && entry != s_pendingCombatLogEntry; entry = s_entries.Next(entry)) {
             if ((all || entry->MatchesFilter()) && --index == 0) {
                 s_currentEntry = entry;
                 break;
@@ -231,7 +231,7 @@ static int32_t Script_CombatLogAdvanceEntry(lua_State* L) {
                 entry = entry->m_link.Prev();
             }
         } else if (entry) {
-            while (entry != s_pendingEntries) {
+            while (entry != s_pendingCombatLogEntry) {
                 if ((ignoreFilter || entry->MatchesFilter()) && !count--) {
                     result = entry;
                     break;

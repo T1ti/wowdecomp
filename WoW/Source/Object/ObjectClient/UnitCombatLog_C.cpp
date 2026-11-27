@@ -180,7 +180,7 @@ static uint32_t s_startTime;
 CombatLogEntry* s_currentEntry;
 
 // STATIC: 0x00CA1394
-CombatLogEntry* s_pendingEntries;
+CombatLogEntry* s_pendingCombatLogEntry;
 
 // STATIC: 0x00ADBFAC
 const char* g_spellMissStrings[MISS_REASON::MISS_NUMMISSTYPES] = { "NONE", "MISS", "RESIST", "DODGE", "PARRY", "BLOCK", "EVADE", "IMMUNE", "IMMUNE", "DEFLECT", "ABSORB", "REFLECT" };
@@ -451,7 +451,7 @@ void UnitCombatClientInitialize() {
     ClientServices::SetMessageHandler(SMSG_COMBAT_EVENT_FAILED, Packet_Group_29, nullptr);
     s_entries.Clear();
     s_freeEntries.Clear();
-    s_pendingEntries = nullptr;
+    s_pendingCombatLogEntry = nullptr;
     s_currentEntry = nullptr;
     s_filters.Clear();
     s_pendingData.Clear();
@@ -504,8 +504,8 @@ void CombatLogEntry::CancelPendingCallbacks() {
 // VERIFY: 65a90c44 manual
 // OFFSET: 0x00750390
 void RecycleCombatLogEntry(CombatLogEntry* entry) {
-    if (s_pendingEntries == entry) {
-        s_pendingEntries = s_entries.Next(entry);
+    if (s_pendingCombatLogEntry == entry) {
+        s_pendingCombatLogEntry = s_entries.Next(entry);
     }
 
     if (s_currentEntry == entry) {
@@ -666,7 +666,7 @@ void CombatLogEntry::PendingCombatLogResolved(int32_t id, const WOWGUID& guid, v
         CheckToSanitizeUnitLowGuid(&entry->m_sourceGuid);
         CheckToSanitizeUnitLowGuid(&entry->m_destGuid);
 
-        if (s_pendingEntries == entry) {
+        if (s_pendingCombatLogEntry == entry) {
             SendCombatLogEvents();
         }
     }
@@ -861,14 +861,15 @@ bool CombatLogEntry::MatchesFilter() {
 void SendCombatLogEvents() {
     char text[4096];
     bool logging = CGChat::IsChatLogging(CGChat::LOG_TYPE::COMBAT_LOG) != 0;
+    STORM_ASSERT(s_pendingCombatLogEntry && !s_pendingCombatLogEntry->IsPending());
     lua_State* L = FrameScript_GetContext();
     lua_pushstring(L, g_scriptEvents[566]);
-    CombatLogEntry* entry = s_pendingEntries;
+    CombatLogEntry* entry = s_pendingCombatLogEntry;
 
     while (true) {
         int32_t count = entry->PushEvent(L);
 
-        if (s_pendingEntries->MatchesFilter()) {
+        if (s_pendingCombatLogEntry->MatchesFilter()) {
             FrameScript_SignalEvent(SCRIPT_EVENT_COMBAT_LOG_EVENT, L, count + 1);
         }
 
@@ -882,17 +883,17 @@ void SendCombatLogEvents() {
         }
 
         if (logging) {
-            s_pendingEntries->PackEvent(text, sizeof(text));
+            s_pendingCombatLogEntry->PackEvent(text, sizeof(text));
             CGChat::AddCombatMessage(text);
         }
 
-        entry = s_entries.Next(s_pendingEntries);
+        entry = s_entries.Next(s_pendingCombatLogEntry);
 
         if (!entry) {
             break;
         }
 
-        s_pendingEntries = entry;
+        s_pendingCombatLogEntry = entry;
 
         if (entry->m_pendingMask) {
             lua_settop(L, -2);
@@ -900,7 +901,7 @@ void SendCombatLogEvents() {
         }
     }
 
-    s_pendingEntries = nullptr;
+    s_pendingCombatLogEntry = nullptr;
     lua_settop(L, -2);
 }
 
@@ -910,11 +911,11 @@ void QueueCombatLogEntry(CombatLogEntry* entry, uint32_t timeOffset) {
     entry->m_timestamp = FrameTime::s_curTimeMs - timeOffset;
     s_entries.LinkToTail(entry);
 
-    if (s_pendingEntries) {
+    if (s_pendingCombatLogEntry) {
         return;
     }
 
-    s_pendingEntries = entry;
+    s_pendingCombatLogEntry = entry;
 
     if (!entry->m_pendingMask) {
         CheckToSanitizeUnitLowGuid(&entry->m_sourceGuid);
@@ -2840,7 +2841,7 @@ bool CombatLogFilter::MatchesFilter(int32_t event, const WOWGUID& sourceGuid, ui
 static void UnitCombatLogShutdown() {
     s_entries.Clear();
     s_freeEntries.Clear();
-    s_pendingEntries = nullptr;
+    s_pendingCombatLogEntry = nullptr;
     s_currentEntry = nullptr;
     s_filters.Clear();
     s_pendingData.Clear();
