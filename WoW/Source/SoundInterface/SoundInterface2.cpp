@@ -828,8 +828,8 @@ SI2_RESULT SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2So
         DebugLog("XXXX\nXXXX ERROR!! Sound Kit ID %d is a looping sound but there is no user handle! This sound will play forever!! \nXXXX\n", soundKitId);
     }
 
-    SE2::SetSoundGroupMaxAudibleBehavior(def->m_loadSoundGroup, SE2_MAX_AUDIBLE_STEAL_LOWEST, 0.0f);
-    SE2::SetSoundGroupMaxAudibleBehavior(def->m_soundGroup, properties->m_maxAudibleBehavior, properties->m_muteFadeSpeed);
+    SE2::SetSoundGroupMaxAudibleBehavior(def->m_pInitialSoundGroup, SE2_MAX_AUDIBLE_STEAL_LOWEST, 0.0f);
+    SE2::SetSoundGroupMaxAudibleBehavior(def->m_pSoundGroup, properties->m_maxAudibleBehavior, properties->m_muteFadeSpeed);
 
     if (def->m_advanced && !advancedId) {
         SI2::AddAdvancedSound(def->m_advanced, soundKitId, position, properties->m_coneOrientation, object, 0, 0, checkDistance, properties->m_loopMode == SE2_LOOP_MODE_LOOPING);
@@ -839,13 +839,13 @@ SI2_RESULT SI2::PlaySoundKit(int32_t soundKitId, const C3Vector* position, SE2So
     bool randomStart = properties->m_group != SI2_SOUND_GROUP_MUSIC && properties->m_group != SI2_SOUND_GROUP_SCRIPT_MUSIC && !properties->m_noRandomStart;
 
     if (position) {
-        if (!sound->Create3D(file, looping, def->m_loadSoundGroup, def->m_soundGroup, randomStart, properties->m_streaming, properties->m_priority, properties->m_software, properties->m_coneInsideAngle, properties->m_coneOutsideAngle, properties->m_coneOutsideVolume, properties->m_coneOrientation)) {
+        if (!sound->Create3D(file, looping, def->m_pInitialSoundGroup, def->m_pSoundGroup, randomStart, properties->m_streaming, properties->m_priority, properties->m_software, properties->m_coneInsideAngle, properties->m_coneOutsideAngle, properties->m_coneOutsideVolume, properties->m_coneOrientation)) {
             return SI2_ERR_FILE_FAILED;
         }
 
         sound->Set3DPosition(*position);
         sound->Set3DMinMaxDistance(def->m_minDistance, properties->m_maxDistance > -1.0f ? properties->m_maxDistance : def->m_distanceCutoff);
-    } else if (!sound->Create2D(file, looping, def->m_loadSoundGroup, def->m_soundGroup, randomStart, properties->m_streaming, properties->m_reverb, properties->m_priority, properties->m_decodeBufferSize)) {
+    } else if (!sound->Create2D(file, looping, def->m_pInitialSoundGroup, def->m_pSoundGroup, randomStart, properties->m_streaming, properties->m_reverb, properties->m_priority, properties->m_decodeBufferSize)) {
         return SI2_ERR_FILE_FAILED;
     }
 

@@ -23,8 +23,8 @@ class VSOUNDKITDEF {
     /* 0044 */ int32_t m_lastIndex;
     /* 0048 */ int32_t m_frequencies[10];
     /* 0070 */ int32_t m_weights[10];
-    /* 0098 */ FMOD::SoundGroup* m_loadSoundGroup;
-    /* 009C */ FMOD::SoundGroup* m_soundGroup;
+    /* 0098 */ FMOD::SoundGroup* m_pInitialSoundGroup;
+    /* 009C */ FMOD::SoundGroup* m_pSoundGroup;
     /* 00A0 */ int32_t m_pendingIndex;
     /* 00A4 */ int32_t m_downloadPending;
     /* 00A8 */ int32_t m_advancedId;

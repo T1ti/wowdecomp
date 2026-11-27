@@ -34,6 +34,9 @@ VSOUNDKITDEF::~VSOUNDKITDEF() {
             this->m_files[i] = nullptr;
         }
     }
+
+    STORM_ASSERT(this->m_pInitialSoundGroup == NULL);
+    STORM_ASSERT(this->m_pSoundGroup == NULL);
 }
 
 // VERIFY: cca97730 auto
@@ -222,8 +225,8 @@ void SI2::CreateSoundGroups() {
         VSOUNDKITDEF* def = s_soundKitDefs[i];
 
         if (def && def->m_name) {
-            def->m_loadSoundGroup = SE2::CreateSoundGroup(def->m_name, 3);
-            def->m_soundGroup = SE2::CreateSoundGroup(def->m_name, 3);
+            def->m_pInitialSoundGroup = SE2::CreateSoundGroup(def->m_name, 3);
+            def->m_pSoundGroup = SE2::CreateSoundGroup(def->m_name, 3);
         }
     }
 }
@@ -235,14 +238,14 @@ void SI2::ReleaseSoundGroups() {
         VSOUNDKITDEF* def = s_soundKitDefs[i];
 
         if (def) {
-            if (def->m_loadSoundGroup) {
-                SE2::ReleaseSoundGroup(def->m_loadSoundGroup);
-                def->m_loadSoundGroup = nullptr;
+            if (def->m_pInitialSoundGroup) {
+                SE2::ReleaseSoundGroup(def->m_pInitialSoundGroup);
+                def->m_pInitialSoundGroup = nullptr;
             }
 
-            if (def->m_soundGroup) {
-                SE2::ReleaseSoundGroup(def->m_soundGroup);
-                def->m_soundGroup = nullptr;
+            if (def->m_pSoundGroup) {
+                SE2::ReleaseSoundGroup(def->m_pSoundGroup);
+                def->m_pSoundGroup = nullptr;
             }
         }
     }
