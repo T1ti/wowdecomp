@@ -268,6 +268,12 @@ void CGUnit_C::HandleFootfallAnimEvent(const C3Vector& position) {
 // VERIFY: 63312a72 manual
 // OFFSET: 0x00747310
 void CGUnit_C::PlayUnitSound(UNITSOUNDTYPE soundType, BOOL force) {
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (!force) {
+        STORM_ASSERT(soundType < NUM_UNITSOUNDTYPES);
+    }
+#endif
+
     if (!force && CRandom::dice_(101, g_rndSeed) > s_unitSoundChance[soundType]) {
         return;
     }
