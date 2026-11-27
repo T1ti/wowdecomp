@@ -192,6 +192,8 @@ void FreeTypeFree(FT_Memory memory, void* block) {
 // VERIFY: 326bf207 manual
 // OFFSET: 0x006C0AA0
 void* FreeTypeRealloc(FT_Memory memory, long curSize, long newSize, void* block) {
+    STORM_ASSERT(newSize > 0);
+
     return SMemReAlloc(block, newSize, __FILE__, __LINE__, 0);
 }
 
