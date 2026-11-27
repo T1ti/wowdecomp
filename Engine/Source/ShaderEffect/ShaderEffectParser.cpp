@@ -155,7 +155,7 @@ void CShaderEffectParser::ParseFixedFunc(char* data, uint32_t size, uint32_t& po
 
 // VERIFY: 6fc19477 manual
 // OFFSET: 0x00877150
-void CShaderEffectParser::ParseShader(char* data, uint32_t size, uint32_t& pos, char (*args)[64], uint32_t argCount, ParsedEffect* effect) {
+void CShaderEffectParser::ParseShader(char* data, uint32_t size, uint32_t& pos, char (*args)[64], uint32_t argCnt, ParsedEffect* effect) {
     uint32_t open;
     uint32_t close;
 
@@ -166,7 +166,8 @@ void CShaderEffectParser::ParseShader(char* data, uint32_t size, uint32_t& pos, 
     pos = open + 1;
 
     while (pos < close) {
-        if (CShaderEffectParser::ExtractFuncKeyword(data + pos, "Pass", args, argCount, pos)) {
+        if (CShaderEffectParser::ExtractFuncKeyword(data + pos, "Pass", args, argCnt, pos)) {
+            STORM_ASSERT(argCnt == 0);
             ParsedEffect::ShaderPass* pass = &effect->m_shaderPasses[effect->m_shaderPassCount];
 
             uint32_t passOpen;
@@ -174,9 +175,9 @@ void CShaderEffectParser::ParseShader(char* data, uint32_t size, uint32_t& pos, 
             FindScope(data, pos, size, &passOpen, &passClose);
 
             while (pos < passClose) {
-                if (CShaderEffectParser::ExtractFuncKeyword(data + pos, "VertexShader", args, argCount, pos)) {
+                if (CShaderEffectParser::ExtractFuncKeyword(data + pos, "VertexShader", args, argCnt, pos)) {
                     strcpy(pass->m_vertexShader, args[0]);
-                } else if (CShaderEffectParser::ExtractFuncKeyword(data + pos, "PixelShader", args, argCount, pos)) {
+                } else if (CShaderEffectParser::ExtractFuncKeyword(data + pos, "PixelShader", args, argCnt, pos)) {
                     strcpy(pass->m_pixelShader, args[0]);
                 }
 
