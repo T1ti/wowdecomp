@@ -559,12 +559,13 @@ void RegisterGxCVars() {
     s_cvGxAspect = CVar::Register("gxAspect", "constrain window aspect", CVAR_FLAGS::CVAR_ARCHIVE_LATCH, "1", CVGxAspectCallback, CATEGORY_GRAPHICS, false, nullptr, false);
     s_cvGxCursor = CVar::Register("gxCursor", "toggle hardware cursor", CVAR_FLAGS::CVAR_ARCHIVE_LATCH, "1", CVGxCursorCallback, CATEGORY_GRAPHICS, false, nullptr, false);
 
-    SStrPrintf(value, sizeof(value), "%d", s_hardware.m_videoHw->m_multisample);
+    STORM_ASSERT(s_hardware.videoHw);
+    SStrPrintf(value, sizeof(value), "%d", s_hardware.videoHw->m_multisample);
     s_cvGxMultisample = CVar::Register("gxMultisample", "multisample", CVAR_FLAGS::CVAR_ARCHIVE_LATCH, value, CVGxMultisampleCallback, CATEGORY_GRAPHICS, false, nullptr, false);
 
     s_cvGxMultisampleQuality = CVar::Register("gxMultisampleQuality", "multisample quality", CVAR_FLAGS::CVAR_ARCHIVE_LATCH, "0.0", CVGxMultisampleQualityCallback, CATEGORY_GRAPHICS, false, nullptr, false);
 
-    SStrPrintf(value, sizeof(value), "%d", s_hardware.m_videoHw->m_fixLag);
+    SStrPrintf(value, sizeof(value), "%d", s_hardware.videoHw->m_fixLag);
     s_cvGxFixLag = CVar::Register("gxFixLag", "prevent cursor lag", CVAR_FLAGS::CVAR_ARCHIVE_LATCH, value, CVGxFixLagCallback, CATEGORY_GRAPHICS, false, nullptr, false);
 
     s_cvGxStereoEnabled = CVar::Register("gxStereoEnabled", "Enable stereoscopic rendering", CVAR_FLAGS::CVAR_ARCHIVE, "0", CVGxStereoEnabledCallback, CATEGORY_GRAPHICS, false, nullptr, false);

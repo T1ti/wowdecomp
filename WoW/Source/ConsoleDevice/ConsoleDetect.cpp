@@ -60,7 +60,7 @@ static CGxFormat s_formats[] = {
 // VERIFY: 419fe4e8 auto
 // OFFSET: 0x0076B3F0
 void ConsoleDetectSetDefaults(DefaultSettings& defaults, const Hardware& hardware) {
-    const VideoHardwareRec* video = hardware.m_videoHw;
+    const VideoHardwareRec* video = hardware.videoHw;
     const CpuHardware* cpu = hardware.m_cpuHw;
 
     defaults.m_farClip = s_farClip[2 * video->m_farclipIdx + cpu->m_farclipIdx];
@@ -87,7 +87,7 @@ void ConsoleDetectSetDefaults(DefaultSettings& defaults, const Hardware& hardwar
 // VERIFY: 2f86cffe auto
 // OFFSET: 0x0076B520
 void ConsoleDetectSetDefaultsFormat(DefaultSettings& defaults, const Hardware& hardware) {
-    defaults.m_format = &s_formats[hardware.m_videoHw->m_resolutionIdx];
+    defaults.m_format = &s_formats[hardware.videoHw->m_resolutionIdx];
 }
 
 // VERIFY: d4b42eb1 auto
@@ -188,7 +188,7 @@ void ConsoleDetectDetectHardware(Hardware& hardware, bool& changed) {
 
     hardware.m_soundIdx = 0;
     hardware.m_cpuHw = &s_cpuHwSettings[hardware.m_cpuIdx];
-    hardware.m_videoHw = g_videoHardwareDB.GetRecord(hardware.m_videoID);
+    hardware.videoHw = g_videoHardwareDB.GetRecord(hardware.m_videoID);
     hardware.m_soundHw = &s_soundHwSettings;
 
     ConsoleDetectSaveHardware(hardware, changed);

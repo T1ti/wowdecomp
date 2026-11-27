@@ -60,6 +60,6 @@ void RemoveConsoleDeviceDefaultCallback(void (*callback)(OPTION_PAGE page));
 bool SetGxCVars(const CGxFormat& format);
 void __fastcall StereoChangedCallback();
 bool UpdateGxCVars();
-void ValidateFormatMonitor(CGxFormat& format);
+void ValidateFormatMonitor(CGxFormat& fmt);
 
 #endif

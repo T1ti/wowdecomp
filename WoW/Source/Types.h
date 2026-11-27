@@ -49,7 +49,7 @@ struct Hardware {
     /* 001C */ uint32_t m_videoID;
     /* 0020 */ uint32_t m_soundIdx;
     /* 0024 */ uint32_t m_memIdx;
-    /* 0028 */ const VideoHardwareRec* m_videoHw;
+    /* 0028 */ const VideoHardwareRec* videoHw;
     /* 002C */ const CpuHardware* m_cpuHw;
     /* 0030 */ const SoundHardware* m_soundHw;
 };

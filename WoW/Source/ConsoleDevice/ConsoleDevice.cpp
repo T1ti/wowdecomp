@@ -192,7 +192,7 @@ void ConsoleDeviceDestroy() {
 
 // VERIFY: 9ae0e177 manual
 // OFFSET: 0x00769E10
-void ValidateFormatMonitor(CGxFormat& format) {
+void ValidateFormatMonitor(CGxFormat& fmt) {
     static C2iVector s_resolutions[] = {
         { 1600, 1200 },
         { 1280, 1024 },
@@ -203,17 +203,18 @@ void ValidateFormatMonitor(CGxFormat& format) {
         { 640, 480 },
     };
 
-    int32_t width = format.m_size.x;
-    int32_t height = format.m_size.y;
+    int32_t width = fmt.m_size.x;
+    int32_t height = fmt.m_size.y;
     int32_t index = -1;
-    uint32_t bpp = s_formatToBpp[format.m_colorFormat];
+    STORM_ASSERT(static_cast<uint32_t>(fmt.m_colorFormat) < ARRSIZE(s_formatToBpp)); // 12213: "fmt.colorFormat < ARRSIZE(s_FormatTobpp)"
+    uint32_t bpp = s_formatToBpp[fmt.m_colorFormat];
     uint32_t minRefresh = 9999;
 
     CGxMonitorMode desktop;
     desktop.m_size.x = 0;
     desktop.m_size.y = 0;
 
-    if (!format.m_window || !GxAdapterDesktopMode(desktop) || desktop.m_size.x < format.m_size.x || desktop.m_size.y < format.m_size.y) {
+    if (!fmt.m_window || !GxAdapterDesktopMode(desktop) || desktop.m_size.x < fmt.m_size.x || desktop.m_size.y < fmt.m_size.y) {
         while (true) {
             uint32_t i;
 
@@ -224,8 +225,8 @@ void ValidateFormatMonitor(CGxFormat& format) {
             }
 
             if (i < s_gxMonitorModes.Count()) {
-                format.m_size.x = width;
-                format.m_size.y = height;
+                fmt.m_size.x = width;
+                fmt.m_size.y = height;
                 break;
             }
 
@@ -244,12 +245,12 @@ refresh:
     for (uint32_t i = 0; i < s_gxMonitorModes.Count(); i++) {
         CGxMonitorMode& mode = s_gxMonitorModes[i];
 
-        if (format.m_size.x == mode.m_size.x && format.m_size.y == mode.m_size.y && bpp == mode.m_bpp) {
+        if (fmt.m_size.x == mode.m_size.x && fmt.m_size.y == mode.m_size.y && bpp == mode.m_bpp) {
             if (mode.m_refreshRate < minRefresh) {
                 minRefresh = mode.m_refreshRate;
             }
 
-            if (format.m_refreshRate == mode.m_refreshRate) {
+            if (fmt.m_refreshRate == mode.m_refreshRate) {
                 return;
             }
         }
@@ -260,8 +261,8 @@ refresh:
         GxLog("ValidateFormatMonitor(): unable to find monitor refresh");
     }
 
-    GxLog("ValidateFormatMonitor(): invalid refresh rate %d, set to %d", format.m_refreshRate, minRefresh);
-    format.m_refreshRate = minRefresh;
+    GxLog("ValidateFormatMonitor(): invalid refresh rate %d, set to %d", fmt.m_refreshRate, minRefresh);
+    fmt.m_refreshRate = minRefresh;
 }
 
 // VERIFY: 35de767a auto
@@ -480,12 +481,12 @@ void ConsoleDeviceInitialize(const char* title, bool unused2, bool unused3) {
         switch (g_theGxDevicePtr->DeviceApi()) {
             case GxApi_OpenGl:
             case GxApi_GLL:
-                ConsoleGxOverride(s_hardware.m_videoHw->m_oglOverrides);
+                ConsoleGxOverride(s_hardware.videoHw->m_oglOverrides);
                 break;
 
             case GxApi_D3d9:
             case GxApi_D3d9Ex:
-                ConsoleGxOverride(s_hardware.m_videoHw->m_d3DOverrides);
+                ConsoleGxOverride(s_hardware.videoHw->m_d3DOverrides);
                 break;
 
             default:
