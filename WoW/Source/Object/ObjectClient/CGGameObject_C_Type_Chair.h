@@ -5,11 +5,13 @@
 #include <cstdint>
 #include "WoW/Source/Object/ObjectClient/GameObject_C.h"
 
-void GenerateChairPoints(const C44Matrix& matrix, uint32_t count, C3Vector* points, float offset);
+constexpr uint32_t MAX_CHAIR_SLOTS = 5;
+
+void GenerateChairPoints(const C44Matrix& matrix, uint32_t slots, C3Vector* out, float offset);
 
 class CGGameObject_C_Type_Chair : public CGGameObject_C_TypeBase {
     public:
-    /* 0010 */ C3Vector m_slots[5];
+    /* 0010 */ C3Vector m_slots[MAX_CHAIR_SLOTS];
 
     virtual bool CanUse() const;
     virtual bool CanUseNow(GAME_ERROR_TYPE* error, float* distance, const char** errorText) const;
