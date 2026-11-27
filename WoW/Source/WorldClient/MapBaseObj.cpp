@@ -3,6 +3,7 @@
 // VERIFY: a9c26690 manual
 // OFFSET: [0x007D71D0, 0x007D72A0]
 CMapBaseObj::~CMapBaseObj() {
+    STORM_ASSERT(this->m_parentLinkList.Head() == nullptr); // 12213: "m_parentLinkList.Head() == __null"
 }
 
 // VERIFY: ec60c430 manual

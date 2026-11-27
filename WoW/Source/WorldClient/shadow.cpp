@@ -231,6 +231,7 @@ void ShadowInit() {
     s_shadowModTexture = TextureCreate(FADETEX_WIDTH, FADETEX_HEIGHT, GxTex_Argb8888, GxTex_Argb8888, CGxTexFlags(), nullptr, ShadowModCallback, "ShadowMod", 0);
     s_cvShadowLOD = CVar::Register("shadowLOD", "Unit shadow LOD", CVAR_FLAGS::CVAR_ARCHIVE, "1", ShadowLODCallback, CATEGORY_GRAPHICS, false, nullptr, false);
     s_cvExtShadowQuality = CVar::Lookup("extShadowQuality");
+    STORM_ASSERT(s_cvExtShadowQuality); // 12213: "cvar_extShadowQuality"
 }
 
 // VERIFY: d5bef9e8 auto
