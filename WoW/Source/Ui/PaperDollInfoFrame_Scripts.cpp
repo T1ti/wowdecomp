@@ -368,7 +368,7 @@ static int32_t Script_PickupInventoryItem(lua_State* L) {
 // VERIFY: c662896d auto
 // OFFSET: 0x005EA7F0
 static int32_t Script_PutItemInBackpack(lua_State* L) {
-    if (CGCharacterInfo::PutItemInBackpack(0xFF)) {
+    if (CGCharacterInfo::PutItemInBag(0xFF)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -479,7 +479,7 @@ static int32_t Script_PutItemInBag(lua_State* L) {
         return 0;
     }
 
-    if (CGCharacterInfo::PutItemInBackpack(slot)) {
+    if (CGCharacterInfo::PutItemInBag(slot)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);

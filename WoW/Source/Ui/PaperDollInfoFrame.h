@@ -41,7 +41,7 @@ class CGCharacterInfo {
     static BOOL CanInspect(const CGPlayer_C* unit);
     static int32_t GetActivePlayerAmmoID(const CGPlayer_C* player);
     static void PickupInventoryItem(int32_t slot);
-    static int32_t PutItemInBackpack(uint32_t slot);
+    static int32_t PutItemInBag(uint32_t slot);
     static void EnterWorld();
     static void LeaveWorld();
     static void SetInspectTarget(const WOWGUID& guid);

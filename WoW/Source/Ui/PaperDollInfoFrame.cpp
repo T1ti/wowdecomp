@@ -529,6 +529,8 @@ void CGCharacterInfo::SocketInventoryItem(int32_t slot) {
 // VERIFY: e40f790d manual
 // OFFSET: 0x005E8C30
 void CGCharacterInfo::PickupBag(uint32_t slot) {
+    STORM_ASSERT(((slot >= INVSLOT_BAG0) && (slot <= INVSLOT_BAG3)) || ((slot >= BANKBAG_FIRST) && (slot <= BANKBAG_LAST))); // 12213: "( ( ( slot >= INVSLOT_BAGFIRST ) && ( slot <= INVSLOT_BAGLAST ) ) || ( ( slot >= BANKBAG_FIRST ) && ( slot <= BANKBAG_LAST ) ) )"
+
     CGPlayer_C* player = ClntObjMgrGetActivePlayerObj();
 
     if (!player || !CGGameUI::m_hasControl || (slot - BANKBAG_FIRST <= BANKBAG_LAST - BANKBAG_FIRST && !CGBankInfo::m_banker)) {
@@ -552,6 +554,7 @@ void CGCharacterInfo::PickupBag(uint32_t slot) {
     }
 
     CGItem_C* container = static_cast<CGItem_C*>(ClntObjMgrObjectPtr(bag, TYPE_CONTAINER, __FILE__, __LINE__));
+    STORM_ASSERT(container);
 
     if (container && !(container->m_itemFlags & CGItem_C::ITEM_CLIENT_FLAGS::ITEM_CLIENT_LOCKED)) {
         CGGameUI::SetCursorItem(bag, player->m_obj->m_guid, slot, 1, 0, 1);
@@ -695,7 +698,13 @@ bool CGCharacterInfo::CanEquipItem(CGItem_C* item, uint32_t slot) {
 
 // VERIFY: a708b631 manual
 // OFFSET: 0x005E8D30
-int32_t CGCharacterInfo::PutItemInBackpack(uint32_t slot) {
+int32_t CGCharacterInfo::PutItemInBag(uint32_t slot) {
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (slot != 0xFF) {
+        STORM_ASSERT(((slot >= INVSLOT_BAG0) && (slot <= INVSLOT_BAG3)) || ((slot >= BANKBAG_FIRST) && (slot <= BANKBAG_LAST))); // 12213: "( ( ( slot >= INVSLOT_BAGFIRST ) && ( slot <= INVSLOT_BAGLAST ) ) || ( ( slot >= BANKBAG_FIRST ) && ( slot <= BANKBAG_LAST ) ) )"
+    }
+#endif
+
     CGPlayer_C* player = static_cast<CGPlayer_C*>(ClntObjMgrObjectPtr(ClntObjMgrGetActivePlayer(), TYPE_PLAYER, __FILE__, __LINE__));
 
     if (!player || !CGGameUI::m_hasControl) {
