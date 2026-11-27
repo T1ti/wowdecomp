@@ -197,7 +197,7 @@ static void WmoWaterTexCallback(EGxTexCommand command, uint32_t w, uint32_t h, u
     const uint32_t texWidth = 8;
     STORM_ASSERT(mipLevel == 0);
     STORM_ASSERT(w==texWidth);
-    STORM_ASSERT(h == 64);
+    STORM_ASSERT(h==WATERTEX_HEIGHT);
 
     // STATIC: 0x00D43BE0
     static CImVector s_texels[WATERTEX_HEIGHT * 8];
