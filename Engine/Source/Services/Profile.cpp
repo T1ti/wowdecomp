@@ -121,18 +121,20 @@ void ProfileInternal::STRINGBLOCK::FreeString(TSList<STRINGBLOCK, TSGetLink<STRI
         return;
     }
 
-    STRINGBLOCK* found = nullptr;
+    STRINGBLOCK* stringBlock = nullptr;
 
     for (STRINGBLOCK* block = list.Head(); block; block = list.Next(block)) {
         if (str >= block->Data() && str < block->Data() + block->m_size) {
-            found = block;
+            stringBlock = block;
             break;
         }
     }
 
-    if (found->m_refs-- == 1) {
-        found->m_used = 0;
-        list.LinkToHead(found);
+    STORM_ASSERT(stringBlock);
+
+    if (stringBlock->m_refs-- == 1) {
+        stringBlock->m_used = 0;
+        list.LinkToHead(stringBlock);
     }
 }
 
