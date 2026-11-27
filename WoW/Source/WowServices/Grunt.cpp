@@ -760,6 +760,8 @@ int32_t Grunt::ClientLink::CmdAuthLogonProof(CDataStore& msg) {
 // VERIFY: ea70b617 manual
 // OFFSET: 0x008CD710
 void Grunt::ClientLink::WCDataReady(WowConnection* connection, uint32_t timeStamp, uint8_t* data, int32_t length) {
+    STORM_ASSERT(this->m_connection == connection); // 12213: "m_conn == conn"
+
     this->m_datastore.PutArray(data, length);
     this->m_datastore.Finalize();
 
@@ -798,6 +800,8 @@ void Grunt::ClientLink::GetRealmList() {
 // VERIFY: 58cb67ed manual
 // OFFSET: 0x008CE720
 void Grunt::ClientLink::ProveVersion(const uint8_t* versionChecksum) {
+    STORM_ASSERT(this->m_state == STATE_LOGON_VERSION_PROOF_PENDING || this->m_state == STATE_RECONNECT_VERSION_PROOF_PENDING); // 12213: "m_state == STATE_CONNECT_VERSION || m_state == STATE_RECONNECT_VERSION"
+
     CDataStoreCache<1024> msg;
     Grunt::CdKey cdKeys;
     SHA1_CONTEXT context;
