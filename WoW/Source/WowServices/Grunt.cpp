@@ -207,7 +207,10 @@ void Grunt::ClientLink::PackLogon(CDataStore& msg, const Grunt::ClientLink::Logo
     msg.Put(length);
     msg.PutData(this->m_accountName, length);
 
-    msg.Set(start, static_cast<uint16_t>(msg.m_size - start - 2));
+    STORM_ASSERT(start != static_cast<uint32_t>(-1)); // 12213: "m_pos != (unsigned)-1"
+    uint16_t size = static_cast<uint16_t>(msg.m_size - start - 2);
+    STORM_ASSERT(start != static_cast<uint32_t>(-1)); // 12213: "m_pos != (unsigned)-1"
+    msg.Set(start, size);
 }
 
 // VERIFY: abfd5c66 manual
