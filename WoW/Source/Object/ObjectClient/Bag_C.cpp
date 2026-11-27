@@ -781,7 +781,9 @@ CGItem_C* CGBag_C::FindItem(int32_t (*callback)(const CGItem_C* item, void* para
 
 // VERIFY: 35fbcc70 manual
 // OFFSET: 0x007546F0
-CGItem_C* CGBag_C::FindItem(int32_t (*callback)(const CGItem_C* item, void* param), void* param, WOWGUID& container, uint32_t& slot, uint32_t flags) {
+CGItem_C* CGBag_C::FindItem(int32_t (*func)(const CGItem_C* item, void* param), void* param, WOWGUID& container, uint32_t& slot, uint32_t flags) {
+    STORM_ASSERT(func);
+
     if (this->m_hasBank && !(flags & BAG_SEARCH_DEFAULT_LOCATIONS)) {
         flags |= BAG_SEARCH_DEFAULT_LOCATIONS;
     }
@@ -805,11 +807,11 @@ CGItem_C* CGBag_C::FindItem(int32_t (*callback)(const CGItem_C* item, void* para
                 && !(item->m_modelFlags & OBJECT_MODEL_FLAGS::OBJECT_MODEL_FLAG_DISABLED)
                 && ((flags & BAG_SEARCH_IGNORE_ITEM_STATE) || (((item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) || !item->m_item->m_itemFieldMaxdurability || item->m_item->m_itemFieldDurability) && !(item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_UNUSABLE)))
                 && (!(flags & BAG_SEARCH_REQUIRE_CHARGES) || (item->GetBag() && !(flags & BAG_SEARCH_NO_RECURSE)) || (item->GetEnchantmentSpell(SPELL_EFFECT_NONE) && item->GetCurrentSpellCharges()))) {
-                if (callback(item, param)) {
+                if (func(item, param)) {
                     container = this->m_guid;
                     slot = index;
                 } else if (item->GetBag() && !(flags & BAG_SEARCH_NO_RECURSE)) {
-                    item = item->GetBag()->FindItem(callback, param, container, slot, flags);
+                    item = item->GetBag()->FindItem(func, param, container, slot, flags);
                 } else {
                     item = nullptr;
                 }
