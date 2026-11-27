@@ -49,7 +49,7 @@ class CM2Cache {
     /* 0000 */ BOOL m_initialized;
     /* 0004 */ uint32_t m_flags;
     /* 0008 */ CM2Shared* m_freeList;
-    /* 000C */ CM2Shared** m_freeListTail;
+    /* 000C */ CM2Shared** m_freeTail;
     /* 0010 */ CM2Shared* m_shared [1021];
     /* 1004 */ SThread m_thread;
     /* 1008 */ SEvent m_threadStart;

@@ -70,7 +70,7 @@ uint32_t CM2Shared::AddRef() {
         if (this->m_freeNext) {
             this->m_freeNext->m_freePrev = this->m_freePrev;
         } else {
-            this->m_cache->m_freeListTail = this->m_freePrev;
+            this->m_cache->m_freeTail = this->m_freePrev;
         }
 
         this->m_freePrev = nullptr;
@@ -2131,10 +2131,10 @@ void CM2Shared::Release() {
 
     if (this->m_cache && this->m_previous) {
         this->m_freeTime = OsGetAsyncTimeMs();
-        this->m_freePrev = this->m_cache->m_freeListTail;
+        this->m_freePrev = this->m_cache->m_freeTail;
         this->m_freeNext = nullptr;
-        *this->m_cache->m_freeListTail = this;
-        this->m_cache->m_freeListTail = &this->m_freeNext;
+        *this->m_cache->m_freeTail = this;
+        this->m_cache->m_freeTail = &this->m_freeNext;
     } else {
         delete this;
     }

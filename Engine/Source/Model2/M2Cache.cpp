@@ -186,7 +186,7 @@ void CM2Cache::GarbageCollect(BOOL force) {
         if (shared->m_freeNext) {
             shared->m_freeNext->m_freePrev = &this->m_freeList;
         } else {
-            this->m_freeListTail = &this->m_freeList;
+            this->m_freeTail = &this->m_freeList;
         }
 
         shared->m_freePrev = nullptr;
@@ -214,7 +214,7 @@ void CM2Cache::Destroy() {
         if (shared->m_freeNext) {
             shared->m_freeNext->m_freePrev = shared->m_freePrev;
         } else {
-            this->m_freeListTail = shared->m_freePrev;
+            this->m_freeTail = shared->m_freePrev;
         }
 
         shared->m_freePrev = nullptr;
@@ -222,6 +222,7 @@ void CM2Cache::Destroy() {
         delete shared;
     }
 
+    STORM_ASSERT(m_freeTail == &m_freeList);
     this->ClearSharedHash();
     CParticleEmitter2::Destroy();
     this->m_initialized = 0;
@@ -435,7 +436,7 @@ CM2Cache::~CM2Cache() {
 // OFFSET: 0x0081C900
 CM2Cache::CM2Cache() : m_threadStart(0, 0), m_threadDone(0, 0) {
     this->m_freeList = nullptr;
-    this->m_freeListTail = &this->m_freeList;
+    this->m_freeTail = &this->m_freeList;
     this->m_initialized = 0;
     this->m_flags = CM2Cache::CACHE_FLAGS::CACHE_NONE;
     memset(this->m_shared, 0, sizeof(this->m_shared));
