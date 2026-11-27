@@ -132,13 +132,15 @@ uint32_t BSN::BSNPrimitiveEncoder::GetStringLength(const EncodeContext* context)
 
 // VERIFY: 471108be manual
 // OFFSET: 0x00889500
-bool BSN::BSNPrimitiveEncoder::GetString(const EncodeContext* context, char* buffer, uint32_t size) const {
+bool BSN::BSNPrimitiveEncoder::GetString(const EncodeContext* context, char* buffer, uint32_t maxLength) const {
+    STORM_ASSERT(maxLength > 0);
+
     if (context->m_header == BSN::META_ASCII_STRING) {
         BSN::Protocol::Meta::AsciiString meta(context->m_protocol, context->m_typeId);
         uint32_t length = reinterpret_cast<AdapterGetLength>(meta.m_codeInfo[0])(context->m_data);
 
-        if (length >= size) {
-            length = size - 1;
+        if (length >= maxLength) {
+            length = maxLength - 1;
         }
 
         memcpy(buffer, reinterpret_cast<AdapterGetElements>(meta.m_codeInfo[1])(context->m_data), length);
@@ -150,8 +152,8 @@ bool BSN::BSNPrimitiveEncoder::GetString(const EncodeContext* context, char* buf
         BSN::Protocol::Meta::String meta(context->m_protocol, context->m_typeId);
         uint32_t length = reinterpret_cast<AdapterGetLength>(meta.m_codeInfo[0])(context->m_data);
 
-        if (length >= size) {
-            length = size - 1;
+        if (length >= maxLength) {
+            length = maxLength - 1;
         }
 
         memcpy(buffer, reinterpret_cast<AdapterGetElements>(meta.m_codeInfo[1])(context->m_data), length);
@@ -582,7 +584,9 @@ bool BSN::BSNPrimitiveEncoder::WalkAndSet(const PrimitiveEncoder* encoder, Encod
     walkContext.m_targetContext = context;
 
     BSNPrimitiveWalker walker;
-    return walker.Copy(walkContext) == BSN::WALK_VALID;
+    int32_t r = walker.Copy(walkContext);
+    STORM_ASSERT(r == BSN::WALK_VALID); // 12213: "r == BSNPrimitiveWalker::VALID"
+    return r == BSN::WALK_VALID;
 }
 
 // VERIFY: c490c34a auto
@@ -601,7 +605,9 @@ bool BSN::BSNPrimitiveEncoder::WalkAndGet(const PrimitiveEncoder* encoder, const
     walkContext.m_targetContext = context;
 
     BSNPrimitiveWalker walker;
-    return walker.Copy(walkContext) == BSN::WALK_VALID;
+    int32_t r = walker.Copy(walkContext);
+    STORM_ASSERT(r == BSN::WALK_VALID); // 12213: "r == BSNPrimitiveWalker::VALID"
+    return r == BSN::WALK_VALID;
 }
 
 // VERIFY: 671c3b71 manual
