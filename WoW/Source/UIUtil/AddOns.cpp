@@ -995,10 +995,11 @@ static void LoadAddOnMetadata(UIADDON* addon, const char* line) {
         end++;
     }
 
-    uint32_t keyLength = keyEnd - line;
-    char* key = static_cast<char*>(alloca(keyLength + 1));
-    memcpy(key, line, keyLength);
-    key[keyLength] = '\0';
+    uint32_t len = keyEnd - line;
+    STORM_ASSERT(len > 0);
+    char* key = static_cast<char*>(alloca(len + 1));
+    memcpy(key, line, len);
+    key[len] = '\0';
 
     addon->SetMetadata(key, end);
 }
