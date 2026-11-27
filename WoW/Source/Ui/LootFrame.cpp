@@ -550,6 +550,8 @@ void CGLootInfo::LootSlot(uint32_t slot) {
         ItemStats_C* stats = g_itemDBCache.GetRecord(entry.m_itemID, CGLootInfo::m_lootObj, nullptr, nullptr, false);
 
         if (!stats) {
+            // 12213 formats "itemID=>%d<" and reports the expression "\"item not found\"".
+            STORM_ASSERT(!"item not found");
             break;
         }
 
