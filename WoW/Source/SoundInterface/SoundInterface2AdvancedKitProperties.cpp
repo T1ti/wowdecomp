@@ -60,8 +60,8 @@ static void StopAdvancedSoundObject(SI2AdvancedSound* sound, BOOL immediate) {
 
     sound->m_stopped = 1;
 
-    if (sound->m_object) {
-        SI2::StopSound(sound->m_object, immediate, -1.0f, 0);
+    if (sound->m_pSoundHandle) {
+        SI2::StopSound(sound->m_pSoundHandle, immediate, -1.0f, 0);
     }
 }
 
@@ -100,7 +100,7 @@ SI2_RESULT SI2AdvancedSound::Play() {
 
         const C3Vector* position = (0.0f == this->m_position.x && 0.0f == this->m_position.y && 0.0f == this->m_position.z) ? nullptr : &this->m_position;
 
-        return SI2::PlaySoundKit(this->m_soundKitId, position, this->m_object, &properties, this->m_id, &this->m_soundId, 1, 1);
+        return SI2::PlaySoundKit(this->m_soundKitId, position, this->m_pSoundHandle, &properties, this->m_id, &this->m_soundId, 1, 1);
     }
 
     properties.ResetToDefaults();
@@ -118,7 +118,7 @@ SI2_RESULT SI2AdvancedSound::Play() {
     properties.m_coneOutsideVolume = this->m_outsideVolume;
     properties.m_coneOrientation = (0.0f == this->m_orientation.x && 0.0f == this->m_orientation.y && 0.0f == this->m_orientation.z) ? nullptr : &this->m_orientation;
 
-    return SI2::PlaySoundKit(this->m_soundKitId, &this->m_position, this->m_object, &properties, this->m_id, &this->m_soundId, 1, 1);
+    return SI2::PlaySoundKit(this->m_soundKitId, &this->m_position, this->m_pSoundHandle, &properties, this->m_id, &this->m_soundId, 1, 1);
 }
 
 // VERIFY: 762dbd2f manual
@@ -168,15 +168,15 @@ SI2AdvancedSound::~SI2AdvancedSound() {
         node = next;
     }
 
-    if (this->m_object) {
-        this->m_object->m_advancedId = 0;
+    if (this->m_pSoundHandle) {
+        this->m_pSoundHandle->m_advancedId = 0;
     }
 
-    SE2SoundKitObject* object = this->m_object;
+    SE2SoundKitObject* object = this->m_pSoundHandle;
 
     if (object && !this->m_externalObject) {
         delete object;
-        this->m_object = nullptr;
+        this->m_pSoundHandle = nullptr;
     }
 }
 
@@ -335,7 +335,7 @@ int32_t SI2::UpdateAdvancedSounds(const void* data, void* param) {
             continue;
         }
 
-        SESound* object = sound->m_object ? &sound->m_object->m_sound : nullptr;
+        SESound* object = sound->m_pSoundHandle ? &sound->m_pSoundHandle->m_sound : nullptr;
         created = 0;
 
         if (object && object->IsPlaying()) {
@@ -349,14 +349,14 @@ int32_t SI2::UpdateAdvancedSounds(const void* data, void* param) {
                 int32_t immediate = sound->m_volume <= 0.0f;
                 sound->m_stopped = 1;
 
-                if (sound->m_object) {
-                    SI2::StopSound(sound->m_object, immediate, -1.0f, 0);
+                if (sound->m_pSoundHandle) {
+                    SI2::StopSound(sound->m_pSoundHandle, immediate, -1.0f, 0);
                 }
 
                 continue;
             }
 
-            SI2SoundUserData* userData = static_cast<SI2SoundUserData*>(sound->m_object->m_sound.GetUserData());
+            SI2SoundUserData* userData = static_cast<SI2SoundUserData*>(sound->m_pSoundHandle->m_sound.GetUserData());
 
             if (!sound->m_usage && userData && userData->m_def->m_numFiles > 1 && sound->m_interval.m_l > 0.0f && sound->m_interval.m_h > 0.0f) {
                 sound->m_nextInterval -= elapsed;
@@ -393,6 +393,7 @@ int32_t SI2::UpdateAdvancedSounds(const void* data, void* param) {
                         level = 0.0f;
                     }
 
+                    STORM_ASSERT(level >= 0.0f && level <= 1.0f); // 12213: "f3DPan >= 0.0f && f3DPan <= 1.0f"
                     pan = level;
 
                     if (!(node->m_sound->m_innerRadiusOfInfluence * node->m_sound->m_innerRadiusOfInfluence < distanceSq)) {
@@ -418,6 +419,7 @@ int32_t SI2::UpdateAdvancedSounds(const void* data, void* param) {
                 }
 
                 if (time < offset + sound->m_timeB) {
+                    STORM_ASSERT((sound->m_timeB - sound->m_timeA) > 0); // 12213: "( pVSound->m_nTimeB - pVSound->m_nTimeA ) > 0"
                     sound->m_volume = static_cast<float>(time - sound->m_timeA) / (sound->m_timeB - sound->m_timeA);
 
                     if (sound->m_volume > 1.0f) {
@@ -430,6 +432,7 @@ int32_t SI2::UpdateAdvancedSounds(const void* data, void* param) {
                 } else if (time < offset + sound->m_timeC) {
                     sound->m_volume = 1.0f;
                 } else {
+                    STORM_ASSERT((sound->m_timeD - sound->m_timeC) >= 0); // 12213: "( pVSound->m_nTimeD - pVSound->m_nTimeC ) >= 0"
                     sound->m_volume = 1.0f - static_cast<float>(time - sound->m_timeC) / (sound->m_timeD - sound->m_timeC);
 
                     if (sound->m_volume > 1.0f) {
@@ -449,7 +452,7 @@ int32_t SI2::UpdateAdvancedSounds(const void* data, void* param) {
         SI2AdvancedSound* advanced = node->m_sound;
         SI2_SOUND_USAGE usage = advanced->m_usage;
 
-        if (!advanced->m_object || usage == SI2_SOUND_USAGE_ONESHOT || (!usage && advanced->m_stopped)) {
+        if (!advanced->m_pSoundHandle || usage == SI2_SOUND_USAGE_ONESHOT || (!usage && advanced->m_stopped)) {
             VSOUND_LOOKUP* next = s_vsoundLookup->m_fulllist.Next(node);
             s_vsoundLookup->DeleteNode(node);
             node = next;
@@ -612,12 +615,12 @@ void SI2AdvancedSound::Stop(int32_t remove, float fadeOutTime) {
 
     this->m_stopped = 1;
 
-    if (this->m_object) {
+    if (this->m_pSoundHandle) {
         if (fadeOutTime >= 0.0f) {
-            this->m_object->m_sound.SetFadeOutTime(fadeOutTime);
+            this->m_pSoundHandle->m_sound.SetFadeOutTime(fadeOutTime);
         }
 
-        this->m_object->m_sound.FadeOutNow();
+        this->m_pSoundHandle->m_sound.FadeOutNow();
     }
 }
 
@@ -666,13 +669,14 @@ SI2_RESULT SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitI
     }
 
     if (object) {
-        sound->m_object = object;
+        sound->m_pSoundHandle = object;
         sound->m_externalObject = 1;
     } else {
         sound->m_externalObject = 0;
-        sound->m_object = new (SMemAlloc(sizeof(SE2SoundKitObject), __FILE__, __LINE__, 0)) SE2SoundKitObject();
+        sound->m_pSoundHandle = new (SMemAlloc(sizeof(SE2SoundKitObject), __FILE__, __LINE__, 0)) SE2SoundKitObject();
+        STORM_ASSERT(sound->m_pSoundHandle); // 12213: "pNewVSound->m_pSoundHandle"
 
-        if (!sound->m_object) {
+        if (!sound->m_pSoundHandle) {
             sound->~SI2AdvancedSound();
             SMemFree(sound, "delete", -1, 0);
             return SI2_ERR_OUT_OF_MEMORY;
@@ -743,7 +747,7 @@ SI2_RESULT SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitI
     sound->unused_0008 = unknown7;
 
     sound->m_id = s_nextAdvancedId;
-    sound->m_object->m_advancedId = s_nextAdvancedId;
+    sound->m_pSoundHandle->m_advancedId = s_nextAdvancedId;
     s_nextAdvancedId++;
 
     uint32_t id = sound->m_id;
@@ -754,7 +758,7 @@ SI2_RESULT SI2::AddAdvancedSound(SoundEntriesAdvancedRec* rec, int32_t soundKitI
     if (sound->m_usage == SI2_SOUND_USAGE_ONESHOT) {
         sound->Play();
 
-        if (SI2::IsPlaying(sound->m_object)) {
+        if (SI2::IsPlaying(sound->m_pSoundHandle)) {
             sound->AddSuppressor();
         }
     }

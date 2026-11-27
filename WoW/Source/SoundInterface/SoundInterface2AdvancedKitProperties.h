@@ -27,7 +27,7 @@ class SI2AdvancedSound {
     /* 0008 */ int32_t unused_0008;
     /* 000C */ int32_t m_stopped;
     /* 0010 */ int32_t m_finished;
-    /* 0014 */ SE2SoundKitObject* m_object;
+    /* 0014 */ SE2SoundKitObject* m_pSoundHandle;
     /* 0018 */ int32_t m_externalObject;
     /* 001C */ SoundEntriesAdvancedRec* m_rec;
     /* 0020 */ int32_t m_soundKitId;
