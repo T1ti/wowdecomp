@@ -115,6 +115,8 @@ int32_t RealmConnection::HandleCharEnum(uint32_t msgId, uint32_t time, CDataStor
 // VERIFY: fca783d3 auto
 // OFFSET: 0x00464F50
 int32_t RealmConnection::MessageHandler(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(param);
+
     RealmConnection* connection = static_cast<RealmConnection*>(param);
     int32_t result = 0;
 
@@ -273,6 +275,8 @@ void RealmConnection::SetSelectedRealm(uint32_t regionId, uint32_t battlegroupId
 // VERIFY: b87ab906 auto
 // OFFSET: 0x00464640
 int32_t RealmConnection::HandleAuthResponse(uint32_t msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgId == SMSG_AUTH_RESPONSE);
+
     if (this->m_realmResponse) {
         this->m_realmResponse->GameServerResult(this, "SMSG_AUTH_RESPONSE", nullptr, nullptr);
     }
@@ -343,6 +347,8 @@ int32_t RealmConnection::HandleCharacterDelete(uint32_t msgId, uint32_t time, CD
 // VERIFY: be3ce643 auto
 // OFFSET: 0x004647E0
 int32_t RealmConnection::HandleLogoutResponse(uint32_t msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgId == SMSG_LOGOUT_RESPONSE);
+
     uint32_t result = 0;
     msg->Get(result);
 
@@ -427,7 +433,9 @@ void RealmConnection::PollNet(const void* data, void* param) {
 
     while (!TSList<RealmConnection::REALMCONNECTIONNODE, TSGetLink<RealmConnection::REALMCONNECTIONNODE> >::IsEnd(node)) {
         RealmConnection::REALMCONNECTIONNODE* next = RealmConnection::s_allRealmConnections.RawNext(node);
-        node->m_connection->PollEventQueue();
+        RealmConnection* rc = node->m_connection;
+        STORM_ASSERT(rc);
+        rc->PollEventQueue();
         node = next;
     }
 
