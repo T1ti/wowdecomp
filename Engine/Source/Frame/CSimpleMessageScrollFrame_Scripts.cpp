@@ -269,7 +269,7 @@ static int32_t Script_GetMessageInfo(lua_State* L) {
         luaL_error(L, "%s:GetMessageInfo - A line with accessID %d and index %d does not exist.", name ? name : "<unnamed>", accessID, index);
     }
 
-    lua_pushstring(L, line->m_text);
+    lua_pushstring(L, line->string);
     lua_pushnumber(L, line->m_accessID);
     lua_pushnumber(L, line->m_typeID);
     lua_pushnumber(L, line->m_extraData);
@@ -566,6 +566,10 @@ static int32_t Script_GetInsertMode(lua_State* L) {
         case INSERT_AT_BOTTOM:
             lua_pushstring(L, "BOTTOM");
             return 1;
+
+        default:
+            STORM_ASSERT(mode);
+            break;
     }
 
     lua_pushstring(L, mode);

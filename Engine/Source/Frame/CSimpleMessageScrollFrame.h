@@ -31,7 +31,7 @@ class CSimpleFontStringRecord : public CSimpleFontString, public TRefCnt {
 
 class CSimpleMessageScrollFrameLine {
     public:
-    /* 0000 */ char* m_text;
+    /* 0000 */ char* string;
     /* 0004 */ CImVector m_color;
     /* 0008 */ BOOL m_isVisible;
     /* 000C */ float m_timeLeft;

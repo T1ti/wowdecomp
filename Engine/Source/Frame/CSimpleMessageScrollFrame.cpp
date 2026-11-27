@@ -47,7 +47,7 @@ int32_t CSimpleMessageScrollFrame::GetObjectType() {
 
 // INLINED
 CSimpleMessageScrollFrameLine::CSimpleMessageScrollFrameLine() {
-    this->m_text = nullptr;
+    this->string = nullptr;
     this->m_color.b = 0xFF;
     this->m_color.g = 0xFF;
     this->m_color.r = 0xFF;
@@ -62,8 +62,8 @@ CSimpleMessageScrollFrameLine::CSimpleMessageScrollFrameLine() {
 
 // INLINED
 CSimpleMessageScrollFrameLine::~CSimpleMessageScrollFrameLine() {
-    if (this->m_text) {
-        SMemFree(this->m_text, __FILE__, __LINE__, 0);
+    if (this->string) {
+        SMemFree(this->string, __FILE__, __LINE__, 0);
     }
 }
 
@@ -156,6 +156,7 @@ int32_t CSimpleMessageScrollFrame::GetNumMessages(int32_t accessID) {
     int32_t index = this->m_currentLine - this->m_numMessages + 1;
 
     for (int32_t i = 0; i < this->m_numMessages; i++, index++) {
+        STORM_ASSERT(static_cast<uint32_t>(i) < static_cast<uint32_t>(this->m_numMessages)); // 12213: "index < (uint)m_numMessages"
         int32_t line = index < 0 ? index + this->m_maxMessages : index;
 
         if (this->m_lines[line].m_accessID == accessID) {
@@ -178,9 +179,9 @@ void CSimpleMessageScrollFrame::UpdateNode(CSimpleMessageScrollFrameDisplayNode*
 
     float height = node->m_string->GetStringHeight();
 
-    if (line->m_text) {
+    if (line->string) {
         node->m_line = line;
-        node->m_string->SetText(line->m_text, 1);
+        node->m_string->SetText(line->string, 1);
         node->m_string->SetVertexColor(line->m_color);
     } else {
         node->m_string->SetText("", 1);
@@ -224,8 +225,10 @@ CSimpleMessageScrollFrameLine* CSimpleMessageScrollFrame::GetMessageInfoByAccess
         int32_t checked = 0;
 
         for (int32_t i = this->m_currentLine - count + 1;; i++) {
+            STORM_ASSERT(static_cast<uint32_t>(checked) < static_cast<uint32_t>(this->m_numMessages)); // 12213: "index < (uint)m_numMessages"
             int32_t lineIndex = i < 0 ? i + this->m_maxMessages : i;
             CSimpleMessageScrollFrameLine* line = &this->m_lines[lineIndex];
+            STORM_ASSERT(line->string); // 12213: "line.string"
 
             if (line->m_accessID == accessID && !index--) {
                 return line;
@@ -624,12 +627,12 @@ void CSimpleMessageScrollFrame::RemoveLinesByAccessID(int32_t accessID) {
     for (int32_t i = 0; i < this->m_numMessages; i++) {
         if (this->m_lines[src].m_accessID != accessID) {
             if (src != dst) {
-                if (this->m_lines[dst].m_text) {
-                    SMemFree(this->m_lines[dst].m_text, __FILE__, __LINE__, 0);
+                if (this->m_lines[dst].string) {
+                    SMemFree(this->m_lines[dst].string, __FILE__, __LINE__, 0);
                 }
 
                 this->m_lines[dst] = this->m_lines[src];
-                this->m_lines[src].m_text = nullptr;
+                this->m_lines[src].string = nullptr;
             }
 
             kept++;
@@ -876,11 +879,11 @@ void CSimpleMessageScrollFrame::AddMessage(const char* text, const CImVector& co
         return;
     }
 
-    if (line->m_text) {
-        SMemFree(line->m_text, __FILE__, __LINE__, 0);
+    if (line->string) {
+        SMemFree(line->string, __FILE__, __LINE__, 0);
     }
 
-    line->m_text = SStrDupA(text, __FILE__, __LINE__);
+    line->string = SStrDupA(text, __FILE__, __LINE__);
     line->m_color = color;
     line->m_isVisible = 1;
     line->m_timeLeft = this->m_timeVisible;
