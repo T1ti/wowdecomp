@@ -208,6 +208,8 @@ void CBackdropGenerator::Generate(const CRect* rect) {
         tilesY = 0.0f;
     }
 
+    STORM_ASSERT(this->m_pieces == BACKDROPPIECES::BACKDROPONLY || (this->m_border.m_str && this->m_border.m_str[0])); // 12213: "m_pieces == BACKDROPONLY || m_border[0]"
+
     if (this->m_background.m_str && *this->m_background.m_str && this->m_tileBackground) {
         float u = width / (this->m_backgroundSize != 0.0f ? this->m_backgroundSize : this->m_cornerSize);
         float v = height / (this->m_backgroundSize != 0.0f ? this->m_backgroundSize : this->m_cornerSize);
