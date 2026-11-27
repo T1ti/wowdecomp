@@ -104,6 +104,7 @@ CGInputControl::CGInputControl() : m_flags(INPUT_NONE), m_lookStartTime(0), m_pe
 void InputControlInitialize() {
     CVar::Register("Joystick", "enable joystick control", CVAR_FLAGS::CVAR_NONE, "0", JoystickCallback, 5, false, nullptr, false);
     s_cvCinematicJoystick = CVar::Register("CinematicJoystick", "enable cinematic joystick control", CVAR_FLAGS::CVAR_NONE, "0", nullptr, 5, false, nullptr, false);
+    STORM_ASSERT(!CGInputControl::s_inputControl); // 12213: "!s_inputControl"
     CGInputControl::s_inputControl = new (SMemAlloc(sizeof(CGInputControl), __FILE__, __LINE__, 0)) CGInputControl();
     s_cvEnableWowMouse = CVar::Register("enableWowMouse", "Enable Steelseries World of Warcraft Mouse", CVAR_FLAGS::CVAR_ARCHIVE, "0", WowMouseCVarCallback, 5, false, nullptr, false);
 }
