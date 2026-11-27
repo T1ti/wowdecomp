@@ -87,6 +87,8 @@ void CSimpleMessageFrame::HideLineNode(CSimpleMessageFrameLineNode* node) {
 
 // INLINED
 void CSimpleMessageFrame::ShowLineNode(CSimpleMessageFrameLineNode* node, float timeVisible, float fadeDuration) {
+    STORM_ASSERT(!node->m_isVisible); // 12213: "!node->isVisible"
+
     CSimpleFontString* string = node->m_string;
     string->m_shown = 1;
     string->ShowThis();
@@ -94,6 +96,7 @@ void CSimpleMessageFrame::ShowLineNode(CSimpleMessageFrameLineNode* node, float 
     node->m_timeLeft = timeVisible;
     node->m_fadeLeft = fadeDuration;
     this->m_numVisible++;
+    STORM_ASSERT(m_numVisible <= m_rows);
 }
 
 // VERIFY: 043a2fa3 manual
