@@ -43,7 +43,9 @@ static char s_lootSlotTexture[260];
 static int32_t s_bindConfirmSlot = -1;
 
 // STATIC: 0x00D38130
-static uint32_t s_currencyMultiplier[3];
+static const int32_t MAX_CURRENCY_TYPES = 3;
+
+static uint32_t s_currencyMultiplier[MAX_CURRENCY_TYPES];
 
 // STATIC: 0x00AF4914
 static const char* s_currencyAmountTokens[3] = { "COPPER_AMOUNT", "SILVER_AMOUNT", "GOLD_AMOUNT" };
@@ -113,13 +115,14 @@ void CurrencyBreakdown(int32_t amount, int32_t* coins) {
     STORM_ASSERT(s_lootInitialized);
     STORM_ASSERT(coins);
 
-    for (int32_t i = 2; i; i--) {
-        int32_t multiplier = static_cast<int32_t>(s_currencyMultiplier[i]);
+    for (int32_t denomination = 2; denomination; denomination--) {
+        STORM_ASSERT(denomination >= 0 && denomination < MAX_CURRENCY_TYPES);
+        int32_t multiplier = static_cast<int32_t>(s_currencyMultiplier[denomination]);
 
         if (amount < multiplier) {
-            coins[i] = 0;
+            coins[denomination] = 0;
         } else {
-            coins[i] = amount / multiplier;
+            coins[denomination] = amount / multiplier;
             amount %= multiplier;
         }
     }
