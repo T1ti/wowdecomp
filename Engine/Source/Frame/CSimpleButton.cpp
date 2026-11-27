@@ -821,6 +821,9 @@ int32_t CSimpleButton::OnLayerMouseUp(const CMouseEvent& evt, const char* btn) {
         this->m_simpleTop->unused_1250 = 0;
     }
 
+    STORM_ASSERT(m_initialized_state != STATE_DELETED);
+    STORM_ASSERT(m_initialized_state != 0xDDDDDDDD);
+
     if (!this->m_stateLocked && this->m_state != BUTTONSTATE_DISABLED) {
         this->SetButtonState(BUTTONSTATE_NORMAL, 0);
     }

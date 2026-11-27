@@ -95,7 +95,7 @@ class CSimpleFrame : public CScriptRegion {
     /* 00A0 */ CSimpleTop* m_simpleTop;
     /* 00A4 */ CSimpleFrame* m_hoverFrame;
     /* 00A8 */ CSimpleTitleRegion* m_titleRegion;
-    private:
+    protected:
     /* 00AC */ INITIALIZED_STATE m_initialized_state;
     public:
     /* 00B0 */ int32_t m_id;
