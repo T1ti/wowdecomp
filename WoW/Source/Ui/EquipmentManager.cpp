@@ -41,6 +41,19 @@ int32_t CGEquipmentManager::m_ignoredSlots[EQUIPPED_LAST + 1];
 // STATIC: 0x00ACFC00
 TSList<EQUIPMENT_SET_NODE> CGEquipmentManager::s_equipmentSets;
 
+#if defined(WOWDECOMP_ASSERTIONS)
+// Inlined in 12213 (name inferred from the assertion expression).
+static uint32_t GetCount() {
+    uint32_t count = 0;
+
+    for (EQUIPMENT_SET_NODE* node = CGEquipmentManager::s_equipmentSets.Head(); !CGEquipmentManager::s_equipmentSets.IsEnd(node); node = CGEquipmentManager::s_equipmentSets.RawNext(node)) {
+        count++;
+    }
+
+    return count;
+}
+#endif
+
 // VERIFY: 36e16d6a auto
 // OFFSET: 0x005AD690
 void CGEquipmentManager::EnterWorld() {
@@ -330,6 +343,7 @@ int32_t Packet_SMSG_EQUIPMENT_SET_LIST(void* param, NETMESSAGE msgId, uint32_t t
         }
 
         CGEquipmentManager::s_equipmentSets.Clear();
+        STORM_ASSERT(GetCount() == 0);
     }
 
     for (int32_t i = 0; i < static_cast<int32_t>(count) && i < MAX_EQUIPMENT_SETS_PER_PLAYER; i++) {
@@ -687,6 +701,7 @@ void CGEquipmentManager::ShutdownGame() {
     }
 
     CGEquipmentManager::s_equipmentSets.Clear();
+    STORM_ASSERT(GetCount() == 0);
     delete CGEquipmentManager::s_equipmentSetHeap;
     CGEquipmentManager::s_equipmentSetHeap = nullptr;
 }
