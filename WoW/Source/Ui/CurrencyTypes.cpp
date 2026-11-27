@@ -22,7 +22,7 @@ int32_t CGCurrencyTypes::m_listSize;
 CurrencyListEntry CGCurrencyTypes::m_list[95];
 
 // STATIC: 0x00C1F248
-CurrencyCategoryInfo CGCurrencyTypes::m_categories[32];
+CurrencyCategoryInfo CGCurrencyTypes::m_categories[CGCurrencyTypes::MAX_CATEGORIES];
 
 // STATIC: 0x00C1F448
 int32_t CGCurrencyTypes::m_numCategories;
@@ -76,6 +76,8 @@ void CGCurrencyTypes::SetCategoryExpand(int32_t index, int32_t expand) {
 void CGCurrencyTypes::InitializeGame() {
     int32_t numCategories = g_currencyCategoryDB.GetNumRecords();
     CGCurrencyTypes::m_numCategories = g_currencyCategoryDB.GetNumRecords();
+    STORM_ASSERT(g_currencyTypesDB.GetNumRecords() <= MAX_TYPES);
+    STORM_ASSERT(m_numCategories <= MAX_CATEGORIES);
     memset(CGCurrencyTypes::m_categories, 0, sizeof(CGCurrencyTypes::m_categories));
 
     for (int32_t i = 0; i < numCategories; i++) {

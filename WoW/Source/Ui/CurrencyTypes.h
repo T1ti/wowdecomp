@@ -26,13 +26,16 @@ class CurrencyTypesRec;
 
 class CGCurrencyTypes {
     public:
+    static constexpr int32_t MAX_TYPES = 63;
+    static constexpr int32_t MAX_CATEGORIES = 32;
+
     static void LeaveWorld();
     static CurrencyTypesRec* GetCurrencyRec(int32_t index);
     static BOOL IsCurrencyShown(int32_t index);
     static CurrencyListEntry* GetDisplayListInfo(int32_t index);
     static int32_t m_listSize;
     static CurrencyListEntry m_list[95];
-    static CurrencyCategoryInfo m_categories[32];
+    static CurrencyCategoryInfo m_categories[MAX_CATEGORIES];
     static int32_t m_numCategories;
     static void BuildDisplayList();
     static void SetCategoryExpand(int32_t index, int32_t expand);
