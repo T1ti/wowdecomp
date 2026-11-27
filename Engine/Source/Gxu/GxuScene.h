@@ -16,7 +16,7 @@ class GxuSceneObject {
 class GxuScene {
     public:
     void Render();
-    /* 0004 */ TSGrowableArray<GxuSceneObject*> m_objects;
+    /* 0004 */ TSGrowableArray<GxuSceneObject*> m_sceneObjects;
     /* 0014 */ uint32_t m_lastUpdateTime;
 
     virtual ~GxuScene();
