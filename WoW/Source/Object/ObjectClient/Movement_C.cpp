@@ -20,6 +20,8 @@ static TSExplicitList<CGGameObject_C, offsetof(CGGameObject_C, m_transportLink)>
 // VERIFY: 15b28f8e auto
 // OFFSET: 0x0074B730
 void MovementAddTransport(CGGameObject_C* transport) {
+    STORM_ASSERT(!s_transports.IsLinked(transport));
+
     s_transports.LinkToTail(transport);
 }
 
@@ -155,6 +157,8 @@ int32_t MovementObjIsTransport(WOWGUID guid) {
 // VERIFY: abd26a7a auto
 // OFFSET: 0x0074B750
 void MovementRemoveTransport(CGGameObject_C* transport) {
+    STORM_ASSERT(s_transports.IsLinked(transport));
+
     s_transports.UnlinkNode(transport);
 }
 
@@ -213,12 +217,12 @@ void MovementDelSpline(CMoveSpline* spline) {
 // VERIFY: d283f620 auto
 // OFFSET: 0x0074B380
 void MovementUpdateCameraYaw(WOWGUID guid, WOWGUID transport) {
-
     if (transport.IsVehicle() || transport.IsPlayer()) {
         return;
     }
 
     CGCamera* camera = CGWorldFrame::GetActiveCamera();
+    STORM_ASSERT(camera);
 
     if (camera->m_targetGUID == guid) {
         camera->MakeRelativeTo(transport);
