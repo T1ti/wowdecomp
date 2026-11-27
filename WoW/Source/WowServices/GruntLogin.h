@@ -11,13 +11,14 @@
 class GruntLogin : public Login {
     public:
     struct MATRIXINPUT {
-        /* 0000 */ bool m_valid;
+        /* 0000 */ bool m_prepared;
         /* 0001 */ uint8_t unused_0001[7];
         /* 0008 */ HMAC<SHA1> m_hmac;
         /* 00E8 */ SARC4Key m_key;
         /* 01EA */ uint8_t unused_01EA[6];
 
         MATRIXINPUT();
+        void Process(uint8_t value);
         void Finish(SHA1::Digest& digest);
     };
 

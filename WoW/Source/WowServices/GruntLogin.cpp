@@ -15,7 +15,7 @@
 
 // INLINED
 GruntLogin::MATRIXINPUT::MATRIXINPUT() {
-    this->m_valid = false;
+    this->m_prepared = false;
 }
 
 // VERIFY: 7676960d manual
@@ -408,7 +408,7 @@ void GruntLogin::CommitMatrix() {
     GruntLogin::MATRIXINPUT* committed = this->m_matrixCommitted;
     GruntLogin::MATRIXINPUT* input = this->m_matrixInput;
 
-    input->m_valid = committed->m_valid;
+    input->m_prepared = committed->m_prepared;
     memcpy(&input->m_hmac, &committed->m_hmac, sizeof(input->m_hmac));
     memcpy(&input->m_key, &committed->m_key, sizeof(input->m_key));
 }
@@ -507,7 +507,7 @@ void GruntLogin::SetMatrixInfo(bool enabled, uint8_t width, uint8_t height, uint
     input->m_hmac.m_hash.Prepare();
     input->m_hmac.m_hash.Process(input->m_hmac.m_innerPad, sizeof(input->m_hmac.m_innerPad));
     ARC4PrepareKey(this->m_matrixKey, sizeof(this->m_matrixKey), &input->m_key);
-    input->m_valid = true;
+    input->m_prepared = true;
 
     this->CommitMatrix();
 
@@ -525,7 +525,7 @@ int32_t GruntLogin::GetSurveyId() {
 void GruntLogin::RevertMatrix() {
     GruntLogin::MATRIXINPUT* input = this->m_matrixInput;
     GruntLogin::MATRIXINPUT* committed = this->m_matrixCommitted;
-    committed->m_valid = input->m_valid;
+    committed->m_prepared = input->m_prepared;
     committed->m_hmac = input->m_hmac;
     committed->m_key = input->m_key;
 }
@@ -568,14 +568,18 @@ bool GruntLogin::GetMatrixCoordinates(uint32_t index, uint32_t* x, uint32_t* y) 
     uint32_t coordinate = this->m_matrixCoordinates[index];
     *x = coordinate % this->m_matrixWidth;
     *y = coordinate / this->m_matrixWidth;
+    STORM_ASSERT(*y < this->m_matrixHeight);
+
     return true;
 }
 
 // VERIFY: 10ae7b25 manual
 // OFFSET: 0x00465870
 void GruntLogin::MATRIXINPUT::Finish(SHA1::Digest& digest) {
+    STORM_ASSERT(this->m_prepared);
+
     this->m_hmac.Finish(digest);
-    this->m_valid = false;
+    this->m_prepared = false;
 }
 
 // VERIFY: b49b6056 manual
@@ -595,6 +599,14 @@ static void ProcessMatrixRC4(uint8_t* data, uint32_t length, SARC4Key* key) {
 
     key->m_x = x;
     key->m_y = y;
+}
+
+// INLINED
+void GruntLogin::MATRIXINPUT::Process(uint8_t value) {
+    STORM_ASSERT(this->m_prepared);
+
+    ProcessMatrixRC4(&value, 1, &this->m_key);
+    this->m_hmac.Process(&value, 1);
 }
 
 // VERIFY: d046e16b auto
@@ -671,8 +683,7 @@ void GruntLogin::EnterPIN(int32_t count, uint8_t* digits) {
 // OFFSET: 0x008CAFA0
 void GruntLogin::EnterMatrix(uint8_t value) {
     GruntLogin::MATRIXINPUT* input = this->m_matrixCommitted;
-    ProcessMatrixRC4(&value, 1, &input->m_key);
-    input->m_hmac.Process(&value, 1);
+    input->Process(value);
 }
 
 // VERIFY: be3941c2 auto
