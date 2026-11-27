@@ -6,6 +6,7 @@
 #include <cstring>
 #include <new>
 #include "Engine/Source/ComSat/ComSatInterface.h"
+#include "Engine/Source/Storm/H/storm.h"
 
 namespace ComSat {
 
@@ -25,7 +26,7 @@ class Vector {
     bool Remove(const T& value);
     void RemoveAt(uint32_t offset);
     uint32_t Count() const;
-    T& operator[](uint32_t index);
+    T& operator[](uint32_t offset);
 };
 
 }
@@ -109,6 +110,7 @@ bool ComSat::Vector<T>::Remove(const T& value) {
 // INLINED
 template <class T>
 void ComSat::Vector<T>::RemoveAt(uint32_t offset) {
+    STORM_ASSERT(offset < m_used);
     uint32_t remaining = this->m_used - offset;
     if (remaining > 1) {
         memmove(&this->m_data[offset], &this->m_data[offset + 1], sizeof(T) * (remaining - 1));
@@ -124,8 +126,9 @@ uint32_t ComSat::Vector<T>::Count() const {
 
 // INLINED
 template <class T>
-T& ComSat::Vector<T>::operator[](uint32_t index) {
-    return this->m_data[index];
+T& ComSat::Vector<T>::operator[](uint32_t offset) {
+    STORM_ASSERT(offset < m_used);
+    return this->m_data[offset];
 }
 
 #endif
