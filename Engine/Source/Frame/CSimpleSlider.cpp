@@ -274,6 +274,8 @@ void CSimpleSlider::SetValue(float value) {
 // VERIFY: 3106fae6 auto
 // OFFSET: 0x0096C1B0
 void CSimpleSlider::SetValueStep(float step) {
+    STORM_ASSERT(step >= 0.0f);
+
     step = std::max(step, FLT_EPSILON);
 
     if (fabsf(step - this->m_valueStep) < 0.00000023841858f) {
@@ -304,6 +306,8 @@ void CSimpleSlider::OnLayerUpdate(float elapsedSec) {
 
     float range = this->m_range + this->m_baseValue - this->m_baseValue;
     float position = fequal(range, 0.0f) ? 0.0f : (this->m_value - this->m_baseValue) / range;
+
+    STORM_ASSERT(CMath::fnotequal_(this->m_layoutScale, 0.0f)); // 12213: "CMath::fnotequal_(GetLayoutScale(),0.0f)"
 
     if (this->m_orientation != ORIENTATION_HORIZONTAL) {
         float height = (this->m_rect.maxY - this->m_rect.minY) / this->m_layoutScale;
@@ -351,6 +355,8 @@ int32_t CSimpleSlider::OnLayerMouseDown(const CMouseEvent& evt, const char* btn)
 // VERIFY: f2e35f6a auto
 // OFFSET: 0x0096C470
 void CSimpleSlider::SetMinMaxValues(float min, float max) {
+    STORM_ASSERT(min <= max);
+
     float range = max - min;
 
     if (this->m_rangeSet && fabsf(range - this->m_range) < 0.00000023841858f && fabsf(this->m_baseValue - min) < 0.00000023841858f) {
