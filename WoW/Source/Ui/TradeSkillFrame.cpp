@@ -304,7 +304,8 @@ void CGTradeSkillInfo::SetInvTypeFilter(BOOL applySubClassFilter) {
                 continue;
             }
 
-            int32_t subClass = CGTradeSkillInfo::GetSubClassIndexFromSkill(i);
+            int32_t subClassIndex = CGTradeSkillInfo::GetSubClassIndexFromSkill(i);
+            STORM_ASSERT(subClassIndex >= 0);
             bool any = false;
 
             for (uint32_t j = 0; j < CGTradeSkillInfo::m_numDisplayEntries; j++) {
@@ -317,7 +318,7 @@ void CGTradeSkillInfo::SetInvTypeFilter(BOOL applySubClassFilter) {
                 if (header->m_itemClass == info->m_itemClass && header->m_itemSubClass == info->m_itemSubClass && info->m_visible) {
                     any = true;
 
-                    if (CGTradeSkillInfo::m_subClassList.m_data[subClass]->m_collapsed) {
+                    if (CGTradeSkillInfo::m_subClassList.m_data[subClassIndex]->m_collapsed) {
                         info->m_visible = 0;
                         CGTradeSkillInfo::m_filteredSkills--;
                     }
