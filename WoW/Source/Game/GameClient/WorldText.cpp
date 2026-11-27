@@ -34,7 +34,14 @@
 #include "WoW/Source/Ui/WorldFrame.h"
 
 // STATIC: 0x00A41618
-static float s_critHeightCurve[3][4] = {
+struct CRITHEIGHT { // (inferred)
+    float startProgress;
+    float endProgress;
+    float startScale; // (inferred)
+    float endScale; // (inferred)
+};
+
+static CRITHEIGHT s_critHeights[3] = {
     { 0.0f, 0.1f, 0.1f, 2.0f },
     { 0.1f, 0.2f, 2.0f, 1.0f },
     { 0.2f, 1.0f, 1.0f, 1.0f },
@@ -280,8 +287,10 @@ void WORLDTEXTSTRING::CalculateTextHeight(uint32_t elapsed) {
         float scale = 1.0f;
 
         for (uint32_t i = 0; i < 3; i++) {
-            if (s_critHeightCurve[i][0] <= progress && s_critHeightCurve[i][1] > progress) {
-                scale = (progress - s_critHeightCurve[i][0]) / (s_critHeightCurve[i][1] - s_critHeightCurve[i][0]) * (s_critHeightCurve[i][3] - s_critHeightCurve[i][2]) + s_critHeightCurve[i][2];
+            STORM_ASSERT(s_critHeights[i].startProgress <= s_critHeights[i].endProgress);
+
+            if (s_critHeights[i].startProgress <= progress && s_critHeights[i].endProgress > progress) {
+                scale = (progress - s_critHeights[i].startProgress) / (s_critHeights[i].endProgress - s_critHeights[i].startProgress) * (s_critHeights[i].endScale - s_critHeights[i].startScale) + s_critHeights[i].startScale;
                 break;
             }
         }
@@ -307,6 +316,8 @@ WORLDTEXTSTRING* WorldTextCreate(uint32_t type, const C3Vector& position, const 
     if (!text || !*text) {
         return nullptr;
     }
+
+    STORM_ASSERT(type < NUM_WORLDTEXTTYPES);
 
     WORLDTEXTSTRING* string = s_freeStrings.New<WORLDTEXTSTRING>(0);
 
@@ -571,6 +582,8 @@ void WorldTextRenderBatch() {
 // OFFSET: 0x007E7BB0
 void WorldTextInitialize() {
     const char* fontName = FrameScript_GetText("DAMAGE_TEXT_FONT", -1, GENDER_NOT_APPLICABLE);
+    STORM_ASSERT(fontName && *fontName);
+
     s_worldTextFont = TextBlockGenerateFont(fontName, 0, DDCToNDCHeight(0.018333333f));
     s_worldTextBatch = GxuFontCreateBatch(false, false);
 
