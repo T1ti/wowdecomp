@@ -4,6 +4,8 @@
 #include "SBig.h"
 #include "Engine/Source/Storm/H/storm.h"
 
+static const uint64_t SMALL_BOUND = 0x100000000ULL; // (inferred)
+
 // INLINED
 inline uint32_t ExtractLowPart(uint64_t& value) {
     uint32_t low = static_cast<uint32_t>(value);
@@ -140,6 +142,8 @@ static void Add(BigBuffer& a, const BigBuffer& b, const BigBuffer& c) {
 // VERIFY: 22a6a2d4 manual
 // OFFSET: 0x0077B160
 static void Div(BigBuffer& a, uint32_t* b, const BigBuffer& c, uint64_t d) {
+    STORM_ASSERT(d <= SMALL_BOUND);
+
     a.SetCount(c.Count());
 
     uint64_t data = 0;
@@ -159,6 +163,8 @@ static void Div(BigBuffer& a, uint32_t* b, const BigBuffer& c, uint64_t d) {
 // VERIFY: 897eab1f manual
 // OFFSET: 0x0077B2B0
 static void Mul(BigBuffer& a, const BigBuffer& b, uint64_t c) {
+    STORM_ASSERT(c <= SMALL_BOUND);
+
     uint64_t carry = 0;
     uint32_t i = 0;
 
