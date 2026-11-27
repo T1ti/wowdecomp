@@ -371,7 +371,7 @@ void FFX::Finish() {
         return;
     }
 
-    STORM_ASSERT(FFX::s_full[0].texture);
+    STORM_ASSERT(s_full[0].texture);
     C2iVector sourcePos = { 0, 0 };
     C2iVector destPos = { 0, 0 };
     GxTexCopy(TextureGetGxTex(FFX::s_full[0].texture, 1, nullptr), destPos, sourcePos, FFX::s_full[0].m_size, 0, 0);
@@ -531,7 +531,7 @@ void FFX::AllocTex() {
     FFX::s_screen.m_texSize.y = height;
     FFX::s_screen.m_texelSize.x = 1.0f / width;
     FFX::s_screen.m_texelSize.y = 1.0f / height;
-    STORM_ASSERT(FFX::s_screen.texture == NULL);
+    STORM_ASSERT(s_screen.texture == NULL);
 
     EGxTexTarget target = FFX::GetTexTarget();
     int32_t maxSize = static_cast<int32_t>(g_theGxDevicePtr->Caps().m_texMaxSize[target]);

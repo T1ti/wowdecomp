@@ -1207,7 +1207,7 @@ void CGMailInfo::ProcessAutoLootAttachments(MailboxMessageInfo* message) {
 // VERIFY: 6524167f manual
 // OFFSET: 0x00570410
 void CGMailInfo::AutoLoot(uint32_t index) {
-    STORM_ASSERT(!CGMailInfo::m_autoLooting);
+    STORM_ASSERT(!m_autoLooting);
 
     if (index >= CGMailInfo::m_numInboxItems) {
         return;

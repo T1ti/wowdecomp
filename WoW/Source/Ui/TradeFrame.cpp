@@ -380,7 +380,7 @@ void CGTradeInfo::SetEnchantingItem(CGItem_C* item) {
     }
 
     if (item) {
-        STORM_ASSERT(CGTradeInfo::m_tradingPlayer);
+        STORM_ASSERT(m_tradingPlayer);
 
         WOWGUID none = WOWGUID();
         item->UseItem(&none, 0);

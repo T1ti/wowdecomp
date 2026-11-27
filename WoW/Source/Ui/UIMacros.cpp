@@ -1072,7 +1072,7 @@ int32_t MACRONODE::FindSpellID() {
 // OFFSET: 0x00566530
 void CGUIMacros::Shutdown() {
     s_initCounter++;
-    STORM_ASSERT(!CGUIMacros::m_saveMacros);
+    STORM_ASSERT(!m_saveMacros);
 
     s_dynamicMacros.UnlinkAll();
     s_macros.Clear();
