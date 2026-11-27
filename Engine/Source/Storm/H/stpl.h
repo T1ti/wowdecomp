@@ -126,22 +126,25 @@ class TSFixedArray : public TSBaseArray<T> {
 template <class T>
 class TSBitField {
     public:
-    /* 0000 */ uint32_t m_count;
-    /* 0004 */ T m_bits;
+    /* 0000 */ uint32_t m_numBits;
+    /* 0004 */ T m_array;
 
-    void Load(const void* data, uint32_t bytes, int32_t bits);
+    void Load(const void* data, uint32_t byteCount, int32_t bitCount);
 
     // INLINED bit accessors; no out-of-line copies in the client.
-    bool IsSet(uint32_t index) const {
-        return (this->m_bits.m_data[index >> 5] & (1 << (index & 0x1F))) != 0;
+    bool IsSet(uint32_t bitNum) const {
+        STORM_ASSERT(bitNum < m_numBits);
+        return (this->m_array.m_data[bitNum >> 5] & (1 << (bitNum & 0x1F))) != 0;
     }
 
-    void Set(uint32_t index) {
-        this->m_bits.m_data[index >> 5] |= 1 << (index & 0x1F);
+    void Set(uint32_t bitNum) {
+        STORM_ASSERT(bitNum < m_numBits);
+        this->m_array.m_data[bitNum >> 5] |= 1 << (bitNum & 0x1F);
     }
 
-    void Clear(uint32_t index) {
-        this->m_bits.m_data[index >> 5] &= ~(1 << (index & 0x1F));
+    void Clear(uint32_t bitNum) {
+        STORM_ASSERT(bitNum < m_numBits);
+        this->m_array.m_data[bitNum >> 5] &= ~(1 << (bitNum & 0x1F));
     }
 };
 
@@ -1631,11 +1634,16 @@ inline bool HASHKEY_UTF8I::operator==(const char* str) {
 
 // INLINED
 template <class T>
-void TSBitField<T>::Load(const void* data, uint32_t bytes, int32_t bits) {
-    uint32_t count = bits == -1 ? bytes * 8 : bits;
-    this->m_count = count;
-    this->m_bits.SetCount(count ? ((count - 1) >> 5) + 1 : 0);
-    memcpy(this->m_bits.m_data, data, bytes);
+void TSBitField<T>::Load(const void* data, uint32_t byteCount, int32_t bitCount) {
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (bitCount != -1) {
+        STORM_ASSERT(byteCount == static_cast<uint32_t>(((bitCount - 1) / (sizeof(this->m_array.m_data[0]) * 8)) + 1) * sizeof(this->m_array.m_data[0])); // 12213: "byteCount == (uint)(((bitCount - 1) / (m_array.SizeOfElement() * 8)) + 1) * m_array.SizeOfElement()"
+    }
+#endif
+    uint32_t count = bitCount == -1 ? byteCount * 8 : bitCount;
+    this->m_numBits = count;
+    this->m_array.SetCount(count ? ((count - 1) >> 5) + 1 : 0);
+    memcpy(this->m_array.m_data, data, byteCount);
 }
 
 // VERIFY: d4042b48 manual

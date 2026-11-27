@@ -406,8 +406,8 @@ void UnitCombatLogUnregisterScriptFunctions();
 
 // INLINED
 inline CombatLogFilter::CombatLogFilter() {
-    this->m_events.m_count = 50;
-    this->m_events.m_bits.SetCount(((50 - 1) >> 5) + 1);
+    this->m_events.m_numBits = 50;
+    this->m_events.m_array.SetCount(((50 - 1) >> 5) + 1);
 }
 
 extern TSList<CombatLogEntry, TSGetLink<CombatLogEntry> > s_entries;

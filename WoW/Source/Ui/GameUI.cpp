@@ -2667,13 +2667,13 @@ void CGGameUI::UpdateCombatMode() {
 // VERIFY: c5227502 auto
 // OFFSET: 0x00522270
 bool CanTriggerTutorial(uint32_t tutorial) {
-    return CGTutorial::m_tutorialShown.m_count && !CGTutorial::m_tutorialShown.IsSet(tutorial);
+    return CGTutorial::m_tutorialShown.m_numBits && !CGTutorial::m_tutorialShown.IsSet(tutorial);
 }
 
 // VERIFY: d61f5660 auto
 // OFFSET: 0x005222B0
 bool IsTutorialFlagged(uint32_t tutorial) {
-    return CGTutorial::m_tutorialFlags.m_count && CGTutorial::m_tutorialFlags.IsSet(tutorial);
+    return CGTutorial::m_tutorialFlags.m_numBits && CGTutorial::m_tutorialFlags.IsSet(tutorial);
 }
 
 // VERIFY: 9f2b88f1 manual

@@ -78,16 +78,16 @@ void CGTutorial::FlagTutorial(uint32_t tutorial) {
 // VERIFY: 42da6124 manual
 // OFFSET: 0x00530510
 void CGTutorial::ClearTutorials() {
-    if (CGTutorial::m_tutorialShown.m_count) {
-        memset(CGTutorial::m_tutorialShown.m_bits.m_data, 0xFF, sizeof(uint32_t) * CGTutorial::m_tutorialShown.m_bits.m_count);
+    if (CGTutorial::m_tutorialShown.m_numBits) {
+        memset(CGTutorial::m_tutorialShown.m_array.m_data, 0xFF, sizeof(uint32_t) * CGTutorial::m_tutorialShown.m_array.m_count);
     }
 
-    if (CGTutorial::m_tutorialFlags.m_count) {
-        memset(CGTutorial::m_tutorialFlags.m_bits.m_data, 0xFF, sizeof(uint32_t) * CGTutorial::m_tutorialFlags.m_bits.m_count);
+    if (CGTutorial::m_tutorialFlags.m_numBits) {
+        memset(CGTutorial::m_tutorialFlags.m_array.m_data, 0xFF, sizeof(uint32_t) * CGTutorial::m_tutorialFlags.m_array.m_count);
     }
 
     for (int32_t i = 0; i < TUTORIAL::NUM_TUTORIALS; i++) {
-        if (CGTutorial::m_tutorialFlags.m_count && CGTutorial::m_tutorialFlags.IsSet(i)) {
+        if (CGTutorial::m_tutorialFlags.m_numBits && CGTutorial::m_tutorialFlags.IsSet(i)) {
             continue;
         }
 
@@ -112,12 +112,12 @@ void CGTutorial::ClearTutorials() {
 // VERIFY: 0e473917 manual
 // OFFSET: 0x00530630
 void CGTutorial::ResetTutorials() {
-    if (CGTutorial::m_tutorialShown.m_count) {
-        memset(CGTutorial::m_tutorialShown.m_bits.m_data, 0, sizeof(uint32_t) * CGTutorial::m_tutorialShown.m_bits.m_count);
+    if (CGTutorial::m_tutorialShown.m_numBits) {
+        memset(CGTutorial::m_tutorialShown.m_array.m_data, 0, sizeof(uint32_t) * CGTutorial::m_tutorialShown.m_array.m_count);
     }
 
-    if (CGTutorial::m_tutorialFlags.m_count) {
-        memset(CGTutorial::m_tutorialFlags.m_bits.m_data, 0, sizeof(uint32_t) * CGTutorial::m_tutorialFlags.m_bits.m_count);
+    if (CGTutorial::m_tutorialFlags.m_numBits) {
+        memset(CGTutorial::m_tutorialFlags.m_array.m_data, 0, sizeof(uint32_t) * CGTutorial::m_tutorialFlags.m_array.m_count);
     }
 
     memset(s_tutorialsCompleted, 0, sizeof(s_tutorialsCompleted));
@@ -130,7 +130,7 @@ void CGTutorial::ResetTutorials() {
 // VERIFY: 2e754cd0 manual
 // OFFSET: 0x00530840
 void CGTutorial::TriggerTutorial(uint32_t tutorial) {
-    if (!CGTutorial::m_tutorialShown.m_count) {
+    if (!CGTutorial::m_tutorialShown.m_numBits) {
         return;
     }
 

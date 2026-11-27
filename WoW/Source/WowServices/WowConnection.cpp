@@ -53,11 +53,11 @@ static const uint8_t s_defaultSeed[32] = { 0xCC, 0x98, 0xAE, 0x04, 0xE8, 0x97, 0
 
 // INLINED
 void WowConnection::IDBITS::SetCount(uint32_t count) {
-    this->m_count = count;
-    this->m_bits.SetCount(count ? ((count - 1) >> 5) + 1 : 0);
+    this->m_numBits = count;
+    this->m_array.SetCount(count ? ((count - 1) >> 5) + 1 : 0);
 
-    if (this->m_count) {
-        memset(this->m_bits.m_data, 0, sizeof(uint32_t) * this->m_bits.m_count);
+    if (this->m_numBits) {
+        memset(this->m_array.m_data, 0, sizeof(uint32_t) * this->m_array.m_count);
     }
 }
 
@@ -94,8 +94,8 @@ void WowConnection::SetEncryptionKey(const uint8_t* key, uint8_t keyLength, uint
 // VERIFY: 9c7e0bb3 manual
 // OFFSET: 0x00466DB0
 void WowConnection::IDBITS::Or(const WowConnection::IDBITS& source) {
-    for (int32_t i = 0; i < static_cast<int32_t>(source.m_bits.m_count); i++) {
-        this->m_bits.m_data[i] |= source.m_bits.m_data[i];
+    for (int32_t i = 0; i < static_cast<int32_t>(source.m_array.m_count); i++) {
+        this->m_array.m_data[i] |= source.m_array.m_data[i];
     }
 }
 
@@ -448,15 +448,15 @@ void WowConnection::MarkSocketId(int32_t sock) {
 
     WowConnection::s_idLock.Enter();
 
-    if (sock >= static_cast<int32_t>(WowConnection::s_idBits.m_count)) {
-        int32_t count = WowConnection::s_idBits.m_count;
+    if (sock >= static_cast<int32_t>(WowConnection::s_idBits.m_numBits)) {
+        int32_t count = WowConnection::s_idBits.m_numBits;
 
         do {
             count *= 2;
         } while (sock >= count);
 
         WowConnection::IDBITS bits;
-        bits.SetCount(WowConnection::s_idBits.m_count);
+        bits.SetCount(WowConnection::s_idBits.m_numBits);
         bits.Or(WowConnection::s_idBits);
         WowConnection::s_idBits.SetCount(count);
         WowConnection::s_idBits.Or(bits);

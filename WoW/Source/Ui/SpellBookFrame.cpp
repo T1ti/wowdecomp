@@ -205,8 +205,8 @@ void CGSpellBook::UpdateUsable() {
 // VERIFY: bcebf4cf manual
 // OFFSET: 0x0053F1F0
 void CGSpellBook::InitializeGame() {
-    s_knownSpellBits.m_count = g_spellDB.GetMaxID() + 1;
-    s_knownSpellBits.m_bits.SetCount(s_knownSpellBits.m_count ? ((s_knownSpellBits.m_count - 1) >> 5) + 1 : 0);
+    s_knownSpellBits.m_numBits = g_spellDB.GetMaxID() + 1;
+    s_knownSpellBits.m_array.SetCount(s_knownSpellBits.m_numBits ? ((s_knownSpellBits.m_numBits - 1) >> 5) + 1 : 0);
     CGSpellBook::m_languageSpells.SetCount(g_languagesDB.GetMaxID() + 1);
     CGSpellBook::ClearSpells();
     memset(s_petSpellList, 0, sizeof(s_petSpellList));
@@ -234,8 +234,8 @@ int32_t CGSpellBook::GetSpellProgressionRank(const SpellRec* spell) {
 // VERIFY: 3e93ab26 manual
 // OFFSET: 0x0053EC40
 void CGSpellBook::ClearSpells() {
-    if (s_knownSpellBits.m_count) {
-        memset(s_knownSpellBits.m_bits.m_data, 0, sizeof(s_knownSpellBits.m_bits.m_data[0]) * s_knownSpellBits.m_bits.m_count);
+    if (s_knownSpellBits.m_numBits) {
+        memset(s_knownSpellBits.m_array.m_data, 0, sizeof(s_knownSpellBits.m_array.m_data[0]) * s_knownSpellBits.m_array.m_count);
     }
 
     s_numSpells = 0;
@@ -2399,10 +2399,10 @@ void CGSpellBook::ShutdownGame() {
 
     s_skillInfos.Clear();
     s_numSkillInfos = 0;
-    s_knownSpellBits.m_count = 0;
+    s_knownSpellBits.m_numBits = 0;
 
-    if (s_knownSpellBits.m_bits.m_count) {
-        s_knownSpellBits.m_bits.Clear();
+    if (s_knownSpellBits.m_array.m_count) {
+        s_knownSpellBits.m_array.Clear();
     }
 
     CGSpellBook::m_languageSpells.Clear();

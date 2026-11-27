@@ -400,11 +400,11 @@ int32_t Packet_SMSG_MAIL_LIST_RESULT(void* param, NETMESSAGE msgId, uint32_t tim
         memset(messageInfo->m_attachments, 0, sizeof(messageInfo->m_attachments));
 
         TSBitField<TSGrowableArray<uint32_t> > used;
-        used.m_count = MailboxMessageInfo::MAX_ATTACHMENTS;
-        used.m_bits.ReallocData(1);
+        used.m_numBits = MailboxMessageInfo::MAX_ATTACHMENTS;
+        used.m_array.ReallocData(1);
 
-        if (used.m_count) {
-            used.m_bits.m_data[0] = 0;
+        if (used.m_numBits) {
+            used.m_array.m_data[0] = 0;
         }
 
         for (int32_t j = 0; j < numItems; j++) {

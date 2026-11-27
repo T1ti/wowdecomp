@@ -66,10 +66,10 @@ static int32_t Script_IsTutorialFlagged(lua_State* L) {
 // VERIFY: c71cc525 auto
 // OFFSET: 0x00530700
 static int32_t Script_CanResetTutorials(lua_State* L) {
-    for (uint32_t i = CGTutorial::m_tutorialShown.m_bits.m_count; i; ) {
+    for (uint32_t i = CGTutorial::m_tutorialShown.m_array.m_count; i; ) {
         i--;
 
-        if (CGTutorial::m_tutorialShown.m_bits.m_data[i]) {
+        if (CGTutorial::m_tutorialShown.m_array.m_data[i]) {
             lua_pushnumber(L, 1.0);
             return 1;
         }

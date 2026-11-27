@@ -3213,7 +3213,7 @@ void CGPlayer_C::SetCombatMode() {
         return;
     }
 
-    if (CGTutorial::m_tutorialFlags.m_count && (reinterpret_cast<uint8_t*>(CGTutorial::m_tutorialFlags.m_bits.m_data)[7] & 0x1)) {
+    if (CGTutorial::m_tutorialFlags.m_numBits && (reinterpret_cast<uint8_t*>(CGTutorial::m_tutorialFlags.m_array.m_data)[7] & 0x1)) {
         return;
     }
 

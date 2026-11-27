@@ -332,8 +332,8 @@ void CombatLogEntry::SetMissInfo(int32_t missType, int32_t amount) {
 // OFFSET: 0x0074E050
 bool CombatLogFilter::SetFilterData(const char* events, const WOWGUID& sourceGuid, uint32_t sourceFlags, const WOWGUID& destGuid, uint32_t destFlags, int32_t spellId, const char* spellName) {
     if (events) {
-        if (this->m_events.m_count) {
-            memset(this->m_events.m_bits.m_data, 0, sizeof(uint32_t) * this->m_events.m_bits.m_count);
+        if (this->m_events.m_numBits) {
+            memset(this->m_events.m_array.m_data, 0, sizeof(uint32_t) * this->m_events.m_array.m_count);
         }
 
         char token[128];
@@ -352,8 +352,8 @@ bool CombatLogFilter::SetFilterData(const char* events, const WOWGUID& sourceGui
                 }
             }
         } while (token[0] && *events);
-    } else if (this->m_events.m_count) {
-        memset(this->m_events.m_bits.m_data, 0xFF, sizeof(uint32_t) * this->m_events.m_bits.m_count);
+    } else if (this->m_events.m_numBits) {
+        memset(this->m_events.m_array.m_data, 0xFF, sizeof(uint32_t) * this->m_events.m_array.m_count);
     }
 
     if (sourceGuid) {
