@@ -547,7 +547,9 @@ int32_t CGCommentator::OnReceivePlayerInfo(void* param, NETMESSAGE msgId, uint32
         info.unk_003C = value;
 
         if (info.m_faction < 2) {
-            instance->m_players[info.m_faction][instance->m_numPlayers[info.m_faction]] = info;
+            CGCommentator::PlayerInfo* pPlayerInfo = &instance->m_players[info.m_faction][instance->m_numPlayers[info.m_faction]];
+            STORM_ASSERT(pPlayerInfo);
+            *pPlayerInfo = info;
             instance->m_numPlayers[info.m_faction]++;
         }
     }
@@ -638,7 +640,7 @@ int32_t CGCommentator::OnReceiveMapInfo(void* param, NETMESSAGE msgId, uint32_t 
     current.m_guid = 0;
     msg->Get(current.m_guid);
 
-    bool found = false;
+    bool foundInstance = false;
     uint32_t foundMapID = 0;
     CommentatorInstanceKey foundKey;
 
@@ -681,14 +683,15 @@ int32_t CGCommentator::OnReceiveMapInfo(void* param, NETMESSAGE msgId, uint32_t 
             instance->m_numPlayers[1] = 0;
 
             if (current && current == instance->m_guid) {
+                STORM_ASSERT(foundInstance == false);
                 foundMapID = instance->m_mapID;
                 foundKey = instance->m_key;
-                found = true;
+                foundInstance = true;
             }
         }
     }
 
-    if (found) {
+    if (foundInstance) {
         CGCommentator::s_Commentator.m_mapID = foundMapID;
         CGCommentator::s_Commentator.m_key = foundKey;
     }
