@@ -143,6 +143,7 @@ template <class T>
 int32_t M2Init(uint8_t* base, uint32_t size, const M2Data& data, M2Array<T>& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(T) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
@@ -158,6 +159,7 @@ template <class T>
 int32_t M2Init(uint8_t* base, uint32_t size, const M2Data& data, M2Array<M2Array<T> >& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(M2Array<T>) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
@@ -181,6 +183,7 @@ int32_t M2Init(uint8_t* base, uint32_t size, const M2Data& data, M2TrackBase& tr
 
             for (uint32_t i = 0; i < track.m_sequenceTimes.m_count; i++) {
                 if (data.m_sequences[i].m_flags & M2Sequence::FLAGS::LOADED) {
+                    STORM_ASSERT(track.m_sequenceTimes[i].m_offset < size); // 12213: "keys.offset < size"
                     track.m_sequenceTimes[i].Relocate(base);
                 }
             }
@@ -188,6 +191,7 @@ int32_t M2Init(uint8_t* base, uint32_t size, const M2Data& data, M2TrackBase& tr
             return 0;
         }
     } else if (s_sequenceIndex < track.m_sequenceTimes.m_count) {
+        STORM_ASSERT(track.m_sequenceTimes[s_sequenceIndex].m_offset < s_sequenceSize); // 12213: "keys.offset < size"
         track.m_sequenceTimes[s_sequenceIndex].Relocate(s_sequenceData);
     }
 
@@ -203,6 +207,7 @@ int32_t M2Init(uint8_t* base, uint32_t size, const M2Data& data, M2Track<T>& tra
 
             for (uint32_t i = 0; i < track.m_sequenceTimes.m_count; i++) {
                 if (data.m_sequences[i].m_flags & M2Sequence::FLAGS::LOADED) {
+                    STORM_ASSERT(track.m_sequenceTimes[i].m_offset < size); // 12213: "keys.offset < size"
                     track.m_sequenceTimes[i].Relocate(base);
                 }
             }
@@ -215,6 +220,7 @@ int32_t M2Init(uint8_t* base, uint32_t size, const M2Data& data, M2Track<T>& tra
 
             for (uint32_t i = 0; i < track.m_sequenceTimes.m_count; i++) {
                 if (data.m_sequences[i].m_flags & M2Sequence::FLAGS::LOADED) {
+                    STORM_ASSERT(track.m_sequenceKeys[i].m_offset < size); // 12213: "keys.offset < size"
                     track.m_sequenceKeys[i].Relocate(base);
                 }
             }
@@ -223,10 +229,12 @@ int32_t M2Init(uint8_t* base, uint32_t size, const M2Data& data, M2Track<T>& tra
         }
     } else {
         if (s_sequenceIndex < track.m_sequenceTimes.m_count) {
+            STORM_ASSERT(track.m_sequenceTimes[s_sequenceIndex].m_offset < s_sequenceSize); // 12213: "keys.offset < size"
             track.m_sequenceTimes[s_sequenceIndex].Relocate(s_sequenceData);
         }
 
         if (s_sequenceIndex < track.m_sequenceKeys.m_count) {
+            STORM_ASSERT(track.m_sequenceKeys[s_sequenceIndex].m_offset < s_sequenceSize); // 12213: "keys.offset < size"
             track.m_sequenceKeys[s_sequenceIndex].Relocate(s_sequenceData);
         }
     }
@@ -240,6 +248,7 @@ template <>
 int32_t M2Init<M2Sequence>(uint8_t* base, uint32_t size, const M2Data& data, M2Array<M2Sequence>& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(M2Sequence) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
@@ -696,6 +705,7 @@ template <>
 int32_t M2Init<M2Texture>(uint8_t* base, uint32_t size, const M2Data& data, M2Array<M2Texture>& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(M2Texture) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
@@ -797,6 +807,7 @@ template <>
 int32_t M2Init<M2Event>(uint8_t* base, uint32_t size, const M2Data& data, M2Array<M2Event>& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(M2Event) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
@@ -1272,6 +1283,7 @@ template <>
 int32_t M2Init<M2Color>(uint8_t* base, uint32_t size, const M2Data& data, M2Array<M2Color>& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(M2Color) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
@@ -1295,6 +1307,7 @@ template <>
 int32_t M2Init<M2TextureWeight>(uint8_t* base, uint32_t size, const M2Data& data, M2Array<M2TextureWeight>& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(M2TextureWeight) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
@@ -1350,6 +1363,7 @@ template <>
 int32_t M2Init<M2CompBone>(uint8_t* base, uint32_t size, const M2Data& data, M2Array<M2CompBone>& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(M2CompBone) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
@@ -1373,6 +1387,7 @@ template <>
 int32_t M2Init<M2TextureTransform>(uint8_t* base, uint32_t size, const M2Data& data, M2Array<M2TextureTransform>& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(M2TextureTransform) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
@@ -1396,6 +1411,7 @@ template <>
 int32_t M2Init<M2Attachment>(uint8_t* base, uint32_t size, const M2Data& data, M2Array<M2Attachment>& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(M2Attachment) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
@@ -1417,6 +1433,7 @@ template <>
 int32_t M2Init<M2Light>(uint8_t* base, uint32_t size, const M2Data& data, M2Array<M2Light>& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(M2Light) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
@@ -1440,6 +1457,7 @@ template <>
 int32_t M2Init<M2Camera>(uint8_t* base, uint32_t size, const M2Data& data, M2Array<M2Camera>& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(M2Camera) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
@@ -1463,6 +1481,7 @@ template <>
 int32_t M2Init<M2Ribbon>(uint8_t* base, uint32_t size, const M2Data& data, M2Array<M2Ribbon>& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(M2Ribbon) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
@@ -1491,6 +1510,7 @@ template <>
 int32_t M2Init<M2Particle>(uint8_t* base, uint32_t size, const M2Data& data, M2Array<M2Particle>& array) {
     if (s_sequenceIndex == 0xFFFFFFFF) {
         if (array.m_offset > size || array.m_offset + sizeof(M2Particle) * array.m_count > size) {
+            STORM_ASSERT(0);
             return 0;
         }
 
