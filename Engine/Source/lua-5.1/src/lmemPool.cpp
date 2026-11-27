@@ -36,8 +36,8 @@ MemPool::MemPool() {
 // VERIFY: 403cd95b auto
 // OFFSET: 0x00855670
 int32_t MemPool::MemFree(void* ptr) {
-    for (uint32_t i = 0; i < this->m_chunks.Count(); i++) {
-        MemChunk* chunk = this->m_chunks[i];
+    for (uint32_t i = 0; i < this->m_memchunks.Count(); i++) {
+        MemChunk* chunk = this->m_memchunks[i];
 
         if (ptr >= chunk->m_memblocks && ptr < static_cast<char*>(chunk->m_memblocks) + chunk->m_size) {
             *static_cast<void**>(ptr) = chunk->m_free;
@@ -47,14 +47,28 @@ int32_t MemPool::MemFree(void* ptr) {
         }
     }
 
+    STORM_ASSERT(!"This should never happen!");
     return 0;
+}
+
+// INLINED
+bool MemPool::Contains(void* ptr) {
+    for (uint32_t i = 0; i < this->m_memchunks.Count(); i++) {
+        MemChunk* chunk = this->m_memchunks[i];
+
+        if (ptr >= chunk->m_memblocks && ptr < static_cast<char*>(chunk->m_memblocks) + chunk->m_size) {
+            return true;
+        }
+    }
+
+    return false;
 }
 
 // VERIFY: d5bd1438 manual
 // OFFSET: 0x008556E0
 MemPool::~MemPool() {
-    for (uint32_t i = this->m_chunks.Count(); i; i--) {
-        delete this->m_chunks[i - 1];
+    for (uint32_t i = this->m_memchunks.Count(); i; i--) {
+        delete this->m_memchunks[i - 1];
     }
 }
 
@@ -65,6 +79,7 @@ void* luaM_initPool() {
 
     for (uint32_t i = 0; i < sizeof(s_blocksizes) / sizeof(s_blocksizes[0]); i++) {
         pools[i] = new (__FILE__, __LINE__) MemPool();
+        STORM_ASSERT(pools[i]->m_memchunks.Count() == 0); // 12213: "m_memchunks.Count() == 0"
         pools[i]->m_blockSize = s_blocksizes[i];
         pools[i]->m_numBlocks = (s_blocksizes[i] * 1024) / s_blocksizes[i];
         pools[i]->m_chunkSize = s_blocksizes[i] * pools[i]->m_numBlocks;
@@ -92,10 +107,10 @@ void luaM_freePool(void* ud) {
 // VERIFY: 48e99a2f manual
 // OFFSET: 0x00855820
 void* MemPool::MemAlloc() {
-    uint32_t count = this->m_chunks.Count();
+    uint32_t count = this->m_memchunks.Count();
 
     for (uint32_t i = 0; i < count; i++) {
-        MemChunk* chunk = this->m_chunks[i];
+        MemChunk* chunk = this->m_memchunks[i];
 
         if (chunk->m_free) {
             void* block = chunk->m_free;
@@ -105,10 +120,10 @@ void* MemPool::MemAlloc() {
         }
     }
 
-    this->m_chunks.SetCount(count + 1);
-    this->m_chunks[count] = new (__FILE__, __LINE__) MemChunk(this->m_blockSize, this->m_chunkSize);
+    this->m_memchunks.SetCount(count + 1);
+    this->m_memchunks[count] = new (__FILE__, __LINE__) MemChunk(this->m_blockSize, this->m_chunkSize);
 
-    MemChunk* chunk = this->m_chunks[count];
+    MemChunk* chunk = this->m_memchunks[count];
     void* block = nullptr;
 
     if (chunk->m_free) {
@@ -134,6 +149,12 @@ void* luaM_reallocPool(void* ud, void* ptr, size_t osize, size_t nsize) {
                 break;
             }
         }
+
+#if defined(WOWDECOMP_ASSERTIONS)
+        if (oldpool >= 0) {
+            STORM_ASSERT(pools[oldpool]->Contains(ptr)); // 12213: "mempool[i]->Contains(block)"
+        }
+#endif
     }
 
     if (!nsize) {

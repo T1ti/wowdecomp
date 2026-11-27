@@ -20,7 +20,7 @@ class MemChunk {
 
 class MemPool {
     public:
-    /* 0000 */ TSFixedArray<MemChunk*> m_chunks;
+    /* 0000 */ TSFixedArray<MemChunk*> m_memchunks;
     /* 000C */ uint32_t m_chunkSize;
     /* 0010 */ uint32_t m_blockSize;
     /* 0014 */ uint32_t m_numBlocks;
@@ -29,6 +29,7 @@ class MemPool {
     ~MemPool();
     void* MemAlloc();
     int32_t MemFree(void* ptr);
+    bool Contains(void* ptr);
 };
 
 LUAI_FUNC void* luaM_initPool();
