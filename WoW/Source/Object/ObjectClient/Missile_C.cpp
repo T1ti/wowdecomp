@@ -1200,9 +1200,16 @@ void CMissile::InitializeTrajectory() {
     }
 
     SpellRec spell;
-    int32_t hasSpell = g_spellDB.GetRecord(this->m_spellID, &spell);
-    SpellMissileRec* missile = hasSpell ? g_spellMissileDB.GetRecord(spell.m_spellMissileID) : nullptr;
-    this->m_gravity = missile ? missile->m_gravity : 19.291105f;
+    int32_t loadedSpellRec = g_spellDB.GetRecord(this->m_spellID, &spell);
+    SpellMissileRec* spellMissileRec = loadedSpellRec ? g_spellMissileDB.GetRecord(spell.m_spellMissileID) : nullptr;
+#if defined(WOWDECOMP_ASSERTIONS)
+    if (loadedSpellRec) {
+        STORM_ASSERT(spellMissileRec);
+    } else {
+        STORM_ASSERT(loadedSpellRec);
+    }
+#endif
+    this->m_gravity = spellMissileRec ? spellMissileRec->m_gravity : 19.291105f;
     float speed;
     int32_t result = SpellUtils_ComputeMissileTrajectory(pitch, &delta, this->m_gravity, &speed, &this->m_travelTime, &velocity);
 
@@ -1223,16 +1230,16 @@ void CMissile::InitializeTrajectory() {
     }
 
     if (result == 1) {
-        if (hasSpell && missile) {
+        if (loadedSpellRec && spellMissileRec) {
             speed = this->m_trajectorySpeed;
             this->m_travelTime = SpellUtils_ComputeMissileTrajectoryTravelTime(pitch, speed, &delta, this->m_gravity);
 
             if (this->m_travelTime < 0.0001f) {
-                speed = missile->m_defaultSpeedMin;
+                speed = spellMissileRec->m_defaultSpeedMin;
                 this->m_travelTime = SpellUtils_ComputeMissileTrajectoryTravelTime(pitch, speed, &delta, this->m_gravity);
 
                 if (this->m_travelTime < 0.0001f) {
-                    speed = missile->m_defaultSpeedMax;
+                    speed = spellMissileRec->m_defaultSpeedMax;
                     this->m_travelTime = SpellUtils_ComputeMissileTrajectoryTravelTime(pitch, speed, &delta, this->m_gravity);
 
                     if (this->m_travelTime < 0.0001f) {
@@ -1271,12 +1278,12 @@ void CMissile::InitializeTrajectory() {
         this->m_baseSpeed = newSpeed;
     }
 
-    if ((this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_LOCAL_COLLISION_DETECTION) && (missile->m_flags & SPELL_MISSILE_FLAG_UNIT_COLLISION_MASK)) {
+    if ((this->m_flags & MISSILE_FLAGS::MISSILE_FLAG_LOCAL_COLLISION_DETECTION) && (spellMissileRec->m_flags & SPELL_MISSILE_FLAG_UNIT_COLLISION_MASK)) {
         CGUnit_C* caster = static_cast<CGUnit_C*>(ClntObjMgrObjectPtr(this->m_caster, TYPE_UNIT, __FILE__, __LINE__));
         this->m_missileCollision = CMissileCollision::Alloc();
         CGUnit_C* root = caster && caster->m_vehiclePassenger && caster->m_vehiclePassenger->m_transitionVehicleGuid ? caster->m_vehiclePassenger->GetStoredRootVehicleUnit() : caster;
         C3Vector end = this->TransformPositionByTransport();
-        this->m_missileCollision->Init(&this->m_launchPos, &end, pitch, speed, missile, root);
+        this->m_missileCollision->Init(&this->m_launchPos, &end, pitch, speed, spellMissileRec, root);
     }
 }
 
