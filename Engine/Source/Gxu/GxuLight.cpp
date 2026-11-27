@@ -94,9 +94,11 @@ static float GxuLightGetGridSizeImpl() {
 
 // VERIFY: fd3c112d auto
 // OFFSET: 0x006BB5B0
-static void GxuLightSetGridSizeImpl(float gridSize) {
-    s_gridSize = gridSize;
-    s_gridHalfSize = gridSize * 0.5;
+static void GxuLightSetGridSizeImpl(float bucketSize) {
+    STORM_ASSERT(bucketSize > 0.0f);
+
+    s_gridSize = bucketSize;
+    s_gridHalfSize = bucketSize * 0.5;
     GxuLightInvalidate();
 }
 
@@ -250,6 +252,8 @@ static void GxuLightApplyImpl(float x, float y, int32_t unused, const C3Vector& 
 // VERIFY: 1d2dd109 manual
 // OFFSET: 0x006BC360
 static void GxuLightShutdownImpl() {
+    STORM_ASSERT(!s_lights.Head()); // 12213: "!CGxuLight::s_lights.Head()"
+
     s_lightGrid.Destroy();
     s_freeLights.Clear();
     s_freeLinks.Clear();
