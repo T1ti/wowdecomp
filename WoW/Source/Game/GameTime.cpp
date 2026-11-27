@@ -48,7 +48,7 @@ float CGameTime::GameTimeSetMinutesPerSecond(float minutesPerSecond) {
 // OFFSET: 0x0076D600
 CGameTime::CGameTime() {
     this->m_minutesPerSecond = 1.0f / 60.0f;
-    this->m_fracMinutes = 0.0f;
+    this->m_gameMinutesThisTick = 0.0f;
     this->unused_0020 = 0;
     this->m_baseMinuteOfDay = 0.0f;
     this->m_minuteOffset = 0;
@@ -92,12 +92,13 @@ void CGameTime::UpdateTimeStamps(int32_t minutes) {
         return;
     }
 
-    TIMESTAMPCALLBACK* callback = stamp->m_callbacks.Head();
+    TIMESTAMPCALLBACK* curr = stamp->m_callbacks.Head();
 
-    while (callback) {
-        TIMESTAMPCALLBACK* next = stamp->m_callbacks.Next(callback);
-        callback->m_callback(this, callback->m_param);
-        callback = next;
+    while (curr) {
+        TIMESTAMPCALLBACK* next = stamp->m_callbacks.Next(curr);
+        STORM_ASSERT(curr->m_callback); // 12213: "curr->callback"
+        curr->m_callback(this, curr->m_param);
+        curr = next;
     }
 }
 
@@ -115,7 +116,7 @@ void CGameTime::TickMinute() {
     this->UpdateTimeStamps(minutes);
     this->m_lastTickMs = OsGetAsyncTimeMs();
     this->m_running = 1;
-    this->m_baseMinuteOfDay = minutes + this->m_fracMinutes;
+    this->m_baseMinuteOfDay = minutes + this->m_gameMinutesThisTick;
 }
 
 // VERIFY: 71f0267b manual
@@ -158,21 +159,22 @@ void CGameTime::GameTimeSetTime(const WowTime& time, bool tick) {
 // VERIFY: b37d545d manual
 // OFFSET: 0x0076D900
 void CGameTime::GameTimeUpdate(float elapsed) {
-    this->m_fracMinutes = this->m_minutesPerSecond * elapsed + this->m_fracMinutes;
+    this->m_gameMinutesThisTick = this->m_minutesPerSecond * elapsed + this->m_gameMinutesThisTick;
+    STORM_ASSERT(m_gameMinutesThisTick >= 0.0f);
 
-    if (this->m_elapsedMinutes && this->m_fracMinutes >= 1.0f) {
-        uint32_t minutes = static_cast<uint32_t>(this->m_fracMinutes);
+    if (this->m_elapsedMinutes && this->m_gameMinutesThisTick >= 1.0f) {
+        uint32_t minutes = static_cast<uint32_t>(this->m_gameMinutesThisTick);
 
         if (this->m_elapsedMinutes < minutes) {
             minutes = this->m_elapsedMinutes;
         }
 
         this->m_elapsedMinutes -= minutes;
-        this->m_fracMinutes -= minutes;
+        this->m_gameMinutesThisTick -= minutes;
     }
 
-    while (this->m_fracMinutes >= 1.0f) {
-        this->m_fracMinutes -= 1.0f;
+    while (this->m_gameMinutesThisTick >= 1.0f) {
+        this->m_gameMinutesThisTick -= 1.0f;
         this->TickMinute();
     }
 }
