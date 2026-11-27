@@ -655,22 +655,23 @@ int32_t Packet_MSG_BATTLEGROUND_PLAYER_POSITIONS(void* param, NETMESSAGE msgId, 
         msg->Get(CGBattlefieldInfo::m_playerPositions[i].y);
     }
 
-    int32_t numFlags;
-    msg->Get(reinterpret_cast<uint32_t&>(numFlags));
+    int32_t numFlagCarriers;
+    msg->Get(reinterpret_cast<uint32_t&>(numFlagCarriers));
+    STORM_ASSERT(numFlagCarriers <= 2);
 
-    if (numFlags > 0) {
-        if (numFlags < 2) {
+    if (numFlagCarriers > 0) {
+        if (numFlagCarriers < 2) {
             CGBattlefieldInfo::m_flagCarriers[1] = WOWGUID();
             CGBattlefieldInfo::m_flagPositions[1].x = 0.0f;
             CGBattlefieldInfo::m_flagPositions[1].y = 0.0f;
         }
 
         do {
-            numFlags--;
-            msg->Get(CGBattlefieldInfo::m_flagCarriers[numFlags].m_guid);
-            msg->Get(CGBattlefieldInfo::m_flagPositions[numFlags].x);
-            msg->Get(CGBattlefieldInfo::m_flagPositions[numFlags].y);
-        } while (numFlags > 0);
+            numFlagCarriers--;
+            msg->Get(CGBattlefieldInfo::m_flagCarriers[numFlagCarriers].m_guid);
+            msg->Get(CGBattlefieldInfo::m_flagPositions[numFlagCarriers].x);
+            msg->Get(CGBattlefieldInfo::m_flagPositions[numFlagCarriers].y);
+        } while (numFlagCarriers > 0);
 
         return 1;
     }
@@ -1742,6 +1743,8 @@ void CGBattlefieldInfo::BattlefieldMgrExitRequest(int32_t battleId) {
 // VERIFY: b9ad3927 manual
 // OFFSET: 0x0054D4B0
 int32_t Packet_SMSG_BATTLEFIELD_PORT_DENIED(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg) {
+    STORM_ASSERT(msgId == SMSG_BATTLEFIELD_PORT_DENIED);
+
     if (ClntObjMgrGetActivePlayerObj()) {
         CGGameUI::DisplayError(ERR_PLAYER_DEAD);
     }
