@@ -779,13 +779,14 @@ void CGUIMacros::LoadMacrosCallback(HOSFILE localFile, HOSFILE cacheFile, void* 
     s_maxMacroID[type] = s_macroIDBase[type];
 
     if (cacheFile != OS_INVALID_FILE) {
-        uint32_t size = static_cast<uint32_t>(OsGetFileSize(cacheFile));
+        uint32_t fileSize = static_cast<uint32_t>(OsGetFileSize(cacheFile));
 
-        if (size) {
-            char* buffer = static_cast<char*>(alloca(size + 1));
+        if (fileSize) {
+            char* buffer = static_cast<char*>(alloca(fileSize + 1));
             uint32_t bytesRead;
 
-            if (OsReadFile(cacheFile, buffer, size, &bytesRead)) {
+            if (OsReadFile(cacheFile, buffer, fileSize, &bytesRead)) {
+                STORM_ASSERT(bytesRead == fileSize);
                 buffer[bytesRead] = '\0';
 
                 MACRONODE* current = nullptr;
@@ -1071,6 +1072,8 @@ int32_t MACRONODE::FindSpellID() {
 // OFFSET: 0x00566530
 void CGUIMacros::Shutdown() {
     s_initCounter++;
+    STORM_ASSERT(!CGUIMacros::m_saveMacros);
+
     s_dynamicMacros.UnlinkAll();
     s_macros.Clear();
 
@@ -1147,6 +1150,7 @@ uint32_t CGUIMacros::CreateMacro(const char* name, const char* icon, const char*
     }
 
     uint32_t id = ++s_maxMacroID[type];
+    STORM_ASSERT(!s_macros.Ptr(id, HASHKEY_NONE())); // 12213: "!m_macros.Ptr(id, HASHKEY_NONE())"
     HASHKEY_NONE key;
     MACRONODE* macro = s_macros.New(id, key, 0, 0);
     macro->m_id = id;
