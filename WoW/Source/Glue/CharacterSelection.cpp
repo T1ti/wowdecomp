@@ -17,6 +17,7 @@
 #include "Engine/Source/Tempest/CAaSphere.h"
 #include "WoW/Common/ComponentCore/CharacterComponent.h"
 #include "WoW/Source/Client.h"
+#include "WoW/Source/DB/DBClient/DBCacheInstances.h"
 #include "WoW/Source/DB/DBClient/DBClient.h"
 #include "WoW/Source/DB/Rec/CreatureDisplayInfoRec.h"
 #include "WoW/Source/DB/Rec/CreatureFamilyRec.h"
@@ -198,6 +199,8 @@ void CCharacterSelection::GuildCallback(int32_t guildID, const WOWGUID& guid, vo
     if (!guildID || !success) {
         return;
     }
+
+    STORM_ASSERT(g_guildInfoCache.GetRecord(guildID, WOWGUID(), nullptr, nullptr, false)); // 12213: "g_guildInfoCache.GetRecord(guildID)"
 
     for (int32_t i = 0; i < static_cast<int32_t>(CCharacterSelection::s_characterList.Count()); i++) {
         if (CCharacterSelection::s_characterList[i].m_characterInfo.m_guildID != static_cast<uint32_t>(guildID)) {
@@ -406,6 +409,7 @@ void CCharacterSelection::SetBackgroundModel(const char* modelName) {
 // VERIFY: fcc3bd5f auto
 // OFFSET: 0x004E3CA0
 void CCharacterSelection::EnumerateCharactersCallback(CHARACTER_INFO& info, void* param) {
+    STORM_ASSERT(CCharacterSelection::s_characterList.Count() < MAX_CHARACTERS_PER_REALM); // 12213: "m_characterList.Count() < MAX_CHARACTERS_PER_REALM"
     memcpy(&CCharacterSelection::s_characterList.New()->m_characterInfo, &info, sizeof(info));
     LoadAddOnEnableState(info.m_name);
 }

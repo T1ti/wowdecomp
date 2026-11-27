@@ -13,6 +13,8 @@ class CSimpleModelFFX;
 
 class CCharacterSelection {
     public:
+    static const uint32_t MAX_CHARACTERS_PER_REALM = 10;
+
     // Login restrictions use a compact order separate from CHARACTER_RACE IDs.
     enum RACE_RESTRICTION_INDEX : uint32_t {
         RACE_RESTRICTION_HUMAN = 0,
