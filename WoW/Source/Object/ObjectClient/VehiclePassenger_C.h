@@ -177,6 +177,7 @@ class CVehiclePassenger_C {
     int32_t GetLowerAnim(const VehicleSeatRec* seat) const;
     int32_t GetUpperAnim(const VehicleSeatRec* seat) const;
     CGUnit_C* GetStoredRootVehicleUnit() const;
+    CGUnit_C* GetUnit() const { return this->m_unit; }
     void StartMirroringVehicleAnims();
     void Uninit();
     void Update(uint32_t time);

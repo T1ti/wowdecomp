@@ -462,6 +462,7 @@ void CGUnit_C::VehiclePassengerOnUpdateTransport(WOWGUID transport, uint8_t seat
         this->m_vehiclePassenger = CVehiclePassenger_C::Alloc(this);
     }
 
+    STORM_ASSERT(m_vehiclePassenger->GetUnit() == this);
     this->m_vehiclePassenger->OnUpdateTransport(guid, seat, vehicle, deferred);
 
     if (this->m_vehicleCamera) {
