@@ -37,8 +37,8 @@ class CGRuneInfo {
     static bool ComputeRuneSpellCooldown(const SpellRec* spell, uint32_t* cooldown);
     static bool IsRuneIndexValid(int32_t index);
     static int32_t GetRuneTypeByIndex(int32_t index, bool base);
-    static uint32_t GetRuneLastUsedTime(int32_t rune);
-    static void SetRuneLastUsedTime(int32_t rune, uint32_t time);
+    static uint32_t GetRuneLastUsedTime(int32_t i);
+    static void SetRuneLastUsedTime(int32_t i, uint32_t time);
     static void ComputeRuneRechargeTime(int32_t rune, float progress);
     static uint32_t GetPredictedRunes() { return m_predictedRunes; } // (inferred)
 

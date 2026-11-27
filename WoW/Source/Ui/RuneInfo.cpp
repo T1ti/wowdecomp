@@ -316,22 +316,22 @@ void CGRuneInfo::ShutdownGame() {
 
 // VERIFY: 8a4f7690 auto
 // OFFSET: 0x005EDFA0
-void CGRuneInfo::SetRuneLastUsedTime(int32_t rune, uint32_t time) {
-    STORM_ASSERT(rune >= 0 && rune < 8);
+void CGRuneInfo::SetRuneLastUsedTime(int32_t i, uint32_t time) {
+    STORM_ASSERT(i >= 0 && i < 8);
 
-    CGRuneInfo::m_runeLastUsed[rune] = time;
+    CGRuneInfo::m_runeLastUsed[i] = time;
 }
 
 // VERIFY: 89906422 manual
 // OFFSET: 0x005EE110
-uint32_t CGRuneInfo::GetRuneLastUsedTime(int32_t rune) {
-    STORM_ASSERT(rune >= 0 && rune < 8);
+uint32_t CGRuneInfo::GetRuneLastUsedTime(int32_t i) {
+    STORM_ASSERT(i >= 0 && i < 8);
 
     if (!ClntObjMgrGetActivePlayerObj()) {
         return 0;
     }
 
-    return CGRuneInfo::m_runeLastUsed[rune];
+    return CGRuneInfo::m_runeLastUsed[i];
 }
 
 // VERIFY: 0b8f3a32 manual
