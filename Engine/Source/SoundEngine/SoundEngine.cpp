@@ -98,7 +98,7 @@ static uint32_t s_captureChannels;
 static uint32_t s_captureLastPosition;
 
 // STATIC: 0x00D43824
-static int32_t s_capturing;
+static int32_t s_bCaptureWorkEnabled;
 
 // STATIC: 0x00D43828
 static int32_t s_reverbEnabled;
@@ -1294,7 +1294,7 @@ bool SE2::IsCapturing() {
 // VERIFY: 114728bb manual
 // OFFSET: 0x008787E0
 void SE2::CaptureWork() {
-    if (!s_capturing) {
+    if (!s_bCaptureWorkEnabled) {
         return;
     }
 
@@ -1345,7 +1345,7 @@ void SE2::StartCapture() {
         return;
     }
 
-    s_capturing = 1;
+    s_bCaptureWorkEnabled = 1;
 
     if (!SE2::sm_bCaptureInitialized) {
         return;
@@ -1379,7 +1379,7 @@ void SE2::StopCapture() {
 // VERIFY: cb40798f auto
 // OFFSET: 0x0087C540
 void SE2::ShutDownCapture() {
-    s_capturing = 0;
+    s_bCaptureWorkEnabled = 0;
 
     bool recording = false;
 
@@ -3919,9 +3919,11 @@ void SE2::InitCapture(int32_t* outputDriverIndex, const char* outputDriverName, 
         uint32_t length;
         s_pCaptureSound->getLength(&length, FMOD_TIMEUNIT_PCM);
 
+        STORM_ASSERT(!s_bCaptureWorkEnabled);
         s_captureChannels = s_captureExInfo.numchannels;
+        STORM_ASSERT(!s_bCaptureWorkEnabled);
         s_captureLength = length;
-        s_capturing = 1;
+        s_bCaptureWorkEnabled = 1;
         s_primaryCaptureCallbacks = nullptr;
         s_alternateCaptureCallbacks = nullptr;
         s_captureCallbacks = nullptr;
@@ -3967,7 +3969,7 @@ void SE2::DestroyChatSystem() {
     SE2::Log_Write(__LINE__, __FILE__, FMOD_OK, " ");
     SE2::Log_Write(__LINE__, __FILE__, FMOD_OK, "=> Shutting Down Voice Chat");
 
-    s_capturing = 0;
+    s_bCaptureWorkEnabled = 0;
 
     bool recording = false;
 
