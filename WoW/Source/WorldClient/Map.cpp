@@ -3276,6 +3276,7 @@ void CMap::FreeLight(CMapLight* light) {
 // OFFSET: 0x007C0370
 void CMap::FreeMapObjDefGroup(CMapObjDefGroup* mapObjDefGroup) {
     STORM_ASSERT(mapObjDefGroup);
+    STORM_ASSERT(mapObjDefGroup->GetRefCount() == 0);
 
     STORM_ASSERT(mapObjDefGroup->m_parentLinkList.Head() == NULL);
     STORM_ASSERT(mapObjDefGroup->doodadDefLinkList.Head() == NULL);
