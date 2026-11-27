@@ -5,6 +5,7 @@
 #include <cstdint>
 #include "Engine/Source/Base/CDataStore.h"
 #include "Engine/Source/Event/Types.h"
+#include "Engine/Source/Storm/H/storm.h"
 #include "Engine/Source/Storm/H/stpl.h"
 #include "Engine/Source/Storm/Source/SLock.h"
 #include "WoW/Source/Net/NetClient/Types.h"
@@ -75,6 +76,20 @@ class NETEVENTQUEUE {
 class NetClient : public WowConnectionResponse {
     private:
     friend class NETEVENTQUEUE;
+
+    // INLINED
+    int32_t AddRef() { // (inferred)
+        int32_t newval = this->m_refCount.Increment();
+        STORM_ASSERT(newval > 0);
+        return newval;
+    }
+
+    // INLINED
+    int32_t DelRef() { // (inferred)
+        int32_t newval = this->m_refCount.Decrement();
+        STORM_ASSERT(newval >= 0);
+        return newval;
+    }
 
     static uint32_t s_clientCount;
 

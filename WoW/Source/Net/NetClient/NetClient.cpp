@@ -131,7 +131,7 @@ void NETEVENTQUEUE::Poll() {
     this->m_critSect.Enter();
 
     bool destroyed = false;
-    this->m_client->m_refCount.Increment();
+    this->m_client->AddRef();
 
     for (NETEVENTQUEUENODE* node = this->m_eventQueue.Head(); node; node = this->m_eventQueue.Next(node)) {
         NetClient* client = this->m_client;
@@ -170,7 +170,7 @@ void NETEVENTQUEUE::Poll() {
 
         client = this->m_client;
 
-        if (client->m_refCount.Decrement() == 0 && client->m_deleteMe) {
+        if (client->DelRef() == 0 && client->m_deleteMe) {
             delete client;
         }
     }
@@ -181,7 +181,7 @@ void NETEVENTQUEUE::Poll() {
 
     NetClient* client = this->m_client;
 
-    if (client->m_refCount.Decrement() == 0 && client->m_deleteMe) {
+    if (client->DelRef() == 0 && client->m_deleteMe) {
         delete client;
     }
 
@@ -763,7 +763,7 @@ void NETEVENTQUEUE::AddEvent(EVENTID eventId, void* connection, NetClient* clien
     }
 
     node->m_timeReceived = OsGetAsyncTimeMs();
-    client->m_refCount.Increment();
+    client->AddRef();
 
     this->m_critSect.Leave();
 }
