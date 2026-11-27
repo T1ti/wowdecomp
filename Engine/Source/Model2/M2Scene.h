@@ -125,6 +125,10 @@ class CM2Scene {
     int32_t IsHitTesting() const {
         return (this->m_flags & HIT_TEST_ACTIVE) != 0;
     }
+    // INLINED (12213 name).
+    int32_t AllowDirectionalLights() const {
+        return !(this->m_flags & WORLD_ANIMATION_ACTIVE);
+    }
     int32_t Animate(const C3Vector& cameraPos);
     void BeginHitTest();
     int32_t ComputeRayDirAndLen(const C3Vector& start, const C3Vector& end, float t, float* length, C3Vector* dir);

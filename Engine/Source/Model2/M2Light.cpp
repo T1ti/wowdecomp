@@ -160,15 +160,19 @@ void CM2Light::Link() {
         if (this->m_lightNext) {
             this->m_lightNext->m_lightPrev = &this->m_lightNext;
         }
-    } else if (!(this->m_scene->m_flags & CM2Scene::SCENE_FLAGS::WORLD_ANIMATION_ACTIVE)) {
-        CM2Light** head = &this->m_scene->m_lightList;
+    } else {
+        STORM_ASSERT(m_scene->AllowDirectionalLights());
 
-        this->m_lightPrev = head;
-        this->m_lightNext = *head;
-        *head = this;
+        if (this->m_scene->AllowDirectionalLights()) {
+            CM2Light** head = &this->m_scene->m_lightList;
 
-        if (this->m_lightNext) {
-            this->m_lightNext->m_lightPrev = &this->m_lightNext;
+            this->m_lightPrev = head;
+            this->m_lightNext = *head;
+            *head = this;
+
+            if (this->m_lightNext) {
+                this->m_lightNext->m_lightPrev = &this->m_lightNext;
+            }
         }
     }
 }
