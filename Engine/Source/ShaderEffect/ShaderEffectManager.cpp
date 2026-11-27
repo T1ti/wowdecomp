@@ -27,7 +27,8 @@ CShaderEffect* CShaderEffectManager::GetEffect(const char* name) {
 // VERIFY: 82eb3c99 manual
 // OFFSET: 0x00876BE0
 CShaderEffect* CShaderEffectManager::CreateEffect(const char* name) {
-    CShaderEffectManager::m_ShaderList.Ptr(name);
+    CShaderEffect* pEffect = CShaderEffectManager::m_ShaderList.Ptr(name);
+    STORM_ASSERT(!pEffect);
 
     return CShaderEffectManager::m_ShaderList.New(name, 0, 0);
 }
@@ -36,6 +37,8 @@ CShaderEffect* CShaderEffectManager::CreateEffect(const char* name) {
 // OFFSET: 0x00876CA0
 void CShaderEffectManager::ParseEffectCallback(const CShaderEffectParser::ParsedEffect& effect, void* param) {
     CShaderEffect* shaderEffect = CShaderEffectManager::m_ShaderList.New(effect.m_name, 0, 0);
+    STORM_ASSERT(effect.m_fixedFuncPassCount <= 1); // 12213: "effect.fixedFuncPassCount <= 1"
+    STORM_ASSERT(effect.m_shaderPassCount == 1); // 12213: "effect.shaderPassCount == 1"
 
     shaderEffect->InitEffect(effect.m_shaderPasses[0].m_vertexShader, effect.m_shaderPasses[0].m_pixelShader);
 
