@@ -1,3 +1,4 @@
+#include "Engine/Source/Storm/H/storm.h"
 #include <cfloat>
 #include <cmath>
 #include <cstdint>
@@ -303,6 +304,8 @@ bool NTempest::Intersect(const C3Ray& ray, const C4Plane& plane, float* t, C3Vec
 // VERIFY: 7ccd8e19 manual
 // OFFSET: 0x009830D0
 bool NTempest::Intersect(const C3Vector& point, const C3Vector* verts, uint32_t count, C3Vector::EAxis axis) {
+    STORM_ASSERT(axis <= C3Vector::C3AXIS_Z);
+
     uint32_t u = s_planeAxes[axis][0];
     uint32_t v = s_planeAxes[axis][1];
     const float* pt = &point.x;
@@ -389,6 +392,8 @@ bool NTempest::Intersect(const C3Ray& ray, const C3Vector* verts, const uint16_t
 // VERIFY: 94d97d2a auto
 // OFFSET: 0x009836B0
 bool NTempest::Intersect(const C3Ray& ray, const C3Vector* verts, const uint32_t* indices, float* t, C2Vector* uv, float tolerance) {
+    STORM_ASSERT(verts);
+
     float minBound = -tolerance;
     float maxBound = tolerance + 1.0f;
 
