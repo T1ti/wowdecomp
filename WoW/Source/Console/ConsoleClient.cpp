@@ -177,12 +177,13 @@ void GenerateNodeString(CONSOLELINE* node) {
         return;
     }
 
-    if (node->m_fontPointer) {
-        GxuFontDestroyString(node->m_fontPointer);
+    if (node->fontPointer) {
+        GxuFontDestroyString(node->fontPointer);
     }
 
     C3Vector position(0.0f, 0.0f, 1.0f);
-    GxuFontCreateString(font, reinterpret_cast<const char*>(node->m_buffer), s_fontHeight, position, 1.0f, s_fontHeight, 0.0f, node->m_fontPointer, GxVJ_Middle, GxHJ_Left, s_baseTextFlags, s_colorArray[node->m_colorType], s_charSpacing, 1.0f);
+    GxuFontCreateString(font, reinterpret_cast<const char*>(node->m_buffer), s_fontHeight, position, 1.0f, s_fontHeight, 0.0f, node->fontPointer, GxVJ_Middle, GxHJ_Left, s_baseTextFlags, s_colorArray[node->m_colorType], s_charSpacing, 1.0f);
+    STORM_ASSERT(node->fontPointer);
 }
 
 // VERIFY: bc0f8159 auto
@@ -420,8 +421,8 @@ CONSOLELINE::~CONSOLELINE() {
         SMemFree(this->m_buffer, __FILE__, __LINE__, 0);
     }
 
-    if (this->m_fontPointer) {
-        GxuFontDestroyString(this->m_fontPointer);
+    if (this->fontPointer) {
+        GxuFontDestroyString(this->fontPointer);
     }
 }
 
@@ -533,6 +534,7 @@ static void EnforceMaxLines() {
 
     if (node == s_currlineptr) {
         s_currlineptr = s_linelist.Prev(node);
+        STORM_ASSERT(s_currlineptr);
     }
 
     node->~CONSOLELINE();
@@ -603,9 +605,9 @@ static void PaintText(void* param, const RECTF* rect, const RECTF* visible, floa
     position.y += s_fontHeight;
 
     for (CONSOLELINE* ptr = s_currlineptr; !s_linelist.IsEnd(ptr) && position.y < 1.0f; ptr = ptr->RawNext()) {
-        if (ptr->m_fontPointer && ptr != lineptr) {
-            GxuFontSetStringPosition(ptr->m_fontPointer, position);
-            GxuFontAddToBatch(s_batch, ptr->m_fontPointer);
+        if (ptr->fontPointer && ptr != lineptr) {
+            GxuFontSetStringPosition(ptr->fontPointer, position);
+            GxuFontAddToBatch(s_batch, ptr->fontPointer);
             position.y += s_fontHeight;
         }
     }

@@ -244,8 +244,8 @@ int32_t ConsoleCommand_FontColor(const char* command, const char* arguments) {
     }
 
     for (CONSOLELINE* line = s_linelist.Head(); line; line = s_linelist.Next(line)) {
-        if (line->m_colorType == colorType && line->m_fontPointer) {
-            GxuFontSetStringColor(line->m_fontPointer, color);
+        if (line->m_colorType == colorType && line->fontPointer) {
+            GxuFontSetStringColor(line->fontPointer, color);
         }
     }
 
