@@ -118,6 +118,7 @@ int32_t CTgaFile::ReadRawImage(uint32_t flags) {
     }
 
     uint32_t bytes = this->Width() * this->Height() * this->BytesPerPixel();
+    STORM_ASSERT(this->m_image == NULL);
     this->m_image = static_cast<uint8_t*>(SMemAlloc(bytes + addAlpha * this->Width() * this->Height(), __FILE__, __LINE__, 0));
 
     if (!this->m_image || !SFileReadFile(this->m_file, &this->m_image[addAlpha * this->Width() * this->Height()], bytes, nullptr, nullptr, 0)) {
@@ -133,28 +134,30 @@ int32_t CTgaFile::ReadRawImage(uint32_t flags) {
 
 // VERIFY: 6803203f manual
 // OFFSET: 0x006AA630
-int32_t CTgaFile::RLEDecompressImage(uint8_t* rleData, uint8_t* data) {
+int32_t CTgaFile::RLEDecompressImage(uint8_t* pRLEData, uint8_t* data) {
+    STORM_ASSERT(pRLEData);
+
     int32_t pixels = this->Width() * this->Height();
     int32_t bytesPerPixel = this->BytesPerPixel();
 
     while (pixels) {
-        uint8_t packet = *rleData++;
+        uint8_t packet = *pRLEData++;
 
         if (packet & 0x80) {
             int32_t count = (packet & 0x7F) + 1;
             pixels -= count;
 
             while (count--) {
-                memcpy(data, rleData, bytesPerPixel);
+                memcpy(data, pRLEData, bytesPerPixel);
                 data += bytesPerPixel;
             }
 
-            rleData += bytesPerPixel;
+            pRLEData += bytesPerPixel;
         } else {
             int32_t count = packet + 1;
             pixels -= count;
-            memcpy(data, rleData, bytesPerPixel * count);
-            rleData += bytesPerPixel * count;
+            memcpy(data, pRLEData, bytesPerPixel * count);
+            pRLEData += bytesPerPixel * count;
             data += bytesPerPixel * count;
         }
 
@@ -570,6 +573,7 @@ void CTgaFile::ConvertColorMapped(uint32_t flags) {
 // OFFSET: 0x006AB220
 int32_t CTgaFile::ReadRleImage(uint32_t flags) {
     int32_t addAlpha = (flags & 1) && !this->AlphaBits() ? 1 : 0;
+    STORM_ASSERT(this->m_image == NULL);
     this->m_image = static_cast<uint8_t*>(SMemAlloc(this->Height() * this->Width() * this->BytesPerPixel() + addAlpha * this->Height() * this->Width(), __FILE__, __LINE__, 0));
 
     if (!this->m_image) {
