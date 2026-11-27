@@ -14,6 +14,8 @@ uint32_t SSignatureVerifyStream_GetSignatureLength(SSignatureData* token) {
 // VERIFY: e0416eee auto
 // OFFSET: 0x00770CA0
 void SSignatureVerifyStream_ProvideData(SSignatureData* token, const uint8_t* data, uint32_t size) {
+    STORM_ASSERT(token);
+
     int32_t excess = size - token->magicBufferSize;
 
     if (excess >= 0) {
@@ -56,6 +58,8 @@ void SSignatureVerifyStream_Begin(SSignatureData** token, uint32_t modulusSize, 
 // VERIFY: 877d78b4 manual
 // OFFSET: 0x00770DB0
 int32_t SSignatureVerifyStream_Finish(SSignatureData* token, const uint8_t* modulus, const uint8_t* pubExponent) {
+    STORM_ASSERT(token);
+
     int32_t result = 0;
 
     if (token->magicBufferUsed == token->magicBufferSize && *reinterpret_cast<uint32_t*>(token->magicBuffer) == 'SIGN') {
