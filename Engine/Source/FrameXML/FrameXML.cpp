@@ -91,14 +91,15 @@ int32_t FrameXML_GetDebugLevel() {
 // OFFSET: 0x008125E0
 int32_t FrameXML_GuessNumFiles(const char* toc) {
     int32_t count = 0;
-    const char* current = toc;
+    const char* p = toc;
+    STORM_ASSERT(p);
 
-    while (*current) {
-        while (*current == '\r' || *current == '\n') {
-            current++;
+    while (*p) {
+        while (*p == '\r' || *p == '\n') {
+            p++;
         }
 
-        char c = *current;
+        char c = *p;
 
         if (!c) {
             break;
@@ -109,7 +110,7 @@ int32_t FrameXML_GuessNumFiles(const char* toc) {
         }
 
         while (c != '\r' && c != '\n') {
-            c = *++current;
+            c = *++p;
 
             if (!c) {
                 return count;
@@ -228,6 +229,8 @@ CSimpleFrame* Create_SimpleFrame(CSimpleFrame* parent) {
 
 // INLINED
 HashedNode::~HashedNode() {
+    STORM_ASSERT(!this->busy);
+
     if (this->m_node) {
         delete this->m_node;
     }
@@ -255,9 +258,9 @@ XMLNode* FrameXML_AcquireHashNode(const char* name, const char*& taint, bool& lo
         return nullptr;
     }
 
-    locked = hashed->m_locked;
+    locked = hashed->busy;
     taint = hashed->m_taint;
-    hashed->m_locked = true;
+    hashed->busy = true;
 
     return hashed->m_node;
 }
@@ -265,7 +268,9 @@ XMLNode* FrameXML_AcquireHashNode(const char* name, const char*& taint, bool& lo
 // VERIFY: e53052f6 auto
 // OFFSET: 0x00812D20
 void FrameXML_ReleaseHashNode(const char* name) {
-    s_virtualNodes.Ptr(name)->m_locked = false;
+    HashedNode* hashnode = s_virtualNodes.Ptr(name);
+    STORM_ASSERT(hashnode);
+    hashnode->busy = false;
 }
 
 // VERIFY: 743ec1d8 auto
@@ -326,12 +331,12 @@ CSimpleFrame* FrameXML_CreateFrame(XMLNode* node, CSimpleFrame* parent, CStatus*
 
                 if (hashed) {
                     current = hashed->m_node;
-                    bool locked = hashed->m_locked;
-                    hashed->m_locked = true;
+                    bool locked = hashed->busy;
+                    hashed->busy = true;
 
                     if (current && !locked) {
                         parentName = current->GetAttributeByName("parent");
-                        s_virtualNodes.Ptr(inheritName)->m_locked = false;
+                        FrameXML_ReleaseHashNode(inheritName);
                     }
                 } else {
                     current = nullptr;

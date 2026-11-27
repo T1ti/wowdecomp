@@ -25,7 +25,7 @@ struct FrameFactoryNode : public TSHashObject<FrameFactoryNode, HASHKEY_STRI> {
 struct HashedNode : public TSHashObject<HashedNode, HASHKEY_STRI> {
     /* 0018 */ XMLNode* m_node;
     /* 001C */ const char* m_taint;
-    /* 0020 */ bool m_locked;
+    /* 0020 */ bool busy;
 
     ~HashedNode();
 };
