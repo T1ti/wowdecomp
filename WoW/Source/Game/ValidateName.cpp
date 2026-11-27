@@ -1461,27 +1461,28 @@ static void StripPipes(const char* source, char* dest, uint32_t destSize) {
 
 // VERIFY: d19b42ca manual
 // OFFSET: 0x007E1830
-bool ScrubString(const char* source, char* dest, int32_t maxChars, uint32_t destSize, int32_t flags) {
-    if (!dest) {
+bool ScrubString(const char* source, char* buffer, int32_t maxChars, uint32_t destSize, int32_t flags) {
+    if (!buffer) {
+        STORM_ASSERT_RECOVERABLE(!!buffer);
         return false;
     }
 
-    *dest = '\0';
+    *buffer = '\0';
 
     if (!source) {
         return true;
     }
 
     bool valid = ValidateStringIsUTF8(source);
-    StripPipes(source, dest, destSize);
+    StripPipes(source, buffer, destSize);
 
-    if ((flags & SCRUB_FLAG_TRUNCATE_NEWLINES) && TruncateNewLines(dest)) {
+    if ((flags & SCRUB_FLAG_TRUNCATE_NEWLINES) && TruncateNewLines(buffer)) {
         valid = false;
     }
 
     int32_t chars = 0;
 
-    for (char* c = dest; *c; c++) {
+    for (char* c = buffer; *c; c++) {
         if ((*c & 0xC0) != 0x80) {
             chars++;
         }
@@ -1497,16 +1498,21 @@ bool ScrubString(const char* source, char* dest, int32_t maxChars, uint32_t dest
 
 // VERIFY: 62097c42 manual
 // OFFSET: 0x007E2040
-bool FixCharacterNameCase(char* dest, const char* source, uint32_t size) {
-    if (!dest || !size) {
+bool FixCharacterNameCase(char* buffer, const char* source, uint32_t size) {
+    if (!buffer) {
+        STORM_ASSERT_RECOVERABLE(!!buffer);
         return false;
     }
 
-    uint16_t buffer[1024];
-    SUniConvertUTF8to16(buffer, 1024, source, STORM_MAX_STR, nullptr, nullptr);
+    if (!size) {
+        return false;
+    }
 
-    for (uint32_t i = 0; buffer[i]; i++) {
-        uint16_t c = buffer[i];
+    uint16_t wideBuffer[1024];
+    SUniConvertUTF8to16(wideBuffer, 1024, source, STORM_MAX_STR, nullptr, nullptr);
+
+    for (uint32_t i = 0; wideBuffer[i]; i++) {
+        uint16_t c = wideBuffer[i];
 
         if (i) {
             if (static_cast<uint16_t>(c - 'A') <= 25 || static_cast<uint16_t>(c - 0xC0) <= 30) {
@@ -1530,9 +1536,9 @@ bool FixCharacterNameCase(char* dest, const char* source, uint32_t size) {
             c = 0x401;
         }
 
-        buffer[i] = c;
+        wideBuffer[i] = c;
     }
 
-    SUniConvertUTF16to8(dest, size, buffer, STORM_MAX_STR, nullptr, nullptr);
+    SUniConvertUTF16to8(buffer, size, wideBuffer, STORM_MAX_STR, nullptr, nullptr);
     return true;
 }
