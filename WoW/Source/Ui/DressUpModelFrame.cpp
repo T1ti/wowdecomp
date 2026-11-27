@@ -247,7 +247,7 @@ static void DressUpItemCallback(int32_t id, const WOWGUID& guid, void* param, bo
 
 // VERIFY: a2d24597 manual
 // OFFSET: 0x005980D0
-void CGDressUpModelFrame::TryOnWithVisual(int32_t itemId, int32_t visual, int32_t hand) {
+void CGDressUpModelFrame::TryOnWithVisual(int32_t itemId, int32_t visual, int32_t suggestedWeaponSlot) {
     WOWGUID none = WOWGUID();
     ItemStats_C* stats = g_itemDBCache.GetRecord(itemId, none, DressUpItemCallback, this, false);
 
@@ -390,17 +390,23 @@ void CGDressUpModelFrame::TryOnWithVisual(int32_t itemId, int32_t visual, int32_
 
             CGUnitVirtualItem* handItem;
 
-            if (hand == -1) {
+#if defined(WOWDECOMP_ASSERTIONS)
+            if (suggestedWeaponSlot != -1) {
+                STORM_ASSERT(suggestedWeaponSlot == INVSLOT_MAINHAND || suggestedWeaponSlot == INVSLOT_OFFHAND);
+            }
+#endif
+
+            if (suggestedWeaponSlot == -1) {
                 switch (stats->m_inventoryType) {
                     case INVTYPE_WEAPON: {
                         uint8_t mainType;
 
                         if (!this->m_mainHand.m_classID || ((mainType = this->m_mainHand.m_inventoryType) != INVTYPE_WEAPON && mainType != INVTYPE_WEAPONMAINHAND && mainType != INVTYPE_2HWEAPON) || !player || !CGPlayer_C::CanDualWield()) {
-                            hand = 15;
+                            suggestedWeaponSlot = 15;
                             goto mainHand;
                         }
 
-                        hand = s_nextHand;
+                        suggestedWeaponSlot = s_nextHand;
                         s_nextHand = (s_nextHand == 15) + 15;
                         break;
                     }
@@ -408,19 +414,19 @@ void CGDressUpModelFrame::TryOnWithVisual(int32_t itemId, int32_t visual, int32_
                     case INVTYPE_2HWEAPON:
                     case INVTYPE_WEAPONMAINHAND: {
                         if (!CGItem_C::CanGoInSlot(itemId, 16, 0)) {
-                            hand = 15;
+                            suggestedWeaponSlot = 15;
                             s_nextHand = 15;
                             goto mainHand;
                         }
 
-                        hand = s_nextHand;
+                        suggestedWeaponSlot = s_nextHand;
                         s_nextHand = (s_nextHand == 15) + 15;
                         break;
                     }
 
                     case INVTYPE_THROWN:
                     case INVTYPE_RANGEDRIGHT: {
-                        hand = 15;
+                        suggestedWeaponSlot = 15;
                         s_nextHand = 15;
                         goto mainHand;
                     }
@@ -429,17 +435,18 @@ void CGDressUpModelFrame::TryOnWithVisual(int32_t itemId, int32_t visual, int32_
                     case INVTYPE_RANGED:
                     case INVTYPE_WEAPONOFFHAND:
                     case INVTYPE_HOLDABLE: {
-                        hand = 16;
+                        suggestedWeaponSlot = 16;
                         s_nextHand = 15;
                         goto offHand;
                     }
 
                     default:
+                        STORM_ASSERT(!"Unhandled holdable type!");
                         return;
                 }
             }
 
-            if (hand == 15) {
+            if (suggestedWeaponSlot == 15) {
 mainHand:
                 s_mainHandItemId = itemId;
 
@@ -462,7 +469,7 @@ offHand:
             }
 
             if (handItem->m_classID) {
-                CCharacterComponent::RemoveHandItem(this->m_model, static_cast<INVENTORY_SLOTS>(hand), static_cast<SHEATHE_TYPE>(handItem->m_sheatheType), handItem->m_inventoryType == INVTYPE_SHIELD);
+                CCharacterComponent::RemoveHandItem(this->m_model, static_cast<INVENTORY_SLOTS>(suggestedWeaponSlot), static_cast<SHEATHE_TYPE>(handItem->m_sheatheType), handItem->m_inventoryType == INVTYPE_SHIELD);
             }
 
             handItem->m_classID = static_cast<uint8_t>(stats->m_class);
@@ -472,7 +479,7 @@ offHand:
             ItemDisplayInfoRec display;
 
             if (g_itemDisplayInfoDB.GetRecord(stats->m_displayId, &display)) {
-                CCharacterComponent::AddHandItem(this->m_model, &display, static_cast<INVENTORY_SLOTS>(hand), static_cast<SHEATHE_TYPE>(stats->m_sheatheType), false, stats->m_inventoryType == INVTYPE_SHIELD, stats->m_inventoryType == INVTYPE_RANGEDRIGHT, visual);
+                CCharacterComponent::AddHandItem(this->m_model, &display, static_cast<INVENTORY_SLOTS>(suggestedWeaponSlot), static_cast<SHEATHE_TYPE>(stats->m_sheatheType), false, stats->m_inventoryType == INVTYPE_SHIELD, stats->m_inventoryType == INVTYPE_RANGEDRIGHT, visual);
             }
 
             return;

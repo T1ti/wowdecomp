@@ -45,7 +45,7 @@ class CGDressUpModelFrame : public CGCharacterModelBase {
     CGDressUpModelFrame(CSimpleFrame* parent);
     void Undress();
     void TryOn(int32_t itemId, const uint32_t* enchants, int32_t hand);
-    void TryOnWithVisual(int32_t itemId, int32_t visual, int32_t hand);
+    void TryOnWithVisual(int32_t itemId, int32_t visual, int32_t suggestedWeaponSlot);
     void TryOnItem(CGItem_C* item, int32_t hand);
 };
 
