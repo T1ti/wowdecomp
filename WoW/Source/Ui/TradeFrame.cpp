@@ -251,19 +251,22 @@ static void SetTargetAccepted(int32_t accepted) {
 
 // VERIFY: e8e301ad auto
 // OFFSET: 0x00586410
-void CGTradeInfo::DenyPlayerItem(int32_t slot) {
-    if (slot == 255) {
+void CGTradeInfo::DenyPlayerItem(int32_t index) {
+    if (index == 255) {
         CGTradeInfo::m_lastPlayerMoney = 0;
         FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_TRADE_MONEY, nullptr);
         FrameScript_SignalEvent(SCRIPT_EVENT_PLAYER_MONEY, nullptr);
         return;
     }
 
-    CGGameUI::UnlockItem(CGTradeInfo::m_playerItems[slot]);
-    CGTradeInfo::m_playerItems[slot] = WOWGUID();
-    CGTradeInfo::m_playerItemContainer[slot] = WOWGUID();
-    CGTradeInfo::m_playerItemContainerSlot[slot] = 0;
-    FrameScript_SignalEvent(SCRIPT_EVENT_TRADE_PLAYER_ITEM_CHANGED, "%d", slot + 1);
+    STORM_ASSERT(index >= 0);
+    STORM_ASSERT(index < NUM_TRADE_SLOTS); // 12213: "index < MAX_TRADE_ITEMS"
+
+    CGGameUI::UnlockItem(CGTradeInfo::m_playerItems[index]);
+    CGTradeInfo::m_playerItems[index] = WOWGUID();
+    CGTradeInfo::m_playerItemContainer[index] = WOWGUID();
+    CGTradeInfo::m_playerItemContainerSlot[index] = 0;
+    FrameScript_SignalEvent(SCRIPT_EVENT_TRADE_PLAYER_ITEM_CHANGED, "%d", index + 1);
 }
 
 // VERIFY: aaae39b8 manual
@@ -377,6 +380,8 @@ void CGTradeInfo::SetEnchantingItem(CGItem_C* item) {
     }
 
     if (item) {
+        STORM_ASSERT(CGTradeInfo::m_tradingPlayer);
+
         WOWGUID none = WOWGUID();
         item->UseItem(&none, 0);
         CGGameUI::LockItem(item->m_obj->m_guid);
