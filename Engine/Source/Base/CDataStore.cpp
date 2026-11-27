@@ -269,7 +269,7 @@ CDataStore& CDataStore::PutArray(const uint8_t* pval, uint32_t count) {
 // VERIFY: ebebf2be manual
 // OFFSET: 0x0047B280
 CDataStore& CDataStore::PutData(const void* data, uint32_t bytes) {
-    STORM_ASSERT(bytes <= 0x7FFFFFF);
+    STORM_ASSERT(bytes <= 0x7FFFFFF); // 12213: "(bytes) <= 0x7FFFFFF"
     return this->PutArray(static_cast<const uint8_t*>(data), bytes);
 }
 
@@ -514,7 +514,7 @@ CDataStore& CDataStore::GetArray(uint32_t* pval, uint32_t count) {
 // VERIFY: f83befa5 manual
 // OFFSET: 0x0047B6A0
 CDataStore& CDataStore::GetData(void* data, uint32_t bytes) {
-    STORM_ASSERT(bytes <= 0x7FFFFFF);
+    STORM_ASSERT(bytes <= 0x7FFFFFF); // 12213: "(bytes) <= 0x7FFFFFF"
     return this->GetArray(static_cast<uint8_t*>(data), bytes);
 }
 
