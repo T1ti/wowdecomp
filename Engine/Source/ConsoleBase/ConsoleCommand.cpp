@@ -163,6 +163,8 @@ void ConsoleCommandDestroy() {
 // VERIFY: 4f3a49b3 manual
 // OFFSET: 0x00768900
 CONSOLECOMMAND* ParseCommand(const char* commandLine, const char** command, char* arguments, uint32_t argsbytes) {
+    STORM_ASSERT(commandLine);
+
     const char* src = commandLine;
     char* dst = s_commandName;
     int32_t space = sizeof(s_commandName) - 1;
@@ -222,6 +224,8 @@ void ConsoleCommandUnregister(const char* command) {
 // VERIFY: 10548ffd manual
 // OFFSET: 0x00768A20
 int32_t ConsoleCommandComplete(const char* partial, const char** previous, int32_t direction) {
+    STORM_ASSERT(previous);
+
     CONSOLECOMMAND* cmd;
 
     if (*previous) {
