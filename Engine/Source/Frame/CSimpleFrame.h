@@ -112,7 +112,7 @@ class CSimpleFrame : public CScriptRegion {
     /* 00CC */ uint32_t m_ignoreDepth;
     /* 00D0 */ uint32_t m_strata;
     /* 00D4 */ int32_t m_level;
-    /* 00D8 */ uint32_t m_enabledEventsBitmask;
+    /* 00D8 */ uint32_t m_eventmask;
     /* 00DC */ uint32_t m_isShown;
     private:
     /* 00E0 */ uint32_t m_isVisible;

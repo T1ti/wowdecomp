@@ -191,7 +191,7 @@ CSimpleFrame::CSimpleFrame(CSimpleFrame* parent) {
     this->m_ignoreDepth = 0;
     this->m_strata = FRAME_STRATA_MEDIUM;
     this->m_level = 0;
-    this->m_enabledEventsBitmask = 0;
+    this->m_eventmask = 0;
     this->m_isVisible = 0;
     this->m_alpha = 0xFF;
     this->m_parentAlpha = 0xFF;
@@ -462,7 +462,7 @@ void CSimpleFrame::SetFrameAlpha(uint8_t alpha) {
 // OFFSET: 0x0048EA40
 void CSimpleFrame::RegisterForEvents(BOOL reregister) {
     for (uint32_t i = 0; i < NUM_SIMPLE_EVENTS; i++) {
-        if ((1 << i) & this->m_enabledEventsBitmask) {
+        if ((1 << i) & this->m_eventmask) {
             this->m_simpleTop->RegisterForEvent(this, static_cast<CSimpleEventType>(i), reregister, -1);
         }
     }
@@ -472,7 +472,7 @@ void CSimpleFrame::RegisterForEvents(BOOL reregister) {
 // OFFSET: 0x0048EA80
 void CSimpleFrame::UnregisterForEvents(BOOL reregister) {
     for (uint32_t i = 0; i < NUM_SIMPLE_EVENTS; i++) {
-        if ((1 << i) & this->m_enabledEventsBitmask) {
+        if ((1 << i) & this->m_eventmask) {
             this->m_simpleTop->UnregisterForEvent(this, static_cast<CSimpleEventType>(i), reregister);
         }
     }
@@ -823,22 +823,24 @@ int32_t CSimpleFrame::Show() {
 
 // VERIFY: ec84450f auto
 // OFFSET: 0x0048F6A0
-void CSimpleFrame::EnableEvent(CSimpleEventType eventType, int32_t priority) {
-    if ((1 << eventType) & this->m_enabledEventsBitmask) {
+void CSimpleFrame::EnableEvent(CSimpleEventType event, int32_t priority) {
+    STORM_ASSERT(event < sizeof(this->m_eventmask) * 8);
+
+    if ((1 << event) & this->m_eventmask) {
         return;
     }
 
     if (this->m_isVisible) {
-        this->m_simpleTop->RegisterForEvent(this, eventType, 0, priority);
+        this->m_simpleTop->RegisterForEvent(this, event, 0, priority);
     }
 
-    this->m_enabledEventsBitmask |= 1 << eventType;
+    this->m_eventmask |= 1 << event;
 }
 
 // VERIFY: 219cc709 auto
 // OFFSET: 0x0048F6F0
 void CSimpleFrame::DisableEvent(CSimpleEventType eventType) {
-    if (!((1 << eventType) & this->m_enabledEventsBitmask)) {
+    if (!((1 << eventType) & this->m_eventmask)) {
         return;
     }
 
@@ -846,7 +848,7 @@ void CSimpleFrame::DisableEvent(CSimpleEventType eventType) {
         this->m_simpleTop->UnregisterForEvent(this, eventType, 0);
     }
 
-    this->m_enabledEventsBitmask &= ~(1 << eventType);
+    this->m_eventmask &= ~(1 << eventType);
 }
 
 // VERIFY: bbfb8171 manual
@@ -1158,10 +1160,11 @@ void CSimpleFrame::NotifyScrollParent() {
         frame = frame->m_parent;
     }
 
-    CSimpleScrollFrame* scrollFrame = static_cast<CSimpleScrollFrame*>(frame->m_parent);
+    CSimpleFrame* parent = frame->m_parent;
 
-    if (scrollFrame && scrollFrame->m_initialized_state != INITIALIZED_STATE::STATE_DELETED) {
-        scrollFrame->m_scrollChildUpdate = 1;
+    if (parent && parent->m_initialized_state != INITIALIZED_STATE::STATE_DELETED) {
+        STORM_ASSERT(parent->IsA(CSimpleScrollFrame::GetObjectType()));
+        static_cast<CSimpleScrollFrame*>(parent)->m_scrollChildUpdate = 1;
     }
 }
 
@@ -1220,36 +1223,36 @@ void CSimpleFrame::LoadXML_Scripts(XMLNode* node, CStatus* status) {
 
         script->m_tainted = nullptr;
 
-        if (!SStrCmpI(child->m_name.m_str, "OnChar", STORM_MAX_STR) && !(this->m_enabledEventsBitmask & (1 << SIMPLE_EVENT_CHAR))) {
+        if (!SStrCmpI(child->m_name.m_str, "OnChar", STORM_MAX_STR) && !(this->m_eventmask & (1 << SIMPLE_EVENT_CHAR))) {
             if (this->m_isVisible) {
                 this->m_simpleTop->RegisterForEvent(this, SIMPLE_EVENT_CHAR, 0, -1);
             }
 
-            this->m_enabledEventsBitmask |= 1 << SIMPLE_EVENT_CHAR;
+            this->m_eventmask |= 1 << SIMPLE_EVENT_CHAR;
         }
 
-        if ((!SStrCmpI(child->m_name.m_str, "OnKeyDown", STORM_MAX_STR) || !SStrCmpI(child->m_name.m_str, "OnKeyUp", STORM_MAX_STR)) && !(this->m_enabledEventsBitmask & (1 << SIMPLE_EVENT_KEY))) {
+        if ((!SStrCmpI(child->m_name.m_str, "OnKeyDown", STORM_MAX_STR) || !SStrCmpI(child->m_name.m_str, "OnKeyUp", STORM_MAX_STR)) && !(this->m_eventmask & (1 << SIMPLE_EVENT_KEY))) {
             if (this->m_isVisible) {
                 this->m_simpleTop->RegisterForEvent(this, SIMPLE_EVENT_KEY, 0, -1);
             }
 
-            this->m_enabledEventsBitmask |= 1 << SIMPLE_EVENT_KEY;
+            this->m_eventmask |= 1 << SIMPLE_EVENT_KEY;
         }
 
-        if ((!SStrCmpI(child->m_name.m_str, "OnEnter", STORM_MAX_STR) || !SStrCmpI(child->m_name.m_str, "OnLeave", STORM_MAX_STR) || !SStrCmpI(child->m_name.m_str, "OnMouseDown", STORM_MAX_STR) || !SStrCmpI(child->m_name.m_str, "OnMouseUp", STORM_MAX_STR) || !SStrCmpI(child->m_name.m_str, "OnDragStart", STORM_MAX_STR)) && !(this->m_enabledEventsBitmask & (1 << SIMPLE_EVENT_MOUSE))) {
+        if ((!SStrCmpI(child->m_name.m_str, "OnEnter", STORM_MAX_STR) || !SStrCmpI(child->m_name.m_str, "OnLeave", STORM_MAX_STR) || !SStrCmpI(child->m_name.m_str, "OnMouseDown", STORM_MAX_STR) || !SStrCmpI(child->m_name.m_str, "OnMouseUp", STORM_MAX_STR) || !SStrCmpI(child->m_name.m_str, "OnDragStart", STORM_MAX_STR)) && !(this->m_eventmask & (1 << SIMPLE_EVENT_MOUSE))) {
             if (this->m_isVisible) {
                 this->m_simpleTop->RegisterForEvent(this, SIMPLE_EVENT_MOUSE, 0, -1);
             }
 
-            this->m_enabledEventsBitmask |= 1 << SIMPLE_EVENT_MOUSE;
+            this->m_eventmask |= 1 << SIMPLE_EVENT_MOUSE;
         }
 
-        if (!SStrCmpI(child->m_name.m_str, "OnMouseWheel", STORM_MAX_STR) && !(this->m_enabledEventsBitmask & (1 << SIMPLE_EVENT_MOUSEWHEEL))) {
+        if (!SStrCmpI(child->m_name.m_str, "OnMouseWheel", STORM_MAX_STR) && !(this->m_eventmask & (1 << SIMPLE_EVENT_MOUSEWHEEL))) {
             if (this->m_isVisible) {
                 this->m_simpleTop->RegisterForEvent(this, SIMPLE_EVENT_MOUSEWHEEL, 0, -1);
             }
 
-            this->m_enabledEventsBitmask |= 1 << SIMPLE_EVENT_MOUSEWHEEL;
+            this->m_eventmask |= 1 << SIMPLE_EVENT_MOUSEWHEEL;
         }
     }
 }
@@ -1466,6 +1469,8 @@ void CSimpleFrame::OnLayerUpdate(float elapsedSec) {
 // VERIFY: b0a0345a manual
 // OFFSET: 0x00490840
 void CSimpleFrame::OnFrameRender(CRenderBatch* batch, uint32_t layer) {
+    STORM_ASSERT(layer < NUM_SIMPLEFRAME_DRAWLAYERS);
+
     if (!this->m_drawLayerEnabled[layer]) {
         return;
     }

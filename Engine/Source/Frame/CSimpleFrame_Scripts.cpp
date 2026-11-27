@@ -1452,7 +1452,7 @@ static int32_t Script_EnableKeyboard(lua_State* L) {
 static int32_t Script_IsKeyboardEnabled(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
-    if (((frame->m_enabledEventsBitmask >> SIMPLE_EVENT_KEY) & 1) || ((frame->m_enabledEventsBitmask >> SIMPLE_EVENT_CHAR) & 1)) {
+    if (((frame->m_eventmask >> SIMPLE_EVENT_KEY) & 1) || ((frame->m_eventmask >> SIMPLE_EVENT_CHAR) & 1)) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1486,7 +1486,7 @@ static int32_t Script_EnableMouse(lua_State* L) {
 static int32_t Script_IsMouseEnabled(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
-    if ((frame->m_enabledEventsBitmask >> SIMPLE_EVENT_MOUSE) & 1) {
+    if ((frame->m_eventmask >> SIMPLE_EVENT_MOUSE) & 1) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1520,7 +1520,7 @@ static int32_t Script_EnableMouseWheel(lua_State* L) {
 static int32_t Script_IsMouseWheelEnabled(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
-    if ((frame->m_enabledEventsBitmask >> SIMPLE_EVENT_MOUSEWHEEL) & 1) {
+    if ((frame->m_eventmask >> SIMPLE_EVENT_MOUSEWHEEL) & 1) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
@@ -1554,7 +1554,7 @@ static int32_t Script_EnableJoystick(lua_State* L) {
 static int32_t Script_IsJoystickEnabled(lua_State* L) {
     CSimpleFrame* frame = static_cast<CSimpleFrame*>(FrameScript_GetObjectThis(L, CSimpleFrame::GetObjectType()));
 
-    if ((frame->m_enabledEventsBitmask >> SIMPLE_EVENT_JOYSTICK) & 1) {
+    if ((frame->m_eventmask >> SIMPLE_EVENT_JOYSTICK) & 1) {
         lua_pushnumber(L, 1.0);
     } else {
         lua_pushnil(L);
