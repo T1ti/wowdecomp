@@ -776,10 +776,14 @@ void Grunt::ClientLink::WCDataReady(WowConnection* connection, uint32_t timeStam
 
         void* rest;
         this->m_datastore.GetDataInSitu(rest, remaining);
+        STORM_ASSERT(this->m_datastore.IsFinal());
+        STORM_ASSERT(!this->m_datastore.IsReadOnly()); // 12213: "!IsReadOnly()"
         this->m_datastore.m_read = -1;
         this->m_datastore.Reset();
         this->m_datastore.PutData(rest, remaining);
     } else {
+        STORM_ASSERT(this->m_datastore.IsFinal());
+        STORM_ASSERT(!this->m_datastore.IsReadOnly()); // 12213: "!IsReadOnly()"
         this->m_datastore.m_read = -1;
         this->m_datastore.Reset();
         this->Disconnect();
