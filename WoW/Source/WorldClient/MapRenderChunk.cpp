@@ -2132,7 +2132,8 @@ void CMapRenderChunk::InitializeVertexShaderConstants(const C44Matrix& world, co
 
 // VERIFY: aed99aca manual
 // OFFSET: 0x007D0050
-void CMapRenderChunk::SetVertexShader(CMapRenderChunk* renderChunk, int32_t layerCount, BOOL chunkSpecular) {
+void CMapRenderChunk::SetVertexShader(CMapRenderChunk* renderChunk, int32_t nTextures, BOOL chunkSpecular) {
+    STORM_ASSERT(nTextures <= 5);
     SVertexShaderConstants& consts = CMapRenderChunk::s_vertexShaderConsts;
     int32_t specular = CMap::enableSpecularTerrain;
     int32_t vertexColor = CMapRenderChunk::s_gxBufVertexFormat == GxVBF_PNC;
@@ -2172,7 +2173,7 @@ void CMapRenderChunk::SetVertexShader(CMapRenderChunk* renderChunk, int32_t laye
     layerScale.z = 0.0f;
     layerScale.w = 0.0f;
 
-    for (int32_t i = 1; i < layerCount; i++) {
+    for (int32_t i = 1; i < nTextures; i++) {
         consts.m_texScale[i] = layerScale;
     }
 
@@ -2188,9 +2189,9 @@ void CMapRenderChunk::SetVertexShader(CMapRenderChunk* renderChunk, int32_t laye
         alphaScale.y = CMapChunk::s_geoToTex * -0.0625f;
     }
 
-    consts.m_texScale[layerCount] = alphaScale;
+    consts.m_texScale[nTextures] = alphaScale;
 
-    CGxShader* shader = CMapRenderChunk::GetVertexShader(pointLights, layerCount - 1, specular, vertexColor, chunkSpecular, CShadowCache::GetShadowValue());
+    CGxShader* shader = CMapRenderChunk::GetVertexShader(pointLights, nTextures - 1, specular, vertexColor, chunkSpecular, CShadowCache::GetShadowValue());
     g_theGxDevicePtr->RsSet(GxRs_VertexShader, shader);
     g_theGxDevicePtr->ShaderConstantsSet(GxSh_Vertex, 0, reinterpret_cast<const float*>(&consts), sizeof(SVertexShaderConstants) / sizeof(C4Vector));
 }
