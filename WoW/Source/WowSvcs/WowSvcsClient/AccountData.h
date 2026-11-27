@@ -26,7 +26,7 @@ typedef void (*ACCOUNTDATALOADFUNC)(HOSFILE localFile, HOSFILE cacheFile, void* 
 
 struct AccountDataInfo {
     /* 0000 */ bool initialized;
-    /* 0001 */ bool m_global;
+    /* 0001 */ bool accountWide;
     /* 0004 */ const char* m_localFile;
     /* 0008 */ const char* m_cacheFile;
     /* 000C */ const char* m_oldFile;
@@ -35,7 +35,7 @@ struct AccountDataInfo {
     /* 0015 */ bool m_downloading;
     /* 0018 */ ACCOUNTDATALOADFUNC m_loadFunc;
     /* 001C */ void* m_loadParam;
-    /* 0020 */ uint32_t m_saveTimer;
+    /* 0020 */ uint32_t saveTimer;
     /* 0024 */ uint8_t m_md5[16];
     /* 0034 */ bool m_changed;
     /* 0038 */ int32_t m_time;
