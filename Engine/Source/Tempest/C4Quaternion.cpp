@@ -39,7 +39,9 @@ static void FromRotationMatrixImpl(float trace, C4Quaternion& q, const float* m)
     out[i] = s * 0.5f;
     s = 0.5f / s;
     q.w = (m[k * N + j] - m[j * N + k]) * s;
+    STORM_ASSERT(j < 4); // 12213: "sub < eComponents"
     out[j] = (m[i * N + j] + m[j * N + i]) * s;
+    STORM_ASSERT(k < 4); // 12213: "sub < eComponents"
     out[k] = (m[i * N + k] + m[k * N + i]) * s;
 }
 
