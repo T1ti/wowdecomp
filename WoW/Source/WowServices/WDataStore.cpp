@@ -4,6 +4,11 @@
 #include "Engine/Source/Storm/H/storm.h"
 
 // STATIC: 0x00B38CF0
+// Buffer heap sizes; names from the 12213 InternalFetchWrite assertion.
+static const uint32_t SMALL_BUFFER_SIZE = 0x300;
+static const uint32_t LARGE_BUFFER_SIZE = 0x4000;
+static const uint32_t SUPER_BUFFER_SIZE = 0x40040;
+
 static WDataStoreHeap* s_smallBufferHeap;
 
 // STATIC: 0x00B38CF4
@@ -80,13 +85,13 @@ void WDataStore::StaticInitialize() {
 // OFFSET: 0x00466190
 void WDataStore::InternalDestroy(uint8_t*& data, uint32_t& base, uint32_t& alloc) {
     if (this->m_bufferObj) {
-        if (alloc == 0x300) {
+        if (alloc == SMALL_BUFFER_SIZE) {
             ObjectFree(s_smallBufferHeap->m_heapId, this->m_bufferObj->m_memHandle);
             this->m_bufferObj = nullptr;
-        } else if (alloc == 0x4000) {
+        } else if (alloc == LARGE_BUFFER_SIZE) {
             ObjectFree(s_largeBufferHeap->m_heapId, this->m_bufferObj->m_memHandle);
             this->m_bufferObj = nullptr;
-        } else if (alloc == 0x40040) {
+        } else if (alloc == SUPER_BUFFER_SIZE) {
             ObjectFree(s_superBufferHeap->m_heapId, this->m_bufferObj->m_memHandle);
             this->m_bufferObj = nullptr;
         }
@@ -104,11 +109,11 @@ void WDataStore::InternalDestroy(uint8_t*& data, uint32_t& base, uint32_t& alloc
 void WDataStore::FreeBuffer(void* buffer, uint32_t size) {
     WDATASTOREBUFFER* header = static_cast<WDATASTOREBUFFER*>(buffer) - 1;
 
-    if (size <= 0x300) {
+    if (size <= SMALL_BUFFER_SIZE) {
         ObjectFree(s_smallBufferHeap->m_heapId, header->m_memHandle);
-    } else if (size <= 0x4000) {
+    } else if (size <= LARGE_BUFFER_SIZE) {
         ObjectFree(s_largeBufferHeap->m_heapId, header->m_memHandle);
-    } else if (size <= 0x40040) {
+    } else if (size <= SUPER_BUFFER_SIZE) {
         ObjectFree(s_superBufferHeap->m_heapId, header->m_memHandle);
     } else {
         SMemFree(buffer, __FILE__, __LINE__, 0);
@@ -136,6 +141,7 @@ int32_t WDataStore::InternalFetchWrite(uint32_t pos, uint32_t bytes, uint8_t*& d
         WDataStore::StaticInitialize();
     }
 
+    STORM_ASSERT(alloc == 0 || alloc == SMALL_BUFFER_SIZE || alloc == LARGE_BUFFER_SIZE || alloc >= SUPER_BUFFER_SIZE);
     uint32_t size = pos + bytes;
     uint32_t oldAlloc = alloc;
 
@@ -145,7 +151,7 @@ int32_t WDataStore::InternalFetchWrite(uint32_t pos, uint32_t bytes, uint8_t*& d
 
     WDATASTOREBUFFER* oldBuffer = this->m_bufferObj;
 
-    if (size <= 0x300) {
+    if (size <= SMALL_BUFFER_SIZE) {
         WDATASTOREBUFFER* buffer = s_smallBufferHeap->New();
 
         if (data) {
@@ -153,9 +159,9 @@ int32_t WDataStore::InternalFetchWrite(uint32_t pos, uint32_t bytes, uint8_t*& d
         }
 
         data = reinterpret_cast<uint8_t*>(buffer + 1);
-        alloc = 0x300;
+        alloc = SMALL_BUFFER_SIZE;
         this->m_bufferObj = buffer;
-    } else if (size <= 0x4000) {
+    } else if (size <= LARGE_BUFFER_SIZE) {
         WDATASTOREBUFFER* buffer = s_largeBufferHeap->New();
 
         if (data) {
@@ -163,9 +169,9 @@ int32_t WDataStore::InternalFetchWrite(uint32_t pos, uint32_t bytes, uint8_t*& d
         }
 
         data = reinterpret_cast<uint8_t*>(buffer + 1);
-        alloc = 0x4000;
+        alloc = LARGE_BUFFER_SIZE;
         this->m_bufferObj = buffer;
-    } else if (size <= 0x40040) {
+    } else if (size <= SUPER_BUFFER_SIZE) {
         WDATASTOREBUFFER* buffer = s_superBufferHeap->New();
 
         if (data) {
@@ -173,7 +179,7 @@ int32_t WDataStore::InternalFetchWrite(uint32_t pos, uint32_t bytes, uint8_t*& d
         }
 
         data = reinterpret_cast<uint8_t*>(buffer + 1);
-        alloc = 0x40040;
+        alloc = SUPER_BUFFER_SIZE;
         this->m_bufferObj = buffer;
     } else {
         uint32_t newAlloc = ~(this->m_chunkSize - 1) & (this->m_chunkSize + size - 1);
@@ -192,15 +198,15 @@ int32_t WDataStore::InternalFetchWrite(uint32_t pos, uint32_t bytes, uint8_t*& d
 
     if (oldBuffer) {
         switch (oldAlloc) {
-            case 0x300:
+            case SMALL_BUFFER_SIZE:
                 ObjectFree(s_smallBufferHeap->m_heapId, oldBuffer->m_memHandle);
                 return 1;
 
-            case 0x4000:
+            case LARGE_BUFFER_SIZE:
                 ObjectFree(s_largeBufferHeap->m_heapId, oldBuffer->m_memHandle);
                 return 1;
 
-            case 0x40040:
+            case SUPER_BUFFER_SIZE:
                 s_superBufferHeap->Delete(oldBuffer);
                 break;
         }
@@ -212,15 +218,15 @@ int32_t WDataStore::InternalFetchWrite(uint32_t pos, uint32_t bytes, uint8_t*& d
 // VERIFY: 507026fb manual
 // OFFSET: 0x00466510
 void* WDataStore::AllocBuffer(uint32_t size) {
-    if (size <= 0x300) {
+    if (size <= SMALL_BUFFER_SIZE) {
         return s_smallBufferHeap->New() + 1;
     }
 
-    if (size <= 0x4000) {
+    if (size <= LARGE_BUFFER_SIZE) {
         return s_largeBufferHeap->New() + 1;
     }
 
-    if (size <= 0x40040) {
+    if (size <= SUPER_BUFFER_SIZE) {
         return s_superBufferHeap->New() + 1;
     }
 
