@@ -1154,6 +1154,7 @@ void MINIMAPTILE::BuildQuad(const CRect& rect, uint32_t index, const C2Vector* c
     this->m_maskCoords[3].x = (rect.maxX - maskBox.minX) * inv;
     this->m_maskCoords[3].y = (rect.minY - maskBox.minY) * inv;
 
+    STORM_ASSERT(index < ARRSIZE(s_quads)); // 12213: "quad < MAX_QUADDATA"
     const CRect& quad = s_quads[index].m_rect;
     this->m_texCoords[0].x = (rect.minX - quad.minY) * 2.0f;
     this->m_texCoords[0].y = (rect.maxY - quad.minX) * 2.0f;
@@ -1213,6 +1214,7 @@ void MINIMAPTILE::Render(uint32_t index, const CImVector* color) {
 // VERIFY: e8182a5d manual
 // OFFSET: 0x0057E630
 void MINIMAPTILE::UpdateQuad(uint32_t index, C2Vector center, float scale, float layoutScale, float width) {
+    STORM_ASSERT(index < ARRSIZE(s_quads)); // 12213: "quad < MAX_QUADDATA"
     this->m_flags &= ~MINIMAPTILE::FLAGS::QUAD_BUILT;
 
     if (index >= 4) {
