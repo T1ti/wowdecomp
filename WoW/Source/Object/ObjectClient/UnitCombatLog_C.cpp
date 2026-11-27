@@ -1160,14 +1160,16 @@ void UnitCombatLogInstakill(const WOWGUID& casterGuid, const WOWGUID& targetGuid
 
 // VERIFY: 80058a0f auto
 // OFFSET: 0x00752860
-void UnitCombatLogAuraDose(CGUnit_C* unit, const AuraData* aura, int32_t spellId, int32_t oldStack, int32_t newStack, uint8_t auraType) {
+void UnitCombatLogAuraDose(CGUnit_C* unit, const AuraData* aura, int32_t spellId, int32_t oldDoses, int32_t newDoses, uint8_t auraType) {
     SpellRec spell;
 
     if (g_spellDB.GetRecord(spellId, &spell) && !(spell.m_attributes & (SPELL_ATTR0::SPELL_ATTR0_DO_NOT_DISPLAY_SPELLBOOK_AURA_ICON_COMBAT_LOG | SPELL_ATTR0::SPELL_ATTR0_DO_NOT_LOG)) && *spell.m_name && spell.m_cumulativeAura > 1) {
+        STORM_ASSERT(newDoses != oldDoses);
+
         WOWGUID guid = unit->m_obj->m_guid;
-        CombatLogEntry* entry = GetCombatLogEntry(aura->m_creator, guid, newStack <= oldStack ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_REMOVED_DOSE : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_APPLIED_DOSE, &spell);
+        CombatLogEntry* entry = GetCombatLogEntry(aura->m_creator, guid, newDoses <= oldDoses ? COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_REMOVED_DOSE : COMBAT_LOG_EVENT::COMBAT_LOG_EVENT_SPELL_AURA_APPLIED_DOSE, &spell);
         entry->m_infoFlags |= (COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_TYPE | COMBAT_LOG_INFO_FLAGS::COMBAT_LOG_INFO_FLAG_AURA_STACK_COUNT);
-        entry->m_info.m_values[2] = newStack;
+        entry->m_info.m_values[2] = newDoses;
         reinterpret_cast<uint8_t&>(entry->m_info.m_values[1]) = auraType;
         QueueCombatLogEntry(entry, 0);
     }

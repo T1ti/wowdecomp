@@ -355,7 +355,7 @@ void UnitCombatLogUnitDead(CGUnit_C* unit);
 void UnitCombatLogCastGo(const WOWGUID& caster, const WOWGUID& target, int32_t spellId);
 void UnitCombatLogSpellFail(const WOWGUID& caster, int32_t spellId, const char* reason);
 class AuraData;
-void UnitCombatLogAuraDose(CGUnit_C* unit, const AuraData* aura, int32_t spellId, int32_t oldStack, int32_t newStack, uint8_t auraType);
+void UnitCombatLogAuraDose(CGUnit_C* unit, const AuraData* aura, int32_t spellId, int32_t oldDoses, int32_t newDoses, uint8_t auraType);
 void UnitCombatLogAuraRefreshed(CGUnit_C* unit, const AuraData* aura, int32_t spellId, uint8_t auraType);
 int32_t Packet_SMSG_PERIODICAURALOG(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
 int32_t Packet_SMSG_ENCHANTMENTLOG(void* param, NETMESSAGE msgId, uint32_t time, CDataStore* msg);
