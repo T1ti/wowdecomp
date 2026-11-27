@@ -67,24 +67,24 @@ void PassGauss4::Execute() {
     white.a = 0xFF;
     FFX::SetupVB_PCT4(FFX::s_gridPos, white, FFX::s_gridTex, horizontal, this->m_inputs[0]->m_texelSize);
 
-    GxRenderTargetSet(GxBuffers_Color, TextureGetGxTex(FFX::s_quart[1].m_texture, 1, nullptr), 0);
+    GxRenderTargetSet(GxBuffers_Color, TextureGetGxTex(FFX::s_quart[1].texture, 1, nullptr), 0);
     GxXformSetViewport(0.0f, static_cast<float>(FFX::s_quart[1].m_size.x) / FFX::s_quart[1].m_texSize.x, 0.0f, static_cast<float>(FFX::s_quart[1].m_size.y) / FFX::s_quart[1].m_texSize.y, 0.0f, 1.0f);
 
-    g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(this->m_inputs[0]->m_texture, 1, nullptr));
-    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(this->m_inputs[0]->m_texture, 1, nullptr));
-    g_theGxDevicePtr->RsSet(GxRs_Texture2, TextureGetGxTex(this->m_inputs[0]->m_texture, 1, nullptr));
-    g_theGxDevicePtr->RsSet(GxRs_Texture3, TextureGetGxTex(this->m_inputs[0]->m_texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(this->m_inputs[0]->texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(this->m_inputs[0]->texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture2, TextureGetGxTex(this->m_inputs[0]->texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture3, TextureGetGxTex(this->m_inputs[0]->texture, 1, nullptr));
     g_theGxDevicePtr->Draw(&FFX::s_quadBatch, 1);
 
     FFX::SetupVB_PCT4(FFX::s_gridPos, white, FFX::s_gridTex, vertical, this->m_inputs[0]->m_texelSize);
 
-    GxRenderTargetSet(GxBuffers_Color, TextureGetGxTex(this->m_output->m_texture, 1, nullptr), 0);
+    GxRenderTargetSet(GxBuffers_Color, TextureGetGxTex(this->m_output->texture, 1, nullptr), 0);
     GxXformSetViewport(0.0f, static_cast<float>(this->m_output->m_size.x) / this->m_output->m_texSize.x, 0.0f, static_cast<float>(this->m_output->m_size.y) / this->m_output->m_texSize.y, 0.0f, 1.0f);
 
-    g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(FFX::s_quart[1].m_texture, 1, nullptr));
-    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(FFX::s_quart[1].m_texture, 1, nullptr));
-    g_theGxDevicePtr->RsSet(GxRs_Texture2, TextureGetGxTex(FFX::s_quart[1].m_texture, 1, nullptr));
-    g_theGxDevicePtr->RsSet(GxRs_Texture3, TextureGetGxTex(FFX::s_quart[1].m_texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(FFX::s_quart[1].texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(FFX::s_quart[1].texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture2, TextureGetGxTex(FFX::s_quart[1].texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture3, TextureGetGxTex(FFX::s_quart[1].texture, 1, nullptr));
     g_theGxDevicePtr->Draw(&FFX::s_quadBatch, 1);
 
     FFX::SetupReset();

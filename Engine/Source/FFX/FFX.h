@@ -23,7 +23,7 @@ namespace FFX {
     };
 
     struct Tex {
-        /* 0000 */ CTexture* m_texture;
+        /* 0000 */ CTexture* texture;
         /* 0004 */ C2iVector m_texSize;
         /* 000C */ C2iVector m_size;
         /* 0014 */ C2Vector m_texelSize;

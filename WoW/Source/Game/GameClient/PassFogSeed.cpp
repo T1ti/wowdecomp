@@ -80,7 +80,7 @@ void PassFogSeed::Execute() {
     g_theGxDevicePtr->PrimVertexMask(0x41);
     FFX::SetupIB();
     GxRsSet(GxRs_MatDiffuse, static_cast<int32_t>(this->m_color));
-    g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(this->m_inputs[0]->m_texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(this->m_inputs[0]->texture, 1, nullptr));
 
     for (int32_t state = GxRs_Texture1; state <= GxRs_Texture15; state++) {
         GxRsSet(static_cast<EGxRenderState>(state), 0);

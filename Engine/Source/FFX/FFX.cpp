@@ -74,7 +74,7 @@ static CGxVertexAttrib s_vertexAttribsPCT4[] = {
 
 // INLINED
 static void ResetTex(FFX::Tex& tex) {
-    tex.m_texture = nullptr;
+    tex.texture = nullptr;
     tex.m_texSize.x = 0;
     tex.m_texSize.y = 0;
     tex.m_size.x = 0;
@@ -85,8 +85,8 @@ static void ResetTex(FFX::Tex& tex) {
 
 // INLINED
 static void DestroyTex(FFX::Tex& tex) {
-    if (tex.m_texture) {
-        HandleClose(reinterpret_cast<HOBJECT>(tex.m_texture));
+    if (tex.texture) {
+        HandleClose(reinterpret_cast<HOBJECT>(tex.texture));
     }
 
     ResetTex(tex);
@@ -338,7 +338,7 @@ void FFX::SetupIB(int32_t cols, int32_t rows) {
     int32_t count = (cols - 1) * (rows - 1) * 6;
     CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Index, sizeof(uint16_t), count);
 
-    int32_t index = 0;
+    int32_t nCurIdx = 0;
     int32_t rowStart = 0;
 
     for (int32_t row = 0; row < rows - 1; row++) {
@@ -348,17 +348,18 @@ void FFX::SetupIB(int32_t cols, int32_t rows) {
             uint16_t topLeft = rowStart + col;
             uint16_t bottomRight = nextRow + col + 1;
 
-            FFX::s_gridIndices[index++] = topLeft;
-            FFX::s_gridIndices[index++] = bottomRight;
-            FFX::s_gridIndices[index++] = nextRow + col;
-            FFX::s_gridIndices[index++] = topLeft;
-            FFX::s_gridIndices[index++] = rowStart + col + 1;
-            FFX::s_gridIndices[index++] = bottomRight;
+            FFX::s_gridIndices[nCurIdx++] = topLeft;
+            FFX::s_gridIndices[nCurIdx++] = bottomRight;
+            FFX::s_gridIndices[nCurIdx++] = nextRow + col;
+            FFX::s_gridIndices[nCurIdx++] = topLeft;
+            FFX::s_gridIndices[nCurIdx++] = rowStart + col + 1;
+            FFX::s_gridIndices[nCurIdx++] = bottomRight;
         }
 
         rowStart += cols;
     }
 
+    STORM_ASSERT(nCurIdx == 150);
     GxBufData(buf, FFX::s_gridIndices, count * sizeof(uint16_t), 0);
     g_theGxDevicePtr->PrimIndexPtr(buf);
 }
@@ -370,9 +371,10 @@ void FFX::Finish() {
         return;
     }
 
+    STORM_ASSERT(FFX::s_full[0].texture);
     C2iVector sourcePos = { 0, 0 };
     C2iVector destPos = { 0, 0 };
-    GxTexCopy(TextureGetGxTex(FFX::s_full[0].m_texture, 1, nullptr), destPos, sourcePos, FFX::s_full[0].m_size, 0, 0);
+    GxTexCopy(TextureGetGxTex(FFX::s_full[0].texture, 1, nullptr), destPos, sourcePos, FFX::s_full[0].m_size, 0, 0);
 
     FFX::s_effect->Execute();
 
@@ -434,12 +436,12 @@ void FFX::CreateTex(Tex& tex, const C2iVector& size, bool bit8, bool renderTarge
     width = width > 8 ? width : 8;
 
     if (width != tex.m_texSize.x || height != tex.m_texSize.y) {
-        if (tex.m_texture) {
-            HandleClose(reinterpret_cast<HOBJECT>(tex.m_texture));
-            tex.m_texture = nullptr;
+        if (tex.texture) {
+            HandleClose(reinterpret_cast<HOBJECT>(tex.texture));
+            tex.texture = nullptr;
         }
 
-        tex.m_texture = TextureCreate(target, width, height, 0, format, format, flags, nullptr, GxTexNullUserFunc, "FFX::CreateTex", 0);
+        tex.texture = TextureCreate(target, width, height, 0, format, format, flags, nullptr, GxTexNullUserFunc, "FFX::CreateTex", 0);
     }
 
     tex.m_size.x = size.x;
@@ -529,6 +531,7 @@ void FFX::AllocTex() {
     FFX::s_screen.m_texSize.y = height;
     FFX::s_screen.m_texelSize.x = 1.0f / width;
     FFX::s_screen.m_texelSize.y = 1.0f / height;
+    STORM_ASSERT(FFX::s_screen.texture == NULL);
 
     EGxTexTarget target = FFX::GetTexTarget();
     int32_t maxSize = static_cast<int32_t>(g_theGxDevicePtr->Caps().m_texMaxSize[target]);
@@ -621,7 +624,7 @@ void FFX::SetupGx(Tex* target) {
     GxRsSet(GxRs_DepthWrite, 0);
     GxRsSet(GxRs_Fog, 0);
 
-    CGxTex* gxTex = target->m_texture ? TextureGetGxTex(target->m_texture, 1, nullptr) : nullptr;
+    CGxTex* gxTex = target->texture ? TextureGetGxTex(target->texture, 1, nullptr) : nullptr;
     GxRenderTargetSet(GxBuffers_Color, gxTex, 0);
 
     GxXformSetViewport(0.0f, static_cast<float>(target->m_size.x) / target->m_texSize.x, 0.0f, static_cast<float>(target->m_size.y) / target->m_texSize.y, 0.0f, 1.0f);

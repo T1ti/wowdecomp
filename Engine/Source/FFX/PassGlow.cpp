@@ -146,8 +146,8 @@ void PassGlow::Execute() {
     FFX::SetupGeo_Quad(this->m_output->m_size, this->m_inputs[0]->m_size, this->m_inputs[0]->m_texSize, FFX::s_gridPos, tex0, this->m_flip);
     FFX::SetupGeo_Quad(this->m_output->m_size, this->m_inputs[1]->m_size, this->m_inputs[1]->m_texSize, FFX::s_gridPos, tex1, this->m_flip);
 
-    g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(this->m_inputs[0]->m_texture, 1, nullptr));
-    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(this->m_inputs[1]->m_texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(this->m_inputs[0]->texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(this->m_inputs[1]->texture, 1, nullptr));
     g_theGxDevicePtr->RsSet(GxRs_PixelShader, this->m_shaders[this->m_shaderIndex]);
 
     GxPrimVertexPtr(4, FFX::s_gridPos, sizeof(C3Vector), nullptr, 0, &this->m_color, 0, tex0, sizeof(C2Vector), tex1, sizeof(C2Vector));
@@ -167,11 +167,11 @@ PassGlowWave::~PassGlowWave() {
     }
 
     if (--s_waveTexRefCount == 0) {
-        if (PassGlowWave::s_waveTex.m_texture) {
-            HandleClose(reinterpret_cast<HOBJECT>(PassGlowWave::s_waveTex.m_texture));
+        if (PassGlowWave::s_waveTex.texture) {
+            HandleClose(reinterpret_cast<HOBJECT>(PassGlowWave::s_waveTex.texture));
         }
 
-        PassGlowWave::s_waveTex.m_texture = nullptr;
+        PassGlowWave::s_waveTex.texture = nullptr;
         PassGlowWave::s_waveTex.m_texSize.x = 0;
         PassGlowWave::s_waveTex.m_texSize.y = 0;
         PassGlowWave::s_waveTex.m_size.x = 0;
@@ -196,7 +196,7 @@ void PassGlowWave::Execute() {
     FFX::SetupGx(this->m_output);
     FFX::SetupIB();
     FFX::SetupGeo_Quad(this->m_output->m_size, this->m_inputs[0]->m_size, this->m_inputs[0]->m_texSize, FFX::s_gridPos, tex0, this->m_flip);
-    g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(this->m_inputs[0]->m_texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture0, TextureGetGxTex(this->m_inputs[0]->texture, 1, nullptr));
 
     C44Matrix waveMtx;
     uint32_t time = OsGetAsyncTimeMs();
@@ -214,9 +214,9 @@ void PassGlowWave::Execute() {
     waveMtx.RotateAroundZ(0.17453294f);
 
     FFX::SetupGeo_Quad(this->m_output->m_size, this->m_inputs[1]->m_size, this->m_inputs[1]->m_texSize, FFX::s_gridPos, tex1, this->m_flip);
-    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(this->m_inputs[1]->m_texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture1, TextureGetGxTex(this->m_inputs[1]->texture, 1, nullptr));
     FFX::SetupGeo_Quad(this->m_output->m_size, this->m_inputs[2]->m_size, this->m_inputs[2]->m_texSize, FFX::s_gridPos, tex2, this->m_flip);
-    g_theGxDevicePtr->RsSet(GxRs_Texture2, TextureGetGxTex(this->m_inputs[2]->m_texture, 1, nullptr));
+    g_theGxDevicePtr->RsSet(GxRs_Texture2, TextureGetGxTex(this->m_inputs[2]->texture, 1, nullptr));
 
     CGxBuf* buf = g_theGxDevicePtr->BufStream(GxPoolTarget_Vertex, sizeof(FFX::VertexPCT3), 4);
     FFX::VertexPCT3* vertex = reinterpret_cast<FFX::VertexPCT3*>(GxBufLock(buf));
@@ -275,7 +275,7 @@ void PassGlowWave::Execute() {
 // OFFSET: 0x008C2CE0
 PassGlowWave::PassGlowWave(FFX::Tex** inputs, uint32_t count, FFX::Tex* output, EGxBlend blend, bool unk) : PassGlowBase(inputs, count, output, blend, unk) {
     if (!s_waveTexRefCount) {
-        PassGlowWave::s_waveTex.m_texture = nullptr;
+        PassGlowWave::s_waveTex.texture = nullptr;
         PassGlowWave::s_waveTex.m_texSize.x = 128;
         PassGlowWave::s_waveTex.m_texSize.y = 128;
         PassGlowWave::s_waveTex.m_size.x = 128;
@@ -297,7 +297,7 @@ PassGlowWave::PassGlowWave(FFX::Tex** inputs, uint32_t count, FFX::Tex* output, 
             s_waveTexFormat = GxTex_Argb8888;
         }
 
-        PassGlowWave::s_waveTex.m_texture = TextureCreate(128, 128, s_waveTexFormat, s_waveTexFormat, flags, nullptr, WaveTexCallback, "PassGlowWave", 0);
+        PassGlowWave::s_waveTex.texture = TextureCreate(128, 128, s_waveTexFormat, s_waveTexFormat, flags, nullptr, WaveTexCallback, "PassGlowWave", 0);
     }
 
     s_waveTexRefCount++;
