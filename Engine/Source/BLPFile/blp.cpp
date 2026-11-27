@@ -30,7 +30,7 @@ static uint32_t s_fourBitAlphaShift[2] = { 2, 6 };
 static TSGrowableArray<uint8_t> s_blpFileLoadBuffer;
 
 // INLINED
-static BlitFormat GetBlitFormat(PIXEL_FORMAT format) {
+static BlitFormat GetBlitFormat(PIXEL_FORMAT pixelFormat) {
     // STATIC: 0x00AD91BC
     static BlitFormat blitFmt[NUM_PIXEL_FORMATS] = {
         BlitFormat_Dxt1,
@@ -45,7 +45,8 @@ static BlitFormat GetBlitFormat(PIXEL_FORMAT format) {
         BlitFormat_Unknown,
     };
 
-    return blitFmt[format];
+    STORM_ASSERT(pixelFormat < NUM_PIXEL_FORMATS);
+    return blitFmt[pixelFormat];
 }
 
 // VERIFY: 57cc221c manual
