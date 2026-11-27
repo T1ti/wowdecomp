@@ -93,19 +93,22 @@ BOOL SI2::IsTooCloseToExistingSoundKit(int32_t soundKitId, const C3Vector* posit
 
 // VERIFY: 4d8f58a6 manual
 // OFFSET: 0x004D0020
-SI2_RESULT SndInterfacePlayItemSound(ITEMSOUNDTYPE type, CGItem_C* item) {
-    if (item->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) {
-        if (type == ITEMSOUND_DROP) {
+SI2_RESULT SndInterfacePlayItemSound(ITEMSOUNDTYPE soundType, CGItem_C* itemPtr) {
+    STORM_ASSERT(soundType < NUM_ITEMSOUNDS);
+    STORM_ASSERT(itemPtr);
+
+    if (itemPtr->m_item->m_itemFieldFlags & ITEM_DYNAMIC_FLAGS::ITEM_DFLAG_WRAPPED) {
+        if (soundType == ITEMSOUND_DROP) {
             return SI2::PlaySoundKit("(DONOTRENAME)WrappedItemDrop", nullptr, nullptr, nullptr);
         }
 
         return SI2::PlaySoundKit("(DONOTRENAME)WrappedItemPickup", nullptr, nullptr, nullptr);
     }
 
-    const ItemGroupSoundsRec* sounds = item->GetItemGroupSounds();
+    const ItemGroupSoundsRec* sounds = itemPtr->GetItemGroupSounds();
 
     if (sounds) {
-        return SI2::PlaySoundKit(sounds->m_sound[type], nullptr, nullptr, nullptr, 0, nullptr, 1, 0);
+        return SI2::PlaySoundKit(sounds->m_sound[soundType], nullptr, nullptr, nullptr, 0, nullptr, 1, 0);
     }
 
     return SI2_OK;
@@ -113,7 +116,9 @@ SI2_RESULT SndInterfacePlayItemSound(ITEMSOUNDTYPE type, CGItem_C* item) {
 
 // VERIFY: fc148494 manual
 // OFFSET: 0x004D0090
-void SI2::PlayItemSound(ITEMSOUNDTYPE type, int32_t displayId) {
+void SI2::PlayItemSound(ITEMSOUNDTYPE soundType, int32_t displayId) {
+    STORM_ASSERT(soundType < NUM_ITEMSOUNDS);
+
     ItemDisplayInfoRec display;
 
     if (!g_itemDisplayInfoDB.GetRecord(displayId, &display)) {
@@ -123,7 +128,7 @@ void SI2::PlayItemSound(ITEMSOUNDTYPE type, int32_t displayId) {
     ItemGroupSoundsRec* sounds = g_itemGroupSoundsDB.GetRecord(display.m_groupSoundIndex);
 
     if (sounds) {
-        SI2::PlaySoundKit(sounds->m_sound[type], nullptr, nullptr, nullptr, 0, nullptr, 1, 0);
+        SI2::PlaySoundKit(sounds->m_sound[soundType], nullptr, nullptr, nullptr, 0, nullptr, 1, 0);
     }
 }
 
